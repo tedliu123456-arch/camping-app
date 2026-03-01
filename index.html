@@ -140,6 +140,7 @@
         <button class="tab active" onclick="switchTab('posts')">📱 社群</button>
         <button class="tab" onclick="switchTab('camps')">⛺ 營地</button>
         <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
+        <button class="tab" onclick="switchTab('gear')">🏕️ 露營用品</button>
         <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
     </div>
     
@@ -161,6 +162,12 @@
     <div class="page" id="shopsPage">
         <div class="section-title">🚐 露營車改裝店</div>
         <div id="shopList"></div>
+    </div>
+    
+    <!-- Camping Gear Page -->
+    <div class="page" id="gearPage">
+        <div class="section-title">🏕️ 露營用品店</div>
+        <div id="gearList"></div>
     </div>
     
     <!-- RV Rentals Page -->
@@ -195,6 +202,10 @@
         <div class="nav-item" onclick="switchTab('shops')">
             <div class="nav-icon">🚐</div>
             <div>改裝店</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('gear')">
+            <div class="nav-icon">🏕️</div>
+            <div>用品</div>
         </div>
         <div class="nav-item" onclick="switchTab('rentals')">
             <div class="nav-icon">🏎️</div>
@@ -291,6 +302,13 @@
             { id: 2, name: "野外改裝中心", location: "桃園市大園區", county: "桃園", tags: ["車體改造", "防水", "隔熱"], phone: "03-386-5678", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" },
             { id: 3, name: "戶外玩家的家", location: "台中市潭子區", county: "台中", tags: ["家具", "儲物", "客製化"], phone: "04-2531-9012", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
             { id: 4, name: "RV 專門店", location: "高雄市前鎮區", county: "高雄", tags: ["進口改裝件", "保養", "維修"], phone: "07-536-7890", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400" }
+        ];
+        
+        const gearShops = [
+            { id: 1, name: "露營小舖", location: "台北市大安區", county: "台北", tags: ["帳篷", "睡袋", "野餐墊"], phone: "02-2701-1234", image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400" },
+            { id: 2, name: "戶外探險家", location: "台中市西區", county: "台中", tags: ["炊具", "灯具", "烤肉架"], phone: "04-2323-5678", image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400" },
+            { id: 3, name: "山林戶外用品", location: "宜蘭縣羅東鎮", county: "宜蘭", tags: ["背包", "登山鞋", "機能衣"], phone: "03-954-9012", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
+            { id: 4, name: "海洋戶外用品", location: "屏東縣恆春鎮", county: "屏東", tags: ["潛水裝備", "海上玩具", "防曬"], phone: "08-889-3456", image: "https://images.unsplash.com/photo-1517824806704-9040b037703b?w=400" }
         ];
         
         const rentals = [
@@ -397,7 +415,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'rentals': 3, 'profile': 4 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4, 'profile': 5 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
@@ -422,6 +440,21 @@
         function renderShopList() {
             const list = document.getElementById('shopList');
             list.innerHTML = shops.map(shop => `
+                <div class="card">
+                    <img src="${shop.image}" alt="${shop.name}">
+                    <div class="card-info">
+                        <div class="card-name">${shop.name}</div>
+                        <div class="card-location">📍 ${shop.location}</div>
+                        <div class="card-tags">${shop.tags.map(t => `<span class="tag orange">${t}</span>`).join('')}</div>
+                        <div class="card-phone">📞 ${shop.phone}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderGearList() {
+            const list = document.getElementById('gearList');
+            list.innerHTML = gearShops.map(shop => `
                 <div class="card">
                     <img src="${shop.image}" alt="${shop.name}">
                     <div class="card-info">
@@ -700,6 +733,7 @@
         renderCampList();
         renderShopList();
         renderRentalList();
+        renderGearList();
         renderPosts();
         renderProfile();
     </script>
