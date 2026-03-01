@@ -241,6 +241,41 @@
         </div>
     </div>
     
+    <!-- Profile Edit Modal -->
+    <div class="modal" id="profileEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>編輯個人檔案</h3>
+                <button class="modal-close" onclick="closeModal('profileEditModal')">&times;</button>
+            </div>
+            <div style="text-align:center;margin-bottom:15px;">
+                <div class="post-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 10px;cursor:pointer" onclick="document.getElementById('profileAvatarInput').click()">
+                    ${userProfile.avatar ? '<img src="' + userProfile.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : (currentUser ? currentUser[0] : '👤')}
+                </div>
+                <input type="file" id="profileAvatarInput" accept="image/*" style="display:none" onchange="changeProfileAvatar(this)">
+                <p style="font-size:12px;color:#666">點擊頭像更換</p>
+            </div>
+            <input type="text" id="editName" placeholder="名稱" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
+            <select id="editGender" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
+                <option value="">選擇性別</option>
+                <option value="男">👨 男</option>
+                <option value="女">👩 女</option>
+                <option value="其他">🌈 其他</option>
+            </select>
+            <textarea id="editBio" placeholder="個人簡介" style="width:100%;height:60px;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px"></textarea>
+            <div style="margin-bottom:10px;">
+                <span style="font-size:12px;color:#666;display:block;margin-bottom:5px;">喜歡的露營方式：</span>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" name="prefer" value="開車"> 🚗 開車</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e3f2fd;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" name="prefer" value="騎車"> 🏍️ 騎車</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#fff3e0;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" name="prefer" value="露營車"> 🚐 露營車</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e0f7fa;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" value="海邊"> 🏖️ 海邊</label>
+                </div>
+            </div>
+            <button onclick="saveProfileEdit()" style="width:100%;padding:12px;background:#2d5a27;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;">儲存</button>
+        </div>
+    </div>
+    
     <!-- Post Modal -->
     <div class="modal" id="postModal">
         <div class="modal-content">
@@ -400,6 +435,37 @@
                 reader.onload = function(e) {
                     userProfile.avatar = e.target.result;
                     const avatar = document.querySelector('#headerButtons .post-avatar');
+                    if (avatar) {
+                        avatar.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function showProfileEdit() {
+            if (!currentUser) { showLogin(); return; }
+            document.getElementById('editName').value = userProfile.name || currentUser;
+            document.getElementById('editGender').value = userProfile.gender || '';
+            document.getElementById('editBio').value = userProfile.bio || '';
+            document.getElementById('profileEditModal').classList.add('active');
+        }
+        
+        function saveProfileEdit() {
+            userProfile.name = document.getElementById('editName').value;
+            userProfile.gender = document.getElementById('editGender').value;
+            userProfile.bio = document.getElementById('editBio').value;
+            closeModal('profileEditModal');
+            alert('個人檔案已儲存！');
+        }
+        
+        function changeProfileAvatar(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userProfile.avatar = e.target.result;
+                    const avatar = document.querySelector('#profileEditModal .post-avatar');
                     if (avatar) {
                         avatar.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
                     }
