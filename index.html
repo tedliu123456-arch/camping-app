@@ -129,7 +129,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.4</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.5</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -624,15 +624,21 @@
                             ${userProfile.avatar ? '<img src="' + userProfile.avatar + '">' : currentUser[0]}
                             <input type="file" accept="image/*" onchange="handleAvatarUpload(this)" style="display:none">
                         </label>
-                        <input type="text" class="profile-input" id="editName" value="${userProfile.name || currentUser}" placeholder="名稱">
-                        <select class="profile-input" id="editGender">
-                            <option value="">選擇性別</option>
-                            <option value="男" ${userProfile.gender === '男' ? 'selected' : ''}>👨 男</option>
-                            <option value="女" ${userProfile.gender === '女' ? 'selected' : ''}>👩 女</option>
-                            <option value="其他" ${userProfile.gender === '其他' ? 'selected' : ''}>🌈 其他</option>
-                        </select>
-                        <input type="text" class="profile-input" id="editInterest" value="${userProfile.interest || ''}" placeholder="興趣">
-                        <input type="number" class="profile-input" id="editExperience" value="${userProfile.experience || ''}" placeholder="露營次數（數字）">
+                        <div style="display:flex;gap:10px;">
+                            <div style="flex:1;">
+                                <input type="text" class="profile-input" id="editName" value="${userProfile.name || currentUser}" placeholder="姓名">
+                                <select class="profile-input" id="editGender">
+                                    <option value="">選擇性別</option>
+                                    <option value="男" ${userProfile.gender === '男' ? 'selected' : ''}>👨 男</option>
+                                    <option value="女" ${userProfile.gender === '女' ? 'selected' : ''}>👩 女</option>
+                                    <option value="其他" ${userProfile.gender === '其他' ? 'selected' : ''}>🌈 其他</option>
+                                </select>
+                            </div>
+                            <div style="flex:1;">
+                                <input type="text" class="profile-input" id="editInterest" value="${userProfile.interest || ''}" placeholder="興趣">
+                                <input type="number" class="profile-input" id="editExperience" value="${userProfile.experience || ''}" placeholder="露營次數">
+                            </div>
+                        </div>
                         <div style="margin:10px 0;">
                             <span style="font-size:12px;color:#666;">喜歡的露營方式：</span><br>
                             <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e8f5e9;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="開車"> 🚗 開車</label>
