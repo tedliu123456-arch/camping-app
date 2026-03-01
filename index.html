@@ -82,6 +82,14 @@
         .search-bar input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
         .search-bar button { padding: 12px 20px; background: #2d5a27; color: white; border: none; border-radius: 8px; }
         
+        /* Post Media */
+        .post-media-btns { display: flex; gap: 10px; margin-bottom: 10px; }
+        .media-btn { background: #f0f0f0; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        .media-btn:hover { background: #e0e0e0; }
+        #mediaPreview { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+        #mediaPreview img, #mediaPreview video { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+        #mediaPreview .video-preview { width: 120px; height: 80px; background: #333; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+        
         /* Section Title */
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
     </style>
@@ -89,7 +97,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.2.1</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.3.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -186,6 +194,16 @@
                 <button class="modal-close" onclick="closeModal('postModal')">&times;</button>
             </div>
             <textarea placeholder="分享你的露營經驗..." id="postContent"></textarea>
+            <div class="post-media-btns">
+                <label class="media-btn">📷 照片
+                    <input type="file" accept="image/*" multiple onchange="handleImageUpload(this)" style="display:none">
+                </label>
+                <label class="media-btn">📹 影片
+                    <input type="file" accept="video/*" onchange="handleVideoUpload(this)" style="display:none">
+                </label>
+            </div>
+            <div id="mediaPreview"></div>
+            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
             <button onclick="submitPost()">發布</button>
         </div>
     </div>
@@ -334,7 +352,17 @@
                 { id: 4, user: currentUser, content: "歡迎來到露營趣社群！", time: "剛剛", likes: 0, isNew: true }
             ] : posts;
             
-            list.innerHTML = allPosts.map(post => `
+            list.innerHTML = allPosts.map(post => {
+                let mediaHtml = '';
+                if (post.images && post.images.length > 0) {
+                    mediaHtml += '<div class="post-images">' + post.images.map(img => `<img src="${img}">`).join('') + '</div>';
+                }
+                if (post.video) {
+                    mediaHtml += '<div class="post-images"><div class="video-preview">📹 影片</div></div>';
+                }
+                let locationHtml = post.location ? `<div style="color:#666;font-size:12px;margin-bottom:8px">📍 ${post.location}</div>` : '';
+                
+                return `
                 <div class="post-card">
                     <div class="post-header">
                         <div class="post-avatar">${post.user[0]}</div>
@@ -343,14 +371,16 @@
                             <div class="post-time">${post.time}</div>
                         </div>
                     </div>
+                    ${locationHtml}
                     <div class="post-content">${post.content}</div>
+                    ${mediaHtml}
                     <div class="post-actions">
                         <span class="post-action" onclick="likePost(${post.id})">❤️ ${post.likes || 0}</span>
                         <span class="post-action">💬 留言</span>
                         <span class="post-action">🔗 分享</span>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
             
             if (!currentUser) {
                 list.innerHTML += `<div style="text-align: center; padding: 20px; color: #666;">登入後可發布貼文</div>`;
@@ -366,19 +396,62 @@
             document.getElementById('postModal').classList.add('active');
         }
         
+        let uploadedImages = [];
+        let uploadedVideo = null;
+        
+        function handleImageUpload(input) {
+            const files = input.files;
+            const preview = document.getElementById('mediaPreview');
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push(e.target.result);
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function handleVideoUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const preview = document.getElementById('mediaPreview');
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedVideo = e.target.result;
+                    const div = document.createElement('div');
+                    div.className = 'video-preview';
+                    div.innerHTML = '📹 ' + file.name.substring(0, 10);
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
         function submitPost() {
             const content = document.getElementById('postContent').value;
+            const location = document.getElementById('postLocation').value;
             if (!content) { alert('請輸入內容'); return; }
             
             posts.unshift({
                 id: posts.length + 1,
                 user: currentUser,
                 content: content,
+                location: location,
+                images: uploadedImages,
+                video: uploadedVideo,
                 time: "剛剛",
                 likes: 0
             });
             
+            // Reset
             document.getElementById('postContent').value = '';
+            document.getElementById('postLocation').value = '';
+            uploadedImages = [];
+            uploadedVideo = null;
+            document.getElementById('mediaPreview').innerHTML = '';
             closeModal('postModal');
             renderPosts();
             alert('發布成功！');
