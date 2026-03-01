@@ -155,7 +155,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.7</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.8</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -168,7 +168,6 @@
         <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
         <button class="tab" onclick="switchTab('gear')">🏕️ 用品</button>
         <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
-        <button class="tab" onclick="switchTab('profile')">👤 我的</button>
     </div>
     
     <!-- Posts Page -->
@@ -376,7 +375,7 @@
         }
         
         async function updateUIAfterLogin() {
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0;cursor:pointer" onclick="switchTab('profile')">${currentUser[0]}</div><span style="color: white;cursor:pointer" onclick="switchTab('profile')">${currentUser}</span></div><button onclick="logout()">登出</button>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             
