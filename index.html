@@ -162,7 +162,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v4.0.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v4.0.1</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -618,36 +618,45 @@
         }
         
         function submitPost() {
-            console.log('submitPost called');
-            const content = document.getElementById('postContent').value;
-            const location = document.getElementById('postLocation').value;
-            if (!content) { alert('請輸入內容'); return; }
-            
-            const newPost = {
-                id: posts.length + 1,
-                user: currentUser,
-                content: content,
-                location: location,
-                images: uploadedImages,
-                video: uploadedVideo,
-                time: "剛剛",
-                likes: 0
-            };
-            
-            posts.unshift(newPost);
-            console.log('posts after unshift:', posts);
-            localStorage.setItem('posts', JSON.stringify(posts));
-            console.log('saved to localStorage');
-            
-            // Reset
-            document.getElementById('postContent').value = '';
-            document.getElementById('postLocation').value = '';
-            uploadedImages = [];
-            uploadedVideo = null;
-            document.getElementById('mediaPreview').innerHTML = '';
-            closeModal('postModal');
-            renderPosts();
-            alert('發布成功！');
+            try {
+                console.log('submitPost called');
+                const content = document.getElementById('postContent').value;
+                const location = document.getElementById('postLocation').value;
+                if (!content) { alert('請輸入內容'); return; }
+                
+                console.log('creating new post...');
+                const newPost = {
+                    id: posts.length + 1,
+                    user: currentUser,
+                    content: content,
+                    location: location,
+                    images: uploadedImages,
+                    video: uploadedVideo,
+                    time: "剛剛",
+                    likes: 0
+                };
+                
+                console.log('unshifting post...');
+                posts.unshift(newPost);
+                console.log('posts after unshift:', posts);
+                localStorage.setItem('posts', JSON.stringify(posts));
+                console.log('saved to localStorage');
+                
+                // Reset
+                document.getElementById('postContent').value = '';
+                document.getElementById('postLocation').value = '';
+                uploadedImages = [];
+                uploadedVideo = null;
+                document.getElementById('mediaPreview').innerHTML = '';
+                console.log('closing modal...');
+                closeModal('postModal');
+                console.log('rendering posts...');
+                renderPosts();
+                alert('發布成功！');
+            } catch(e) {
+                console.error('Error:', e);
+                alert('錯誤: ' + e.message);
+            }
         }
         
         function renderProfile() {
