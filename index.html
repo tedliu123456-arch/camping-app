@@ -158,6 +158,7 @@
         <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
         <button class="tab" onclick="switchTab('gear')">🏕️ 用品</button>
         <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
+        <button class="tab" onclick="switchTab('profile')">👤 我的</button>
     </div>
     
     <!-- Posts Page -->
@@ -226,6 +227,10 @@
         <div class="nav-item" onclick="switchTab('rentals')">
             <div class="nav-icon">🏎️</div>
             <div>出租</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
         </div>
     </div>
     
@@ -397,7 +402,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4, 'profile': 5 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
