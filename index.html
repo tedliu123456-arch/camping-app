@@ -112,7 +112,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.5.1</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.5.2</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -418,7 +418,7 @@
                     <div class="post-content">${post.content}</div>
                     ${mediaHtml}
                     <div class="post-actions">
-                        <span class="post-action" onclick="likePost(${post.id})">❤️ ${post.likes || 0}</span>
+                        <span class="post-action" onclick="likePost(${post.id})">${likedPosts.includes(post.id) ? '❤️' : '🤍'} ${(post.likes || 0) + (likedPosts.includes(post.id) ? 1 : 0)}</span>
                         <span class="post-action">💬 留言</span>
                         <span class="post-action">🔗 分享</span>
                     </div>
@@ -430,8 +430,17 @@
             }
         }
         
+        let likedPosts = [];
+        
         function likePost(id) {
-            alert('已按讚！❤️');
+            if (!currentUser) { showLogin(); return; }
+            const idx = likedPosts.indexOf(id);
+            if (idx > -1) {
+                likedPosts.splice(idx, 1);
+            } else {
+                likedPosts.push(id);
+            }
+            renderPosts();
         }
         
         function showPostModal() {
