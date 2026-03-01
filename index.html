@@ -162,7 +162,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v4.0.1</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v4.0.2</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -630,8 +630,8 @@
                     user: currentUser,
                     content: content,
                     location: location,
-                    images: uploadedImages,
-                    video: uploadedVideo,
+                    images: [],
+                    video: null,
                     time: "剛剛",
                     likes: 0
                 };
@@ -645,8 +645,6 @@
                 // Reset
                 document.getElementById('postContent').value = '';
                 document.getElementById('postLocation').value = '';
-                uploadedImages = [];
-                uploadedVideo = null;
                 document.getElementById('mediaPreview').innerHTML = '';
                 console.log('closing modal...');
                 closeModal('postModal');
