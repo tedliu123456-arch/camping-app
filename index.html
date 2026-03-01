@@ -162,7 +162,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v2.1.8</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v2.1.9</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -264,7 +264,7 @@
     
     <!-- Post Modal -->
     <div class="modal" id="postModal">
-        <div class="modal-content">
+        <div class="modal-content" style="position:relative;padding-bottom:70px;">
             <div class="modal-header">
                 <h3>發布貼文</h3>
                 <button class="modal-close" onclick="closeModal('postModal')">&times;</button>
@@ -279,10 +279,8 @@
                 </label>
             </div>
             <div id="mediaPreview" style="margin-bottom:10px;"></div>
-            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:60px;">
-        </div>
-        <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90%;max-width:360px;z-index:201;">
-            <button onclick="submitPost()" style="width:100%;padding:16px;background:#2d5a27;color:white;border:none;border-radius:25px;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);">🚀 發布</button>
+            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px;">
+            <button onclick="submitPost()" style="width:100%;padding:16px;background:#2d5a27;color:white;border:none;border-radius:25px;font-size:18px;font-weight:bold;cursor:pointer;position:absolute;bottom:10px;left:20px;right:20px;">🚀 發布</button>
         </div>
     </div>
 
