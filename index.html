@@ -145,7 +145,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.6</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.7</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -362,6 +362,13 @@
             if (!username) { alert('請輸入用戶名'); return; }
             
             currentUser = username;
+            
+            // Load profile from localStorage
+            const saved = localStorage.getItem('userProfile_' + username);
+            if (saved) {
+                userProfile = JSON.parse(saved);
+            }
+            
             document.getElementById('headerButtons').innerHTML = `<span style="color: white;">${username}</span> <button onclick="logout()">登出</button>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
@@ -713,6 +720,9 @@
             userProfile.campStyle = campStyles;
             
             localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            if (currentUser) {
+                localStorage.setItem('userProfile_' + currentUser, JSON.stringify(userProfile));
+            }
             
             if (auth.currentUser) {
                 await saveProfileToFirebase(userProfile, auth.currentUser.uid);
