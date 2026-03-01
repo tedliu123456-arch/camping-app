@@ -89,7 +89,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.1.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.2.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -97,14 +97,19 @@
     
     <!-- Tabs -->
     <div class="tabs">
-        <button class="tab active" onclick="switchTab('camps')">⛺ 營地</button>
+        <button class="tab active" onclick="switchTab('posts')">📱 社群</button>
+        <button class="tab" onclick="switchTab('camps')">⛺ 營地</button>
         <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
         <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
-        <button class="tab" onclick="switchTab('posts')">📱 社群</button>
+    </div>
+    
+    <!-- Posts Page -->
+    <div class="page active" id="postsPage">
+        <div id="postList"></div>
     </div>
     
     <!-- Camp List Page -->
-    <div class="page active" id="campsPage">
+    <div class="page" id="campsPage">
         <div class="search-bar">
             <input type="text" placeholder="🔍 搜尋營地名稱，地區..." id="searchInput">
             <button onclick="searchCamps()">搜尋</button>
@@ -134,7 +139,11 @@
     
     <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('camps')">
+        <div class="nav-item active" onclick="switchTab('posts')">
+            <div class="nav-icon">📱</div>
+            <div>社群</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('camps')">
             <div class="nav-icon">⛺</div>
             <div>營地</div>
         </div>
@@ -145,10 +154,6 @@
         <div class="nav-item" onclick="switchTab('rentals')">
             <div class="nav-icon">🏎️</div>
             <div>出租</div>
-        </div>
-        <div class="nav-item" onclick="switchTab('posts')">
-            <div class="nav-icon">📱</div>
-            <div>社群</div>
         </div>
         <div class="nav-item" onclick="showLogin()" id="profileNav">
             <div class="nav-icon">👤</div>
