@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 戶外社群</title>
+    <title>露營趣 - 露營生活社群</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: "Noto Sans TC", "PingFang TC", sans-serif; background: #f4f6f8; color: #222; }
+        body { font-family: "Noto Sans TC", "PingFang TC", sans-serif; background: linear-gradient(180deg,#f1f5f2,#e6efe9); color: #1f2933; }
 
         .header {
             background: linear-gradient(135deg, #1b4332, #2d6a4f);
@@ -17,8 +17,9 @@
             align-items: center;
         }
 
-        .logo { font-weight: 700; font-size: 18px; display: flex; gap: 8px; align-items: center; }
+        .logo { font-weight: 700; font-size: 18px; display: flex; gap: 8px; align-items: center; letter-spacing:1px; }
         .version { font-size: 11px; background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 6px; }
+        .avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.6); }
 
         .user-box { position: relative; cursor: pointer; }
         .dropdown {
@@ -60,7 +61,7 @@
             border-radius: 14px;
             padding: 14px;
             margin-bottom: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 6px 18px rgba(27,67,50,0.08);
         }
 
         .login-box {
@@ -85,16 +86,20 @@
             border: none;
             cursor: pointer;
         }
-        .btn-primary { background: #1b4332; color: white; }
+        .btn-primary { background: #2d6a4f; color: white; }
         .btn-danger { background: #c1121f; color: white; }
 
-        textarea {
+        textarea, select {
             width: 100%;
             padding: 10px;
             border-radius: 8px;
             border: 1px solid #ccc;
             margin-bottom: 10px;
         }
+
+        .badge { display:inline-block; padding:2px 8px; font-size:11px; border-radius:20px; background:#d8f3dc; color:#1b4332; margin-left:6px; }
+        .profile-avatar { width:90px; height:90px; border-radius:50%; object-fit:cover; cursor:pointer; border:3px solid #2d6a4f; margin-bottom:12px; }
+        .hint { font-size:12px; color:#6b7280; }
 
         .profile-field { margin-bottom: 10px; }
         .profile-field input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
@@ -107,7 +112,7 @@
 <body>
 
 <div class="header">
-    <div class="logo">⛺ 露營趣 <span class="version">v2.0.0</span></div>
+    <div class="logo">⛺ 露營趣 <span class="version">v2.1.0</span></div>
     <div id="headerRight"></div>
 </div>
 
@@ -130,8 +135,15 @@
 
     <div id="communityPage" class="page active">
         <div class="card">
-            <textarea id="postInput" placeholder="分享你的露營故事..."></textarea>
-            <button class="btn btn-primary" onclick="addPost()">發布</button>
+            <select id="postCategory">
+                <option value="新手發問">新手發問</option>
+                <option value="裝備分享">裝備分享</option>
+                <option value="營地推薦">營地推薦</option>
+                <option value="美食料理">美食料理</option>
+                <option value="親子露營">親子露營</option>
+            </select>
+            <textarea id="postInput" placeholder="分享你的露營故事與心得..."></textarea>
+            <button class="btn btn-primary" onclick="addPost()">發布貼文</button>
         </div>
         <div id="postList"></div>
     </div>
@@ -142,16 +154,40 @@
     <div id="rentPage" class="page"><div class="card">露營車出租資訊展示區</div></div>
 
     <div id="profilePage" class="page">
-        <div class="card">
+        <div class="card" style="text-align:center">
+            <img id="profileAvatar" class="profile-avatar" src="" alt="avatar" onclick="triggerAvatarUpload()">
+            <div class="hint">點擊頭像上傳照片</div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
             <div class="profile-field">
-                <label>名稱</label>
+                <label>顯示名稱</label>
                 <input type="text" id="profileName">
             </div>
             <div class="profile-field">
                 <label>Email</label>
                 <input type="text" id="profileEmail">
             </div>
-            <button class="btn btn-primary" onclick="saveProfile()">儲存</button>
+            <div class="profile-field">
+                <label>性別</label>
+                <select id="profileGender">
+                    <option value="">未填寫</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="profile-field">
+                <label>露營經驗</label>
+                <select id="profileExperience">
+                    <option value="新手">新手（0-1年）</option>
+                    <option value="進階">進階（1-3年）</option>
+                    <option value="老手">老手（3年以上）</option>
+                </select>
+            </div>
+            <div class="profile-field">
+                <label>最愛露營風格</label>
+                <input type="text" id="profileStyle" placeholder="例：豪華露營 / 野營 / 車宿">
+            </div>
+            <button class="btn btn-primary" onclick="saveProfile()">儲存資料</button>
         </div>
     </div>
 
@@ -183,12 +219,15 @@
 
     function renderHeader() {
         const header = document.getElementById('headerRight');
+        const profile = JSON.parse(localStorage.getItem('userProfile_' + currentUser) || '{}');
+        const avatar = profile.avatar || 'https://via.placeholder.com/80x80?text=⛺';
         header.innerHTML = `
-            <div class="user-box" onclick="toggleMenu()">
-                ${currentUser}
+            <div class="user-box" onclick="toggleMenu()" style="display:flex;align-items:center;gap:8px">
+                <img src="${avatar}" class="avatar">
+                <span>${profile.name || currentUser}</span>
                 <div id="dropdown" class="dropdown" style="display:none">
-                    <div onclick="switchTab('profile');closeMenu()">Edit Profile</div>
-                    <div onclick="logout()">Logout</div>
+                    <div onclick="switchTab('profile');closeMenu()">編輯個人資料</div>
+                    <div onclick="logout()">登出</div>
                 </div>
             </div>
         `;
@@ -217,7 +256,8 @@
         if (!text) return;
 
         const posts = JSON.parse(localStorage.getItem('camping_posts') || '[]');
-        posts.unshift({ user: currentUser, content: text, time: new Date().toLocaleString() });
+        const category = document.getElementById('postCategory').value;
+        posts.unshift({ user: currentUser, category, content: text, time: new Date().toLocaleString() });
         localStorage.setItem('camping_posts', JSON.stringify(posts));
 
         document.getElementById('postInput').value = '';
@@ -228,13 +268,22 @@
         const list = document.getElementById('postList');
         const posts = JSON.parse(localStorage.getItem('camping_posts') || '[]');
 
-        list.innerHTML = posts.map(p => `
+        list.innerHTML = posts.map(p => {
+            const profile = JSON.parse(localStorage.getItem('userProfile_' + p.user) || '{}');
+            const avatar = profile.avatar || 'https://via.placeholder.com/60x60?text=⛺';
+            return `
             <div class="card">
-                <strong>${p.user}</strong><br>
-                <small>${p.time}</small>
-                <p style="margin-top:8px">${p.content}</p>
-            </div>
-        `).join('');
+                <div style="display:flex;align-items:center;gap:10px">
+                    <img src="${avatar}" class="avatar">
+                    <div>
+                        <strong>${profile.name || p.user}</strong>
+                        <span class="badge">${p.category || '分享'}</span><br>
+                        <small>${p.time}</small>
+                    </div>
+                </div>
+                <p style="margin-top:10px">${p.content}</p>
+            </div>`;
+        }).join('');
     }
 
     function loadProfile() {
@@ -243,16 +292,39 @@
 
         document.getElementById('profileName').value = saved.name || currentUser;
         document.getElementById('profileEmail').value = saved.email || '';
+        document.getElementById('profileGender').value = saved.gender || '';
+        document.getElementById('profileExperience').value = saved.experience || '新手';
+        document.getElementById('profileStyle').value = saved.style || '';
+        document.getElementById('profileAvatar').src = saved.avatar || 'https://via.placeholder.com/120x120?text=⛺';
     }
 
     function saveProfile() {
         const key = 'userProfile_' + currentUser;
         const data = {
             name: document.getElementById('profileName').value,
-            email: document.getElementById('profileEmail').value
+            email: document.getElementById('profileEmail').value,
+            gender: document.getElementById('profileGender').value,
+            experience: document.getElementById('profileExperience').value,
+            style: document.getElementById('profileStyle').value,
+            avatar: document.getElementById('profileAvatar').src
         };
         localStorage.setItem(key, JSON.stringify(data));
-        alert('已儲存');
+        alert('個人資料已更新');
+        renderHeader();
+    }
+
+    function triggerAvatarUpload() {
+        document.getElementById('avatarInput').click();
+    }
+
+    function handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileAvatar').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
     }
 
     window.onload = function() {
