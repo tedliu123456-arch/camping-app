@@ -161,7 +161,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v2.1.1</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v2.1.2</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -390,14 +390,17 @@
         }
         
         function signInWithGoogle() {
+            console.log('Starting Google sign in...');
             window.signInWithPopup(window.firebaseAuth, window.googleProvider)
                 .then((result) => {
+                    console.log('Google sign in success:', result);
                     const user = result.user;
                     currentUser = user.displayName || user.email.split('@')[0];
                     userProfile = { name: user.displayName, email: user.email, avatar: user.photoURL };
                     updateUIAfterLogin();
                 }).catch((error) => {
-                    alert('Google 登入失敗: ' + error.message);
+                    console.error('Google sign in error:', error);
+                    alert('Google 登入失敗: ' + error.code + ' - ' + error.message);
                 });
         }
         
