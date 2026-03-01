@@ -38,7 +38,7 @@
         .header-buttons button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; margin-left: 8px; cursor: pointer; }
         
         /* Tabs */
-        .tabs { display: flex; background: white; padding: 10px; gap: 10px; overflow-x: auto; position: sticky; top: 60px; z-index: 99; }
+        .tabs { display: flex; background: white; padding: 10px; gap: 10px; overflow-x: auto; }
         .tab { padding: 10px 20px; border: none; background: #e8e8e8; border-radius: 20px; cursor: pointer; white-space: nowrap; }
         .tab.active { background: #2d5a27; color: white; }
         
@@ -190,7 +190,31 @@
     <button class="fab" onclick="showPostModal()" id="fabBtn" style="display: none;">+</button>
     
     <!-- Bottom Nav -->
-    <div class="bottom-nav" style="display:none;">
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('posts')">
+            <div class="nav-icon">📱</div>
+            <div>社群</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('camps')">
+            <div class="nav-icon">⛺</div>
+            <div>營地</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('shops')">
+            <div class="nav-icon">🚐</div>
+            <div>改裝店</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('gear')">
+            <div class="nav-icon">🏕️</div>
+            <div>用品</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('rentals')">
+            <div class="nav-icon">🏎️</div>
+            <div>出租</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')" id="profileNavItem">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
     </div>
     
     <!-- Login Modal -->
