@@ -47,16 +47,25 @@
         .map-container { height: 60vh; background: #e8e8e8; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .map-placeholder { text-align: center; color: #666; }
         
-        /* Posts */
-        .post-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; }
-        .post-user { font-weight: bold; }
-        .post-time { font-size: 12px; color: #999; }
-        .post-content { margin-bottom: 10px; }
-        .post-images { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 10px; }
-        .post-images img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
-        .post-actions { display: flex; gap: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        /* Posts - Instagram Style */
+        .stories-bar { display: flex; gap: 15px; overflow-x: auto; padding: 10px; background: white; margin-bottom: 10px; border-radius: 8px; }
+        .story-item { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
+        .story-ring { width: 60px; height: 60px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .story-ring.seen { background: #ddd; }
+        .story-avatar { width: 54px; height: 54px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; }
+        .story-name { font-size: 10px; margin-top: 4px; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .post-card { background: white; border-radius: 0; margin-bottom: 10px; border-bottom: 1px solid #eee; }
+        .post-header { display: flex; align-items: center; padding: 10px; }
+        .post-avatar { width: 32px; height: 32px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 14px; }
+        .post-user { font-weight: 600; font-size: 14px; }
+        .post-time { font-size: 12px; color: #999; margin-left: auto; }
+        .post-content { padding: 0 10px 10px; font-size: 14px; }
+        .post-images-full { width: 100%; }
+        .post-images-full img { width: 100%; height: auto; display: block; }
+        .post-actions { display: flex; gap: 20px; padding: 10px; }
+        .post-action { font-size: 24px; cursor: pointer; }
+        .post-likes { padding: 0 10px; font-weight: 600; font-size: 14px; }
         .post-action { color: #666; cursor: pointer; }
         
         /* FAB */
@@ -112,7 +121,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.5.3</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -154,6 +163,7 @@
     
     <!-- Posts Page -->
     <div class="page" id="postsPage">
+        <div class="stories-bar" id="storiesBar"></div>
         <div id="breakingNews"></div>
         <div id="postList"></div>
     </div>
@@ -263,6 +273,15 @@
         const breakingNews = [
             { id: 1, title: "🔴 突發", content: "合歡山今晚降雪！路面結冰，行車請注意安全", time: "10分鐘前" },
             { id: 2, title: "🔴 突發", content: "墾丁國家公園新增露營區， 即日起開放預訂！", time: "1小時前" }
+        ];
+        
+        const stories = [
+            { id: 1, user: "小明", avatar: "小明" },
+            { id: 2, user: "露營達人", avatar: "露" },
+            { id: 3, user: "新手爸媽", avatar: "新" },
+            { id: 4, user: "山友阿文", avatar: "文" },
+            { id: 5, user: "雲海女孩", avatar: "雲" },
+            { id: 6, user: "野炊老師", avatar: "野" }
         ];
         
         let currentUser = null;
@@ -375,6 +394,20 @@
             renderCampList(query);
         }
         
+        function renderStories() {
+            const container = document.getElementById('storiesBar');
+            if (container) {
+                container.innerHTML = stories.map(s => `
+                    <div class="story-item">
+                        <div class="story-ring">
+                            <div class="story-avatar">${s.avatar}</div>
+                        </div>
+                        <div class="story-name">${s.user}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
         function renderBreakingNews() {
             const container = document.getElementById('breakingNews');
             if (container) {
@@ -398,7 +431,7 @@
             list.innerHTML = allPosts.map(post => {
                 let mediaHtml = '';
                 if (post.images && post.images.length > 0) {
-                    mediaHtml += '<div class="post-images">' + post.images.map(img => `<img src="${img}">`).join('') + '</div>';
+                    mediaHtml += '<div class="post-images-full">' + post.images.map(img => `<img src="${img}">`).join('') + '</div>';
                 }
                 if (post.video) {
                     mediaHtml += '<div class="post-images"><div class="video-preview">📹 影片</div></div>';
@@ -585,6 +618,7 @@
         renderCampList();
         renderShopList();
         renderRentalList();
+        renderStories();
         renderBreakingNews();
         renderPosts();
         renderProfile();
