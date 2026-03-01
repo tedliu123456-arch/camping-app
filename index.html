@@ -8,6 +8,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
@@ -20,6 +21,31 @@
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        async function saveProfileToFirebase(profile, userId) {
+            try {
+                await setDoc(doc(db, "users", userId), {
+                    ...profile,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                console.log('Profile saved to Firebase');
+            } catch (e) {
+                console.error('Firebase save error:', e);
+            }
+        }
+        
+        async function loadProfileFromFirebase(userId) {
+            try {
+                const docSnap = await getDoc(doc(db, "users", userId));
+                if (docSnap.exists()) {
+                    return docSnap.data();
+                }
+            } catch (e) {
+                console.error('Firebase load error:', e);
+            }
+            return null;
+        }
         const googleProvider = new GoogleAuthProvider();
         
         window.firebaseAuth = auth;
@@ -129,7 +155,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.4</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.5</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -675,13 +701,22 @@
             renderProfile();
         }
         
-        function saveProfile() {
+        async function saveProfile() {
             userProfile.name = document.getElementById('editName').value;
             userProfile.gender = document.getElementById('editGender').value;
             userProfile.interest = document.getElementById('editInterest').value;
             userProfile.experience = document.getElementById('editExperience').value;
             const campStyles = Array.from(document.querySelectorAll('input[name="campStyle"]:checked')).map(c => c.value);
             userProfile.campStyle = campStyles;
+            
+            // Save to localStorage
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            
+            // Save to Firebase
+            if (auth.currentUser) {
+                await saveProfileToFirebase(userProfile, auth.currentUser.uid);
+            }
+            
             isEditingProfile = false;
             renderProfile();
             alert('資料已儲存！');
