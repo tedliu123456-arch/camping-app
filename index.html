@@ -276,7 +276,9 @@
         }
         
         function loginSimple() {
+            alert('loginSimple 執行中...');
             const name = document.getElementById('loginName').value;
+            alert('name: ' + name);
             if (name) {
                 currentUser = name;
                 localStorage.setItem('currentUser', currentUser);
