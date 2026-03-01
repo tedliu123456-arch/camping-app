@@ -731,25 +731,33 @@
         }
         
         async function saveProfile() {
-            console.log('[saveProfile] currentUserId:', currentUserId);
+            // Ensure we have a valid user id
+            if (!currentUserId) {
+                const storedUser = localStorage.getItem('currentUser');
+                if (storedUser) {
+                    currentUserId = 'local_' + storedUser;
+                }
+            }
+
             userProfile.name = document.getElementById('editName').value;
             userProfile.gender = document.getElementById('editGender').value;
             userProfile.interest = document.getElementById('editInterest').value;
             userProfile.experience = document.getElementById('editExperience').value;
-            const campStyles = Array.from(document.querySelectorAll('input[name="campStyle"]:checked')).map(c => c.value);
-            userProfile.campStyle = campStyles;
-            console.log('[saveProfile] profile to save:', userProfile);
-            
+            userProfile.campStyle = Array.from(
+                document.querySelectorAll('input[name="campStyle"]:checked')
+            ).map(c => c.value);
+
+            // Always save to localStorage if we have a user id
             if (currentUserId) {
                 const key = 'userProfile_' + currentUserId;
-                console.log('[saveProfile] saving to localStorage key:', key);
                 localStorage.setItem(key, JSON.stringify(userProfile));
             }
-            
-            if (auth.currentUser) {
+
+            // Save to Firebase if logged in
+            if (auth.currentUser && auth.currentUser.uid) {
                 await saveProfileToFirebase(userProfile, auth.currentUser.uid);
             }
-            
+
             isEditingProfile = false;
             renderProfile();
             alert('資料已儲存！');
