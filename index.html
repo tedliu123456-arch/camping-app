@@ -101,12 +101,18 @@
         
         /* Section Title */
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+        
+        /* Breaking News */
+        .breaking-news { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: white; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .breaking-news-title { font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+        .breaking-news-content { font-size: 14px; }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.4.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.5.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -148,6 +154,7 @@
     
     <!-- Posts Page -->
     <div class="page" id="postsPage">
+        <div id="breakingNews"></div>
         <div id="postList"></div>
     </div>
     
@@ -255,6 +262,11 @@
             { id: 1, user: "小明", content: "上週去福壽山農場，天氣超好，夜晚星空美爆了！🌟", time: "2小時前", likes: 45 },
             { id: 2, user: "露營達人", content: "推薦清境農場的營位，視野寬敞，重點是綿羊好可愛🐑", time: "5小時前", likes: 32 },
             { id: 3, user: "新手爸媽", content: "第一次帶小孩露營，選擇露營樂，真的很適合家庭！", time: "昨天", likes: 28 }
+        ];
+        
+        const breakingNews = [
+            { id: 1, title: "🔴 突發", content: "合歡山今晚降雪！路面結冰，行車請注意安全", time: "10分鐘前" },
+            { id: 2, title: "🔴 突發", content: "墾丁國家公園新增露營區， 即日起開放預訂！", time: "1小時前" }
         ];
         
         let currentUser = null;
@@ -365,6 +377,19 @@
         function searchCamps() {
             const query = document.getElementById('searchInput').value;
             renderCampList(query);
+        }
+        
+        function renderBreakingNews() {
+            const container = document.getElementById('breakingNews');
+            if (container) {
+                container.innerHTML = breakingNews.map(news => `
+                    <div class="breaking-news">
+                        <div class="breaking-news-title">${news.title}</div>
+                        <div class="breaking-news-content">${news.content}</div>
+                        <div style="font-size:12px;opacity:0.8;margin-top:5px">${news.time}</div>
+                    </div>
+                `).join('');
+            }
         }
         
         function renderPosts() {
@@ -555,6 +580,7 @@
         renderCampList();
         renderShopList();
         renderRentalList();
+        renderBreakingNews();
         renderPosts();
         renderProfile();
     </script>
