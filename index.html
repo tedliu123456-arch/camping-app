@@ -89,7 +89,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.2.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.2.1</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -269,7 +269,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'camps': 0, 'shops': 1, 'rentals': 2, 'posts': 3 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'rentals': 3 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
