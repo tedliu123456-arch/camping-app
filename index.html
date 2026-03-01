@@ -145,7 +145,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.7.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.7.1</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -359,8 +359,10 @@
             
             currentUser = username;
             currentUserId = 'local_' + username;
+            console.log('[doLogin] currentUserId set to:', currentUserId);
 
             loadProfileFromLocal();
+            console.log('[doLogin] userProfile after load:', userProfile);
             
             document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showProfileMenu(event)"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0;background:#2d5a27;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center">${username[0]}</div><span style="color: white;">${username}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
@@ -729,15 +731,19 @@
         }
         
         async function saveProfile() {
+            console.log('[saveProfile] currentUserId:', currentUserId);
             userProfile.name = document.getElementById('editName').value;
             userProfile.gender = document.getElementById('editGender').value;
             userProfile.interest = document.getElementById('editInterest').value;
             userProfile.experience = document.getElementById('editExperience').value;
             const campStyles = Array.from(document.querySelectorAll('input[name="campStyle"]:checked')).map(c => c.value);
             userProfile.campStyle = campStyles;
+            console.log('[saveProfile] profile to save:', userProfile);
             
             if (currentUserId) {
-                localStorage.setItem('userProfile_' + currentUserId, JSON.stringify(userProfile));
+                const key = 'userProfile_' + currentUserId;
+                console.log('[saveProfile] saving to localStorage key:', key);
+                localStorage.setItem(key, JSON.stringify(userProfile));
             }
             
             if (auth.currentUser) {
@@ -763,11 +769,15 @@
 
         function loadProfileFromLocal() {
             if (!currentUserId) return;
-            const saved = localStorage.getItem('userProfile_' + currentUserId);
+            const key = 'userProfile_' + currentUserId;
+            console.log('[loadProfileFromLocal] loading key:', key);
+            const saved = localStorage.getItem(key);
             if (saved) {
                 userProfile = JSON.parse(saved);
+                console.log('[loadProfileFromLocal] loaded profile:', userProfile);
             } else {
                 userProfile = { name: currentUser, email: '', avatar: '' };
+                console.log('[loadProfileFromLocal] no saved profile, using default');
             }
         }
         
