@@ -1,0 +1,11 @@
+{
+  "outdoorcamp": {
+    "apiKey": "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
+    "authDomain": "outdoorcamp.firebaseapp.com",
+    "projectId": "outdoorcamp",
+    "storageBucket": "outdoorcamp.firebasestorage.app",
+    "messagingSenderId": "709693825585",
+    "appId": "1:709693825585:web:eced280b0538cdc29bab10",
+    "measurementId": "G-L68VBJR8W2"
+  }
+}
