@@ -145,7 +145,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.9</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.7.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -362,11 +362,29 @@
 
             loadProfileFromLocal();
             
-            document.getElementById('headerButtons').innerHTML = `<span style="color: white;">${username}</span> <button onclick="logout()">登出</button>`;
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showProfileMenu(event)"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0;background:#2d5a27;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center">${username[0]}</div><span style="color: white;">${username}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             renderPosts();
             renderProfile();
+        }
+        
+        function showProfileMenu(e) {
+            e.stopPropagation();
+            const existing = document.getElementById('profileMenu');
+            if (existing) existing.remove();
+            const menu = document.createElement('div');
+            menu.id = 'profileMenu';
+            menu.style.cssText = 'position:fixed;top:50px;right:10px;background:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.2);z-index:1000;min-width:150px;';
+            menu.innerHTML = `
+                <div style="padding:12px;border-bottom:1px solid #eee;cursor:pointer" onclick="switchTab('profile');document.getElementById('profileMenu')?.remove()">
+                    <div style="font-weight:bold">${currentUser}</div>
+                    <div style="font-size:12px;color:#666">編輯個人檔案</div>
+                </div>
+                <div style="padding:12px;color:red;cursor:pointer" onclick="logout();document.getElementById('profileMenu')?.remove()">登出</div>
+            `;
+            document.body.appendChild(menu);
+            setTimeout(() => document.addEventListener('click', () => menu.remove()), 100);
         }
         
         async function updateUIAfterLogin() {
@@ -375,7 +393,7 @@
                 loadProfileFromLocal();
             }
 
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showProfileMenu(event)"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0;background:#2d5a27;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             
@@ -408,7 +426,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4, 'profile': 5 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
