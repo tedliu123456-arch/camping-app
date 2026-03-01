@@ -8,7 +8,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
@@ -21,21 +20,6 @@
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        async function saveProfileToFirebase(profile, userId) {
-            try {
-                await setDoc(doc(db, "users", userId), { ...profile, updatedAt: serverTimestamp() }, { merge: true });
-            } catch (e) { console.error(e); }
-        }
-        
-        async function loadProfileFromFirebase(userId) {
-            try {
-                const snap = await getDoc(doc(db, "users", userId));
-                if (snap.exists()) return snap.data();
-            } catch (e) { console.error(e); }
-            return null;
-        }
         const googleProvider = new GoogleAuthProvider();
         
         window.firebaseAuth = auth;
@@ -145,7 +129,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.8</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.4</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -158,7 +142,6 @@
         <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
         <button class="tab" onclick="switchTab('gear')">🏕️ 用品</button>
         <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
-        <button class="tab" onclick="switchTab('profile')">👤 我的</button>
     </div>
     
     <!-- Posts Page -->
@@ -358,33 +341,17 @@
             if (!username) { alert('請輸入用戶名'); return; }
             
             currentUser = username;
-            
-            // Load profile from localStorage
-            const saved = localStorage.getItem('userProfile_' + username);
-            if (saved) {
-                userProfile = JSON.parse(saved);
-            }
-            
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div> <button onclick="logout()">登出</button>`;
+            document.getElementById('headerButtons').innerHTML = `<span style="color: white;">${username}</span> <button onclick="logout()">登出</button>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             renderPosts();
             renderProfile();
         }
         
-        async function updateUIAfterLogin() {
+        function updateUIAfterLogin() {
             document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
-            
-            if (auth.currentUser) {
-                const fbProfile = await loadProfileFromFirebase(auth.currentUser.uid);
-                if (fbProfile) {
-                    userProfile = { ...userProfile, ...fbProfile };
-                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
-                }
-            }
-            
             renderPosts();
             renderProfile();
         }
@@ -406,7 +373,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4, 'profile': 5 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
@@ -657,21 +624,15 @@
                             ${userProfile.avatar ? '<img src="' + userProfile.avatar + '">' : currentUser[0]}
                             <input type="file" accept="image/*" onchange="handleAvatarUpload(this)" style="display:none">
                         </label>
-                        <div style="display:flex;gap:10px;">
-                            <div style="flex:1;">
-                                <input type="text" class="profile-input" id="editName" value="${userProfile.name || currentUser}" placeholder="姓名">
-                                <select class="profile-input" id="editGender">
-                                    <option value="">選擇性別</option>
-                                    <option value="男" ${userProfile.gender === '男' ? 'selected' : ''}>👨 男</option>
-                                    <option value="女" ${userProfile.gender === '女' ? 'selected' : ''}>👩 女</option>
-                                    <option value="其他" ${userProfile.gender === '其他' ? 'selected' : ''}>🌈 其他</option>
-                                </select>
-                            </div>
-                            <div style="flex:1;">
-                                <input type="text" class="profile-input" id="editInterest" value="${userProfile.interest || ''}" placeholder="興趣">
-                                <input type="number" class="profile-input" id="editExperience" value="${userProfile.experience || ''}" placeholder="露營次數">
-                            </div>
-                        </div>
+                        <input type="text" class="profile-input" id="editName" value="${userProfile.name || currentUser}" placeholder="名稱">
+                        <select class="profile-input" id="editGender">
+                            <option value="">選擇性別</option>
+                            <option value="男" ${userProfile.gender === '男' ? 'selected' : ''}>👨 男</option>
+                            <option value="女" ${userProfile.gender === '女' ? 'selected' : ''}>👩 女</option>
+                            <option value="其他" ${userProfile.gender === '其他' ? 'selected' : ''}>🌈 其他</option>
+                        </select>
+                        <input type="text" class="profile-input" id="editInterest" value="${userProfile.interest || ''}" placeholder="興趣">
+                        <input type="number" class="profile-input" id="editExperience" value="${userProfile.experience || ''}" placeholder="露營次數（數字）">
                         <div style="margin:10px 0;">
                             <span style="font-size:12px;color:#666;">喜歡的露營方式：</span><br>
                             <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e8f5e9;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="開車"> 🚗 開車</label>
@@ -714,25 +675,13 @@
             renderProfile();
         }
         
-        async function saveProfile() {
+        function saveProfile() {
             userProfile.name = document.getElementById('editName').value;
             userProfile.gender = document.getElementById('editGender').value;
             userProfile.interest = document.getElementById('editInterest').value;
             userProfile.experience = document.getElementById('editExperience').value;
             const campStyles = Array.from(document.querySelectorAll('input[name="campStyle"]:checked')).map(c => c.value);
             userProfile.campStyle = campStyles;
-            
-            // Save to localStorage
-            localStorage.setItem('userProfile', JSON.stringify(userProfile));
-            if (currentUser) {
-                localStorage.setItem('userProfile_' + currentUser, JSON.stringify(userProfile));
-            }
-            
-            // Save to Firebase if logged in with Google
-            if (auth.currentUser) {
-                await saveProfileToFirebase(userProfile, auth.currentUser.uid);
-            }
-            
             isEditingProfile = false;
             renderProfile();
             alert('資料已儲存！');
