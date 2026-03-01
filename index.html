@@ -112,7 +112,7 @@
 <body>
 
 <div class="header">
-    <div class="logo">⛺ 露營趣 <span class="version">v2.1.0</span></div>
+    <div class="logo">⛺ 露營趣 <span class="version">v2.2.0</span></div>
     <div id="headerRight"></div>
 </div>
 
@@ -130,6 +130,7 @@
         <button class="tab" onclick="switchTab('shop')">改裝店</button>
         <button class="tab" onclick="switchTab('gear')">用品</button>
         <button class="tab" onclick="switchTab('rent')">出租</button>
+        <button class="tab" onclick="switchTab('messages')">訊息</button>
         <button class="tab" onclick="switchTab('profile')">個人</button>
     </div>
 
@@ -152,6 +153,16 @@
     <div id="shopPage" class="page"><div class="card">改裝店資訊展示區</div></div>
     <div id="gearPage" class="page"><div class="card">露營用品展示區</div></div>
     <div id="rentPage" class="page"><div class="card">露營車出租資訊展示區</div></div>
+
+    <div id="messagesPage" class="page">
+        <div class="card" id="messageList"></div>
+        <div class="card" id="conversationBox" style="display:none">
+            <div id="conversationTitle" style="font-weight:600;margin-bottom:8px"></div>
+            <div id="conversationMessages" style="max-height:240px;overflow-y:auto;margin-bottom:8px"></div>
+            <textarea id="messageInput" placeholder="輸入訊息..."></textarea>
+            <button class="btn btn-primary" onclick="sendMessage()">送出</button>
+        </div>
+    </div>
 
     <div id="profilePage" class="page">
         <div class="card" style="text-align:center">
@@ -249,6 +260,7 @@
 
         document.getElementById(tab + 'Page').classList.add('active');
         event.target.classList.add('active');
+        if (tab === 'messages') renderMessageList();
     }
 
     function addPost() {
@@ -284,6 +296,70 @@
                 <p style="margin-top:10px">${p.content}</p>
             </div>`;
         }).join('');
+    }
+
+    function getMessageKey(user1, user2) {
+        return 'messages_' + [user1, user2].sort().join('_');
+    }
+
+    function renderMessageList() {
+        const listDiv = document.getElementById('messageList');
+        const users = new Set();
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('messages_')) {
+                const parts = key.replace('messages_', '').split('_');
+                if (parts.includes(currentUser)) {
+                    parts.forEach(u => { if (u !== currentUser) users.add(u); });
+                }
+            }
+        }
+
+        if (users.size === 0) {
+            listDiv.innerHTML = '<div>尚無對話</div>';
+            document.getElementById('conversationBox').style.display = 'none';
+            return;
+        }
+
+        listDiv.innerHTML = Array.from(users).map(u =>
+            `<div style="padding:8px 0;border-bottom:1px solid #eee;cursor:pointer" onclick="openConversation('${u}')">與 ${u} 的對話</div>`
+        ).join('');
+    }
+
+    let activeChatUser = null;
+
+    function openConversation(user) {
+        activeChatUser = user;
+        document.getElementById('conversationBox').style.display = 'block';
+        document.getElementById('conversationTitle').innerText = '與 ' + user + ' 對話';
+        renderConversation();
+    }
+
+    function renderConversation() {
+        if (!activeChatUser) return;
+        const key = getMessageKey(currentUser, activeChatUser);
+        const messages = JSON.parse(localStorage.getItem(key) || '[]');
+        const box = document.getElementById('conversationMessages');
+        box.innerHTML = messages.map(m =>
+            `<div style="margin-bottom:6px;text-align:${m.sender === currentUser ? 'right' : 'left'}">
+                <span style="display:inline-block;padding:6px 10px;border-radius:12px;background:${m.sender === currentUser ? '#2d6a4f' : '#e9ecef'};color:${m.sender === currentUser ? '#fff' : '#333'}">
+                    ${m.text}
+                </span>
+            </div>`
+        ).join('');
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (!text || !activeChatUser) return;
+        const key = getMessageKey(currentUser, activeChatUser);
+        const messages = JSON.parse(localStorage.getItem(key) || '[]');
+        messages.push({ sender: currentUser, text, time: Date.now() });
+        localStorage.setItem(key, JSON.stringify(messages));
+        input.value = '';
+        renderConversation();
     }
 
     function loadProfile() {
