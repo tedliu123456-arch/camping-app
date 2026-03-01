@@ -248,6 +248,17 @@
             </div>
             <div id="mediaPreview"></div>
             <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
+            <div style="margin-bottom:10px;">
+                <span style="font-size:12px;color:#666;display:block;margin-bottom:5px;">分類：</span>
+                <div style="display:flex;flex-wrap:wrap;gap:5px;">
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="開車"> 🚗 開車</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e3f2fd;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="騎車"> 🏍️ 騎車</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#fff3e0;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="露營車"> 🚐 露營車</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e0f7fa;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="海邊"> 🏖️ 海邊</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="山"> ⛰️ 山</label>
+                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e3f2fd;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="海"> 🌊 海</label>
+                </div>
+            </div>
             <button onclick="submitPost()">發布</button>
         </div>
     </div>
@@ -335,7 +346,7 @@
         }
         
         function updateUIAfterLogin() {
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span> <button onclick="logout()">登出</button></div>`;
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px" onclick="document.getElementById('avatarInput').click()"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0;cursor:pointer">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div><button onclick="logout()">登出</button><input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="changeAvatar(this)">`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             renderPosts();
@@ -350,6 +361,21 @@
             document.getElementById('fabBtn').style.display = 'none';
             renderPosts();
             renderProfile();
+        }
+        
+        function changeAvatar(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userProfile.avatar = e.target.result;
+                    const avatar = document.querySelector('#headerButtons .post-avatar');
+                    if (avatar) {
+                        avatar.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
         }
         
         function switchTab(tab) {
@@ -433,6 +459,7 @@
                     mediaHtml += '<div class="post-images"><div class="video-preview">📹 影片</div></div>';
                 }
                 let locationHtml = post.location ? `<div style="color:#666;font-size:12px;margin-bottom:8px">📍 ${post.location}</div>` : '';
+                let categoryHtml = post.category ? `<span style="display:inline-block;padding:3px 8px;background:#2d5a27;color:white;border-radius:10px;font-size:10px;margin-right:5px;">${post.category}</span>` : '';
                 
                 return `
                 <div class="post-card">
@@ -440,6 +467,7 @@
                         <div class="post-avatar">${post.user[0]}</div>
                         <div>
                             <div class="post-user">${post.user}</div>
+                            ${categoryHtml}
                             <div class="post-time">${post.time}</div>
                         </div>
                     </div>
@@ -552,6 +580,8 @@
         function submitPost() {
             const content = document.getElementById('postContent').value;
             const location = document.getElementById('postLocation').value;
+            const categoryEl = document.querySelector('input[name="category"]:checked');
+            const category = categoryEl ? categoryEl.value : '';
             if (!content) { alert('請輸入內容'); return; }
             
             posts.unshift({
@@ -559,6 +589,7 @@
                 user: currentUser,
                 content: content,
                 location: location,
+                category: category,
                 images: uploadedImages,
                 video: uploadedVideo,
                 time: "剛剛",
