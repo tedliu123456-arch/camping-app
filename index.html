@@ -121,7 +121,7 @@
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; margin-bottom: 80px; }
+        .modal-content { background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; padding-bottom: 80px; position: relative; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
         .modal textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
@@ -162,7 +162,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v2.1.7</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v2.1.8</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -269,7 +269,7 @@
                 <h3>發布貼文</h3>
                 <button class="modal-close" onclick="closeModal('postModal')">&times;</button>
             </div>
-            <textarea placeholder="分享你的露營經驗..." id="postContent"></textarea>
+            <textarea placeholder="分享你的露營經驗..." id="postContent" style="width:100%;height:100px;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px;resize:none;"></textarea>
             <div class="post-media-btns">
                 <label class="media-btn">📷 照片
                     <input type="file" accept="image/*" multiple onchange="handleImageUpload(this)" style="display:none">
@@ -278,9 +278,11 @@
                     <input type="file" accept="video/*" onchange="handleVideoUpload(this)" style="display:none">
                 </label>
             </div>
-            <div id="mediaPreview"></div>
-            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
-            <button onclick="submitPost()" style="width:100%;padding:14px;background:#2d5a27;color:white;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer;">發布</button>
+            <div id="mediaPreview" style="margin-bottom:10px;"></div>
+            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:60px;">
+        </div>
+        <div style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90%;max-width:360px;z-index:201;">
+            <button onclick="submitPost()" style="width:100%;padding:16px;background:#2d5a27;color:white;border:none;border-radius:25px;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);">🚀 發布</button>
         </div>
     </div>
 
