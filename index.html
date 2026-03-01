@@ -145,7 +145,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.7</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.8</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -158,7 +158,6 @@
         <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
         <button class="tab" onclick="switchTab('gear')">🏕️ 用品</button>
         <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
-        <button class="tab" onclick="switchTab('profile')">👤 我的</button>
     </div>
     
     <!-- Posts Page -->
@@ -227,10 +226,6 @@
         <div class="nav-item" onclick="switchTab('rentals')">
             <div class="nav-icon">🏎️</div>
             <div>出租</div>
-        </div>
-        <div class="nav-item" onclick="switchTab('profile')">
-            <div class="nav-icon">👤</div>
-            <div>我的</div>
         </div>
     </div>
     
@@ -409,7 +404,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4, 'profile': 5 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
