@@ -155,7 +155,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.5</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.6</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -374,10 +374,20 @@
             renderProfile();
         }
         
-        function updateUIAfterLogin() {
+        async function updateUIAfterLogin() {
             document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
+            
+            // Load profile from Firebase
+            if (auth.currentUser) {
+                const fbProfile = await loadProfileFromFirebase(auth.currentUser.uid);
+                if (fbProfile) {
+                    userProfile = { ...userProfile, ...fbProfile };
+                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                }
+            }
+            
             renderPosts();
             renderProfile();
         }
