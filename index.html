@@ -3,63 +3,733 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 測試版</title>
+    <title>露營趣 - 戶外露營社區</title>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
+            authDomain: "outdoorcamp.firebaseapp.com",
+            projectId: "outdoorcamp",
+            storageBucket: "outdoorcamp.firebasestorage.app",
+            messagingSenderId: "709693825585",
+            appId: "1:709693825585:web:eced280b0538cdc29bab10",
+            measurementId: "G-L68VBJR8W2"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.googleProvider = googleProvider;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signInWithPopup = signInWithPopup;
+        window.getRedirectResult = getRedirectResult;
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.updateDoc = updateDoc;
+        window.deleteDoc = deleteDoc;
+        window.query = query;
+        window.orderBy = orderBy;
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, sans-serif; background: #f5f5f5; padding: 20px; }
-        .header { background: #2d5a27; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .post-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
-        .post-user { font-weight: bold; color: #2d5a27; }
-        .post-time { color: #999; font-size: 12px; }
-        .input-area { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
-        button { background: #2d5a27; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #2d5a27, #4a7c43); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .version { font-size: 10px; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 4px; }
+        .header-buttons button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; margin-left: 8px; cursor: pointer; }
+        
+        /* Tabs */
+        .tabs { display: flex; background: white; padding: 10px; gap: 10px; overflow-x: auto; }
+        .tab { padding: 10px 20px; border: none; background: #e8e8e8; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+        .tab.active { background: #2d5a27; color: white; }
+        
+        /* Pages */
+        .page { display: none; padding: 15px; }
+        .page.active { display: block; }
+        
+        /* Login */
+        .login-page { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .login-page h2 { text-align: center; margin-bottom: 20px; color: #2d5a27; }
+        .login-page input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .login-page button { width: 100%; padding: 12px; background: #2d5a27; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        .login-page .switch { text-align: center; margin-top: 15px; color: #666; }
+        .login-page .switch a { color: #2d5a27; text-decoration: none; }
+        
+        /* Cards */
+        .card { background: white; border-radius: 12px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 150px; object-fit: cover; }
+        .card-info { padding: 15px; }
+        .card-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .card-location { color: #666; font-size: 14px; margin-bottom: 8px; }
+        .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tag { background: #e8f5e9; color: #2d5a27; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+        .tag.orange { background: #fff3e0; color: #e65100; }
+        .card-price { color: #ff6b35; font-weight: bold; margin-top: 8px; }
+        .card-phone { color: #666; font-size: 14px; margin-top: 5px; }
+        
+        /* Map */
+        .map-container { height: 60vh; background: #e8e8e8; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .map-placeholder { text-align: center; color: #666; }
+        
+        /* Posts - Instagram Style */
+        .stories-bar { display: flex; gap: 15px; overflow-x: auto; padding: 10px; background: white; margin-bottom: 10px; border-radius: 8px; }
+        .story-item { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
+        .story-ring { width: 60px; height: 60px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .story-ring.seen { background: #ddd; }
+        .story-avatar { width: 54px; height: 54px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; }
+        .story-name { font-size: 10px; margin-top: 4px; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .post-card { background: white; border-radius: 0; margin-bottom: 10px; border-bottom: 1px solid #eee; }
+        .post-header { display: flex; align-items: center; padding: 10px; }
+        .post-avatar { width: 32px; height: 32px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 14px; }
+        .post-user { font-weight: 600; font-size: 14px; }
+        .post-time { font-size: 12px; color: #999; margin-left: auto; }
+        .post-content { padding: 0 10px 10px; font-size: 14px; }
+        .post-images-full { width: 100%; }
+        .post-images-full img { width: 100%; height: auto; display: block; }
+        .post-actions { display: flex; gap: 20px; padding: 10px; }
+        .post-action { font-size: 24px; cursor: pointer; }
+        .post-likes { padding: 0 10px; font-weight: 600; font-size: 14px; }
+        .post-action { color: #666; cursor: pointer; }
+        
+        /* FAB */
+        .fab { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background: #2d5a27; color: white; border: none; border-radius: 50%; font-size: 30px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 15px 10px; border-top: 1px solid #eee; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: #999; cursor: pointer; padding: 5px 15px; }
+        .nav-item.active { color: #2d5a27; }
+        .nav-icon { font-size: 24px; margin-bottom: 2px; }
+        .nav-item:hover { background: #f5f5f5; border-radius: 8px; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; padding-bottom: 80px; position: relative; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .modal textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
+        .modal button { padding: 10px 20px; background: #2d5a27; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        
+        /* Search */
+        .search-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-bar input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        .search-bar button { padding: 12px 20px; background: #2d5a27; color: white; border: none; border-radius: 8px; }
+        
+        /* Post Media */
+        .post-media-btns { display: flex; gap: 10px; margin-bottom: 10px; }
+        .media-btn { background: #f0f0f0; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        .media-btn:hover { background: #e0e0e0; }
+        #mediaPreview { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+        #mediaPreview img, #mediaPreview video { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+        #mediaPreview .video-preview { width: 120px; height: 80px; background: #333; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+        
+        /* Profile */
+        .profile-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; text-align: center; }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #2d5a27; color: white; font-size: 32px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; overflow: hidden; }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .profile-email { color: #666; font-size: 14px; margin-bottom: 15px; }
+        .profile-edit-btn { background: #2d5a27; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
+        .profile-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; text-align: center; }
+        
+        /* Section Title */
+        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+        
+        /* Breaking News */
+        .breaking-news { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: white; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        .breaking-news-title { font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+        .breaking-news-content { font-size: 14px; }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <div class="header">
-        <h1>⛺ 露營趣 v4.0</h1>
+        <div class="logo">⛺ 露營趣 <span class="version">v4.0.0</span></div>
+        <div class="header-buttons" id="headerButtons">
+            <button onclick="showLogin()">登入</button>
+        </div>
     </div>
     
-    <div class="input-area">
-        <textarea id="postText" placeholder="分享你的露營經驗..."></textarea>
-        <button onclick="publishPost()">發布貼文</button>
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('posts')">📱 社群</button>
+        <button class="tab" onclick="switchTab('camps')">⛺ 營地</button>
+        <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
+        <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
     </div>
     
-    <div id="postList"></div>
+    <!-- Posts Page -->
+    <div class="page active" id="postsPage">
+        <div id="postList"></div>
+    </div>
+    
+    <!-- Camp List Page -->
+    <div class="page" id="campsPage">
+        <div class="search-bar">
+            <input type="text" placeholder="🔍 搜尋營地名稱，地區..." id="searchInput">
+            <button onclick="searchCamps()">搜尋</button>
+        </div>
+        <div id="campList"></div>
+    </div>
+    
+    <!-- Modification Shops Page -->
+    <div class="page" id="shopsPage">
+        <div class="section-title">🚐 露營車改裝店</div>
+        <div id="shopList"></div>
+    </div>
+    
+    <!-- RV Rentals Page -->
+    <div class="page" id="rentalsPage">
+        <div class="section-title">🏎️ 露營車出租</div>
+        <div id="rentalList"></div>
+    </div>
+    
+    <!-- Posts Page -->
+    <div class="page" id="postsPage">
+        <div class="stories-bar" id="storiesBar"></div>
+        <div id="breakingNews"></div>
+        <div id="postList"></div>
+    </div>
+    
+    <!-- Profile Page -->
+    <div class="page" id="profilePage">
+        <div id="profileContent"></div>
+    </div>
+    
+    <!-- FAB -->
+    <button class="fab" onclick="showPostModal()" id="fabBtn" style="display: none;">+</button>
+    
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('posts')">
+            <div class="nav-icon">📱</div>
+            <div>社群</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('camps')">
+            <div class="nav-icon">⛺</div>
+            <div>營地</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('shops')">
+            <div class="nav-icon">🚐</div>
+            <div>改裝店</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('rentals')">
+            <div class="nav-icon">🏎️</div>
+            <div>出租</div>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content login-page">
+            <h2 id="loginTitle">登入</h2>
+            
+            <!-- Google 登入按鈕 -->
+            <button onclick="signInWithGoogle()" style="width:100%;padding:12px;background:#4285F4;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <img src="https://www.google.com/favicon.ico" width="16" height="16"> Google 帳號登入
+            </button>
+            
+            <div style="text-align:center;margin:10px 0;color:#999;">— 或使用 Email —</div>
+            
+            <input type="text" placeholder="用戶名" id="username">
+            <input type="email" placeholder="Email" id="email" style="display: none;">
+            <input type="password" placeholder="密碼">
+            <button onclick="doLogin()" id="loginBtn">登入</button>
+            <div class="switch">
+                <span id="switchText">還沒有帳號？</span> <a href="#" onclick="toggleRegister(event)">註冊</a>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="closeModal('loginModal')" style="background: #999; width: 100%;">關閉</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Post Modal -->
+    <div class="modal" id="postModal">
+        <div class="modal-content" style="padding-bottom:20px;">
+            <button onclick="console.log(' clicked'); submitPost()" style="width:100%;padding:16px;background:#2d5a27;color:white;border:none;border-radius:25px;font-size:18px;font-weight:bold;cursor:pointer;margin-bottom:15px;">🚀 發布貼文</button>
+            <div class="modal-header">
+                <h3>發布貼文</h3>
+                <button class="modal-close" onclick="closeModal('postModal')">&times;</button>
+            </div>
+            <textarea placeholder="分享你的露營經驗..." id="postContent" style="width:100%;height:100px;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px;resize:none;"></textarea>
+            <div class="post-media-btns">
+                <label class="media-btn">📷 照片
+                    <input type="file" accept="image/*" multiple onchange="handleImageUpload(this)" style="display:none">
+                </label>
+                <label class="media-btn">📹 影片
+                    <input type="file" accept="video/*" onchange="handleVideoUpload(this)" style="display:none">
+                </label>
+            </div>
+            <div id="mediaPreview" style="margin-bottom:10px;"></div>
+            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;">
+        </div>
+    </div>
 
     <script>
-        let posts = [
-            { user: "小明", content: "上週去福壽山農場，天氣超好！", time: "2小時前" }
+        // Data
+        const campgrounds = [
+            { id: 1, name: "福壽山農場", location: "台中市和平區", county: "台中", tags: ["海拔高", "賞楓", "星空"], price: "800-1500", lat: 24.3167, lng: 121.1167, image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400" },
+            { id: 2, name: "清境農場", location: "南投縣仁愛鄉", county: "南投", tags: ["草原", "綿羊", "景觀"], price: "600-1200", lat: 24.0167, lng: 121.1167, image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400" },
+            { id: 3, name: "露營樂", location: "新竹縣五峰鄉", county: "新竹", tags: ["森林", "戲水", "親子"], price: "500-1000", lat: 24.6333, lng: 121.1167, image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
+            { id: 4, name: "合歡山營地", location: "花蓮縣秀林鄉", county: "花蓮", tags: ["高山", "日出", "雲海"], price: "300-500", lat: 24.1333, lng: 121.2833, image: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?w=400" },
+            { id: 5, name: "墾丁國家公園", location: "屏東縣恆春鎮", county: "屏東", tags: ["海邊", "水上活動", "溫暖"], price: "400-800", lat: 22.0833, lng: 120.8000, image: "https://images.unsplash.com/photo-1517824806704-9040b037703b?w=400" },
+            { id: 6, name: "太平山莊", location: "宜蘭縣大同鄉", county: "宜蘭", tags: ["森林", "溫泉", "步道"], price: "700-1300", lat: 24.5000, lng: 121.5167, image: "https://images.unsplash.com/photo-1445308394109-4ec2920981b1?w=400" }
         ];
         
-        function renderPosts() {
-            const list = document.getElementById('postList');
-            list.innerHTML = posts.map(p => `
-                <div class="post-card">
-                    <div class="post-user">${p.user}</div>
-                    <div class="post-time">${p.time}</div>
-                    <p>${p.content}</p>
+        const shops = [
+            { id: 1, name: "露營車工坊", location: "新北市淡水區", county: "新北", tags: ["改裝", "維修", "電系"], phone: "02-2621-1234", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" },
+            { id: 2, name: "野外改裝中心", location: "桃園市大園區", county: "桃園", tags: ["車體改造", "防水", "隔熱"], phone: "03-386-5678", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" },
+            { id: 3, name: "戶外玩家的家", location: "台中市潭子區", county: "台中", tags: ["家具", "儲物", "客製化"], phone: "04-2531-9012", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
+            { id: 4, name: "RV 專門店", location: "高雄市前鎮區", county: "高雄", tags: ["進口改裝件", "保養", "維修"], phone: "07-536-7890", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400" }
+        ];
+        
+        const rentals = [
+            { id: 1, name: "露營車小窩", location: "台北市內湖區", county: "台北", tags: ["自走式", "拖曳式"], price: "2500-5000/天", phone: "02-2799-1111", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
+            { id: 2, name: "趣旅露營車", location: "新竹縣竹北市", county: "新竹", tags: ["4人座", "6人座"], price: "3000-6000/天", phone: "03-657-2222", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400" },
+            { id: 3, name: "陽光租車", location: "台中市西屯區", county: "台中", tags: ["含保險", "免押金"], price: "2800-5500/天", phone: "04-2311-3333", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" },
+            { id: 4, name: "快樂露營車", location: "高雄市左營區", county: "高雄", tags: ["機場接送", "代駕"], price: "3200-6500/天", phone: "07-345-4444", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" }
+        ];
+        
+        // Load posts from localStorage or use default
+        const defaultPosts = [
+            { id: 1, user: "小明", content: "上週去福壽山農場，天氣超好，夜晚星空美爆了！🌟", time: "2小時前", likes: 45 },
+            { id: 2, user: "露營達人", content: "推薦清境農場的營位，視野寬敞，重點是綿羊好可愛🐑", time: "5小時前", likes: 32 },
+            { id: 3, user: "新手爸媽", content: "第一次帶小孩露營，選擇露營樂，真的很適合家庭！", time: "昨天", likes: 28 }
+        ];
+        const savedPosts = localStorage.getItem('posts');
+        const posts = savedPosts ? JSON.parse(savedPosts) : defaultPosts;
+        
+        const breakingNews = [
+            { id: 1, title: "🔴 突發", content: "合歡山今晚降雪！路面結冰，行車請注意安全", time: "10分鐘前" },
+            { id: 2, title: "🔴 突發", content: "墾丁國家公園新增露營區， 即日起開放預訂！", time: "1小時前" }
+        ];
+        
+        const stories = [
+            { id: 1, user: "小明", avatar: "小明" },
+            { id: 2, user: "露營達人", avatar: "露" },
+            { id: 3, user: "新手爸媽", avatar: "新" },
+            { id: 4, user: "山友阿文", avatar: "文" },
+            { id: 5, user: "雲海女孩", avatar: "雲" },
+            { id: 6, user: "野炊老師", avatar: "野" }
+        ];
+        
+        let currentUser = null;
+        let likedPosts = [];
+        let userProfile = { name: '', email: '', avatar: '' };
+        let isEditingProfile = false;
+        let isRegister = false;
+        
+        // Functions
+        function showLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        function toggleRegister(e) {
+            e.preventDefault();
+            isRegister = !isRegister;
+            document.getElementById('loginTitle').textContent = isRegister ? '註冊' : '登入';
+            document.getElementById('loginBtn').textContent = isRegister ? '註冊' : '登入';
+            document.getElementById('email').style.display = isRegister ? 'block' : 'none';
+            document.getElementById('switchText').textContent = isRegister ? '已有帳號？' : '還沒有帳號？';
+        }
+        
+        let firebaseUser = null;
+        
+        function doLogin() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value || username + '@example.com';
+            const password = document.querySelector('#loginModal input[type="password"]').value;
+            
+            if (!username || !password) { alert('請輸入用戶名和密碼'); return; }
+            
+            if (isRegister) {
+                window.createUserWithEmailAndPassword(window.firebaseAuth, email, password)
+                    .then((userCredential) => {
+                        firebaseUser = userCredential.user;
+                        currentUser = username;
+                        userProfile = { name: username, email: email, avatar: '' };
+                        updateUIAfterLogin();
+                        alert('註冊成功！');
+                    })
+                    .catch((error) => {
+                        alert('註冊失敗: ' + error.message);
+                    });
+            } else {
+                window.signInWithEmailAndPassword(window.firebaseAuth, email, password)
+                    .then((userCredential) => {
+                        firebaseUser = userCredential.user;
+                        currentUser = username;
+                        updateUIAfterLogin();
+                    })
+                    .catch((error) => {
+                        alert('登入失敗: ' + error.message);
+                    });
+            }
+        }
+        
+        function signInWithGoogle() {
+            console.log('Starting Google sign in...');
+            window.signInWithPopup(window.firebaseAuth, window.googleProvider)
+                .then((result) => {
+                    console.log('Google sign in success:', result);
+                    const user = result.user;
+                    currentUser = user.displayName || user.email.split('@')[0];
+                    userProfile = { name: user.displayName, email: user.email, avatar: user.photoURL };
+                    updateUIAfterLogin();
+                }).catch((error) => {
+                    console.error('Google sign in error:', error);
+                    alert('Google 登入失敗: ' + error.code + ' - ' + error.message);
+                });
+        }
+        
+        function updateUIAfterLogin() {
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span> <button onclick="logout()">登出</button></div>`;
+            document.getElementById('fabBtn').style.display = 'block';
+            closeModal('loginModal');
+            renderPosts();
+            renderProfile();
+        }
+        
+        function logout() {
+            window.signOut(window.firebaseAuth).then(() => {
+                currentUser = null;
+                firebaseUser = null;
+                userProfile = { name: '', email: '', avatar: '' };
+                isEditingProfile = false;
+                document.getElementById('headerButtons').innerHTML = '<button onclick="showLogin()">登入</button>';
+                document.getElementById('fabBtn').style.display = 'none';
+                renderPosts();
+                renderProfile();
+            });
+        }
+        
+        // Listen for auth state changes
+        window.onAuthStateChanged(window.firebaseAuth, (user) => {
+            if (user) {
+                firebaseUser = user;
+            }
+        });
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(tab + 'Page').classList.add('active');
+            
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'rentals': 3 };
+            document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
+            document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
+        }
+        
+        function renderCampList(filter = '') {
+            const list = document.getElementById('campList');
+            const filtered = campgrounds.filter(c => c.name.includes(filter) || c.location.includes(filter));
+            
+            list.innerHTML = filtered.map(camp => `
+                <div class="card">
+                    <img src="${camp.image}" alt="${camp.name}">
+                    <div class="card-info">
+                        <div class="card-name">${camp.name}</div>
+                        <div class="card-location">📍 ${camp.location}</div>
+                        <div class="card-tags">${camp.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                        <div class="card-price">💰 ${camp.price} / 晚</div>
+                    </div>
                 </div>
             `).join('');
         }
         
-        function publishPost() {
-            const text = document.getElementById('postText').value;
-            if (!text) { alert('請輸入內容'); return; }
+        function renderShopList() {
+            const list = document.getElementById('shopList');
+            list.innerHTML = shops.map(shop => `
+                <div class="card">
+                    <img src="${shop.image}" alt="${shop.name}">
+                    <div class="card-info">
+                        <div class="card-name">${shop.name}</div>
+                        <div class="card-location">📍 ${shop.location}</div>
+                        <div class="card-tags">${shop.tags.map(t => `<span class="tag orange">${t}</span>`).join('')}</div>
+                        <div class="card-phone">📞 ${shop.phone}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderRentalList() {
+            const list = document.getElementById('rentalList');
+            list.innerHTML = rentals.map(rental => `
+                <div class="card">
+                    <img src="${rental.image}" alt="${rental.name}">
+                    <div class="card-info">
+                        <div class="card-name">${rental.name}</div>
+                        <div class="card-location">📍 ${rental.location}</div>
+                        <div class="card-tags">${rental.tags.map(t => `<span class="tag orange">${t}</span>`).join('')}</div>
+                        <div class="card-price">💰 ${rental.price}</div>
+                        <div class="card-phone">📞 ${rental.phone}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function searchCamps() {
+            const query = document.getElementById('searchInput').value;
+            renderCampList(query);
+        }
+        
+        function renderStories() {
+            const container = document.getElementById('storiesBar');
+            if (container) {
+                container.innerHTML = stories.map(s => `
+                    <div class="story-item">
+                        <div class="story-ring">
+                            <div class="story-avatar">${s.avatar}</div>
+                        </div>
+                        <div class="story-name">${s.user}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function renderBreakingNews() {
+            const container = document.getElementById('breakingNews');
+            if (container) {
+                container.innerHTML = breakingNews.map(news => `
+                    <div class="breaking-news">
+                        <div class="breaking-news-title">${news.title}</div>
+                        <div class="breaking-news-content">${news.content}</div>
+                        <div style="font-size:12px;opacity:0.8;margin-top:5px">${news.time}</div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function renderPosts() {
+            const list = document.getElementById('postList');
+            const allPosts = currentUser ? [
+                ...posts,
+                { id: 4, user: currentUser, content: "歡迎來到露營趣社群！", time: "剛剛", likes: 0, isNew: true }
+            ] : posts;
             
-            posts.unshift({
-                user: '你',
-                content: text,
-                time: '剛剛'
-            });
+            list.innerHTML = allPosts.map(post => {
+                let mediaHtml = '';
+                if (post.images && post.images.length > 0) {
+                    mediaHtml += '<div class="post-images-full">' + post.images.map(img => `<img src="${img}">`).join('') + '</div>';
+                }
+                if (post.video) {
+                    mediaHtml += '<div class="post-images"><div class="video-preview">📹 影片</div></div>';
+                }
+                let locationHtml = post.location ? `<div style="color:#666;font-size:12px;margin-bottom:8px">📍 ${post.location}</div>` : '';
+                
+                return `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">${post.user[0]}</div>
+                        <div>
+                            <div class="post-user">${post.user}</div>
+                            <div class="post-time">${post.time}</div>
+                        </div>
+                    </div>
+                    ${locationHtml}
+                    <div class="post-content">${post.content}</div>
+                    ${mediaHtml}
+                    <div class="post-actions">
+                        <span class="post-action" onclick="likePost(${post.id})">${likedPosts.includes(post.id) ? '❤️' : '🤍'} ${(post.likes || 0) + (likedPosts.includes(post.id) ? 1 : 0)}</span>
+                        <span class="post-action">💬 留言</span>
+                        <span class="post-action">🔗 分享</span>
+                    </div>
+                </div>
+            `}).join('');
             
-            document.getElementById('postText').value = '';
+            if (!currentUser) {
+                list.innerHTML += `<div style="text-align: center; padding: 20px; color: #666;">登入後可發布貼文</div>`;
+            }
+        }
+        
+        function likePost(id) {
+            if (!currentUser) { showLogin(); return; }
+            const idx = likedPosts.indexOf(id);
+            if (idx > -1) {
+                likedPosts.splice(idx, 1);
+            } else {
+                likedPosts.push(id);
+            }
+            renderPosts();
+        }
+        
+        function showPostModal() {
+            if (!currentUser) { showLogin(); return; }
+            document.getElementById('postModal').classList.add('active');
+        }
+        
+        let uploadedImages = [];
+        let uploadedVideo = null;
+        
+        function handleImageUpload(input) {
+            const files = input.files;
+            const preview = document.getElementById('mediaPreview');
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push(e.target.result);
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function handleVideoUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const preview = document.getElementById('mediaPreview');
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedVideo = e.target.result;
+                    const div = document.createElement('div');
+                    div.className = 'video-preview';
+                    div.innerHTML = '📹 ' + file.name.substring(0, 10);
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function submitPost() {
+            console.log('submitPost called');
+            const content = document.getElementById('postContent').value;
+            const location = document.getElementById('postLocation').value;
+            if (!content) { alert('請輸入內容'); return; }
+            
+            const newPost = {
+                id: posts.length + 1,
+                user: currentUser,
+                content: content,
+                location: location,
+                images: uploadedImages,
+                video: uploadedVideo,
+                time: "剛剛",
+                likes: 0
+            };
+            
+            posts.unshift(newPost);
+            console.log('posts after unshift:', posts);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            console.log('saved to localStorage');
+            
+            // Reset
+            document.getElementById('postContent').value = '';
+            document.getElementById('postLocation').value = '';
+            uploadedImages = [];
+            uploadedVideo = null;
+            document.getElementById('mediaPreview').innerHTML = '';
+            closeModal('postModal');
             renderPosts();
             alert('發布成功！');
         }
         
+        function renderProfile() {
+            const content = document.getElementById('profileContent');
+            if (!currentUser) {
+                content.innerHTML = `
+                    <div class="profile-card">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-name">訪客</div>
+                        <p style="color:#666;margin:20px 0">登入後可查看個人檔案</p>
+                        <button class="profile-edit-btn" onclick="showLogin()">登入</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (isEditingProfile) {
+                content.innerHTML = `
+                    <div class="profile-card">
+                        <label class="profile-avatar" style="cursor:pointer">
+                            ${userProfile.avatar ? `<img src="${userProfile.avatar}">` : currentUser[0]}
+                            <input type="file" accept="image/*" onchange="handleAvatarUpload(this)" style="display:none">
+                        </label>
+                        <input type="text" class="profile-input" id="editName" value="${userProfile.name || currentUser}" placeholder="名稱">
+                        <input type="email" class="profile-input" id="editEmail" value="${userProfile.email || ''}" placeholder="Email">
+                        <button class="profile-edit-btn" onclick="saveProfile()">儲存</button>
+                        <button class="profile-edit-btn" onclick="cancelEditProfile()" style="background:#999;margin-left:10px">取消</button>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="profile-card">
+                        <label class="profile-avatar" style="cursor:pointer">
+                            ${userProfile.avatar ? `<img src="${userProfile.avatar}">` : currentUser[0]}
+                            <input type="file" accept="image/*" onchange="handleAvatarUpload(this)" style="display:none">
+                        </label>
+                        <div class="profile-name">${userProfile.name || currentUser}</div>
+                        <div class="profile-email">${userProfile.email || '未設定 Email'}</div>
+                        <button class="profile-edit-btn" onclick="editProfile()">頭像設定</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function editProfile() {
+            isEditingProfile = true;
+            renderProfile();
+        }
+        
+        function cancelEditProfile() {
+            isEditingProfile = false;
+            renderProfile();
+        }
+        
+        function saveProfile() {
+            userProfile.name = document.getElementById('editName').value;
+            userProfile.email = document.getElementById('editEmail').value;
+            isEditingProfile = false;
+            renderProfile();
+            alert('資料已儲存！');
+        }
+        
+        function handleAvatarUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userProfile.avatar = e.target.result;
+                    renderProfile();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Init
+        renderCampList();
+        renderShopList();
+        renderRentalList();
+        renderStories();
+        renderBreakingNews();
         renderPosts();
+        renderProfile();
     </script>
 </body>
 </html>
