@@ -8,6 +8,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
@@ -20,6 +21,21 @@
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        async function saveProfileToFirebase(profile, userId) {
+            try {
+                await setDoc(doc(db, "users", userId), { ...profile, updatedAt: serverTimestamp() }, { merge: true });
+            } catch (e) { console.error(e); }
+        }
+        
+        async function loadProfileFromFirebase(userId) {
+            try {
+                const snap = await getDoc(doc(db, "users", userId));
+                if (snap.exists()) return snap.data();
+            } catch (e) { console.error(e); }
+            return null;
+        }
         const googleProvider = new GoogleAuthProvider();
         
         window.firebaseAuth = auth;
@@ -348,10 +364,19 @@
             renderProfile();
         }
         
-        function updateUIAfterLogin() {
+        async function updateUIAfterLogin() {
             document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
+            
+            if (auth.currentUser) {
+                const fbProfile = await loadProfileFromFirebase(auth.currentUser.uid);
+                if (fbProfile) {
+                    userProfile = { ...userProfile, ...fbProfile };
+                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
+                }
+            }
+            
             renderPosts();
             renderProfile();
         }
@@ -681,13 +706,19 @@
             renderProfile();
         }
         
-        function saveProfile() {
+        async function saveProfile() {
             userProfile.name = document.getElementById('editName').value;
             userProfile.gender = document.getElementById('editGender').value;
-            userProfile.interest = document.getElementById('editInterest').value;
             userProfile.experience = document.getElementById('editExperience').value;
             const campStyles = Array.from(document.querySelectorAll('input[name="campStyle"]:checked')).map(c => c.value);
             userProfile.campStyle = campStyles;
+            
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            
+            if (auth.currentUser) {
+                await saveProfileToFirebase(userProfile, auth.currentUser.uid);
+            }
+            
             isEditingProfile = false;
             renderProfile();
             alert('資料已儲存！');
