@@ -464,6 +464,8 @@
         let likedPosts = [];
         
         function likePost(id) {
+            if (!currentUser) { showLogin(); return; }
+            
             const post = posts.find(p => p.id === id);
             if (!post) return;
             
