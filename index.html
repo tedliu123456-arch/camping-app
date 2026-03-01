@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>露營趣 - 戶外露營社區</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #2d5a27, #4a7c43); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 20px; font-weight: bold; }
+        .header-buttons button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; margin-left: 8px; cursor: pointer; }
+        
+        /* Tabs */
+        .tabs { display: flex; background: white; padding: 10px; gap: 10px; overflow-x: auto; }
+        .tab { padding: 10px 20px; border: none; background: #e8e8e8; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+        .tab.active { background: #2d5a27; color: white; }
+        
+        /* Pages */
+        .page { display: none; padding: 15px; }
+        .page.active { display: block; }
+        
+        /* Login */
+        .login-page { max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .login-page h2 { text-align: center; margin-bottom: 20px; color: #2d5a27; }
+        .login-page input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .login-page button { width: 100%; padding: 12px; background: #2d5a27; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        .login-page .switch { text-align: center; margin-top: 15px; color: #666; }
+        .login-page .switch a { color: #2d5a27; text-decoration: none; }
+        
+        /* Camp Cards */
+        .camp-card { background: white; border-radius: 12px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .camp-card img { width: 100%; height: 150px; object-fit: cover; }
+        .camp-info { padding: 15px; }
+        .camp-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .camp-location { color: #666; font-size: 14px; margin-bottom: 8px; }
+        .camp-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tag { background: #e8f5e9; color: #2d5a27; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+        .camp-price { color: #ff6b35; font-weight: bold; margin-top: 8px; }
+        
+        /* Map */
+        .map-container { height: 60vh; background: #e8e8e8; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .map-placeholder { text-align: center; color: #666; }
+        
+        /* Posts */
+        .post-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; }
+        .post-user { font-weight: bold; }
+        .post-time { font-size: 12px; color: #999; }
+        .post-content { margin-bottom: 10px; }
+        .post-images { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 10px; }
+        .post-images img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .post-actions { display: flex; gap: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        .post-action { color: #666; cursor: pointer; }
+        
+        /* FAB */
+        .fab { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background: #2d5a27; color: white; border: none; border-radius: 50%; font-size: 30px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px; border-top: 1px solid #eee; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: #999; cursor: pointer; }
+        .nav-item.active { color: #2d5a27; }
+        .nav-icon { font-size: 24px; margin-bottom: 2px; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .modal textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
+        .modal button { padding: 10px 20px; background: #2d5a27; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        
+        /* Search */
+        .search-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-bar input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+        .search-bar button { padding: 12px 20px; background: #2d5a27; color: white; border: none; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">⛺ 露營趣</div>
+        <div class="header-buttons" id="headerButtons">
+            <button onclick="showLogin()">登入</button>
+        </div>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('camps')">⛺ 營地</button>
+        <button class="tab" onclick="switchTab('map')">🗺️ 地圖</button>
+        <button class="tab" onclick="switchTab('posts')">📱 社群</button>
+    </div>
+    
+    <!-- Camp List Page -->
+    <div class="page active" id="campsPage">
+        <div class="search-bar">
+            <input type="text" placeholder="🔍 搜尋營地名稱、地區..." id="searchInput">
+            <button onclick="searchCamps()">搜尋</button>
+        </div>
+        <div id="campList"></div>
+    </div>
+    
+    <!-- Map Page -->
+    <div class="page" id="mapPage">
+        <div class="map-container">
+            <div class="map-placeholder">
+                <div style="font-size: 48px;">🗺️</div>
+                <p>Google Maps 地圖</p>
+                <p style="font-size: 12px;">(需 API Key)</p>
+            </div>
+        </div>
+        <div id="campListMap"></div>
+    </div>
+    
+    <!-- Posts Page -->
+    <div class="page" id="postsPage">
+        <div id="postList"></div>
+    </div>
+    
+    <!-- FAB -->
+    <button class="fab" onclick="showPostModal()" id="fabBtn" style="display: none;">+</button>
+    
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('camps')">
+            <div class="nav-icon">⛺</div>
+            <div>營地</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('map')">
+            <div class="nav-icon">🗺️</div>
+            <div>地圖</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('posts')">
+            <div class="nav-icon">📱</div>
+            <div>社群</div>
+        </div>
+        <div class="nav-item" onclick="showLogin()" id="profileNav">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content login-page">
+            <h2 id="loginTitle">登入</h2>
+            <input type="text" placeholder="用戶名" id="username">
+            <input type="email" placeholder="Email" id="email" style="display: none;">
+            <input type="password" placeholder="密碼">
+            <button onclick="doLogin()" id="loginBtn">登入</button>
+            <div class="switch">
+                <span id="switchText">還沒有帳號？</span> <a href="#" onclick="toggleRegister(event)">註冊</a>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="closeModal('loginModal')" style="background: #999; width: 100%;">關閉</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Post Modal -->
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>發布貼文</h3>
+                <button class="modal-close" onclick="closeModal('postModal')">&times;</button>
+            </div>
+            <textarea placeholder="分享你的露營經驗..." id="postContent"></textarea>
+            <button onclick="submitPost()">發布</button>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const campgrounds = [
+            { id: 1, name: "福壽山農場", location: "台中市和平區", county: "台中", tags: ["海拔高", "賞楓", "星空"], price: "800-1500", lat: 24.3167, lng: 121.1167, image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400" },
+            { id: 2, name: "清境農場", location: "南投縣仁愛鄉", county: "南投", tags: ["草原", "綿羊", "景觀"], price: "600-1200", lat: 24.0167, lng: 121.1167, image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400" },
+            { id: 3, name: "露營樂", location: "新竹縣五峰鄉", county: "新竹", tags: ["森林", "戲水", "親子"], price: "500-1000", lat: 24.6333, lng: 121.1167, image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
+            { id: 4, name: "合歡山營地", location: "花蓮縣秀林鄉", county: "花蓮", tags: ["高山", "日出", "雲海"], price: "300-500", lat: 24.1333, lng: 121.2833, image: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?w=400" },
+            { id: 5, name: "墾丁國家公園", location: "屏東縣恆春鎮", county: "屏東", tags: ["海邊", "水上活動", "溫暖"], price: "400-800", lat: 22.0833, lng: 120.8000, image: "https://images.unsplash.com/photo-1517824806704-9040b037703b?w=400" },
+            { id: 6, name: "太平山莊", location: "宜蘭縣大同鄉", county: "宜蘭", tags: ["森林", "溫泉", "步道"], price: "700-1300", lat: 24.5000, lng: 121.5167, image: "https://images.unsplash.com/photo-1445308394109-4ec2920981b1?w=400" }
+        ];
+        
+        const posts = [
+            { id: 1, user: "小明", content: "上週去福壽山農場，天氣超好，夜晚星空美爆了！🌟", time: "2小時前", likes: 45 },
+            { id: 2, user: "露營達人", content: "推薦清境農場的營位，視野寬敞，重點是綿羊好可愛🐑", time: "5小時前", likes: 32 },
+            { id: 3, user: "新手爸媽", content: "第一次帶小孩露營，選擇露營樂，真的很適合家庭！", time: "昨天", likes: 28 }
+        ];
+        
+        let currentUser = null;
+        let isRegister = false;
+        
+        // Functions
+        function showLogin() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        function toggleRegister(e) {
+            e.preventDefault();
+            isRegister = !isRegister;
+            document.getElementById('loginTitle').textContent = isRegister ? '註冊' : '登入';
+            document.getElementById('loginBtn').textContent = isRegister ? '註冊' : '登入';
+            document.getElementById('email').style.display = isRegister ? 'block' : 'none';
+            document.getElementById('switchText').textContent = isRegister ? '已有帳號？' : '還沒有帳號？';
+        }
+        
+        function doLogin() {
+            const username = document.getElementById('username').value;
+            if (!username) { alert('請輸入用戶名'); return; }
+            
+            currentUser = username;
+            document.getElementById('headerButtons').innerHTML = `<span style="color: white;">${username}</span> <button onclick="logout()">登出</button>`;
+            document.getElementById('fabBtn').style.display = 'block';
+            document.getElementById('profileNav').innerHTML = `<div class="nav-icon">👤</div><div>${username}</div>`;
+            closeModal('loginModal');
+            renderPosts();
+        }
+        
+        function logout() {
+            currentUser = null;
+            document.getElementById('headerButtons').innerHTML = '<button onclick="showLogin()">登入</button>';
+            document.getElementById('fabBtn').style.display = 'none';
+            document.getElementById('profileNav').innerHTML = '<div class="nav-icon">👤</div><div>我的</div>';
+            renderPosts();
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(tab + 'Page').classList.add('active');
+            event.target.classList.add('active');
+            
+            const navIndex = ['camps', 'map', 'posts'].indexOf(tab);
+            if (navIndex >= 0) document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            
+            if (tab === 'map') renderCampListMap();
+            if (tab === 'camps') renderCampList();
+        }
+        
+        function renderCampList(filter = '') {
+            const list = document.getElementById('campList');
+            const filtered = campgrounds.filter(c => c.name.includes(filter) || c.location.includes(filter));
+            
+            list.innerHTML = filtered.map(camp => `
+                <div class="camp-card" onclick="showCampDetail(${camp.id})">
+                    <img src="${camp.image}" alt="${camp.name}">
+                    <div class="camp-info">
+                        <div class="camp-name">${camp.name}</div>
+                        <div class="camp-location">📍 ${camp.location}</div>
+                        <div class="camp-tags">${camp.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                        <div class="camp-price">💰 ${camp.price} / 晚</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderCampListMap() {
+            const list = document.getElementById('campListMap');
+            list.innerHTML = campgrounds.map(camp => `
+                <div class="camp-card">
+                    <div class="camp-info">
+                        <div class="camp-name">${camp.name}</div>
+                        <div class="camp-location">📍 ${camp.location}</div>
+                        <div class="camp-tags">${camp.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function searchCamps() {
+            const query = document.getElementById('searchInput').value;
+            renderCampList(query);
+        }
+        
+        function showCampDetail(id) {
+            const camp = campgrounds.find(c => c.id === id);
+            alert(`${camp.name}\n📍 ${camp.location}\n標籤: ${camp.tags.join(', ')}\n💰 價格: ${camp.price}\n\n(詳細頁面開發中...)`);
+        }
+        
+        function renderPosts() {
+            const list = document.getElementById('postList');
+            const allPosts = currentUser ? [
+                ...posts,
+                { id: 4, user: currentUser, content: "歡迎來到露營趣社群！", time: "剛剛", likes: 0, isNew: true }
+            ] : posts;
+            
+            list.innerHTML = allPosts.map(post => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">${post.user[0]}</div>
+                        <div>
+                            <div class="post-user">${post.user}</div>
+                            <div class="post-time">${post.time}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-actions">
+                        <span class="post-action" onclick="likePost(${post.id})">❤️ ${post.likes || 0}</span>
+                        <span class="post-action">💬 留言</span>
+                        <span class="post-action">🔗 分享</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            if (!currentUser) {
+                list.innerHTML += `<div style="text-align: center; padding: 20px; color: #666;">登入後可發布貼文</div>`;
+            }
+        }
+        
+        function likePost(id) {
+            alert('已按讚！❤️');
+        }
+        
+        function showPostModal() {
+            if (!currentUser) { showLogin(); return; }
+            document.getElementById('postModal').classList.add('active');
+        }
+        
+        function submitPost() {
+            const content = document.getElementById('postContent').value;
+            if (!content) { alert('請輸入內容'); return; }
+            
+            posts.unshift({
+                id: posts.length + 1,
+                user: currentUser,
+                content: content,
+                time: "剛剛",
+                likes: 0
+            });
+            
+            document.getElementById('postContent').value = '';
+            closeModal('postModal');
+            renderPosts();
+            alert('發布成功！');
+        }
+        
+        // Init
+        renderCampList();
+        renderPosts();
+    </script>
+</body>
+</html>
