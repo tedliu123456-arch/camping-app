@@ -145,7 +145,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.8</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.9</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -314,6 +314,7 @@
         ];
         
         let currentUser = null;
+        let currentUserId = null;
         let userProfile = { name: '', email: '', avatar: '' };
         let isEditingProfile = false;
         let isRegister = false;
@@ -357,12 +358,9 @@
             if (!username) { alert('請輸入用戶名'); return; }
             
             currentUser = username;
-            
-            // Load profile from localStorage
-            const saved = localStorage.getItem('userProfile_' + username);
-            if (saved) {
-                userProfile = JSON.parse(saved);
-            }
+            currentUserId = 'local_' + username;
+
+            loadProfileFromLocal();
             
             document.getElementById('headerButtons').innerHTML = `<span style="color: white;">${username}</span> <button onclick="logout()">登出</button>`;
             document.getElementById('fabBtn').style.display = 'block';
@@ -372,6 +370,11 @@
         }
         
         async function updateUIAfterLogin() {
+            if (auth.currentUser) {
+                currentUserId = auth.currentUser.uid;
+                loadProfileFromLocal();
+            }
+
             document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
@@ -389,6 +392,7 @@
         
         function logout() {
             currentUser = null;
+            currentUserId = null;
             userProfile = { name: '', email: '', avatar: '' };
             isEditingProfile = false;
             document.getElementById('headerButtons').innerHTML = '<button onclick="showLogin()">登入</button>';
@@ -714,9 +718,8 @@
             const campStyles = Array.from(document.querySelectorAll('input[name="campStyle"]:checked')).map(c => c.value);
             userProfile.campStyle = campStyles;
             
-            localStorage.setItem('userProfile', JSON.stringify(userProfile));
-            if (currentUser) {
-                localStorage.setItem('userProfile_' + currentUser, JSON.stringify(userProfile));
+            if (currentUserId) {
+                localStorage.setItem('userProfile_' + currentUserId, JSON.stringify(userProfile));
             }
             
             if (auth.currentUser) {
@@ -737,6 +740,16 @@
                     renderProfile();
                 };
                 reader.readAsDataURL(file);
+            }
+        }
+
+        function loadProfileFromLocal() {
+            if (!currentUserId) return;
+            const saved = localStorage.getItem('userProfile_' + currentUserId);
+            if (saved) {
+                userProfile = JSON.parse(saved);
+            } else {
+                userProfile = { name: currentUser, email: '', avatar: '' };
             }
         }
         
