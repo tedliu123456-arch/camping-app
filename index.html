@@ -162,7 +162,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v2.3.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v3.0.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -309,11 +309,14 @@
             { id: 4, name: "快樂露營車", location: "高雄市左營區", county: "高雄", tags: ["機場接送", "代駕"], price: "3200-6500/天", phone: "07-345-4444", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" }
         ];
         
-        const posts = [
+        // Load posts from localStorage or use default
+        const defaultPosts = [
             { id: 1, user: "小明", content: "上週去福壽山農場，天氣超好，夜晚星空美爆了！🌟", time: "2小時前", likes: 45 },
             { id: 2, user: "露營達人", content: "推薦清境農場的營位，視野寬敞，重點是綿羊好可愛🐑", time: "5小時前", likes: 32 },
             { id: 3, user: "新手爸媽", content: "第一次帶小孩露營，選擇露營樂，真的很適合家庭！", time: "昨天", likes: 28 }
         ];
+        const savedPosts = localStorage.getItem('posts');
+        const posts = savedPosts ? JSON.parse(savedPosts) : defaultPosts;
         
         const breakingNews = [
             { id: 1, title: "🔴 突發", content: "合歡山今晚降雪！路面結冰，行車請注意安全", time: "10分鐘前" },
@@ -634,20 +637,8 @@
             
             posts.unshift(newPost);
             
-            // Save to Firestore
-            if (window.firebaseDb) {
-                window.addDoc(window.collection(window.firebaseDb, 'posts'), {
-                    user: currentUser,
-                    content: content,
-                    location: location,
-                    time: new Date().toISOString(),
-                    likes: 0
-                }).then(() => {
-                    console.log('Saved to Firestore');
-                }).catch((err) => {
-                    console.error('Firestore error:', err);
-                });
-            }
+            // Save to localStorage
+            localStorage.setItem('posts', JSON.stringify(posts));
             
             // Reset
             document.getElementById('postContent').value = '';
