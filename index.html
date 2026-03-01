@@ -140,7 +140,6 @@
         <button class="tab active" onclick="switchTab('posts')">📱 社群</button>
         <button class="tab" onclick="switchTab('camps')">⛺ 營地</button>
         <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
-        <button class="tab" onclick="switchTab('gear')">🏕️ 露營用品</button>
         <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
     </div>
     
@@ -162,12 +161,6 @@
     <div class="page" id="shopsPage">
         <div class="section-title">🚐 露營車改裝店</div>
         <div id="shopList"></div>
-    </div>
-    
-    <!-- Camping Gear Page -->
-    <div class="page" id="gearPage">
-        <div class="section-title">🏕️ 露營用品店</div>
-        <div id="gearList"></div>
     </div>
     
     <!-- RV Rentals Page -->
@@ -203,10 +196,6 @@
             <div class="nav-icon">🚐</div>
             <div>改裝店</div>
         </div>
-        <div class="nav-item" onclick="switchTab('gear')">
-            <div class="nav-icon">🏕️</div>
-            <div>用品</div>
-        </div>
         <div class="nav-item" onclick="switchTab('rentals')">
             <div class="nav-icon">🏎️</div>
             <div>出租</div>
@@ -241,41 +230,6 @@
         </div>
     </div>
     
-    <!-- Profile Edit Modal -->
-    <div class="modal" id="profileEditModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>編輯個人檔案</h3>
-                <button class="modal-close" onclick="closeModal('profileEditModal')">&times;</button>
-            </div>
-            <div style="text-align:center;margin-bottom:15px;">
-                <div class="post-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 10px;cursor:pointer" onclick="document.getElementById('profileAvatarInput').click()">
-                    ${userProfile.avatar ? '<img src="' + userProfile.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : (currentUser ? currentUser[0] : '👤')}
-                </div>
-                <input type="file" id="profileAvatarInput" accept="image/*" style="display:none" onchange="changeProfileAvatar(this)">
-                <p style="font-size:12px;color:#666">點擊頭像更換</p>
-            </div>
-            <input type="text" id="editName" placeholder="名稱" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
-            <select id="editGender" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
-                <option value="">選擇性別</option>
-                <option value="男">👨 男</option>
-                <option value="女">👩 女</option>
-                <option value="其他">🌈 其他</option>
-            </select>
-            <textarea id="editBio" placeholder="個人簡介" style="width:100%;height:60px;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px"></textarea>
-            <div style="margin-bottom:10px;">
-                <span style="font-size:12px;color:#666;display:block;margin-bottom:5px;">喜歡的露營方式：</span>
-                <div style="display:flex;flex-wrap:wrap;gap:5px;">
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" name="prefer" value="開車"> 🚗 開車</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e3f2fd;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" name="prefer" value="騎車"> 🏍️ 騎車</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#fff3e0;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" name="prefer" value="露營車"> 🚐 露營車</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e0f7fa;border-radius:15px;cursor:pointer;font-size:12px;"><input type="checkbox" value="海邊"> 🏖️ 海邊</label>
-                </div>
-            </div>
-            <button onclick="saveProfileEdit()" style="width:100%;padding:12px;background:#2d5a27;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;">儲存</button>
-        </div>
-    </div>
-    
     <!-- Post Modal -->
     <div class="modal" id="postModal">
         <div class="modal-content">
@@ -294,29 +248,6 @@
             </div>
             <div id="mediaPreview"></div>
             <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
-            <div style="margin-bottom:10px;">
-                <span style="font-size:12px;color:#666;display:block;margin-bottom:5px;">分類：</span>
-                <div style="display:flex;flex-wrap:wrap;gap:5px;">
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="開車"> 🚗 開車</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e3f2fd;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="騎車"> 🏍️ 騎車</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#fff3e0;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="露營車"> 🚐 露營車</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e0f7fa;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="海邊"> 🏖️ 海邊</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="山上"> ⛰️ 山上</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e3f2fd;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="營區"> ⛺ 營區</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#fff3e0;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="湖泊"> 🌊 湖泊</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="category" value="森林"> 🌲 森林</label>
-                </div>
-            </div>
-            <div style="margin-bottom:10px;">
-                <span style="font-size:12px;color:#666;display:block;margin-bottom:5px;">人數：</span>
-                <div style="display:flex;flex-wrap:wrap;gap:5px;">
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="people" value="1人"> 1人</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e3f2fd;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="people" value="2人"> 2人</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#fff3e0;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="people" value="3人"> 3人</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e0f7fa;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="people" value="4人"> 4人</label>
-                    <label style="display:flex;align-items:center;gap:3px;padding:5px 10px;background:#e8f5e9;border-radius:15px;cursor:pointer;font-size:12px;"><input type="radio" name="people" value="5人以上"> 5人以上</label>
-                </div>
-            </div>
             <button onclick="submitPost()">發布</button>
         </div>
     </div>
@@ -337,13 +268,6 @@
             { id: 2, name: "野外改裝中心", location: "桃園市大園區", county: "桃園", tags: ["車體改造", "防水", "隔熱"], phone: "03-386-5678", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" },
             { id: 3, name: "戶外玩家的家", location: "台中市潭子區", county: "台中", tags: ["家具", "儲物", "客製化"], phone: "04-2531-9012", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
             { id: 4, name: "RV 專門店", location: "高雄市前鎮區", county: "高雄", tags: ["進口改裝件", "保養", "維修"], phone: "07-536-7890", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400" }
-        ];
-        
-        const gearShops = [
-            { id: 1, name: "露營小舖", location: "台北市大安區", county: "台北", tags: ["帳篷", "睡袋", "野餐墊"], phone: "02-2701-1234", image: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400" },
-            { id: 2, name: "戶外探險家", location: "台中市西區", county: "台中", tags: ["炊具", "灯具", "烤肉架"], phone: "04-2323-5678", image: "https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=400" },
-            { id: 3, name: "山林戶外用品", location: "宜蘭縣羅東鎮", county: "宜蘭", tags: ["背包", "登山鞋", "機能衣"], phone: "03-954-9012", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
-            { id: 4, name: "海洋戶外用品", location: "屏東縣恆春鎮", county: "屏東", tags: ["潛水裝備", "海上玩具", "防曬"], phone: "08-889-3456", image: "https://images.unsplash.com/photo-1517824806704-9040b037703b?w=400" }
         ];
         
         const rentals = [
@@ -411,7 +335,7 @@
         }
         
         function updateUIAfterLogin() {
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px" onclick="document.getElementById('avatarInput').click()"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0;cursor:pointer">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div><button onclick="logout()">登出</button><input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="changeAvatar(this)">`;
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span> <button onclick="logout()">登出</button></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             renderPosts();
@@ -428,52 +352,6 @@
             renderProfile();
         }
         
-        function changeAvatar(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    userProfile.avatar = e.target.result;
-                    const avatar = document.querySelector('#headerButtons .post-avatar');
-                    if (avatar) {
-                        avatar.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        function showProfileEdit() {
-            if (!currentUser) { showLogin(); return; }
-            document.getElementById('editName').value = userProfile.name || currentUser;
-            document.getElementById('editGender').value = userProfile.gender || '';
-            document.getElementById('editBio').value = userProfile.bio || '';
-            document.getElementById('profileEditModal').classList.add('active');
-        }
-        
-        function saveProfileEdit() {
-            userProfile.name = document.getElementById('editName').value;
-            userProfile.gender = document.getElementById('editGender').value;
-            userProfile.bio = document.getElementById('editBio').value;
-            closeModal('profileEditModal');
-            alert('個人檔案已儲存！');
-        }
-        
-        function changeProfileAvatar(input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    userProfile.avatar = e.target.result;
-                    const avatar = document.querySelector('#profileEditModal .post-avatar');
-                    if (avatar) {
-                        avatar.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-        
         function switchTab(tab) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -481,7 +359,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'gear': 3, 'rentals': 4, 'profile': 5 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'rentals': 3, 'profile': 4 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
@@ -506,21 +384,6 @@
         function renderShopList() {
             const list = document.getElementById('shopList');
             list.innerHTML = shops.map(shop => `
-                <div class="card">
-                    <img src="${shop.image}" alt="${shop.name}">
-                    <div class="card-info">
-                        <div class="card-name">${shop.name}</div>
-                        <div class="card-location">📍 ${shop.location}</div>
-                        <div class="card-tags">${shop.tags.map(t => `<span class="tag orange">${t}</span>`).join('')}</div>
-                        <div class="card-phone">📞 ${shop.phone}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function renderGearList() {
-            const list = document.getElementById('gearList');
-            list.innerHTML = gearShops.map(shop => `
                 <div class="card">
                     <img src="${shop.image}" alt="${shop.name}">
                     <div class="card-info">
@@ -570,8 +433,6 @@
                     mediaHtml += '<div class="post-images"><div class="video-preview">📹 影片</div></div>';
                 }
                 let locationHtml = post.location ? `<div style="color:#666;font-size:12px;margin-bottom:8px">📍 ${post.location}</div>` : '';
-                let categoryHtml = post.category ? `<span style="display:inline-block;padding:3px 8px;background:#2d5a27;color:white;border-radius:10px;font-size:10px;margin-right:5px;">${post.category}</span>` : '';
-                let peopleHtml = post.people ? `<span style="display:inline-block;padding:3px 8px;background:#ff9800;color:white;border-radius:10px;font-size:10px;margin-right:5px;">👤 ${post.people}</span>` : '';
                 
                 return `
                 <div class="post-card">
@@ -579,8 +440,6 @@
                         <div class="post-avatar">${post.user[0]}</div>
                         <div>
                             <div class="post-user">${post.user}</div>
-                            ${categoryHtml}
-                            ${peopleHtml}
                             <div class="post-time">${post.time}</div>
                         </div>
                     </div>
@@ -605,8 +464,6 @@
         let likedPosts = [];
         
         function likePost(id) {
-            if (!currentUser) { showLogin(); return; }
-            
             const post = posts.find(p => p.id === id);
             if (!post) return;
             
@@ -693,10 +550,6 @@
         function submitPost() {
             const content = document.getElementById('postContent').value;
             const location = document.getElementById('postLocation').value;
-            const categoryEl = document.querySelector('input[name="category"]:checked');
-            const category = categoryEl ? categoryEl.value : '';
-            const peopleEl = document.querySelector('input[name="people"]:checked');
-            const people = peopleEl ? peopleEl.value : '';
             if (!content) { alert('請輸入內容'); return; }
             
             posts.unshift({
@@ -704,8 +557,6 @@
                 user: currentUser,
                 content: content,
                 location: location,
-                category: category,
-                people: people,
                 images: uploadedImages,
                 video: uploadedVideo,
                 time: "剛剛",
@@ -799,7 +650,6 @@
         renderCampList();
         renderShopList();
         renderRentalList();
-        renderGearList();
         renderPosts();
         renderProfile();
     </script>
