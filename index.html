@@ -162,7 +162,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v2.2.2</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v2.3.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -616,11 +616,12 @@
         }
         
         function submitPost() {
+            console.log('submitPost called');
             const content = document.getElementById('postContent').value;
             const location = document.getElementById('postLocation').value;
             if (!content) { alert('請輸入內容'); return; }
             
-            posts.unshift({
+            const newPost = {
                 id: posts.length + 1,
                 user: currentUser,
                 content: content,
@@ -629,7 +630,24 @@
                 video: uploadedVideo,
                 time: "剛剛",
                 likes: 0
-            });
+            };
+            
+            posts.unshift(newPost);
+            
+            // Save to Firestore
+            if (window.firebaseDb) {
+                window.addDoc(window.collection(window.firebaseDb, 'posts'), {
+                    user: currentUser,
+                    content: content,
+                    location: location,
+                    time: new Date().toISOString(),
+                    likes: 0
+                }).then(() => {
+                    console.log('Saved to Firestore');
+                }).catch((err) => {
+                    console.error('Firestore error:', err);
+                });
+            }
             
             // Reset
             document.getElementById('postContent').value = '';
