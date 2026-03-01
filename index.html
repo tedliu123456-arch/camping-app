@@ -4,46 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>露營趣 - 戶外露營社區</title>
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
-            authDomain: "outdoorcamp.firebaseapp.com",
-            projectId: "outdoorcamp",
-            storageBucket: "outdoorcamp.firebasestorage.app",
-            messagingSenderId: "709693825585",
-            appId: "1:709693825585:web:eced280b0538cdc29bab10",
-            measurementId: "G-L68VBJR8W2"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
-        
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.googleProvider = googleProvider;
-        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.signOut = signOut;
-        window.onAuthStateChanged = onAuthStateChanged;
-        window.signInWithPopup = signInWithPopup;
-        window.getRedirectResult = getRedirectResult;
-        window.collection = collection;
-        window.addDoc = addDoc;
-        window.getDocs = getDocs;
-        window.doc = doc;
-        window.updateDoc = updateDoc;
-        window.deleteDoc = deleteDoc;
-        window.query = query;
-        window.orderBy = orderBy;
-    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
@@ -87,41 +47,31 @@
         .map-container { height: 60vh; background: #e8e8e8; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .map-placeholder { text-align: center; color: #666; }
         
-        /* Posts - Instagram Style */
-        .stories-bar { display: flex; gap: 15px; overflow-x: auto; padding: 10px; background: white; margin-bottom: 10px; border-radius: 8px; }
-        .story-item { display: flex; flex-direction: column; align-items: center; min-width: 60px; }
-        .story-ring { width: 60px; height: 60px; border-radius: 50%; padding: 2px; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        .story-ring.seen { background: #ddd; }
-        .story-avatar { width: 54px; height: 54px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid white; }
-        .story-name { font-size: 10px; margin-top: 4px; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        .post-card { background: white; border-radius: 0; margin-bottom: 10px; border-bottom: 1px solid #eee; }
-        .post-header { display: flex; align-items: center; padding: 10px; }
-        .post-avatar { width: 32px; height: 32px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 14px; }
-        .post-user { font-weight: 600; font-size: 14px; }
-        .post-time { font-size: 12px; color: #999; margin-left: auto; }
-        .post-content { padding: 0 10px 10px; font-size: 14px; }
-        .post-images-full { width: 100%; }
-        .post-images-full img { width: 100%; height: auto; display: block; }
-        .post-actions { display: flex; gap: 20px; padding: 10px; }
-        .post-action { font-size: 24px; cursor: pointer; }
-        .post-likes { padding: 0 10px; font-weight: 600; font-size: 14px; }
+        /* Posts */
+        .post-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .post-header { display: flex; align-items: center; margin-bottom: 10px; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: #2d5a27; color: white; display: flex; align-items: center; justify-content: center; margin-right: 10px; }
+        .post-user { font-weight: bold; }
+        .post-time { font-size: 12px; color: #999; }
+        .post-content { margin-bottom: 10px; }
+        .post-images { display: flex; gap: 5px; overflow-x: auto; margin-bottom: 10px; }
+        .post-images img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .post-actions { display: flex; gap: 20px; border-top: 1px solid #eee; padding-top: 10px; }
         .post-action { color: #666; cursor: pointer; }
         
         /* FAB */
         .fab { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background: #2d5a27; color: white; border: none; border-radius: 50%; font-size: 30px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 15px 10px; border-top: 1px solid #eee; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: #999; cursor: pointer; padding: 5px 15px; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px; border-top: 1px solid #eee; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 12px; color: #999; cursor: pointer; }
         .nav-item.active { color: #2d5a27; }
         .nav-icon { font-size: 24px; margin-bottom: 2px; }
-        .nav-item:hover { background: #f5f5f5; border-radius: 8px; }
         
         /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; padding-bottom: 80px; position: relative; }
+        .modal-content { background: white; border-radius: 16px; padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
         .modal textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
@@ -151,18 +101,12 @@
         
         /* Section Title */
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
-        
-        /* Breaking News */
-        .breaking-news { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: white; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-        .breaking-news-title { font-weight: bold; display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-        .breaking-news-content { font-size: 14px; }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v4.0.2</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.4.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -204,8 +148,6 @@
     
     <!-- Posts Page -->
     <div class="page" id="postsPage">
-        <div class="stories-bar" id="storiesBar"></div>
-        <div id="breakingNews"></div>
         <div id="postList"></div>
     </div>
     
@@ -235,20 +177,20 @@
             <div class="nav-icon">🏎️</div>
             <div>出租</div>
         </div>
+        <div class="nav-item" onclick="switchTab('rentals')">
+            <div class="nav-icon">🏎️</div>
+            <div>出租</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')" id="profileNavItem">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
     </div>
     
     <!-- Login Modal -->
     <div class="modal" id="loginModal">
         <div class="modal-content login-page">
             <h2 id="loginTitle">登入</h2>
-            
-            <!-- Google 登入按鈕 -->
-            <button onclick="signInWithGoogle()" style="width:100%;padding:12px;background:#4285F4;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
-                <img src="https://www.google.com/favicon.ico" width="16" height="16"> Google 帳號登入
-            </button>
-            
-            <div style="text-align:center;margin:10px 0;color:#999;">— 或使用 Email —</div>
-            
             <input type="text" placeholder="用戶名" id="username">
             <input type="email" placeholder="Email" id="email" style="display: none;">
             <input type="password" placeholder="密碼">
@@ -264,13 +206,12 @@
     
     <!-- Post Modal -->
     <div class="modal" id="postModal">
-        <div class="modal-content" style="padding-bottom:20px;">
-            <button onclick="console.log(' clicked'); submitPost()" style="width:100%;padding:16px;background:#2d5a27;color:white;border:none;border-radius:25px;font-size:18px;font-weight:bold;cursor:pointer;margin-bottom:15px;">🚀 發布貼文</button>
+        <div class="modal-content">
             <div class="modal-header">
                 <h3>發布貼文</h3>
                 <button class="modal-close" onclick="closeModal('postModal')">&times;</button>
             </div>
-            <textarea placeholder="分享你的露營經驗..." id="postContent" style="width:100%;height:100px;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px;resize:none;"></textarea>
+            <textarea placeholder="分享你的露營經驗..." id="postContent"></textarea>
             <div class="post-media-btns">
                 <label class="media-btn">📷 照片
                     <input type="file" accept="image/*" multiple onchange="handleImageUpload(this)" style="display:none">
@@ -279,8 +220,9 @@
                     <input type="file" accept="video/*" onchange="handleVideoUpload(this)" style="display:none">
                 </label>
             </div>
-            <div id="mediaPreview" style="margin-bottom:10px;"></div>
-            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;">
+            <div id="mediaPreview"></div>
+            <input type="text" placeholder="📍 標註位置..." id="postLocation" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
+            <button onclick="submitPost()">發布</button>
         </div>
     </div>
 
@@ -309,31 +251,13 @@
             { id: 4, name: "快樂露營車", location: "高雄市左營區", county: "高雄", tags: ["機場接送", "代駕"], price: "3200-6500/天", phone: "07-345-4444", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" }
         ];
         
-        // Load posts from localStorage or use default
-        const defaultPosts = [
+        const posts = [
             { id: 1, user: "小明", content: "上週去福壽山農場，天氣超好，夜晚星空美爆了！🌟", time: "2小時前", likes: 45 },
             { id: 2, user: "露營達人", content: "推薦清境農場的營位，視野寬敞，重點是綿羊好可愛🐑", time: "5小時前", likes: 32 },
             { id: 3, user: "新手爸媽", content: "第一次帶小孩露營，選擇露營樂，真的很適合家庭！", time: "昨天", likes: 28 }
         ];
-        const savedPosts = localStorage.getItem('posts');
-        const posts = savedPosts ? JSON.parse(savedPosts) : defaultPosts;
-        
-        const breakingNews = [
-            { id: 1, title: "🔴 突發", content: "合歡山今晚降雪！路面結冰，行車請注意安全", time: "10分鐘前" },
-            { id: 2, title: "🔴 突發", content: "墾丁國家公園新增露營區， 即日起開放預訂！", time: "1小時前" }
-        ];
-        
-        const stories = [
-            { id: 1, user: "小明", avatar: "小明" },
-            { id: 2, user: "露營達人", avatar: "露" },
-            { id: 3, user: "新手爸媽", avatar: "新" },
-            { id: 4, user: "山友阿文", avatar: "文" },
-            { id: 5, user: "雲海女孩", avatar: "雲" },
-            { id: 6, user: "野炊老師", avatar: "野" }
-        ];
         
         let currentUser = null;
-        let likedPosts = [];
         let userProfile = { name: '', email: '', avatar: '' };
         let isEditingProfile = false;
         let isRegister = false;
@@ -356,57 +280,12 @@
             document.getElementById('switchText').textContent = isRegister ? '已有帳號？' : '還沒有帳號？';
         }
         
-        let firebaseUser = null;
-        
         function doLogin() {
             const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value || username + '@example.com';
-            const password = document.querySelector('#loginModal input[type="password"]').value;
+            if (!username) { alert('請輸入用戶名'); return; }
             
-            if (!username || !password) { alert('請輸入用戶名和密碼'); return; }
-            
-            if (isRegister) {
-                window.createUserWithEmailAndPassword(window.firebaseAuth, email, password)
-                    .then((userCredential) => {
-                        firebaseUser = userCredential.user;
-                        currentUser = username;
-                        userProfile = { name: username, email: email, avatar: '' };
-                        updateUIAfterLogin();
-                        alert('註冊成功！');
-                    })
-                    .catch((error) => {
-                        alert('註冊失敗: ' + error.message);
-                    });
-            } else {
-                window.signInWithEmailAndPassword(window.firebaseAuth, email, password)
-                    .then((userCredential) => {
-                        firebaseUser = userCredential.user;
-                        currentUser = username;
-                        updateUIAfterLogin();
-                    })
-                    .catch((error) => {
-                        alert('登入失敗: ' + error.message);
-                    });
-            }
-        }
-        
-        function signInWithGoogle() {
-            console.log('Starting Google sign in...');
-            window.signInWithPopup(window.firebaseAuth, window.googleProvider)
-                .then((result) => {
-                    console.log('Google sign in success:', result);
-                    const user = result.user;
-                    currentUser = user.displayName || user.email.split('@')[0];
-                    userProfile = { name: user.displayName, email: user.email, avatar: user.photoURL };
-                    updateUIAfterLogin();
-                }).catch((error) => {
-                    console.error('Google sign in error:', error);
-                    alert('Google 登入失敗: ' + error.code + ' - ' + error.message);
-                });
-        }
-        
-        function updateUIAfterLogin() {
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span> <button onclick="logout()">登出</button></div>`;
+            currentUser = username;
+            document.getElementById('headerButtons').innerHTML = `<span style="color: white;">${username}</span> <button onclick="logout()">登出</button>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             renderPosts();
@@ -414,24 +293,14 @@
         }
         
         function logout() {
-            window.signOut(window.firebaseAuth).then(() => {
-                currentUser = null;
-                firebaseUser = null;
-                userProfile = { name: '', email: '', avatar: '' };
-                isEditingProfile = false;
-                document.getElementById('headerButtons').innerHTML = '<button onclick="showLogin()">登入</button>';
-                document.getElementById('fabBtn').style.display = 'none';
-                renderPosts();
-                renderProfile();
-            });
+            currentUser = null;
+            userProfile = { name: '', email: '', avatar: '' };
+            isEditingProfile = false;
+            document.getElementById('headerButtons').innerHTML = '<button onclick="showLogin()">登入</button>';
+            document.getElementById('fabBtn').style.display = 'none';
+            renderPosts();
+            renderProfile();
         }
-        
-        // Listen for auth state changes
-        window.onAuthStateChanged(window.firebaseAuth, (user) => {
-            if (user) {
-                firebaseUser = user;
-            }
-        });
         
         function switchTab(tab) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -440,7 +309,7 @@
             
             document.getElementById(tab + 'Page').classList.add('active');
             
-            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'rentals': 3 };
+            const tabIndex = { 'posts': 0, 'camps': 1, 'shops': 2, 'rentals': 3, 'profile': 4 };
             document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
             document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
@@ -498,33 +367,6 @@
             renderCampList(query);
         }
         
-        function renderStories() {
-            const container = document.getElementById('storiesBar');
-            if (container) {
-                container.innerHTML = stories.map(s => `
-                    <div class="story-item">
-                        <div class="story-ring">
-                            <div class="story-avatar">${s.avatar}</div>
-                        </div>
-                        <div class="story-name">${s.user}</div>
-                    </div>
-                `).join('');
-            }
-        }
-        
-        function renderBreakingNews() {
-            const container = document.getElementById('breakingNews');
-            if (container) {
-                container.innerHTML = breakingNews.map(news => `
-                    <div class="breaking-news">
-                        <div class="breaking-news-title">${news.title}</div>
-                        <div class="breaking-news-content">${news.content}</div>
-                        <div style="font-size:12px;opacity:0.8;margin-top:5px">${news.time}</div>
-                    </div>
-                `).join('');
-            }
-        }
-        
         function renderPosts() {
             const list = document.getElementById('postList');
             const allPosts = currentUser ? [
@@ -535,7 +377,7 @@
             list.innerHTML = allPosts.map(post => {
                 let mediaHtml = '';
                 if (post.images && post.images.length > 0) {
-                    mediaHtml += '<div class="post-images-full">' + post.images.map(img => `<img src="${img}">`).join('') + '</div>';
+                    mediaHtml += '<div class="post-images">' + post.images.map(img => `<img src="${img}">`).join('') + '</div>';
                 }
                 if (post.video) {
                     mediaHtml += '<div class="post-images"><div class="video-preview">📹 影片</div></div>';
@@ -555,7 +397,7 @@
                     <div class="post-content">${post.content}</div>
                     ${mediaHtml}
                     <div class="post-actions">
-                        <span class="post-action" onclick="likePost(${post.id})">${likedPosts.includes(post.id) ? '❤️' : '🤍'} ${(post.likes || 0) + (likedPosts.includes(post.id) ? 1 : 0)}</span>
+                        <span class="post-action" onclick="likePost(${post.id})">❤️ ${post.likes || 0}</span>
                         <span class="post-action">💬 留言</span>
                         <span class="post-action">🔗 分享</span>
                     </div>
@@ -568,14 +410,7 @@
         }
         
         function likePost(id) {
-            if (!currentUser) { showLogin(); return; }
-            const idx = likedPosts.indexOf(id);
-            if (idx > -1) {
-                likedPosts.splice(idx, 1);
-            } else {
-                likedPosts.push(id);
-            }
-            renderPosts();
+            alert('已按讚！❤️');
         }
         
         function showPostModal() {
@@ -618,43 +453,30 @@
         }
         
         function submitPost() {
-            try {
-                console.log('submitPost called');
-                const content = document.getElementById('postContent').value;
-                const location = document.getElementById('postLocation').value;
-                if (!content) { alert('請輸入內容'); return; }
-                
-                console.log('creating new post...');
-                const newPost = {
-                    id: posts.length + 1,
-                    user: currentUser,
-                    content: content,
-                    location: location,
-                    images: [],
-                    video: null,
-                    time: "剛剛",
-                    likes: 0
-                };
-                
-                console.log('unshifting post...');
-                posts.unshift(newPost);
-                console.log('posts after unshift:', posts);
-                localStorage.setItem('posts', JSON.stringify(posts));
-                console.log('saved to localStorage');
-                
-                // Reset
-                document.getElementById('postContent').value = '';
-                document.getElementById('postLocation').value = '';
-                document.getElementById('mediaPreview').innerHTML = '';
-                console.log('closing modal...');
-                closeModal('postModal');
-                console.log('rendering posts...');
-                renderPosts();
-                alert('發布成功！');
-            } catch(e) {
-                console.error('Error:', e);
-                alert('錯誤: ' + e.message);
-            }
+            const content = document.getElementById('postContent').value;
+            const location = document.getElementById('postLocation').value;
+            if (!content) { alert('請輸入內容'); return; }
+            
+            posts.unshift({
+                id: posts.length + 1,
+                user: currentUser,
+                content: content,
+                location: location,
+                images: uploadedImages,
+                video: uploadedVideo,
+                time: "剛剛",
+                likes: 0
+            });
+            
+            // Reset
+            document.getElementById('postContent').value = '';
+            document.getElementById('postLocation').value = '';
+            uploadedImages = [];
+            uploadedVideo = null;
+            document.getElementById('mediaPreview').innerHTML = '';
+            closeModal('postModal');
+            renderPosts();
+            alert('發布成功！');
         }
         
         function renderProfile() {
@@ -693,7 +515,7 @@
                         </label>
                         <div class="profile-name">${userProfile.name || currentUser}</div>
                         <div class="profile-email">${userProfile.email || '未設定 Email'}</div>
-                        <button class="profile-edit-btn" onclick="editProfile()">頭像設定</button>
+                        <button class="profile-edit-btn" onclick="editProfile()">編輯檔案</button>
                     </div>
                 `;
             }
@@ -733,8 +555,6 @@
         renderCampList();
         renderShopList();
         renderRentalList();
-        renderStories();
-        renderBreakingNews();
         renderPosts();
         renderProfile();
     </script>
