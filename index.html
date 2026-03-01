@@ -162,7 +162,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v2.2.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v2.2.1</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -521,6 +521,8 @@
             }
         }
         
+        let likedPosts = [];
+        
         function renderPosts() {
             const list = document.getElementById('postList');
             const allPosts = currentUser ? [
@@ -562,8 +564,6 @@
                 list.innerHTML += `<div style="text-align: center; padding: 20px; color: #666;">登入後可發布貼文</div>`;
             }
         }
-        
-        let likedPosts = [];
         
         function likePost(id) {
             if (!currentUser) { showLogin(); return; }
