@@ -262,6 +262,7 @@
         }
         
         function loginGoogle() {
+            alert('開始 Google 登入...');
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).then(result => {
                 currentUser = result.user.displayName || result.user.email;
