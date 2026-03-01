@@ -7,7 +7,7 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -24,13 +24,17 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
         
         window.firebaseAuth = auth;
         window.firebaseDb = db;
+        window.googleProvider = googleProvider;
         window.signInWithEmailAndPassword = signInWithEmailAndPassword;
         window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.signOut = signOut;
         window.onAuthStateChanged = onAuthStateChanged;
+        window.signInWithPopup = signInWithPopup;
+        window.getRedirectResult = getRedirectResult;
         window.collection = collection;
         window.addDoc = addDoc;
         window.getDocs = getDocs;
@@ -157,7 +161,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v2.0.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v2.1.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -240,6 +244,14 @@
     <div class="modal" id="loginModal">
         <div class="modal-content login-page">
             <h2 id="loginTitle">登入</h2>
+            
+            <!-- Google 登入按鈕 -->
+            <button onclick="signInWithGoogle()" style="width:100%;padding:12px;background:#4285F4;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <img src="https://www.google.com/favicon.ico" width="16" height="16"> Google 帳號登入
+            </button>
+            
+            <div style="text-align:center;margin:10px 0;color:#999;">— 或使用 Email —</div>
+            
             <input type="text" placeholder="用戶名" id="username">
             <input type="email" placeholder="Email" id="email" style="display: none;">
             <input type="password" placeholder="密碼">
@@ -375,6 +387,18 @@
                         alert('登入失敗: ' + error.message);
                     });
             }
+        }
+        
+        function signInWithGoogle() {
+            window.signInWithPopup(window.firebaseAuth, window.googleProvider)
+                .then((result) => {
+                    const user = result.user;
+                    currentUser = user.displayName || user.email.split('@')[0];
+                    userProfile = { name: user.displayName, email: user.email, avatar: user.photoURL };
+                    updateUIAfterLogin();
+                }).catch((error) => {
+                    alert('Google 登入失敗: ' + error.message);
+                });
         }
         
         function updateUIAfterLogin() {
