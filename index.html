@@ -211,10 +211,6 @@
             <div class="nav-icon">🏎️</div>
             <div>出租</div>
         </div>
-        <div class="nav-item" onclick="switchTab('profile')" id="profileNavItem">
-            <div class="nav-icon">👤</div>
-            <div>我的</div>
-        </div>
     </div>
     
     <!-- Login Modal -->
@@ -238,6 +234,26 @@
             <div style="text-align: center; margin-top: 15px;">
                 <button onclick="closeModal('loginModal')" style="background: #999; width: 100%;">關閉</button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Profile Edit Modal -->
+    <div class="modal" id="profileEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>編輯個人檔案</h3>
+                <button class="modal-close" onclick="closeModal('profileEditModal')">&times;</button>
+            </div>
+            <div style="text-align:center;margin-bottom:15px;">
+                <div class="post-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 10px;cursor:pointer" onclick="document.getElementById('profileAvatarInput').click()">
+                    ${userProfile.avatar ? '<img src="' + userProfile.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : (currentUser ? currentUser[0] : '👤')}
+                </div>
+                <input type="file" id="profileAvatarInput" accept="image/*" style="display:none" onchange="changeProfileAvatar(this)">
+                <p style="font-size:12px;color:#666">點擊頭像更換</p>
+            </div>
+            <input type="text" id="editName" placeholder="名稱" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px">
+            <textarea id="editBio" placeholder="個人簡介" style="width:100%;height:60px;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px"></textarea>
+            <button onclick="saveProfileEdit()" style="width:100%;padding:12px;background:#2d5a27;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;">儲存</button>
         </div>
     </div>
     
@@ -353,11 +369,64 @@
         }
         
         function updateUIAfterLogin() {
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span> <button onclick="logout()">登出</button></div>`;
+            const avatarHtml = userProfile.avatar ? `<img src="${userProfile.avatar}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : `<div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div>`;
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showProfileMenu(event)">${avatarHtml}<span style="color: white;">${currentUser}</span></div>`;
+        }
+        
+        function showProfileMenu(e) {
+            e.stopPropagation();
+            const menu = document.createElement('div');
+            menu.id = 'profileMenu';
+            menu.style.cssText = 'position:fixed;top:60px;right:10px;background:white;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.2);z-index:1000;min-width:180px;';
+            menu.innerHTML = `
+                <div style="padding:15px;border-bottom:1px solid #eee;cursor:pointer" onclick="showProfileEdit();removeProfileMenu()">
+                    <div style="font-weight:bold">${currentUser}</div>
+                    <div style="font-size:12px;color:#666">編輯個人檔案</div>
+                </div>
+                <div style="padding:15px;color:red;cursor:pointer" onclick="logout();removeProfileMenu()">登出</div>
+            `;
+            document.body.appendChild(menu);
+            document.addEventListener('click', removeProfileMenu);
+        }
+        
+        function removeProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            if (menu) menu.remove();
+            document.removeEventListener('click', removeProfileMenu);
+        }
+        
+        function showProfileEdit() {
+            document.getElementById('editName').value = userProfile.name || currentUser;
+            document.getElementById('editBio').value = userProfile.bio || '';
+            document.getElementById('profileEditModal').classList.add('active');
+        }
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             renderPosts();
             renderProfile();
+        }
+        
+        function saveProfileEdit() {
+            userProfile.name = document.getElementById('editName').value;
+            userProfile.bio = document.getElementById('editBio').value;
+            closeModal('profileEditModal');
+            updateUIAfterLogin();
+            alert('已儲存！');
+        }
+        
+        function changeProfileAvatar(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    userProfile.avatar = e.target.result;
+                    const avatar = document.querySelector('#profileEditModal .post-avatar');
+                    if (avatar) {
+                        avatar.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
         }
         
         function logout() {
