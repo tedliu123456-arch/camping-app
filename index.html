@@ -31,15 +31,17 @@
         .login-page .switch { text-align: center; margin-top: 15px; color: #666; }
         .login-page .switch a { color: #2d5a27; text-decoration: none; }
         
-        /* Camp Cards */
-        .camp-card { background: white; border-radius: 12px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .camp-card img { width: 100%; height: 150px; object-fit: cover; }
-        .camp-info { padding: 15px; }
-        .camp-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
-        .camp-location { color: #666; font-size: 14px; margin-bottom: 8px; }
-        .camp-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        /* Cards */
+        .card { background: white; border-radius: 12px; overflow: hidden; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 150px; object-fit: cover; }
+        .card-info { padding: 15px; }
+        .card-name { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .card-location { color: #666; font-size: 14px; margin-bottom: 8px; }
+        .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
         .tag { background: #e8f5e9; color: #2d5a27; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
-        .camp-price { color: #ff6b35; font-weight: bold; margin-top: 8px; }
+        .tag.orange { background: #fff3e0; color: #e65100; }
+        .card-price { color: #ff6b35; font-weight: bold; margin-top: 8px; }
+        .card-phone { color: #666; font-size: 14px; margin-top: 5px; }
         
         /* Map */
         .map-container { height: 60vh; background: #e8e8e8; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
@@ -79,12 +81,15 @@
         .search-bar { display: flex; gap: 10px; margin-bottom: 15px; }
         .search-bar input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
         .search-bar button { padding: 12px 20px; background: #2d5a27; color: white; border: none; border-radius: 8px; }
+        
+        /* Section Title */
+        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.0.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.1.0</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -93,29 +98,30 @@
     <!-- Tabs -->
     <div class="tabs">
         <button class="tab active" onclick="switchTab('camps')">⛺ 營地</button>
-        <button class="tab" onclick="switchTab('map')">🗺️ 地圖</button>
+        <button class="tab" onclick="switchTab('shops')">🚐 改裝店</button>
+        <button class="tab" onclick="switchTab('rentals')">🏎️ 出租</button>
         <button class="tab" onclick="switchTab('posts')">📱 社群</button>
     </div>
     
     <!-- Camp List Page -->
     <div class="page active" id="campsPage">
         <div class="search-bar">
-            <input type="text" placeholder="🔍 搜尋營地名稱、地區..." id="searchInput">
+            <input type="text" placeholder="🔍 搜尋營地名稱，地區..." id="searchInput">
             <button onclick="searchCamps()">搜尋</button>
         </div>
         <div id="campList"></div>
     </div>
     
-    <!-- Map Page -->
-    <div class="page" id="mapPage">
-        <div class="map-container">
-            <div class="map-placeholder">
-                <div style="font-size: 48px;">🗺️</div>
-                <p>Google Maps 地圖</p>
-                <p style="font-size: 12px;">(需 API Key)</p>
-            </div>
-        </div>
-        <div id="campListMap"></div>
+    <!-- Modification Shops Page -->
+    <div class="page" id="shopsPage">
+        <div class="section-title">🚐 露營車改裝店</div>
+        <div id="shopList"></div>
+    </div>
+    
+    <!-- RV Rentals Page -->
+    <div class="page" id="rentalsPage">
+        <div class="section-title">🏎️ 露營車出租</div>
+        <div id="rentalList"></div>
     </div>
     
     <!-- Posts Page -->
@@ -132,9 +138,13 @@
             <div class="nav-icon">⛺</div>
             <div>營地</div>
         </div>
-        <div class="nav-item" onclick="switchTab('map')">
-            <div class="nav-icon">🗺️</div>
-            <div>地圖</div>
+        <div class="nav-item" onclick="switchTab('shops')">
+            <div class="nav-icon">🚐</div>
+            <div>改裝店</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('rentals')">
+            <div class="nav-icon">🏎️</div>
+            <div>出租</div>
         </div>
         <div class="nav-item" onclick="switchTab('posts')">
             <div class="nav-icon">📱</div>
@@ -184,6 +194,20 @@
             { id: 4, name: "合歡山營地", location: "花蓮縣秀林鄉", county: "花蓮", tags: ["高山", "日出", "雲海"], price: "300-500", lat: 24.1333, lng: 121.2833, image: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?w=400" },
             { id: 5, name: "墾丁國家公園", location: "屏東縣恆春鎮", county: "屏東", tags: ["海邊", "水上活動", "溫暖"], price: "400-800", lat: 22.0833, lng: 120.8000, image: "https://images.unsplash.com/photo-1517824806704-9040b037703b?w=400" },
             { id: 6, name: "太平山莊", location: "宜蘭縣大同鄉", county: "宜蘭", tags: ["森林", "溫泉", "步道"], price: "700-1300", lat: 24.5000, lng: 121.5167, image: "https://images.unsplash.com/photo-1445308394109-4ec2920981b1?w=400" }
+        ];
+        
+        const shops = [
+            { id: 1, name: "露營車工坊", location: "新北市淡水區", county: "新北", tags: ["改裝", "維修", "電系"], phone: "02-2621-1234", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" },
+            { id: 2, name: "野外改裝中心", location: "桃園市大園區", county: "桃園", tags: ["車體改造", "防水", "隔熱"], phone: "03-386-5678", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" },
+            { id: 3, name: "戶外玩家的家", location: "台中市潭子區", county: "台中", tags: ["家具", "儲物", "客製化"], phone: "04-2531-9012", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
+            { id: 4, name: "RV 專門店", location: "高雄市前鎮區", county: "高雄", tags: ["進口改裝件", "保養", "維修"], phone: "07-536-7890", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400" }
+        ];
+        
+        const rentals = [
+            { id: 1, name: "露營車小窩", location: "台北市內湖區", county: "台北", tags: ["自走式", "拖曳式"], price: "2500-5000/天", phone: "02-2799-1111", image: "https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=400" },
+            { id: 2, name: "趣旅露營車", location: "新竹縣竹北市", county: "新竹", tags: ["4人座", "6人座"], price: "3000-6000/天", phone: "03-657-2222", image: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400" },
+            { id: 3, name: "陽光租車", location: "台中市西屯區", county: "台中", tags: ["含保險", "免押金"], price: "2800-5500/天", phone: "04-2311-3333", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" },
+            { id: 4, name: "快樂露營車", location: "高雄市左營區", county: "高雄", tags: ["機場接送", "代駕"], price: "3200-6500/天", phone: "07-345-4444", image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400" }
         ];
         
         const posts = [
@@ -239,13 +263,10 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             
             document.getElementById(tab + 'Page').classList.add('active');
-            event.target.classList.add('active');
             
-            const navIndex = ['camps', 'map', 'posts'].indexOf(tab);
-            if (navIndex >= 0) document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
-            
-            if (tab === 'map') renderCampListMap();
-            if (tab === 'camps') renderCampList();
+            const tabIndex = { 'camps': 0, 'shops': 1, 'rentals': 2, 'posts': 3 };
+            document.querySelectorAll('.tab')[tabIndex[tab]].classList.add('active');
+            document.querySelectorAll('.nav-item')[tabIndex[tab]].classList.add('active');
         }
         
         function renderCampList(filter = '') {
@@ -253,26 +274,44 @@
             const filtered = campgrounds.filter(c => c.name.includes(filter) || c.location.includes(filter));
             
             list.innerHTML = filtered.map(camp => `
-                <div class="camp-card" onclick="showCampDetail(${camp.id})">
+                <div class="card">
                     <img src="${camp.image}" alt="${camp.name}">
-                    <div class="camp-info">
-                        <div class="camp-name">${camp.name}</div>
-                        <div class="camp-location">📍 ${camp.location}</div>
-                        <div class="camp-tags">${camp.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-                        <div class="camp-price">💰 ${camp.price} / 晚</div>
+                    <div class="card-info">
+                        <div class="card-name">${camp.name}</div>
+                        <div class="card-location">📍 ${camp.location}</div>
+                        <div class="card-tags">${camp.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                        <div class="card-price">💰 ${camp.price} / 晚</div>
                     </div>
                 </div>
             `).join('');
         }
         
-        function renderCampListMap() {
-            const list = document.getElementById('campListMap');
-            list.innerHTML = campgrounds.map(camp => `
-                <div class="camp-card">
-                    <div class="camp-info">
-                        <div class="camp-name">${camp.name}</div>
-                        <div class="camp-location">📍 ${camp.location}</div>
-                        <div class="camp-tags">${camp.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        function renderShopList() {
+            const list = document.getElementById('shopList');
+            list.innerHTML = shops.map(shop => `
+                <div class="card">
+                    <img src="${shop.image}" alt="${shop.name}">
+                    <div class="card-info">
+                        <div class="card-name">${shop.name}</div>
+                        <div class="card-location">📍 ${shop.location}</div>
+                        <div class="card-tags">${shop.tags.map(t => `<span class="tag orange">${t}</span>`).join('')}</div>
+                        <div class="card-phone">📞 ${shop.phone}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderRentalList() {
+            const list = document.getElementById('rentalList');
+            list.innerHTML = rentals.map(rental => `
+                <div class="card">
+                    <img src="${rental.image}" alt="${rental.name}">
+                    <div class="card-info">
+                        <div class="card-name">${rental.name}</div>
+                        <div class="card-location">📍 ${rental.location}</div>
+                        <div class="card-tags">${rental.tags.map(t => `<span class="tag orange">${t}</span>`).join('')}</div>
+                        <div class="card-price">💰 ${rental.price}</div>
+                        <div class="card-phone">📞 ${rental.phone}</div>
                     </div>
                 </div>
             `).join('');
@@ -281,11 +320,6 @@
         function searchCamps() {
             const query = document.getElementById('searchInput').value;
             renderCampList(query);
-        }
-        
-        function showCampDetail(id) {
-            const camp = campgrounds.find(c => c.id === id);
-            alert(`${camp.name}\n📍 ${camp.location}\n標籤: ${camp.tags.join(', ')}\n💰 價格: ${camp.price}\n\n(詳細頁面開發中...)`);
         }
         
         function renderPosts() {
@@ -347,6 +381,8 @@
         
         // Init
         renderCampList();
+        renderShopList();
+        renderRentalList();
         renderPosts();
     </script>
 </body>
