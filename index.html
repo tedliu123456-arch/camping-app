@@ -129,7 +129,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.4.0</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.2</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -349,7 +349,7 @@
         }
         
         function updateUIAfterLogin() {
-            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span> <button onclick="logout()">登出</button></div>`;
+            document.getElementById('headerButtons').innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="switchTab('profile')"><div class="post-avatar" style="width:32px;height:32px;font-size:14px;margin:0">${currentUser[0]}</div><span style="color: white;">${currentUser}</span></div>`;
             document.getElementById('fabBtn').style.display = 'block';
             closeModal('loginModal');
             renderPosts();
@@ -640,6 +640,7 @@
                         <div class="profile-name">${userProfile.name || currentUser}</div>
                         <div class="profile-email">${userProfile.email || '未設定 Email'}</div>
                         <button class="profile-edit-btn" onclick="editProfile()">編輯檔案</button>
+                        <button class="profile-edit-btn" onclick="logout()" style="background:#d32f2f;margin-left:10px">登出</button>
                     </div>
                 `;
             }
