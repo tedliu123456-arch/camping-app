@@ -129,7 +129,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="logo">⛺ 露營趣 <span class="version">v1.6.3</span></div>
+        <div class="logo">⛺ 露營趣 <span class="version">v1.6.4</span></div>
         <div class="header-buttons" id="headerButtons">
             <button onclick="showLogin()">登入</button>
         </div>
@@ -632,7 +632,7 @@
                             <option value="其他" ${userProfile.gender === '其他' ? 'selected' : ''}>🌈 其他</option>
                         </select>
                         <input type="text" class="profile-input" id="editInterest" value="${userProfile.interest || ''}" placeholder="興趣">
-                        <textarea class="profile-input" id="editExperience" placeholder="露營經驗" rows="3">${userProfile.experience || ''}</textarea>
+                        <input type="number" class="profile-input" id="editExperience" value="${userProfile.experience || ''}" placeholder="露營次數（數字）">
                         <div style="margin:10px 0;">
                             <span style="font-size:12px;color:#666;">喜歡的露營方式：</span><br>
                             <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e8f5e9;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="開車"> 🚗 開車</label>
@@ -640,6 +640,10 @@
                             <label style="display:inline-block;margin:5px;padding:5px 10px;background:#fff3e0;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="露營車"> 🚐 露營車</label>
                             <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e0f7fa;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="海邊"> 🏖️ 海邊</label>
                             <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e8f5e9;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="山上"> ⛰️ 山上</label>
+                            <label style="display:inline-block;margin:5px;padding:5px 10px;background:#fff3e0;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="親子露營"> 👨‍👩‍👧 親子露營</label>
+                            <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e3f2fd;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="野營"> 🔥 野營</label>
+                            <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e0f7fa;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="團露"> 👥 團露</label>
+                            <label style="display:inline-block;margin:5px;padding:5px 10px;background:#e8f5e9;border-radius:15px;font-size:12px;"><input type="checkbox" name="campStyle" value="朔溪"> 💧 朔溪</label>
                         </div>
                         <button class="profile-edit-btn" onclick="saveProfile()">儲存</button>
                         <button class="profile-edit-btn" onclick="cancelEditProfile()" style="background:#999;margin-left:10px">取消</button>
