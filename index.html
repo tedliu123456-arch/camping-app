@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v17.8</title>
+  <title>露營趣 v17.9</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -150,6 +150,32 @@
       </select>
       <button type="submit">立即預約</button>
       <button type="button" onclick="addFavorite(document.getElementById('campLocation').value || '營地')" style="background:#e53e3e;">❤️ 收藏營地</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>💬 營地評論</h2>
+    <div id="commentsList">
+      <div class="card" style="margin-bottom:10px;">
+        <p><strong>王小明</strong> ⭐⭐⭐⭐⭐</p>
+        <p>環境很棒！營主很親切，下次還要再去！</p>
+      </div>
+      <div class="card" style="margin-bottom:10px;">
+        <p><strong>李美華</strong> ⭐⭐⭐⭐</p>
+        <p>風景優美，設施齊全，適合家庭出遊</p>
+      </div>
+    </div>
+    <form onsubmit="addComment(event)">
+      <input type="text" id="commentName" placeholder="你的名稱" required style="margin-bottom:10px;">
+      <textarea id="commentText" placeholder="寫下你的評論..." required style="padding:8px;border-radius:8px;border:1px solid #ccc;width:100%;min-height:80px;margin-bottom:10px;"></textarea>
+      <select id="commentRating" style="margin-bottom:10px;">
+        <option value="5">⭐⭐⭐⭐⭐ 非常好</option>
+        <option value="4">⭐⭐⭐⭐ 很好</option>
+        <option value="3">⭐⭐⭐ 普通</option>
+        <option value="2">⭐⭐ 不太好</option>
+        <option value="1">⭐ 很差</option>
+      </select>
+      <button type="submit">發布評論</button>
     </form>
   </section>
 
@@ -335,6 +361,27 @@
       }
     }
     renderFavorites();
+    
+    // 評論功能
+    function addComment(e) {
+      e.preventDefault();
+      const name = document.getElementById('commentName').value;
+      const text = document.getElementById('commentText').value;
+      const rating = document.getElementById('commentRating').value;
+      const stars = '⭐'.repeat(rating);
+      
+      const commentDiv = document.createElement('div');
+      commentDiv.className = 'card';
+      commentDiv.style.marginBottom = '10px';
+      commentDiv.innerHTML = '<p><strong>' + name + '</strong> ' + stars + '</p><p>' + text + '</p>';
+      
+      const commentsList = document.getElementById('commentsList');
+      commentsList.insertBefore(commentDiv, commentsList.firstChild);
+      
+      document.getElementById('commentName').value = '';
+      document.getElementById('commentText').value = '';
+      alert('評論發布成功！');
+    }
     
     // 表單提交後清空
     document.querySelectorAll('form').forEach(form => {
