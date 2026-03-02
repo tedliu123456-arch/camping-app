@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v17.3</title>
+  <title>露營趣 v17.4</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); }
@@ -30,7 +30,8 @@
   </style>
 </head>
 <body>
-  <h1>露營趣 ⛺ <span class="notif-bell" onclick="showNotifs()">🔔<span class="notif-badge" id="notifBadge">3</span></span> <button onclick="toggleDark()" style="margin-left:10px;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;">🌙</button></h1>
+  <h1>露營趣 ⛺ <span class="notif-bell" onclick="showNotifs()">🔔<span class="notif-badge" id="notifBadge">3</span></span> <button onclick="toggleDark()" style="margin-left:10px;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;">🌙</button>
+    <button onclick="cycleTheme()" style="margin-left:5px;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;" id="themeBtn">🎨</button></h1>
 
   <div class="marquee">
     <div class="track">🔥 春季露營節開跑！每日照片投票抽好禮！商家方案限時優惠中！🔥</div>
@@ -146,6 +147,12 @@
     }
     function toggleDark(){
       document.body.classList.toggle('dark');
+    }
+    const themes = ['#2f855a','#3182ce','#e53e3e','#d69e2e','#805ad5'];
+    let themeIdx = 0;
+    function cycleTheme(){
+      themeIdx = (themeIdx + 1) % themes.length;
+      document.querySelectorAll('button').forEach(b => b.style.background = themes[themeIdx]);
     }
     function filterPosts(){
       const q = document.getElementById('searchPosts').value.toLowerCase();
