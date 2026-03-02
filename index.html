@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 露營生活社群 v5.1.0</title>
+    <title>露營趣 - 露營生活社群 v5.2.0</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -47,7 +47,22 @@
         .filter-chips { display:flex; gap:8px; overflow-x:auto; padding:12px 16px; background:#fff; }
         .chip { padding:6px 14px; border-radius:999px; background:#fff; border:1px solid var(--border-light); font-size:12px; cursor:pointer; white-space:nowrap; }
         .chip.active { background:#111; color:#fff; border-color:#111; }
-        .heart-burst { position:absolute; pointer-events:none; font-size:22px; animation:burst 600ms ease-out forwards; }
+         .heart-burst { position:absolute; pointer-events:none; font-size:22px; animation:burst 600ms ease-out forwards; }
+        /* Profile Page */
+        .profile-header { background:#fff; padding:20px 16px; border-bottom:1px solid var(--border-light); }
+        .profile-top { display:flex; gap:20px; align-items:center; }
+        .profile-avatar { width:96px; height:96px; border-radius:50%; padding:4px; background:linear-gradient(45deg,var(--ig-orange),var(--ig-pink),var(--ig-purple)); }
+        .profile-avatar img { width:100%; height:100%; border-radius:50%; object-fit:cover; border:3px solid #fff; }
+        .profile-stats { display:flex; gap:18px; }
+        .stat { text-align:center; font-size:14px; }
+        .stat strong { display:block; font-size:18px; }
+        .profile-name { font-weight:700; margin-top:14px; }
+        .profile-bio { font-size:14px; color:var(--text-sub); margin-top:6px; line-height:1.5; }
+        .profile-actions { display:flex; gap:10px; margin-top:14px; }
+        .btn-outline { flex:1; padding:8px; border-radius:8px; border:1px solid var(--border-light); background:#fff; font-weight:600; }
+        .profile-tabs { display:flex; justify-content:center; gap:40px; padding:10px 0; background:#fff; border-top:1px solid var(--border-light); border-bottom:1px solid var(--border-light); }
+        .profile-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+        .profile-grid img { width:100%; aspect-ratio:1/1; object-fit:cover; }
         @keyframes burst {
             0% { opacity:1; transform:scale(0.6) translateY(0); }
             100% { opacity:0; transform:scale(1.6) translateY(-40px); }
@@ -56,7 +71,7 @@
 </head>
 <body>
 <div class="header">
-    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v5.1.0</span></div>
+    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v5.2.0</span></div>
     <div>✉️</div>
 </div>
 <div id="app">
@@ -107,7 +122,46 @@
         <div id="exploreContent" style="padding:16px;"></div>
     </div>
     <div id="messagesPage" class="page"><div class="card">訊息功能示意</div></div>
-    <div id="profilePage" class="page"><div class="card">個人頁面示意</div></div>
+    <div id="profilePage" class="page">
+        <div class="profile-header">
+            <div class="profile-top">
+                <div class="profile-avatar">
+                    <img src="https://picsum.photos/200?random=50">
+                </div>
+                <div class="profile-stats">
+                    <div class="stat"><strong>128</strong>貼文</div>
+                    <div class="stat"><strong>2,340</strong>追蹤者</div>
+                    <div class="stat"><strong>180</strong>追蹤中</div>
+                </div>
+            </div>
+            <div class="profile-name">CampAlan 阿倫</div>
+            <div class="profile-bio">
+                ⛺ 露營 5 年資歷｜山林系玩家<br>
+                📍 台灣走透透<br>
+                🏕 分享營地 / 裝備 / 車泊生活
+            </div>
+            <div class="profile-actions">
+                <button class="btn-outline">編輯個人檔案</button>
+                <button class="btn-outline">分享個人檔案</button>
+            </div>
+        </div>
+        <div class="profile-tabs">
+            <div>▦</div>
+            <div>🎞</div>
+            <div>🔖</div>
+        </div>
+        <div class="profile-grid">
+            <img src="https://picsum.photos/400?random=60">
+            <img src="https://picsum.photos/400?random=61">
+            <img src="https://picsum.photos/400?random=62">
+            <img src="https://picsum.photos/400?random=63">
+            <img src="https://picsum.photos/400?random=64">
+            <img src="https://picsum.photos/400?random=65">
+            <img src="https://picsum.photos/400?random=66">
+            <img src="https://picsum.photos/400?random=67">
+            <img src="https://picsum.photos/400?random=68">
+        </div>
+    </div>
 </div>
 <button class="fab" onclick="scrollToComposer()">＋</button>
 <div class="bottom-nav">
