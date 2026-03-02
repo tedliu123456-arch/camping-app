@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v17.0</title>
+  <title>露營趣 v17.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); }
-    h1 { text-align:center; padding:20px; }
+    h1 { text-align:center; padding:20px; position:relative; }
+    .notif-bell { position:absolute; right:20px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:24px; }
+    .notif-badge { position:absolute; top:-5px; right:-5px; background:red; color:#fff; font-size:10px; padding:2px 5px; border-radius:10px; }
     section { padding:20px; }
     .tiers { display:flex; gap:15px; flex-wrap:wrap; }
     .card { background:#fff; padding:15px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); flex:1; min-width:200px; }
@@ -24,7 +26,7 @@
   </style>
 </head>
 <body>
-  <h1>露營趣 v17.0</h1>
+  <h1>露營趣 ⛺ <span class="notif-bell" onclick="showNotifs()">🔔<span class="notif-badge" id="notifBadge">3</span></span></h1>
 
   <div class="marquee">
     <div class="track">🔥 春季露營節開跑！每日照片投票抽好禮！商家方案限時優惠中！🔥</div>
@@ -128,6 +130,11 @@
       } else {
         alert('今日票數已用完');
       }
+    }
+    const notifs = ['新活動：星空露營', '您的會員即將到期', '有人按讚您的貼文'];
+    function showNotifs(){
+      alert('通知：\n• ' + notifs.join('\n• '));
+      document.getElementById('notifBadge').style.display = 'none';
     }
   </script>
 
