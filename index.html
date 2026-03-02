@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v17.4</title>
+  <title>露營趣 v17.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); }
@@ -26,6 +26,13 @@
     .marquee { overflow:hidden; background:#2f855a; color:#fff; }
     .track { display:inline-block; padding:10px; white-space:nowrap; animation:scroll 12s linear infinite; }
     @keyframes scroll { from { transform:translateX(100%);} to { transform:translateX(-100%);} }
+    img { transition:opacity 0.3s; }
+    img.loading { opacity:0.3; }
+    footer { text-align:center; padding:20px; color:#666; font-size:14px; border-top:1px solid #ddd; margin-top:30px; }
+    body.dark footer { color:#aaa; border-color:#444; }
+    .form-group { margin-bottom:15px; }
+    .form-group label { display:block; margin-bottom:5px; font-weight:bold; }
+    input:focus, select:focus { outline:2px solid #2f855a; }
     @media(max-width:768px){ .tiers{flex-direction:column;} }
   </style>
 </head>
@@ -130,16 +137,42 @@
   </section>
 
   <script>
+    // 檢查今天的日期，用於重置每日投票
+    const today = new Date().toDateString();
+    const lastVoteDate = localStorage.getItem('camping_vote_date');
     let votesLeft = 2;
+    
+    // 如果日期不同，重置投票
+    if (lastVoteDate !== today) {
+      localStorage.setItem('camping_votes', '2');
+      localStorage.setItem('camping_vote_date', today);
+    } else {
+      votesLeft = parseInt(localStorage.getItem('camping_votes') || '2');
+    }
+    
+    function updateVoteDisplay() {
+      document.getElementById('voteCount').innerText = '今日剩餘票數：' + votesLeft;
+    }
+    updateVoteDisplay();
+    
     function vote(btn){
       if(votesLeft>0){
         votesLeft--;
-        document.getElementById('voteCount').innerText = '今日剩餘票數：' + votesLeft;
+        localStorage.setItem('camping_votes', votesLeft.toString());
+        updateVoteDisplay();
         btn.disabled = true;
+        btn.innerText = '已投票';
       } else {
         alert('今日票數已用完');
       }
     }
+    
+    // 圖片載入優化
+    document.querySelectorAll('.photo img').forEach(img => {
+      img.classList.add('loading');
+      img.onload = () => img.classList.remove('loading');
+      img.onerror = () => { img.classList.remove('loading'); img.alt = '圖片載入失敗'; };
+    });
     const notifs = ['新活動：星空露營', '您的會員即將到期', '有人按讚您的貼文'];
     function showNotifs(){
       alert('通知：\n• ' + notifs.join('\n• '));
@@ -163,6 +196,9 @@
       });
     }
   </script>
-
+  <footer>
+    <p>⛺ 露營趣 — 讓露營更簡單</p>
+    <p>© 2026 CampingFun. All rights reserved.</p>
+  </footer>
 </body>
 </html>
