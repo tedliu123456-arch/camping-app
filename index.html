@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v2.0.1</title>
+  <title>露營探索 v15.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -82,47 +82,47 @@
 <body>
   <div class="progress-bar" id="progressBar"></div>
   <header>
-    <h1>Camping Explorer v2.0.1</h1>
+    <h1>露營探索 v15.1</h1>
     <div>
-      <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ Grid</button>
-      <button class="toggle" onclick="toggleDark()">Dark Mode</button>
+      <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ 格狀</button>
+      <button class="toggle" onclick="toggleDark()">深色模式</button>
     </div>
   </header>
 
   <div class="controls">
-    <input type="text" id="search" placeholder="Search camps..." oninput="render()" />
+    <input type="text" id="search" placeholder="搜尋營地..." oninput="render()" />
     <select id="filter" onchange="render()">
-      <option value="">All Types</option>
-      <option value="Forest">Forest</option>
-      <option value="Lake">Lake</option>
-      <option value="Mountain">Mountain</option>
+      <option value="">全部類型</option>
+      <option value="Forest">森林</option>
+      <option value="Lake">湖畔</option>
+      <option value="Mountain">山區</option>
     </select>
     <select id="sort" onchange="render()">
-      <option value="">Sort</option>
-      <option value="low">Price: Low → High</option>
-      <option value="high">Price: High → Low</option>
-      <option value="name">Name A → Z</option>
-      <option value="rating">Rating ★</option>
+      <option value="">排序</option>
+      <option value="low">價格：低 → 高</option>
+      <option value="high">價格：高 → 低</option>
+      <option value="name">名稱 A → Z</option>
+      <option value="rating">評分 ★</option>
     </select>
     <select id="minRating" onchange="render()" style="width:90px">
-      <option value="">Any Rating</option>
-      <option value="4.5">4.5+ ★</option>
-      <option value="4.0">4.0+ ★</option>
-      <option value="3.5">3.5+ ★</option>
+      <option value="">任何評分</option>
+      <option value="4.5">4.5 以上 ★</option>
+      <option value="4.0">4.0 以上 ★</option>
+      <option value="3.5">3.5 以上 ★</option>
     </select>
-    <input type="number" id="minPrice" placeholder="Min $" style="width:70px" oninput="render()" />
-    <input type="number" id="maxPrice" placeholder="Max $" style="width:70px" oninput="render()" />
-    <button class="btn secondary" onclick="clearFilters()">Clear</button>
-    <button class="btn" id="favFilter" onclick="toggleFavFilter()">★ Favorites</button>
-    <button class="btn secondary" id="recentBtn" onclick="showRecent()">🕐 Recent</button>
-    <button class="btn secondary" onclick="shuffleCamps()">🔀 Shuffle</button>
+    <input type="number" id="minPrice" placeholder="最低 $" style="width:70px" oninput="render()" />
+    <input type="number" id="maxPrice" placeholder="最高 $" style="width:70px" oninput="render()" />
+    <button class="btn secondary" onclick="clearFilters()">清除</button>
+    <button class="btn" id="favFilter" onclick="toggleFavFilter()">★ 收藏</button>
+    <button class="btn secondary" id="recentBtn" onclick="showRecent()">🕐 最近瀏覽</button>
+    <button class="btn secondary" onclick="shuffleCamps()">🔀 隨機</button>
   </div>
 
   <div class="stats" id="stats"></div>
   <div class="compare-bar" id="compareBar" style="display:none; padding:10px 20px; background:var(--soft); align-items:center; gap:10px;">
-    <span id="compareCount">0 selected</span>
-    <button class="btn" onclick="showCompare()">Compare</button>
-    <button class="btn secondary" onclick="clearCompare()">Clear</button>
+    <span id="compareCount">0 個已選擇</span>
+    <button class="btn" onclick="showCompare()">比較</button>
+    <button class="btn secondary" onclick="clearCompare()">清除</button>
   </div>
   <div class="grid" id="grid"></div>
 
@@ -130,10 +130,10 @@
     <div class="modal-content" id="modalContent"></div>
   </div>
 
-  <div class="booking" id="bookingMsg">Booking Confirmed!</div>
+  <div class="booking" id="bookingMsg">預約成功！</div>
 
   <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
-    ⌨️ D: Dark | G: Grid | F: Favorites | v2.0.1 | 22 camps
+    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v15.1 | 22 個營地
   </footer>
 
   <script>
@@ -197,9 +197,9 @@
 
       const minP = filtered.length ? Math.min(...filtered.map(c=>c.price)) : 0;
       const maxP = filtered.length ? Math.max(...filtered.map(c=>c.price)) : 0;
-      stats.textContent = `${filtered.length} camps · $${minP}-$${maxP}/night · ${favorites.length} favorites`;
+      stats.textContent = `${filtered.length} 個營地 · $${minP}-$${maxP}/晚 · ${favorites.length} 個收藏`;
 
-      if (!filtered.length) { grid.innerHTML = '<p>No camps found.</p>'; return; }
+      if (!filtered.length) { grid.innerHTML = '<p>找不到符合條件的營地。</p>'; return; }
 
       filtered.forEach(c => {
         const card = document.createElement('div');
@@ -212,16 +212,16 @@
           <h3>${c.name}</h3>
           <p class="rating">★ ${c.rating}</p>
           <p>$${c.price}/night</p>
-          <label style="cursor:pointer"><input type="checkbox" ${compareList.includes(c.name)?'checked':''} onchange="toggleCompare('${c.name}')"> Compare</label>
-          <button class="btn secondary" onclick="shareCamp('${c.name}')">Share</button>
-          <button class="btn" onclick="openModal('${c.name}')">Details</button>
-          <button class="btn secondary" onclick="book()">Book</button>
+          <label style="cursor:pointer"><input type="checkbox" ${compareList.includes(c.name)?'checked':''} onchange="toggleCompare('${c.name}')"> 比較</label>
+          <button class="btn secondary" onclick="shareCamp('${c.name}')">分享</button>
+          <button class="btn" onclick="openModal('${c.name}')">詳細資訊</button>
+          <button class="btn secondary" onclick="book()">預約</button>
         `;
         grid.appendChild(card);
       });
       
       document.getElementById('compareBar').style.display = compareList.length ? 'flex' : 'none';
-      document.getElementById('compareCount').textContent = `${compareList.length} selected`;
+      document.getElementById('compareCount').textContent = `${compareList.length} 個已選擇`;
     }
 
     function openModal(name) {
@@ -236,11 +236,11 @@
       
       document.getElementById('modalContent').innerHTML = `
         <h2>${camp.name}</h2>
-        <p>Type: ${camp.type}</p>
+        <p>類型：${camp.type}</p>
         <p>${camp.description}</p>
-        <p><strong>$${camp.price}/night</strong></p>
+        <p><strong>$${camp.price}/晚</strong></p>
         <p class="rating">★ ${camp.rating}</p>
-        <button class="btn" onclick="book()">Book Now</button>
+        <button class="btn" onclick="book()">立即預約</button>
       `;
       document.getElementById('modal').style.display='flex';
     }
@@ -311,11 +311,11 @@
     function showCompare(){
       const campsToCompare = camps.filter(c=>compareList.includes(c.name));
       if(campsToCompare.length < 2) return;
-      let html = '<h2>Compare Camps</h2><table style="width:100%;text-align:left"><tr><th>Name</th><th>Type</th><th>Price</th><th>Rating</th></tr>';
+      let html = '<h2>營地比較</h2><table style="width:100%;text-align:left"><tr><th>名稱</th><th>類型</th><th>價格</th><th>評分</th></tr>';
       campsToCompare.forEach(c=>{
         html += `<tr><td>${c.name}</td><td>${c.type}</td><td>$${c.price}</td><td>★ ${c.rating}</td></tr>`;
       });
-      html += '</table><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">Close</button>';
+      html += '</table><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">關閉</button>';
       document.getElementById('modalContent').innerHTML = html;
       document.getElementById('modal').style.display='flex';
     }
@@ -330,13 +330,13 @@
       const recentCamps = camps.filter(c=>recentlyViewed.includes(c.name));
       // Sort by recentlyViewed order
       recentCamps.sort((a,b)=>recentlyViewed.indexOf(a.name) - recentlyViewed.indexOf(b.name));
-      let html = '<h2>Recently Viewed</h2><div style="display:flex;flex-direction:column;gap:10px;">';
+      let html = '<h2>最近瀏覽</h2><div style="display:flex;flex-direction:column;gap:10px;">';
       recentCamps.forEach(c=>{
         html += `<div style="padding:10px;background:var(--soft);border-radius:10px;cursor:pointer" onclick="openModal('${c.name}');document.getElementById('modal').style.display='flex'">
-          <strong>${c.name}</strong> - $${c.price}/night ★ ${c.rating}
+          <strong>${c.name}</strong> - $${c.price}/晚 ★ ${c.rating}
         </div>`;
       });
-      html += '</div><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">Close</button>';
+      html += '</div><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">關閉</button>';
       document.getElementById('modalContent').innerHTML = html;
       document.getElementById('modal').style.display='flex';
     }
@@ -363,12 +363,12 @@
     function shareCamp(name){
       const camp = camps.find(c=>c.name===name);
       if(!camp) return;
-      const text = `Check out ${camp.name} - $${camp.price}/night ★ ${camp.rating}`;
+      const text = `看看這個營地 ${camp.name} - $${camp.price}/晚 ★ ${camp.rating}`;
       if(navigator.share){
-        navigator.share({title:'Camping Explorer',text});
+        navigator.share({title:'露營探索',text});
       }else{
         navigator.clipboard.writeText(text);
-        alert('Link copied!');
+        alert('連結已複製！');
       }
     }
 
