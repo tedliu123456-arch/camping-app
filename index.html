@@ -3,10 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v17.1</title>
+  <title>露營趣 v17.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); }
+    body.dark { background:linear-gradient(135deg,#1a202c,#2d3748); color:#fff; }
+    body.dark .card { background:#2d3748; color:#fff; }
+    body.dark button { background:#4a5568; }
+    body.dark input, body.dark select { background:#2d3748; color:#fff; border-color:#4a5568; }
     h1 { text-align:center; padding:20px; position:relative; }
     .notif-bell { position:absolute; right:20px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:24px; }
     .notif-badge { position:absolute; top:-5px; right:-5px; background:red; color:#fff; font-size:10px; padding:2px 5px; border-radius:10px; }
@@ -26,7 +30,7 @@
   </style>
 </head>
 <body>
-  <h1>露營趣 ⛺ <span class="notif-bell" onclick="showNotifs()">🔔<span class="notif-badge" id="notifBadge">3</span></span></h1>
+  <h1>露營趣 ⛺ <span class="notif-bell" onclick="showNotifs()">🔔<span class="notif-badge" id="notifBadge">3</span></span> <button onclick="toggleDark()" style="margin-left:10px;padding:5px 10px;border-radius:8px;border:none;cursor:pointer;">🌙</button></h1>
 
   <div class="marquee">
     <div class="track">🔥 春季露營節開跑！每日照片投票抽好禮！商家方案限時優惠中！🔥</div>
@@ -135,6 +139,9 @@
     function showNotifs(){
       alert('通知：\n• ' + notifs.join('\n• '));
       document.getElementById('notifBadge').style.display = 'none';
+    }
+    function toggleDark(){
+      document.body.classList.toggle('dark');
     }
   </script>
 
