@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v2.0.0</title>
+  <title>Camping App v2.0.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -76,11 +76,13 @@
     .rating { color:#feb47b; font-weight:600; margin:4px 0; }
     .compare-bar { display:flex; position:sticky; top:0; z-index:10; }
     .card.selected { outline:3px solid #ff7e5f; }
+    .progress-bar { position:fixed; top:0; left:0; height:4px; background:var(--accent); width:0; transition:width .3s; z-index:100; }
   </style>
 </head>
 <body>
+  <div class="progress-bar" id="progressBar"></div>
   <header>
-    <h1>Camping Explorer v2.0.0</h1>
+    <h1>Camping Explorer v2.0.1</h1>
     <div>
       <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ Grid</button>
       <button class="toggle" onclick="toggleDark()">Dark Mode</button>
@@ -131,7 +133,7 @@
   <div class="booking" id="bookingMsg">Booking Confirmed!</div>
 
   <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
-    ⌨️ D: Dark | G: Grid | F: Favorites | v2.0.0 | 22 camps
+    ⌨️ D: Dark | G: Grid | F: Favorites | v2.0.1 | 22 camps
   </footer>
 
   <script>
@@ -211,6 +213,7 @@
           <p class="rating">★ ${c.rating}</p>
           <p>$${c.price}/night</p>
           <label style="cursor:pointer"><input type="checkbox" ${compareList.includes(c.name)?'checked':''} onchange="toggleCompare('${c.name}')"> Compare</label>
+          <button class="btn secondary" onclick="shareCamp('${c.name}')">Share</button>
           <button class="btn" onclick="openModal('${c.name}')">Details</button>
           <button class="btn secondary" onclick="book()">Book</button>
         `;
@@ -348,6 +351,26 @@
 
     showSkeleton();
     setTimeout(render,1200);
+
+    function showProgress(){
+      const bar = document.getElementById('progressBar');
+      bar.style.width = '30%';
+      setTimeout(()=>bar.style.width='60%',100);
+      setTimeout(()=>bar.style.width='100%',200);
+      setTimeout(()=>bar.style.width='0',500);
+    }
+
+    function shareCamp(name){
+      const camp = camps.find(c=>c.name===name);
+      if(!camp) return;
+      const text = `Check out ${camp.name} - $${camp.price}/night ★ ${camp.rating}`;
+      if(navigator.share){
+        navigator.share({title:'Camping Explorer',text});
+      }else{
+        navigator.clipboard.writeText(text);
+        alert('Link copied!');
+      }
+    }
 
     document.addEventListener('keydown', e => {
       if(e.key==='d'||e.key==='D') toggleDark();
