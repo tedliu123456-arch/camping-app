@@ -3,615 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v12.0</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <title>露營趣 v13.0</title>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
-    :root { --bg: #f4f1ea; --card: #fff; --primary: #2f5d50; --accent: #e09f3e; --text: #1f2933; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Noto Sans TC", sans-serif; background: linear-gradient(180deg,#f4f1ea,#e8e2d6); color: var(--text); padding-bottom: 70px; }
-    
-    /* Header */
-    header { background: var(--primary); color: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .logo { font-size: 18px; font-weight: bold; }
-    .header-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; margin-left: 10px; }
-    
-    /* Search */
-    .search-box { padding: 12px; background: #fff; }
-    .search-input { width: 100%; padding: 12px; border: 2px solid var(--primary); border-radius: 25px; font-size: 14px; }
-    
-    /* Tags Filter */
-    .tags-filter { display: flex; gap: 8px; overflow-x: auto; padding: 10px 12px; background: #fff; }
-    .tag { padding: 6px 14px; border-radius: 20px; background: #eee; font-size: 12px; white-space: nowrap; cursor: pointer; }
-    .tag.active { background: var(--primary); color: #fff; }
-    
-    /* Marquee */
-    .marquee { background: linear-gradient(90deg, var(--accent), #f4d03f); color: #fff; padding: 10px; font-size: 14px; overflow: hidden; white-space: nowrap; }
-    .marquee span { animation: marquee 15s linear infinite; display: inline-block; padding-left: 100%; }
-    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-    
-    /* Page */
-    .page { display: none; padding: 12px; }
-    .page.active { display: block; }
-    
-    /* Card */
-    .card { background: var(--card); border-radius: 16px; padding: 12px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .card img { width: 100%; height: 180px; object-fit: cover; borderpx; margin-bottom-radius: 12: 10px; }
-    .card-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
-    .card-location { color: #666; font-size: 13px; }
-    .card-tags { display: flex; gap: 5px; flex-wrap: wrap; margin: 8px 0; }
-    .card-tag { background: #e8f5e9; color: var(--primary); padding: 3px 10px; border-radius: 12px; font-size: 11px; }
-    .card-price { font-size: 18px; color: var(--primary); font-weight: bold; }
-    
-    /* Votes */
-    .votes { display: flex; gap: 15px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
-    .vote-btn { cursor: pointer; font-size: 14px; }
-    .vote-btn:hover { transform: scale(1.1); }
-    
-    /* Bottom Nav */
-    .nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: #fff; border-top: 1px solid #ddd; padding: 8px 0; z-index: 100; }
-    .nav-item { flex: 1; text-align: center; font-size: 11px; color: #999; cursor: pointer; }
-    .nav-item.active { color: var(--primary); }
-    .nav-icon { font-size: 22px; display: block; margin-bottom: 2px; }
-    
-    /* Modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
-    .modal.active { display: flex; }
-    .modal-content { background: #fff; border-radius: 20px; padding: 20px; width: 90%; max-height: 80vh; overflow-y: auto; }
-    
-    /* Buttons */
-    .btn { padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; width: 100%; margin-bottom: 10px; }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-secondary { background: #eee; color: #333; }
-    .btn-line { background: #06C755; color: #fff; }
-    .btn-google { background: #4285F4; color: #fff; }
-    
-    /* Form */
-    input, textarea, select { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 12px; font-size: 14px; }
-    input:focus, textarea:focus { border-color: var(--primary); outline: none; }
-    
-    /* Map */
-    #map { height: 300px; border-radius: 16px; margin-bottom: 15px; }
-    
-    /* QR Code */
-    .qr-code { width: 200px; height: 200px; background: #fff; margin: 20px auto; border-radius: 16px; border: 3px solid var(--primary); display: flex; align-items: center; justify-content: center; }
-    
-    /* Membership Badge */
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-left: 8px; }
-    .badge-free { background: #ddd; }
-    .badge-silver { background: silver; color: #fff; }
-    .badge-gold { background: gold; color: #333; }
-    
-    /* FAB */
-    .fab { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 99; }
-    
-    /* Post Card */
-    .post-card { background: #fff; border-radius: 16px; padding: 15px; margin-bottom: 16px; }
-    .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .post-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-    .post-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin: 10px 0; }
-    
-    /* Comments */
-    .comments-list { margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
-    .comment { font-size: 13px; padding: 5px 0; }
-    
-    /* Booking */
-    .booking-item { display: flex; justify-content: space-between; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-bottom: 8px; }
+    :root{--forest:#1f3d2b;--sand:#e6d5b8;--sun:#f2a65a;--cream:#f9f6ef}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:"Noto Sans TC",sans-serif}
+    body{background:linear-gradient(180deg,var(--cream),var(--sand));color:var(--forest)}
+    header{padding:16px;font-size:20px;font-weight:700;text-align:center;background:var(--forest);color:white}
+    .container{padding:16px 16px 80px}
+    .tab{display:none}
+    .tab.active{display:block}
+    nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #ddd;display:flex}
+    nav button{flex:1;padding:12px;border:none;background:white;font-weight:600}
+    nav button.active{background:var(--sun);color:white}
+    input,textarea,button{padding:8px;margin:4px 0;width:100%}
+    .card{background:white;padding:12px;border-radius:8px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+    .vote{cursor:pointer;margin-right:8px}
+    #map{height:300px;border-radius:8px}
+    .shop-item{border-bottom:1px solid #eee;padding:8px 0}
   </style>
 </head>
 <body>
-
-<header>
-  <div class="logo">🏕️ 露營趣 v12.0</div>
-  <div>
-    <button class="header-btn" onclick="showLoginModal()">👤</button>
-    <button class="header-btn" onclick="showQR()">🎫</button>
-  </div>
-</header>
-
-<!-- 跑馬燈 -->
-<div class="marquee">
-  <span>🎉 新年優惠！太平山莊8折優惠中 │ 🔥 清境農場草莓季開跑 │ ⛺ 露營車工坊改裝優惠中 │ 📍 墾丁海灘營地熱烈預約中</span>
-</div>
-
-<!-- 搜尋 -->
-<div class="search-box">
-  <input type="text" id="searchInput" placeholder="🔍 搜尋地區..." onkeyup="searchCamps()">
-</div>
-
-<!-- 標籤篩選 -->
-<div class="tags-filter">
-  <div class="tag active" onclick="filterByTag('all',this)">全部</div>
-  <div class="tag" onclick="filterByTag('可開車',this)">🚗 可開車</div>
-  <div class="tag" onclick="filterByTag('海邊',this)">🏖️ 海邊</div>
-  <div class="tag" onclick="filterByTag('山',this)">🏔️ 山</div>
-  <div class="tag" onclick="filterByTag('森林',this)">🌲 森林</div>
-  <div class="tag" onclick="filterByTag('湖泊',this)">🌊 湖泊</div>
-</div>
-
-<!-- 分頁 -->
-<div class="page active" id="homePage">
-  <div id="campsList"></div>
-</div>
-
-<div class="page" id="mapPage">
-  <div id="map"></div>
-  <div id="mapResults"></div>
-</div>
-
-<div class="page" id="shopsPage">
-  <h3 style="margin-bottom:15px;">🏪 商家列表</h3>
-  <div class="tags-filter">
-    <div class="tag active" onclick="filterShops('all',this)">全部</div>
-    <div class="tag" onclick="filterShops('camp',this)">營地</div>
-    <div class="tag" onclick="filterShops('modify',this)">🔧 改裝店</div>
-    <div class="tag" onclick="filterShops('rental',this)">🚐 租車</div>
-    <div class="tag" onclick="filterShops('gear',this)">🎒 用品</div>
-  </div>
-  <div id="shopsList"></div>
-</div>
-
-<div class="page" id="socialPage">
-  <div class="card">
-    <textarea id="postContent" placeholder="分享你的露營趣事..." rows="3"></textarea>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-secondary" onclick="alert('📷 選擇圖片')">📷 圖片</button>
-      <button class="btn btn-secondary" onclick="alert('📍 選擇地點')">📍 地點</button>
-      <button class="btn btn-primary" onclick="createPost()">發布</button>
+  <header>露營趣 Camping App v13.0</header>
+  <div class="container">
+    <div id="home" class="tab active">
+      <h3>最新貼文</h3>
+      <div id="postList"></div>
+      <h4>發佈貼文</h4>
+      <textarea id="postContent" placeholder="分享你的露營心得..."></textarea>
+      <button onclick="addPost()">發佈</button>
     </div>
-  </div>
-  <div id="postsList"></div>
-</div>
-
-<div class="page" id="myPage">
-  <div id="profileSection"></div>
-  
-  <!-- 會員QR碼 -->
-  <div class="card" style="text-align:center;">
-    <h3>🎫 會員 QR 碼</h3>
-    <p style="color:#666;font-size:12px;margin:10px 0;">出示給營地主享有折扣</p>
-    <div class="qr-code">
-      <div style="text-align:center;">
-        <div style="font-size:48px;">🎫</div>
-        <div style="font-size:12px;margin-top:10px;" id="qrName">會員 QR</div>
+    <div id="mapTab" class="tab">
+      <h3>營地地圖</h3>
+      <div id="map"></div>
+    </div>
+    <div id="shop" class="tab">
+      <h3>露營商家</h3>
+      <input id="shopSearch" placeholder="搜尋商家" oninput="renderShops()"/>
+      <div id="shopList"></div>
+    </div>
+    <div id="community" class="tab">
+      <h3>搜尋貼文</h3>
+      <input id="searchInput" placeholder="關鍵字" oninput="renderPosts()"/>
+    </div>
+    <div id="me" class="tab">
+      <div id="authArea"></div>
+      <div id="memberArea" style="display:none">
+        <h4>會員 QR Code</h4>
+        <div id="qrcode"></div>
+        <h4>預約營地</h4>
+        <input type="date" id="bookDate"/>
+        <button onclick="bookCamp()">預約</button>
+        <div id="bookingList"></div>
       </div>
     </div>
   </div>
-  
-  <!-- 商家功能 -->
-  <div class="card" id="merchantPanel">
-    <h3>🏪 商家管理</h3>
-    <div style="padding:12px 0;border-bottom:1px solid #eee;cursor:pointer;" onclick="showPublishCamp()">📤 發布營地</div>
-    <div style="padding:12px 0;border-bottom:1px solid #eee;cursor:pointer;" onclick="showPublishActivity()">📅 發布活動</div>
-    <div style="padding:12px 0;cursor:pointer;"(' onclick="alert💰 設定優惠套餐')">💰 設定套餐</div>
-  </div>
-  
-  <!-- 我的預約 -->
-  <div class="card">
-    <h3>📅 我的預約</h3>
-    <div id="myBookings"></div>
-  </div>
-  
-  <button class="btn btn-secondary" onclick="logout()">登出</button>
-</div>
-
-<!-- 底部導航 -->
-<div class="nav">
-  <div class="nav-item active" onclick="switchTab('home',this)"><span class="nav-icon">🏠</span>首頁</div>
-  <div class="nav-item" onclick="switchTab('map',this)"><span class="nav-icon">🗺️</span>地圖</div>
-  <div class="nav-item" onclick="switchTab('shops',this)"><span class="nav-icon">🏪</span>商家</div>
-  <div class="nav-item" onclick="switchTab('social',this)"><span class="nav-icon">💬</span>社群</div>
-  <div class="nav-item" onclick="switchTab('my',this)"><span class="nav-icon">👤</span>我的</div>
-</div>
-
-<!-- FAB -->
-<div class="fab" onclick="showPostModal()">+</div>
-
-<!-- 登入 Modal -->
-<div id="loginModal" class="modal">
-  <div class="modal-content">
-    <h2 style="text-align:center;margin-bottom:20px;">登入 / 註冊</h2>
-    <button class="btn btn-line" onclick="loginLine()">💚 LINE 登入</button>
-    <button class="btn btn-google" onclick="loginGoogle()">🔵 Google 登入</button>
-    <div style="text-align:center;margin:20px 0;color:#999;">━ 或使用用戶名 ━</div>
-    <input type="text" id="loginName" placeholder="用戶名">
-    <input type="password" id="loginPassword" placeholder="密碼">
-    <button class="btn btn-primary" onclick="loginSimple()">登入</button>
-    <button class="btn btn-secondary" onclick="closeModal('loginModal')">取消</button>
-  </div>
-</div>
-
-<!-- 預約 Modal -->
-<div id="bookingModal" class="modal">
-  <div class="modal-content" id="bookingContent"></div>
-</div>
-
-<!-- 發布營地 Modal -->
-<div id="publishCampModal" class="modal">
-  <div class="modal-content">
-    <h2>📤 發布營地</h2>
-    <input type="text" id="campName" placeholder="營地名稱">
-    <input type="text" id="campLocation" placeholder="地點">
-    <input type="number" id="campPrice" placeholder="價格">
-    <select id="campTags">
-      <option value="可開車">🚗 可開車</option>
-      <option value="海邊">🏖️ 海邊</option>
-      <option value="山">🏔️ 山</option>
-      <option value="森林">🌲 森林</option>
-    </select>
-    <textarea id="campDesc" placeholder="營地描述" rows="3"></textarea>
-    <button class="btn btn-primary" onclick="publishCamp()">發布</button>
-    <button class="btn btn-secondary" onclick="closeModal('publishCampModal')">取消</button>
-  </div>
-</div>
-
-<script>
-// ============ 資料 ============
-let currentUser = null;
-let userMembership = 'free'; // free, silver, gold
-
-// 營地資料
-const camps = [
-  { id: 1, name: "太平山莊", location: "宜蘭縣大同鄉", tags: ["可開車", "森林", "賞螢"], price: 500, lat: 24.5067, lng: 121.5167, img: "https://picsum.photos/400/300?random=1", desc: "四季皆美的露營勝地" },
-  { id: 2, name: "墾丁海灘營地", location: "屏東縣恆春鎮", tags: ["海邊", "水上活動"], price: 600, lat: 21.9456, lng: 120.7456, img: "https://picsum.photos/400/300?random=2", desc: "離海灘最近的營地" },
-  { id: 3, name: "清境農場", location: "南投縣仁愛鄉", tags: ["山", "草原", "可開車"], price: 450, lat: 24.0444, lng: 121.1583, img: "https://picsum.photos/400/300?random=3", desc: "海拔1750公尺高山草原" },
-  { id: 4, name: "福壽山農場", location: "台中市和平區", tags: ["山", "森林", "賞楓"], price: 550, lat: 24.2667, lng: 121.0833, img: "https://picsum.photos/400/300?random=4", desc: "秋天賞楓勝地" },
-  { id: 5, name: "大湖草莓營地", location: "苗栗縣大湖鄉", tags: ["可開車", "草莓"], price: 400, lat: 24.4267, lng: 120.8783, img: "https://picsum.photos/400/300?random=5", desc: "草莓季必去" },
-  { id: 6, name: "東勢林場", location: "台中市東勢區", tags: ["森林", "可開車"], price: 350, lat: 24.2583, lng: 120.8917, img: "https://picsum.photos/400/300?random=6", desc: "森林浴好去處" },
-  { id: 7, name: "瑞鞍露營區", location: "新竹縣尖石鄉", tags: ["山", "溪流"], price: 420, lat: 24.7083, lng: 121.2167, img: "https://picsum.photos/400/300?random=7", desc: "山谷溪流旁" },
-  { id: 8, name: "那一村", location: "花蓮縣壽豐鄉", tags: ["湖泊", "森林"], price: 680, lat: 23.9167, lng: 121.5333, img: "https://picsum.photos/400/300?random=8", desc: "湖畔秘境" },
-  { id: 9, name: "愛露營", location: "桃園市復興區", tags: ["可開車", "山"], price: 380, lat: 24.8167, lng: 121.3333, img: "https://picsum.photos/400/300?random=9", desc: "設備齊全" },
-  { id: 10, name: "森森露營", location: "嘉義縣阿里山", tags: ["山", "森林", "雲海"], price: 520, lat: 23.5083, lng: 120.7583, img: "https://picsum.photos/400/300?random=10", desc: "雲海日出" },
-];
-
-// 商家資料
-const shops = [
-  { id: 1, name: "露營車工坊", type: "modify", location: "新北市", desc: "專業露營車改裝", img: "https://picsum.photos/400/300?random=11", tags: ["改裝", "維修"] },
-  { id: 2, name: "快樂露營車", type: "rental", location: "台北市", desc: "露營車出租", img: "https://picsum.photos/400/300?random=12", tags: ["出租", "代駕"] },
-  { id: 3, name: "戶外探險家", type: "gear", location: "台中市", desc: "露營用品專賣", img: "https://picsum.photos/400/300?random=13", tags: ["帳篷", "睡袋"] },
-  { id: 4, name: "野趣生活", type: "gear", location: "高雄市", desc: "露營用品出租", img: "https://picsum.photos/400/300?random=14", tags: ["出租", "購買"] },
-  { id: 5, name: "RV達人", type: "modify", location: "桃園市", desc: "頂級改裝", img: "https://picsum.photos/400/300?random=15", tags: ["改裝", "升級"] },
-];
-
-// 貼文資料
-const posts = [
-  { id: 1, user: "Alan", content: "太平山莊賞螢火蟲超美！🌲✨", location: "宜蘭", likes: 42, comments: ["好想去！", "超美的"], img: "https://picsum.photos/400/300?random=20", time: "2小時前" },
-  { id: 2, user: "Luna", content: "新入手 MSR 帳篷，輕量又防水！⛺", location: "台北", likes: 65, comments: ["多少錢？", "看起來不錯"], img: "https://picsum.photos/400/300?random=21", time: "5小時前" },
-  { id: 3, user: "Tom", content: "露營烤肉趴！🔥牛肉醃製配方公開", location: "台中", likes: 89, comments: ["太棒了！", "求配方"], img: "https://picsum.photos/400/300?random=22", time: "昨天" },
-  { id: 4, user: "Amy", content: "墾丁海灘SUP超好玩！🏄", location: "屏東", likes: 56, comments: ["多少錢？"], img: "https://picsum.photos/400/300?random=23", time: "昨天" },
-  { id: 5, user: "John", content: "清境農場看綿羊🐑好療癒", location: "南投", likes: 78, comments: ["適合帶小孩"], img: "https://picsum.photos/400/300?random=24", time: "2天前" },
-];
-
-// ============ 初始化 ============
-window.onload = function() {
-  renderCamps();
-  renderShops();
-  renderPosts();
-  renderProfile();
-  setTimeout(initMap, 500);
-};
-
-// ============ 分頁切換 ============
-function switchTab(tab, el) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(tab + 'Page').classList.add('active');
-  
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-  
-  if (tab === 'map') setTimeout(initMap, 100);
-}
-
-// ============ 營地渲染 ============
-function renderCamps(filter = 'all', search = '') {
-  let list = camps;
-  
-  if (filter !== 'all') {
-    list = list.filter(c => c.tags.includes(filter));
-  }
-  
-  if (search) {
-    list = list.filter(c => c.name.includes(search) || c.location.includes(search));
-  }
-  
-  document.getElementById('campsList').innerHTML = list.map(camp => `
-    <div class="card" onclick="showBooking(${camp.id})">
-      <img src="${camp.img}">
-      <div class="card-title">${camp.name}</div>
-      <div class="card-location">📍 ${camp.location}</div>
-      <div class="card-tags">${camp.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="card-price">$${camp.price}<span style="font-size:12px;color:#666;">/晚</span></span>
-        <button style="background:var(--primary);color:#fff;padding:8px 16px;border-radius:20px;border:none;cursor:pointer;">預約</button>
-      </div>
-      <div class="votes">
-        <span class="vote-btn" onclick="event.stopPropagation();vote(${camp.id},'like')">👍 ${camp.likes}</span>
-        <span class="vote-btn" onclick="event.stopPropagation();vote(${camp.id},'heart')">❤️ ${Math.floor(camp.likes/2)}</span>
-        <span class="vote-btn" onclick="event.stopPropagation();showComments(${camp.id})">💬 評論</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterByTag(tag, el) {
-  document.querySelectorAll('.tags-filter .tag').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderCamps(tag, document.getElementById('searchInput').value);
-}
-
-function searchCamps() {
-  const tag = document.querySelector('.tags-filter .tag.active').innerText;
-  const tagMap = { '全部': 'all', '🚗 可開車': '可開車', '🏖️ 海邊': '海邊', '🏔️ 山': '山', '🌲 森林': '森林', '🌊 湖泊': '湖泊' };
-  renderCamps(tagMap[tag] || 'all', document.getElementById('searchInput').value);
-}
-
-// ============ 地圖 ============
-function initMap() {
-  if (typeof L === 'undefined') return;
-  
-  const map = L.map('map').setView([23.5, 121], 7);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
-  
-  camps.forEach(camp => {
-    const icon = L.divIcon({ html: '🏕️', className: '', iconSize: [30, 30] });
-    L.marker([camp.lat, camp.lng], {icon})
-      .addTo(map)
-      .bindPopup(`<b>${camp.name}</b><br>${camp.location}<br>$${camp.price}/晚`);
-  });
-}
-
-// ============ 商家 ============
-function renderShops(filter = 'all') {
-  let list = shops;
-  if (filter !== 'all') {
-    list = list.filter(s => s.type === filter);
-  }
-  
-  document.getElementById('shopsList').innerHTML = list.map(shop => `
-    <div class="card">
-      <img src="${shop.img}">
-      <div class="card-title">${shop.name}</div>
-      <div class="card-location">📍 ${shop.location}</div>
-      <div class="card-tags">${shop.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
-      <div class="votes">
-        <span class="vote-btn">👍 讚</span>
-        <span class="vote-btn">📞 聯絡</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterShops(type, el) {
-  document.querySelectorAll('#shopsPage .tag').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderShops(type);
-}
-
-// ============ 貼文 ============
-function renderPosts() {
-  document.getElementById('postsList').innerHTML = posts.map(post => `
-    <div class="post-card">
-      <div class="post-header">
-        <div class="post-avatar">${post.user[0]}</div>
-        <div>
-          <strong>${post.user}</strong>
-          <span style="color:#666;font-size:12px;margin-left:10px;">📍 ${post.location} · ${post.time}</span>
-        </div>
-      </div>
-      <div>${post.content}</div>
-      <img src="${post.img}" class="post-img">
-      <div class="votes">
-        <span class="vote-btn" onclick="votePost(${post.id})">👍 ${post.likes}</span>
-        <span class="vote-btn" onclick="showPostComments(${post.id})">💬 ${post.comments.length}</span>
-        <span class="vote-btn">🔖 收藏</span>
-        <span class="vote-btn">📤 分享</span>
-      </div>
-      <div class="comments-list">
-        ${post.comments.map(c => `<div class="comment">💬 ${c}</div>`).join('')}
-      </div>
-    </div>
-  `).join('');
-}
-
-function createPost() {
-  if (!currentUser) { showLoginModal(); return; }
-  const content = document.getElementById('postContent').value;
-  if (!content) return alert('請輸入內容');
-  
-  posts.unshift({
-    id: Date.now(),
-    user: currentUser,
-    content: content,
-    location: '台灣',
-    likes: 0,
-    comments: [],
-    img: 'https://picsum.photos/400/300?random=' + Math.floor(Math.random()*100),
-    time: '剛剛'
-  });
-  
-  document.getElementById('postContent').value = '';
-  renderPosts();
-  alert('發布成功！');
-}
-
-function votePost(id) {
-  if (!currentUser) { showLoginModal(); return; }
-  const post = posts.find(p => p.id === id);
-  if (post) {
-    post.likes++;
-    renderPosts();
-  }
-}
-
-function showPostComments(id) {
-  if (!currentUser) { showLoginModal(); return; }
-  const post = posts.find(p => p.id === id);
-  if (!post) return;
-  
-  const comment = prompt('輸入評論:');
-  if (comment) {
-    post.comments.push(comment);
-    renderPosts();
-  }
-}
-
-// ============ 投票 ============
-function vote(id, type) {
-  if (!currentUser) { showLoginModal(); return; }
-  alert('投票成功！謝謝您的支持');
-}
-
-// ============ 評論 ============
-function showComments(id) {
-  if (!currentUser) { showLoginModal(); return; }
-  const camp = camps.find(c => c.id === id);
-  alert(`${camp?.name} 的評論功能\n\n目前還沒有評論，搶先發表！`);
-}
-
-// ============ 預約 ============
-function showBooking(id) {
-  const camp = camps.find(c => c.id === id);
-  if (!camp) return;
-  
-  if (!currentUser) { showLoginModal(); return; }
-  
-  document.getElementById('bookingContent').innerHTML = `
-    <img src="${camp.img}" style="width:100%;height:150px;object-fit:cover;border-radius:12px;margin-bottom:15px;">
-    <h2>${camp.name}</h2>
-    <p>📍 ${camp.location}</p>
-    <p class="card-price">$${camp.price}/晚</p>
-    
-    <h3 style="margin-top:20px;">選擇日期</h3>
-    <input type="date" id="bookingDate">
-    
-    <h3 style="margin-top:15px;">選擇套餐</h3>
-    <select id="bookingPackage">
-      <option>標準營位 - $${camp.price}</option>
-      <option>草地營位 - $${camp.price + 100}</option>
-      <option>木棧板 - $${camp.price + 200}</option>
-    </select>
-    
-    <div style="background:#f9f9f9;padding:15px;border-radius:12px;margin:15px 0;">
-      <p>👤 會員: ${currentUser}</p>
-      <p>🎖️ 等級: ${userMembership === 'free' ? '普通' : userMembership === 'silver' ? '白銀' : '黃金'}</p>
-      <p>💰 折扣: ${userMembership === 'gold' ? '20%' : userMembership === 'silver' ? '10%' : '0%'}</p>
-    </div>
-    
-    <button class="btn btn-primary" onclick="confirmBooking(${camp.id})">確認預約</button>
-    <button class="btn btn-secondary" onclick="closeModal('bookingModal')">取消</button>
-  `;
-  
-  document.getElementById('bookingModal').classList.add('active');
-}
-
-function confirmBooking(campId) {
-  const camp = camps.find(c => c.id === campId);
-  const date = document.getElementById('bookingDate').value;
-  
-  if (!date) return alert('請選擇日期');
-  
-  alert(`✅ 預約成功！
-
-營地: ${camp.name}
-日期: ${date}
-會員: ${currentUser}
-
-請於抵達時出示會員 QR 碼享有折扣優惠！`);
-  
-  closeModal('bookingModal');
-}
-
-// ============ 個人資料 ============
-function renderProfile() {
-  const isLoggedIn = currentUser !== null;
-  
-  document.getElementById('profileSection').innerHTML = isLoggedIn ? `
-    <div style="text-align:center;padding:20px;">
-      <div class="post-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto;">${currentUser[0]}</div>
-      <h2 style="margin-top:15px;">${currentUser}</h2>
-      <span class="badge badge-${userMembership}">${userMembership === 'free' ? '普通會員' : userMembership === 'silver' ? '白銀會員' : '黃金會員'}</span>
-      <div style="margin-top:15px;"><span style="margin:0 15px;"><strong>12</strong> 貼文</span><span style="margin:0 15px;"><strong>5</strong> 預約</span></div>
-    </div>
-  ` : `
-    <div style="text-align:center;padding:40px;">
-      <div style="font-size:48px;margin-bottom:20px;">👤</div>
-      <h2>登入體驗完整功能</h2>
-      <p style="color:#666;margin:15px 0;">登入後可發文、預約、享折扣</p>
-      <button class="btn btn-primary" onclick="
-// ============ 登入 ============
-function showLoginModal() { document.getElementById('loginModal').classList.add('active'); }
-function showQR() { if (!currentUser) { showLoginModal(); } else { switchTab('my', document.querySelectorAll('.nav-item')[4]); } }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-function loginSimple() {
-  const name = document.getElementById('loginName').value;
-  if (!name) return alert('請輸入用戶名');
-  currentUser = name;
-  closeModal('loginModal');
-  renderProfile();
-  alert('登入成功！');
-}
-
-function loginLine() {
-  currentUser = 'LINE用戶_' + Math.floor(Math.random()*1000);
-  closeModal('loginModal');
-  renderProfile();
-  alert('LINE 登入成功！');
-}
-
-function loginGoogle() {
-  currentUser = 'Google用戶';
-  closeModal('loginModal');
-  renderProfile();
-  alert('Google 登入成功！');
-}
-
-function logout() {
-  currentUser = null;
-  userMembership = 'free';
-  renderProfile();
-  alert('已登出');
-}
-
-// ============ 商家發布 ============
-function showPublishCamp() {
-  document.getElementById('publishCampModal').classList.add('active');
-}
-
-function showPublishActivity() {
-  alert('📅 發布活動功能\n\n活動名稱:\n活動日期:\n活動內容:');
-}
-
-function publishCamp() {
-  const name = document.getElementById('campName').value;
-  if (!name) return alert('請輸入營地名稱');
-  
-  const newCamp = {
-    id: Date.now(),
-    name: name,
-    location: document.getElementById('campLocation').value,
-    price: parseInt(document.getElementById('campPrice').value) || 500,
-    tags: [document.getElementById('campTags').value],
-    desc: document.getElementById('campDesc').value,
-    lat: 23.5 + Math.random(),
-    lng: 121 + Math.random(),
-    img: 'https://picsum.photos/400/300?random=' + Math.floor(Math.random()*100),
-    likes: 0
-  };
-  
-  camps.push(newCamp);
-  renderCamps();
-  closeModal('publishCampModal');
-  alert('營地發布成功！');
-}
-
-function showPostModal() {
-  if (!currentUser) { showLoginModal(); return; }
-  switchTab('social', document.querySelectorAll('.nav-item')[3]);
-}
-</script>
-
+  <nav>
+    <button onclick="switchTab('home')" class="active">首頁</button>
+    <button onclick="switchTab('mapTab')">地圖</button>
+    <button onclick="switchTab('shop')">商家</button>
+    <button onclick="switchTab('community')">社群</button>
+    <button onclick="switchTab('me')">我的</button>
+  </nav>
+  <script>
+    const tabs=document.querySelectorAll('.tab');
+    const navBtns=document.querySelectorAll('nav button');
+    function switchTab(id){tabs.forEach(t=>t.classList.remove('active'));navBtns.forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');event.target.classList.add('active')}
+    function renderAuth(){const user=localStorage.getItem('user');const area=document.getElementById('authArea');if(!user){area.innerHTML=`<h4>登入</h4><input id='username' placeholder='輸入名稱'/><button onclick='login()'>登入</button>`;document.getElementById('memberArea').style.display='none'}else{area.innerHTML=`<p>歡迎 ${user}</p><button onclick='logout()'>登出</button>`;document.getElementById('memberArea').style.display='block';document.getElementById('qrcode').innerHTML='';new QRCode(document.getElementById('qrcode'),user);renderBookings()}}
+    function login(){const name=document.getElementById('username').value;if(name){localStorage.setItem('user',name);renderAuth()}}
+    function logout(){localStorage.removeItem('user');location.reload()}
+    function getPosts(){return JSON.parse(localStorage.getItem('posts')||'[]')}
+    function savePosts(p){localStorage.setItem('posts',JSON.stringify(p))}
+    function addPost(){const c=document.getElementById('postContent').value;if(!c)return;const p=getPosts();p.unshift({id:Date.now(),content:c,votes:0,comments:[]});savePosts(p);renderPosts();document.getElementById('postContent').value=''}
+    function vote(id){const p=getPosts();const t=p.find(x=>x.id===id);t.votes++;savePosts(p);renderPosts()}
+    function addComment(id){const text=document.getElementById('c'+id).value;const p=getPosts();const t=p.find(x=>x.id===id);t.comments.push(text);savePosts(p);renderPosts()}
+    function renderPosts(){const k=document.getElementById('searchInput')?.value||'';const list=document.getElementById('postList');list.innerHTML='';getPosts().filter(p=>p.content.includes(k)).forEach(p=>{const d=document.createElement('div');d.className='card';d.innerHTML=`<p>${p.content}</p><span class='vote' onclick='vote(${p.id})'>👍 ${p.votes}</span><div>${p.comments.map(c=>`<p>💬 ${c}</p>`).join('')}<input id='c${p.id}' placeholder='留言...'/><button onclick='addComment(${p.id})'>留言</button></div>`;list.appendChild(d)})}
+    const shops=["山林裝備","露營達人","戶外生活館"];
+    function renderShops(){const q=document.getElementById('shopSearch').value||'';const list=document.getElementById('shopList');list.innerHTML='';shops.filter(s=>s.includes(q)).forEach(s=>{list.innerHTML+=`<div class='shop-item'>${s}</div>`})}
+    function bookCamp(){const d=document.getElementById('bookDate').value;if(!d)return;const b=JSON.parse(localStorage.getItem('bookings')||'[]');b.push(d);localStorage.setItem('bookings',JSON.stringify(b));renderBookings()}
+    function renderBookings(){const list=document.getElementById('bookingList');list.innerHTML='';const b=JSON.parse(localStorage.getItem('bookings')||'[]');b.forEach(x=>list.innerHTML+=`<p>📅 ${x}</p>`)}
+    const map=L.map('map').setView([23.7,121],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);L.marker([24.1477,120.6736]).addTo(map).bindPopup('示範營地');
+    renderAuth();renderPosts();renderShops();
+  </script>
 </body>
 </html>
