@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營探索 v15.2</title>
+  <title>露營探索 v15.3</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -85,10 +85,11 @@
 <body>
   <div class="progress-bar" id="progressBar"></div>
   <header>
-    <h1>露營探索 v15.2</h1>
+    <h1>露營探索 v15.3</h1>
     <div>
       <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ 格狀</button>
       <button class="toggle" onclick="toggleDark()">深色模式</button>
+      <button class="btn" onclick="installApp()" id="installBtn" style="display:none">安裝 App</button>
     </div>
   </header>
 
@@ -138,7 +139,7 @@
   <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
   <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
-    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v15.2 | 22 個營地
+    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v15.3 | 22 個營地
   </footer>
 
   <script>
@@ -382,6 +383,22 @@
       if(e.key==='g'||e.key==='G') toggleView();
       if(e.key==='f'||e.key==='F') toggleFavFilter();
     });
+
+    // PWA install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('installBtn').style.display = 'inline-block';
+    });
+
+    async function installApp(){
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const {outcome} = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    }
 
     window.onscroll = () => {
       document.getElementById('backToTop').classList.toggle('show', window.scrollY > 300);

@@ -1,8 +1,9 @@
 {
-  "version": "15.2",
+  "version": "15.3",
   "lastUpdated": "2026-03-03",
   "changelog": [
-    { "version": "15.2", "date": "2026-03-03", "changes": ["新增回到頂部按鈕", "優化用戶體驗"] },
+    { "version": "15.3", "date": "2026-03-03", "changes": ["新增 PWA 安裝提示", "支援手機安裝為 App"] },
+    { "version": "15.2", "date": "2026-03-03", "changes": ["新增回到頂部按鈕"] },
     { "version": "15.1", "date": "2026-03-03", "changes": ["優化用戶界面"] },
     { "version": "15.0", "date": "2026-03-02", "changes": ["初始版本發布"] }
   ]
