@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.4.0</title>
+  <title>Camping App v1.5.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -53,6 +53,7 @@
     .badge { position:absolute; top:15px; right:15px; background:var(--accent); color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; }
     .btn { margin-top:10px; margin-right:6px; padding:8px 14px; border:none; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer; }
     .btn.secondary { background:var(--soft); color:var(--text); }
+    .btn.active { background:var(--accent); color:#fff; }
     .modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
     .modal-content { background:var(--card); padding:30px; border-radius:20px; max-width:400px; width:90%; animation:pop .4s ease; position:relative; }
     .modal-content h2 { margin-bottom:15px; color:var(--text); }
@@ -71,7 +72,7 @@
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v1.4.0</h1>
+    <h1>Camping Explorer v1.5.0</h1>
     <button class="toggle" onclick="toggleDark()">Dark Mode</button>
   </header>
 
@@ -90,6 +91,7 @@
       <option value="name">Name A → Z</option>
     </select>
     <button class="btn secondary" onclick="clearFilters()">Clear</button>
+    <button class="btn" id="favFilter" onclick="toggleFavFilter()">★ Favorites</button>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -112,6 +114,7 @@
     const grid = document.getElementById('grid');
     const stats = document.getElementById('stats');
     let favorites = JSON.parse(localStorage.getItem('favorites')||'[]');
+    let showFavOnly = false;
 
     function render() {
       const search = document.getElementById('search').value.toLowerCase();
@@ -120,7 +123,8 @@
 
       let filtered = camps.filter(c =>
         c.name.toLowerCase().includes(search) &&
-        (filter === '' || c.type === filter)
+        (filter === '' || c.type === filter) &&
+        (!showFavOnly || favorites.includes(c.name))
       );
 
       const sort = document.getElementById('sort').value;
@@ -128,7 +132,9 @@
       if(sort==='high') filtered.sort((a,b)=>b.price-a.price);
       if(sort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name));
 
-      stats.textContent = `${filtered.length} camps found · ${favorites.length} favorites`;
+      const minPrice = filtered.length ? Math.min(...filtered.map(c=>c.price)) : 0;
+      const maxPrice = filtered.length ? Math.max(...filtered.map(c=>c.price)) : 0;
+      stats.textContent = `${filtered.length} camps found · $${minPrice}-$${maxPrice}/night · ${favorites.length} favorites`;
 
       if (!filtered.length) { grid.innerHTML = '<p>No camps found.</p>'; return; }
 
@@ -187,6 +193,15 @@
       document.getElementById('search').value = '';
       document.getElementById('filter').value = '';
       document.getElementById('sort').value = '';
+      showFavOnly = false;
+      document.getElementById('favFilter').classList.remove('active');
+      render();
+    }
+
+    function toggleFavFilter(){
+      showFavOnly = !showFavOnly;
+      const btn = document.getElementById('favFilter');
+      btn.classList.toggle('active', showFavOnly);
       render();
     }
 
