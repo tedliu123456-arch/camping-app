@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v17.6</title>
+  <title>露營趣 v17.7</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); }
@@ -106,6 +106,17 @@
     </div>
   </section>
 
+    <section>
+    <h2>📸 營地分享</h2>
+    <form>
+      <input type="text" id="campName" placeholder="營地名稱" required>
+      <input type="text" id="campArea" placeholder="所在區域" required>
+      <textarea placeholder="分享您的露營經驗..." style="padding:8px;border-radius:8px;border:1px solid #ccc;width:100%;min-height:80px;"></textarea>
+      <button type="button" onclick="shareCamp()">發布分享</button>
+    </form>
+    <div id="sharesList" style="margin-top:15px;"></div>
+  </section>
+
   <section>
     <h2>照片投票（每日2票）</h2>
     <div class="gallery">
@@ -201,7 +212,51 @@
       img.classList.add('loading');
       img.onload = () => img.classList.remove('loading');
       img.onerror = () => { img.classList.remove('loading'); img.alt = '圖片載入失敗'; };
-    });
+    }
+    
+    // Lazy loading
+    if ('IntersectionObserver' in window) {
+      const imgObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            if (img.dataset.src) {
+              img.src = img.dataset.src;
+              img.removeAttribute('data-src');
+            }
+            imgObserver.unobserve(img);
+          }
+        });
+      });
+      document.querySelectorAll('img[data-src]').forEach(img => imgObserver.observe(img));
+    }
+    
+    // 營地分享功能
+    const shares = JSON.parse(localStorage.getItem('camping_shares') || '[]');
+    function shareCamp() {
+      const name = document.getElementById('campName').value;
+      const area = document.getElementById('campArea').value;
+      if (name && area) {
+        const share = { name, area, time: new Date().toLocaleString('zh-TW') };
+        shares.unshift(share);
+        localStorage.setItem('camping_shares', JSON.stringify(shares));
+        renderShares();
+        document.getElementById('campName').value = '';
+        document.getElementById('campArea').value = '';
+        alert('分享成功！');
+      }
+    }
+    function renderShares() {
+      const container = document.getElementById('sharesList');
+      if (shares.length === 0) {
+        container.innerHTML = '';
+      } else {
+        container.innerHTML = '<h3>最新分享</h3>' + shares.slice(0,5).map(s => 
+          '<div class="card" style="margin:10px 0;"><strong>' + s.name + '</strong> (' + s.area + ')<br><small>' + s.time + '</small></div>'
+        ).join('');
+      }
+    }
+    renderShares();
     const notifs = ['新活動：星空露營', '您的會員即將到期', '有人按讚您的貼文'];
     function showNotifs(){
       alert('通知：\n• ' + notifs.join('\n• '));
