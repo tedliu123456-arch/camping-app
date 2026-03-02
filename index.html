@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v14.0</title>
+  <title>Camping App v15.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -12,6 +12,7 @@
       --text: #1b2430;
       --accent: linear-gradient(135deg,#ff7e5f,#feb47b);
       --soft: #eef2f7;
+      --radius: 18px;
     }
     body.dark {
       --bg: #0f172a;
@@ -22,10 +23,14 @@
     * { box-sizing: border-box; margin:0; padding:0; }
     body {
       font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at 20% 20%, #ffd6c7 0%, transparent 40%), var(--bg);
+      background:
+        radial-gradient(circle at 20% 20%, #ffd6c7 0%, transparent 40%),
+        radial-gradient(circle at 80% 0%, #c7e9ff 0%, transparent 40%),
+        var(--bg);
       color: var(--text);
-      transition: .3s ease;
+      transition: background .4s ease, color .3s ease;
       min-height:100vh;
+      overflow-x:hidden;
     }
     header { padding: 20px; display:flex; justify-content:space-between; align-items:center; }
     h1 { font-family:'Playfair Display', serif; font-size:28px; }
@@ -33,10 +38,21 @@
     .controls { padding:20px; display:flex; gap:10px; flex-wrap:wrap; }
     input, select { padding:10px; border-radius:10px; border:1px solid #ccc; }
     .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:20px; }
-    .card { background:var(--card); border-radius:18px; padding:18px; box-shadow:0 8px 20px rgba(0,0,0,0.08); transition:.3s; position:relative; }
-    .card:hover { transform:translateY(-6px); }
+    .card { 
+      background:var(--card); 
+      border-radius:var(--radius); 
+      padding:18px; 
+      box-shadow:0 10px 25px rgba(0,0,0,0.08); 
+      transition:transform .3s ease, box-shadow .3s ease;
+      position:relative; 
+      opacity:0;
+      transform:translateY(20px);
+      animation:fadeUp .6s forwards;
+    }
+    .card:hover { transform:translateY(-8px) scale(1.02); box-shadow:0 16px 35px rgba(0,0,0,0.12);} 
     .badge { position:absolute; top:15px; right:15px; background:var(--accent); color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; }
     .btn { margin-top:10px; margin-right:6px; padding:8px 14px; border:none; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer; }
+    .btn.secondary { background:var(--soft); color:var(--text); }
     .modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
     .modal-content { background:var(--card); padding:30px; border-radius:20px; max-width:400px; width:90%; animation:pop .4s ease; }
     @keyframes pop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
@@ -44,11 +60,15 @@
     @keyframes shine { to{background-position:-200% 0;} }
     .booking { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:14px 28px; border-radius:30px; display:none; animation:slide .6s ease; }
     @keyframes slide { from{opacity:0; transform:translate(-50%,50px);} to{opacity:1; transform:translate(-50%,0);} }
+    @keyframes fadeUp { to{opacity:1; transform:translateY(0);} }
+    .favorite { position:absolute; top:15px; left:15px; cursor:pointer; font-size:18px; }
+    .favorite.active { color:#ff7e5f; }
+    .stats { padding:0 20px 10px; font-size:14px; opacity:.7; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v14.0</h1>
+    <h1>Camping Explorer v15.0</h1>
     <button class="toggle" onclick="toggleDark()">Dark Mode</button>
   </header>
 
@@ -60,8 +80,15 @@
       <option value="Lake">Lake</option>
       <option value="Mountain">Mountain</option>
     </select>
+    <select id="sort" onchange="render()">
+      <option value="">Sort</option>
+      <option value="low">Price: Low → High</option>
+      <option value="high">Price: High → Low</option>
+      <option value="name">Name A → Z</option>
+    </select>
   </div>
 
+  <div class="stats" id="stats"></div>
   <div class="grid" id="grid"></div>
 
   <div class="modal" id="modal" onclick="closeModal(event)">
@@ -79,28 +106,40 @@
     }));
 
     const grid = document.getElementById('grid');
+    const stats = document.getElementById('stats');
+    let favorites = JSON.parse(localStorage.getItem('favorites')||'[]');
 
     function render() {
       const search = document.getElementById('search').value.toLowerCase();
       const filter = document.getElementById('filter').value;
       grid.innerHTML = '';
 
-      const filtered = camps.filter(c =>
+      let filtered = camps.filter(c =>
         c.name.toLowerCase().includes(search) &&
         (filter === '' || c.type === filter)
       );
+
+      const sort = document.getElementById('sort').value;
+      if(sort==='low') filtered.sort((a,b)=>a.price-b.price);
+      if(sort==='high') filtered.sort((a,b)=>b.price-a.price);
+      if(sort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+
+      stats.textContent = `${filtered.length} camps found · ${favorites.length} favorites`;
 
       if (!filtered.length) { grid.innerHTML = '<p>No camps found.</p>'; return; }
 
       filtered.forEach(c => {
         const card = document.createElement('div');
         card.className = 'card';
+        const isFav = favorites.includes(c.name);
+        card.style.animationDelay = `${Math.random()*0.3}s`;
         card.innerHTML = `
+          <div class="favorite ${isFav?'active':''}" onclick="toggleFav('${c.name}')">${isFav?'★':'☆'}</div>
           <div class="badge">${c.type}</div>
           <h3>${c.name}</h3>
           <p>$${c.price}/night</p>
-          <button class="btn" onclick="openModal('${c.name}')">Shop</button>
-          <button class="btn" onclick="book()">Book</button>
+          <button class="btn" onclick="openModal('${c.name}')">Details</button>
+          <button class="btn secondary" onclick="book()">Book</button>
         `;
         grid.appendChild(card);
       });
@@ -108,6 +147,7 @@
 
     function openModal(name) {
       const camp = camps.find(c=>c.name===name);
+      if(!camp) return;
       document.getElementById('modalContent').innerHTML = `
         <h2>${camp.name}</h2>
         <p>Type: ${camp.type}</p>
@@ -128,6 +168,16 @@
     }
 
     function toggleDark(){ document.body.classList.toggle('dark'); }
+
+    function toggleFav(name){
+      if(favorites.includes(name)){
+        favorites = favorites.filter(f=>f!==name);
+      }else{
+        favorites.push(name);
+      }
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      render();
+    }
 
     function showSkeleton(){
       for(let i=0;i<6;i++){
