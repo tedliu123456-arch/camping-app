@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 會員端 App v9.1.0</title>
+    <title>露營趣 - 會員端 App v10.0.0</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
@@ -76,7 +76,7 @@
 <body>
 
 <div class="header">
-    <div class="logo">🏕️ 露營趣 v9.1</div>
+    <div class="logo">🏕️ 露營趣 v10.0</div>
     <div>
         <button class="header-btn" onclick="alert('🔔 通知')">🔔</button>
         <button class="header-btn" onclick="showLogin()">👤</button>
@@ -294,12 +294,21 @@ window.onload = function() {
 // Tab Switching
 function switchTab(tab) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(tab + 'Page').classList.add('active');
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const idx = ['home','map','shops','community','vote','my'].indexOf(tab);
-    if (idx >= 0) document.querySelectorAll('.nav-item')[idx < 4 ? idx : idx - 1].classList.add('active');
+    const page = document.getElementById(tab + 'Page');
+    if (page) page.classList.add('active');
+
+    document.querySelectorAll('.tab').forEach(t => {
+        if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + tab + "'")) {
+            t.classList.add('active');
+        } else {
+            t.classList.remove('active');
+        }
+    });
+
+    const navTabs = ['home','map','shops','community','my'];
+    document.querySelectorAll('.nav-item').forEach((n, i) => {
+        n.classList.toggle('active', navTabs[i] === tab);
+    });
 }
 
 // Render Shops
@@ -450,6 +459,35 @@ function initSwipe() {
             currentCard.style.transform = '';
         }
     });
+
+    // Mouse support
+    let isDown = false;
+    currentCard.addEventListener('mousedown', e => {
+        isDown = true;
+        startX = e.clientX;
+    });
+
+    window.addEventListener('mousemove', e => {
+        if (!isDown) return;
+        const dx = e.clientX - startX;
+        currentCard.style.transform = `translateX(${dx}px) rotate(${dx/10}deg)`;
+    });
+
+    window.addEventListener('mouseup', e => {
+        if (!isDown) return;
+        isDown = false;
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 100) {
+            currentCard.style.transform = `translateX(${dx > 0 ? 500 : -500}px) rotate(${dx/10}deg)`;
+            currentCard.style.opacity = '0';
+            setTimeout(() => {
+                currentCard.remove();
+                initSwipe();
+            }, 300);
+        } else {
+            currentCard.style.transform = '';
+        }
+    });
 }
 
 // Create Post
@@ -511,6 +549,7 @@ function vote(pollId, optionIdx, el) {
     localStorage.setItem('votes-'+today,JSON.stringify(saved));
     document.getElementById('votesLeft').innerText = votesLeft;
     el.style.background = '#e8f5e9';
+    el.style.pointerEvents = 'none';
     alert('投票成功！');
 }
 
