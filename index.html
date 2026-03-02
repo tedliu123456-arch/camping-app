@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 露營生活社群 v5.2.0</title>
+    <title>露營趣 - 露營生活社群 v6.0.0</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -71,8 +71,10 @@
 </head>
 <body>
 <div class="header">
-    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v5.2.0</span></div>
-    <div>✉️</div>
+    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v6.0.0</span></div>
+    <div id="authArea">
+        <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" onclick="openLogin()">登入</button>
+    </div>
 </div>
 <div id="app">
     <div class="stories">
@@ -170,7 +172,85 @@
     <button onclick="switchTab('messages',this)">💬<span>訊息</span></button>
     <button onclick="switchTab('profile',this)">👤<span>個人</span></button>
 </div>
+<!-- Login Modal -->
+<div id="loginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:20px;border-radius:16px;width:90%;max-width:320px;">
+        <h3 style="margin-bottom:12px;">登入露營趣</h3>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:10px;" onclick="googleLogin()">使用 Google 登入</button>
+        <input type="text" id="usernameLogin" placeholder="輸入暱稱">
+        <button class="btn" style="width:100%;background:#111;color:#fff;" onclick="simpleLogin()">使用暱稱登入</button>
+        <button class="btn" style="width:100%;margin-top:10px;" onclick="closeLogin()">取消</button>
+    </div>
+</div>
 <script>
+// Firebase (replace with real config when deploying)
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID"
+};
+
+let currentUser = null;
+
+function openLogin(){ document.getElementById('loginModal').style.display='flex'; }
+function closeLogin(){ document.getElementById('loginModal').style.display='none'; }
+
+function simpleLogin(){
+    const name = document.getElementById('usernameLogin').value.trim();
+    if(!name) return;
+    currentUser = { name, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random` };
+    localStorage.setItem('campUser', JSON.stringify(currentUser));
+    afterLogin();
+}
+
+function googleLogin(){
+    if(!window.firebase){ alert('尚未設定 Firebase'); return; }
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider).then(result=>{
+        currentUser = { name: result.user.displayName, avatar: result.user.photoURL };
+        localStorage.setItem('campUser', JSON.stringify(currentUser));
+        afterLogin();
+    });
+}
+
+function afterLogin(){
+    closeLogin();
+    renderAuthHeader();
+    renderProfile();
+}
+
+function renderAuthHeader(){
+    const area = document.getElementById('authArea');
+    if(!currentUser){
+        area.innerHTML = '<button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" onclick="openLogin()">登入</button>';
+        return;
+    }
+    area.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;">
+            <img src="${currentUser.avatar}" class="avatar" style="width:32px;height:32px;">
+            <span style="font-size:13px;font-weight:600;">${currentUser.name}</span>
+            <button onclick="logout()" style="background:none;border:none;cursor:pointer;">⎋</button>
+        </div>`;
+}
+
+function logout(){
+    currentUser = null;
+    localStorage.removeItem('campUser');
+    renderAuthHeader();
+    renderProfile();
+}
+
+function renderProfile(){
+    const nameEl = document.querySelector('.profile-name');
+    const avatarEl = document.querySelector('.profile-avatar img');
+    if(!currentUser){
+        nameEl.textContent = '尚未登入';
+        avatarEl.src = 'https://picsum.photos/200?random=50';
+        return;
+    }
+    nameEl.textContent = currentUser.name;
+    avatarEl.src = currentUser.avatar;
+}
 const categories = ['全部','新手發問','裝備分享','營地推薦','美食料理'];
 let currentFilter = '全部';
 
@@ -217,11 +297,13 @@ function addPost() {
     card.className = 'post';
     card.setAttribute('data-category', category);
     card.style.position = 'relative';
+    const authorName = currentUser ? currentUser.name : '你';
+    const authorAvatar = currentUser ? currentUser.avatar : 'https://picsum.photos/80?random=9';
     card.innerHTML = `
         <div class="post-header">
-            <img src="https://picsum.photos/80?random=9" class="avatar">
+            <img src="${authorAvatar}" class="avatar">
             <div>
-                <strong>你</strong><span class="badge">${category}</span><br>
+                <strong>${authorName}</strong><span class="badge">${category}</span><br>
                 <small style="color:#777;">${new Date().toLocaleString()} ${document.getElementById('locationInput').value ? '· 📍 ' + document.getElementById('locationInput').value : ''}</small>
             </div>
         </div>
@@ -368,6 +450,20 @@ function renderExplore(type) {
 
 // 初始化探索頁
 renderExplore('camp');
+
+// 初始化使用者
+const saved = localStorage.getItem('campUser');
+if(saved){ currentUser = JSON.parse(saved); }
+renderAuthHeader();
+renderProfile();
+</script>
+<!-- Firebase CDN -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+if(window.firebase){
+    firebase.initializeApp(firebaseConfig);
+}
 </script>
 </body>
 </html>
