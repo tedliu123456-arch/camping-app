@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.5.0</title>
+  <title>Camping App v1.6.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -72,7 +72,7 @@
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v1.5.0</h1>
+    <h1>Camping Explorer v1.6.0</h1>
     <button class="toggle" onclick="toggleDark()">Dark Mode</button>
   </header>
 
@@ -89,9 +89,13 @@
       <option value="low">Price: Low → High</option>
       <option value="high">Price: High → Low</option>
       <option value="name">Name A → Z</option>
+      <option value="rating">Rating ★</option>
     </select>
+    <input type="number" id="minPrice" placeholder="Min $" style="width:70px" oninput="render()" />
+    <input type="number" id="maxPrice" placeholder="Max $" style="width:70px" oninput="render()" />
     <button class="btn secondary" onclick="clearFilters()">Clear</button>
     <button class="btn" id="favFilter" onclick="toggleFavFilter()">★ Favorites</button>
+    <button class="btn secondary" onclick="shuffleCamps()">🔀 Shuffle</button>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -104,12 +108,31 @@
   <div class="booking" id="bookingMsg">Booking Confirmed!</div>
 
   <script>
-    const camps = Array.from({length:22}, (_,i)=>({
-      name:`Camp ${i+1}`,
-      type:["Forest","Lake","Mountain"][i%3],
-      price:50 + i*5,
-      description:"Beautiful scenery and peaceful vibes with full facilities."
-    }));
+    const campData = [
+      {name:"Sunny Meadow",type:"Forest",price:55,description:"Peaceful forest setting with rolling meadows and wildlife.",rating:4.5},
+      {name:"Lakeside Haven",type:"Lake",price:85,description:"Direct lake access with stunning sunset views.",rating:4.8},
+      {name:"Mountain Peak",type:"Mountain",price:120,description:"Breathtaking mountain panoramas at 2000m altitude.",rating:4.9},
+      {name:"Pine Forest",type:"Forest",price:45,description:"Dense pine forest with hiking trails.",rating:4.3},
+      {name:"Crystal Lake",type:"Lake",price:95,description:"Crystal clear waters perfect for swimming.",rating:4.7},
+      {name:"Eagle's Nest",type:"Mountain",price:150,description:"Remote mountain camp with adventure activities.",rating:4.6},
+      {name:"River Bend",type:"Forest",price:60,description:"Riverside camping with fishing opportunities.",rating:4.4},
+      {name:"Sunset Bay",type:"Lake",price:75,description:"Beautiful bay with kayaking and paddle boarding.",rating:4.5},
+      {name:"Alpine Meadow",type:"Mountain",price:110,description:"High altitude meadow with wildflowers.",rating:4.7},
+      {name:"Hidden Valley",type:"Forest",price:50,description:"Secluded valley away from crowds.",rating:4.2},
+      {name:"Starry Night",type:"Lake",price:90,description:"Minimal light pollution for stargazing.",rating:4.8},
+      {name:"Rocky Ridge",type:"Mountain",price:130,description:"Rocky terrain with rock climbing nearby.",rating:4.4},
+      {name:"Willow Creek",type:"Forest",price:55,description:"Gentle creek with willow trees.",rating:4.3},
+      {name:"Blue Horizon",type:"Lake",price:100,description:"Panoramic lake views from elevated site.",rating:4.6},
+      {name:"Cloud Peak",type:"Mountain",price:140,description:"Above the clouds with sunrise views.",rating:4.9},
+      {name:"Fern Gully",type:"Forest",price:48,description:"Lush fern-covered forest trails.",rating:4.1},
+      {name:"Mirror Lake",type:"Lake",price:88,description:"Perfect mirror-like lake reflections.",rating:4.7},
+      {name:"Thunder Ridge",type:"Mountain",price:125,description:"Dramatic thunderstorm views safely.",rating:4.5},
+      {name:"Ancient Trees",type:"Forest",price:65,description:"Camp under centuries-old giant trees.",rating:4.6},
+      {name:"Sandy Shore",type:"Lake",price:70,description:"Natural sandy beach on the lakeside.",rating:4.4},
+      {name:"Summit View",type:"Mountain",price:135,description:"360-degree views from the summit.",rating:4.8},
+      {name:"Whispering Pines",type:"Forest",price:52,description:"Pine trees that whisper in the wind.",rating:4.3}
+    ];
+    const camps = [...campData];
 
     const grid = document.getElementById('grid');
     const stats = document.getElementById('stats');
@@ -119,11 +142,15 @@
     function render() {
       const search = document.getElementById('search').value.toLowerCase();
       const filter = document.getElementById('filter').value;
+      const minPrice = parseInt(document.getElementById('minPrice').value) || 0;
+      const maxPrice = parseInt(document.getElementById('maxPrice').value) || Infinity;
       grid.innerHTML = '';
 
       let filtered = camps.filter(c =>
         c.name.toLowerCase().includes(search) &&
-        (filter === '' || c.type === filter) &&
+        (filter === '' || c.type === c.type) &&
+        c.price >= minPrice &&
+        c.price <= maxPrice &&
         (!showFavOnly || favorites.includes(c.name))
       );
 
@@ -131,10 +158,11 @@
       if(sort==='low') filtered.sort((a,b)=>a.price-b.price);
       if(sort==='high') filtered.sort((a,b)=>b.price-a.price);
       if(sort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+      if(sort==='rating') filtered.sort((a,b)=>b.rating-a.rating);
 
-      const minPrice = filtered.length ? Math.min(...filtered.map(c=>c.price)) : 0;
-      const maxPrice = filtered.length ? Math.max(...filtered.map(c=>c.price)) : 0;
-      stats.textContent = `${filtered.length} camps found · $${minPrice}-$${maxPrice}/night · ${favorites.length} favorites`;
+      const minP = filtered.length ? Math.min(...filtered.map(c=>c.price)) : 0;
+      const maxP = filtered.length ? Math.max(...filtered.map(c=>c.price)) : 0;
+      stats.textContent = `${filtered.length} camps · $${minP}-$${maxP}/night · ${favorites.length} favorites`;
 
       if (!filtered.length) { grid.innerHTML = '<p>No camps found.</p>'; return; }
 
@@ -147,6 +175,7 @@
           <div class="favorite ${isFav?'active':''}" onclick="toggleFav('${c.name}')">${isFav?'★':'☆'}</div>
           <div class="badge">${c.type}</div>
           <h3>${c.name}</h3>
+          <p class="rating">★ ${c.rating}</p>
           <p>$${c.price}/night</p>
           <button class="btn" onclick="openModal('${c.name}')">Details</button>
           <button class="btn secondary" onclick="book()">Book</button>
@@ -193,8 +222,18 @@
       document.getElementById('search').value = '';
       document.getElementById('filter').value = '';
       document.getElementById('sort').value = '';
+      document.getElementById('minPrice').value = '';
+      document.getElementById('maxPrice').value = '';
       showFavOnly = false;
       document.getElementById('favFilter').classList.remove('active');
+      render();
+    }
+
+    function shuffleCamps(){
+      for(let i=camps.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [camps[i],camps[j]]=[camps[j],camps[i]];
+      }
       render();
     }
 
