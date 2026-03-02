@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.7.0</title>
+  <title>Camping App v1.8.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -74,11 +74,13 @@
     .grid.list-view .card .badge { position:static; display:inline-block; margin-left:10px; }
     .grid.list-view .card .favorite { position:static; }
     .rating { color:#feb47b; font-weight:600; margin:4px 0; }
+    .compare-bar { display:flex; position:sticky; top:0; z-index:10; }
+    .card.selected { outline:3px solid #ff7e5f; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v1.7.0</h1>
+    <h1>Camping Explorer v1.8.0</h1>
     <div>
       <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ Grid</button>
       <button class="toggle" onclick="toggleDark()">Dark Mode</button>
@@ -108,6 +110,11 @@
   </div>
 
   <div class="stats" id="stats"></div>
+  <div class="compare-bar" id="compareBar" style="display:none; padding:10px 20px; background:var(--soft); align-items:center; gap:10px;">
+    <span id="compareCount">0 selected</span>
+    <button class="btn" onclick="showCompare()">Compare</button>
+    <button class="btn secondary" onclick="clearCompare()">Clear</button>
+  </div>
   <div class="grid" id="grid"></div>
 
   <div class="modal" id="modal" onclick="closeModal(event)">
@@ -148,6 +155,7 @@
     let favorites = JSON.parse(localStorage.getItem('favorites')||'[]');
     let showFavOnly = false;
     let listView = false;
+    let compareList = [];
 
     function render() {
       const search = document.getElementById('search').value.toLowerCase();
@@ -179,7 +187,7 @@
 
       filtered.forEach(c => {
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card' + (compareList.includes(c.name) ? ' selected' : '');
         const isFav = favorites.includes(c.name);
         card.style.animationDelay = `${Math.random()*0.3}s`;
         card.innerHTML = `
@@ -188,11 +196,15 @@
           <h3>${c.name}</h3>
           <p class="rating">★ ${c.rating}</p>
           <p>$${c.price}/night</p>
+          <label style="cursor:pointer"><input type="checkbox" ${compareList.includes(c.name)?'checked':''} onchange="toggleCompare('${c.name}')"> Compare</label>
           <button class="btn" onclick="openModal('${c.name}')">Details</button>
           <button class="btn secondary" onclick="book()">Book</button>
         `;
         grid.appendChild(card);
       });
+      
+      document.getElementById('compareBar').style.display = compareList.length ? 'flex' : 'none';
+      document.getElementById('compareCount').textContent = `${compareList.length} selected`;
     }
 
     function openModal(name) {
@@ -258,6 +270,32 @@
     function toggleView(){
       listView = !listView;
       document.getElementById('viewToggle').textContent = listView ? '☰ List' : '▦ Grid';
+      render();
+    }
+
+    function toggleCompare(name){
+      if(compareList.includes(name)){
+        compareList = compareList.filter(c=>c!==name);
+      }else if(compareList.length < 4){
+        compareList.push(name);
+      }
+      render();
+    }
+
+    function showCompare(){
+      const campsToCompare = camps.filter(c=>compareList.includes(c.name));
+      if(campsToCompare.length < 2) return;
+      let html = '<h2>Compare Camps</h2><table style="width:100%;text-align:left"><tr><th>Name</th><th>Type</th><th>Price</th><th>Rating</th></tr>';
+      campsToCompare.forEach(c=>{
+        html += `<tr><td>${c.name}</td><td>${c.type}</td><td>$${c.price}</td><td>★ ${c.rating}</td></tr>`;
+      });
+      html += '</table><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">Close</button>';
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modal').style.display='flex';
+    }
+
+    function clearCompare(){
+      compareList = [];
       render();
     }
 
