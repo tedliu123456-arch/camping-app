@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.6.0</title>
+  <title>Camping App v1.7.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -68,12 +68,21 @@
     .favorite { position:absolute; top:15px; left:15px; cursor:pointer; font-size:18px; }
     .favorite.active { color:#ff7e5f; }
     .stats { padding:0 20px 10px; font-size:14px; opacity:.7; }
+    .grid.list-view { display:flex; flex-direction:column; }
+    .grid.list-view .card { display:flex; align-items:center; gap:15px; padding:12px 18px; }
+    .grid.list-view .card h3 { margin:0; }
+    .grid.list-view .card .badge { position:static; display:inline-block; margin-left:10px; }
+    .grid.list-view .card .favorite { position:static; }
+    .rating { color:#feb47b; font-weight:600; margin:4px 0; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v1.6.0</h1>
-    <button class="toggle" onclick="toggleDark()">Dark Mode</button>
+    <h1>Camping Explorer v1.7.0</h1>
+    <div>
+      <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ Grid</button>
+      <button class="toggle" onclick="toggleDark()">Dark Mode</button>
+    </div>
   </header>
 
   <div class="controls">
@@ -138,6 +147,7 @@
     const stats = document.getElementById('stats');
     let favorites = JSON.parse(localStorage.getItem('favorites')||'[]');
     let showFavOnly = false;
+    let listView = false;
 
     function render() {
       const search = document.getElementById('search').value.toLowerCase();
@@ -145,10 +155,11 @@
       const minPrice = parseInt(document.getElementById('minPrice').value) || 0;
       const maxPrice = parseInt(document.getElementById('maxPrice').value) || Infinity;
       grid.innerHTML = '';
+      grid.classList.toggle('list-view', listView);
 
       let filtered = camps.filter(c =>
         c.name.toLowerCase().includes(search) &&
-        (filter === '' || c.type === c.type) &&
+        (filter === '' || c.type === filter) &&
         c.price >= minPrice &&
         c.price <= maxPrice &&
         (!showFavOnly || favorites.includes(c.name))
@@ -241,6 +252,12 @@
       showFavOnly = !showFavOnly;
       const btn = document.getElementById('favFilter');
       btn.classList.toggle('active', showFavOnly);
+      render();
+    }
+
+    function toggleView(){
+      listView = !listView;
+      document.getElementById('viewToggle').textContent = listView ? '☰ List' : '▦ Grid';
       render();
     }
 
