@@ -1,653 +1,207 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 會員端 App v10.0.0</title>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --primary: #2d5a27; --secondary: #4caf50; --accent: #ff9800; --bg: #f5f5f5; --card: #ffffff; --text: #333; --danger: #f44336; }
-        body { font-family: "Noto Sans TC", sans-serif; background: var(--bg); color: var(--text); padding-bottom: 70px; }
-        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 15px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: bold; }
-        .header-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
-        .tabs { display: flex; background: white; overflow-x: auto; padding: 10px; gap: 10px; }
-        .tab { padding: 8px 16px; border-radius: 20px; white-space: nowrap; font-size: 14px; cursor: pointer; background: #eee; }
-        .tab.active { background: var(--primary); color: white; }
-        .page { display: none; padding: 15px; }
-        .page.active { display: block; }
-        .card { background: var(--card); border-radius: 16px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-        .swipe-stack { position: relative; height: 520px; margin-top: 10px; }
-        .swipe-card { position: absolute; width: 100%; transition: transform 0.3s ease, opacity 0.3s ease; }
-        .swipe-card:nth-child(1) { z-index: 3; }
-        .swipe-card:nth-child(2) { z-index: 2; transform: scale(0.96) translateY(10px); opacity: 0.9; }
-        .swipe-card:nth-child(3) { z-index: 1; transform: scale(0.92) translateY(20px); opacity: 0.8; }
-        #map { height: 300px; background: #e8f5e9; border-radius: 16px; margin-bottom: 15px; }
-        .shop-card { display: flex; gap: 12px; margin-bottom: 15px; }
-        .shop-img { width: 100px; height: 100px; border-radius: 12px; object-fit: cover; }
-        .shop-info { flex: 1; }
-        .shop-name { font-weight: bold; font-size: 16px; }
-        .shop-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-        .tag { background: #e8f5e9; color: var(--primary); padding: 3px 10px; border-radius: 12px; font-size: 12px; }
-        .search-box { display: flex; gap: 10px; padding: 15px; background: white; }
-        .search-input { flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 25px; }
-        .filters { display: flex; gap: 8px; overflow-x: auto; padding: 10px 15px; }
-        .filter { padding: 8px 16px; border-radius: 20px; background: white; border: 1px solid #ddd; font-size: 13px; white-space: nowrap; cursor: pointer; }
-        .filter.active { background: var(--primary); color: white; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .post-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .post-img { width: 100%; border-radius: 12px; margin: 10px 0; }
-        .post-actions { display: flex; gap: 15px; padding-top: 12px; border-top: 1px solid #eee; }
-        .action-btn { cursor: pointer; }
-        .qr-code { width: 200px; height: 200px; background: white; margin: 15px auto; border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 3px solid var(--primary); }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 8px 5px; border-top: 1px solid #eee; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #999; cursor: pointer; }
-        .nav-item.active { color: var(--primary); }
-        .nav-icon { font-size: 24px; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; padding: 25px; width: 95%; max-height: 85vh; overflow-y: auto; }
-        .btn { padding: 14px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: #f0f0f0; color: #333; }
-        input, textarea, select { width: 100%; padding: 14px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 12px; }
-        .membership-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; margin-left: 8px; }
-        .membership-badge.free { background: #e0e0e0; }
-        .membership-badge.basic { background: #ff9800; color: white; }
-        .membership-badge.premium { background: #4caf50; color: white; }
-        .fab { position: fixed; bottom: 80px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; font-size: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(45,90,39,0.4); cursor: pointer; z-index: 99; }
-        .vote-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .vote-img { width: 60px; height: 60px; border-radius: 12px; object-fit: cover; }
-        .vote-bar { flex: 1; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
-        .vote-fill { height: 100%; background: var(--primary); border-radius: 4px; }
-        .admin-panel { background: #fff3e0; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
-        .stat-card { text-align: center; padding: 20px; background: white; border-radius: 16px; }
-        .stat-number { font-size: 28px; font-weight: bold; color: var(--primary); }
-        .stories-bar { display: flex; gap: 15px; padding: 15px; overflow-x: auto; }
-        .story-item { min-width: 80px; text-align: center; cursor: pointer; }
-        .story-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>露營趣 v11.0</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --card: #ffffff;
+      --primary: #2f5d50;
+      --accent: #e09f3e;
+      --text: #1f2933;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Noto Sans TC", sans-serif; background: linear-gradient(180deg,#f4f1ea,#e8e2d6); color: var(--text); }
+    header { padding: 16px; font-size: 20px; font-weight: 700; }
+    .page { display: none; padding: 16px; padding-bottom: 80px; }
+    .active { display: block; }
+    .card { background: var(--card); border-radius: 16px; padding: 12px; margin-bottom: 16px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+    .card img { width: 100%; border-radius: 12px; margin-bottom: 8px; }
+    .tabs { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: #fff; border-top: 1px solid #ddd; }
+    .tab { flex: 1; text-align: center; padding: 10px; font-size: 14px; cursor: pointer; }
+    .tab.active { color: var(--primary); font-weight: 600; }
+    button { background: var(--primary); color: #fff; border: none; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+    input { padding: 8px; width: 100%; margin-bottom: 8px; border-radius: 8px; border: 1px solid #ccc; }
+    .votes { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+    .comments { margin-top: 8px; font-size: 14px; }
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; }
+    .modal-content { background: #fff; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; }
+    #map { height: 400px; border-radius: 16px; }
+    .swipe-container { overflow: hidden; }
+  </style>
 </head>
 <body>
+  <header>露營趣 v11.0</header>
 
-<div class="header">
-    <div class="logo">🏕️ 露營趣 v10.0</div>
-    <div>
-        <button class="header-btn" onclick="alert('🔔 通知')">🔔</button>
-        <button class="header-btn" onclick="showLogin()">👤</button>
-    </div>
-</div>
+  <div id="home" class="page active">
+    <div class="swipe-container" id="postContainer"></div>
+  </div>
 
-<div class="tabs">
-    <div class="tab active" onclick="switchTab('home')">🏠 首頁</div>
-    <div class="tab" onclick="switchTab('map')">🗺️ 地圖</div>
-    <div class="tab" onclick="switchTab('shops')">🏪 商家</div>
-    <div class="tab" onclick="switchTab('community')">💬 社群</div>
-    <div class="tab" onclick="switchTab('vote')">🗳️ 投票</div>
-    <div class="tab" onclick="switchTab('my')">👤 我的</div>
-</div>
-
-<div class="fab" onclick="showNewPost()">+</div>
-
-<!-- Home Page -->
-<div id="homePage" class="page active">
-    <div class="stories-bar">
-        <div class="story-item"><img src="https://picsum.photos/70?random=1" class="story-img"><div style="font-size:11px;margin-top:5px;">我的</div></div>
-        <div class="story-item"><img src="https://picsum.photos/70?random=2" class="story-img"><div style="font-size:11px;margin-top:5px;">營地</div></div>
-        <div class="story-item"><img src="https://picsum.photos/70?random=3" class="story-img"><div style="font-size:11px;margin-top:5px;">裝備</div></div>
-        <div class="story-item"><img src="https://picsum.photos/70?random=4" class="story-img"><div style="font-size:11px;margin-top:5px;">美食</div></div>
-    </div>
-    <div id="postsFeed"></div>
-</div>
-
-<!-- Map Page -->
-<div id="mapPage" class="page">
-    <div class="search-box"><input type="text" id="mapSearch" placeholder="搜尋地區..."></div>
-    <div class="filters">
-        <div class="filter active" onclick="filterMap('all',this)">全部</div>
-        <div class="filter" onclick="filterMap('camp',this)">🏕️ 營地</div>
-        <div class="filter" onclick="filterMap('shop',this)">🔧 改裝店</div>
-        <div class="filter" onclick="filterMap('rental',this)">🚐 租車</div>
-    </div>
+  <div id="mapPage" class="page">
     <div id="map"></div>
-    <div id="mapResults"></div>
-</div>
+  </div>
 
-<!-- Shops Page -->
-<div id="shopsPage" class="page">
-    <div class="search-box"><input type="text" id="shopSearch" placeholder="搜尋商家..."></div>
-    <div class="filters">
-        <div class="filter active" onclick="filterShops('all',this)">全部</div>
-        <div class="filter" onclick="filterShops('camp',this)">營地</div>
-        <div class="filter" onclick="filterShops('shop',this)">改裝店</div>
-        <div class="filter" onclick="filterShops('rental',this)">租車</div>
-    </div>
-    <div id="shopsList"></div>
-</div>
+  <div id="shop" class="page"></div>
 
-<!-- Community Page -->
-<div id="communityPage" class="page">
-    <div class="filters" id="postTagFilters"></div>
-    <div id="communityPosts"></div>
-</div>
+  <div id="community" class="page"></div>
 
-<!-- Vote Page -->
-<div id="votePage" class="page">
-    <div class="card">
-        <h3>📸 今日照片投票</h3>
-        <p style="color:#666;font-size:14px;margin:10px 0;">每人每天 2 票，不能重複投同一張</p>
-        <div id="voteList"></div>
-        <p style="text-align:center;color:#999;font-size:12px;margin-top:15px;">剩餘投票次數: <strong id="votesLeft">2</strong></p>
-    </div>
-</div>
+  <div id="profile" class="page">
+    <div id="loginSection"></div>
+  </div>
 
-<!-- My Page -->
-<div id="myPage" class="page">
-    <div id="myProfile"></div>
-    <div class="card" style="text-align:center;">
-        <h3>🎫 會員 QR 碼</h3>
-        <div class="qr-code"><div style="text-align:center;"><div style="font-size:48px;">🎫</div><div style="font-size:12px;" id="qrCode">會員 QR</div></div>
-    </div>
-    <div class="card">
-        <h3>📝 我的發文</h3>
-        <div id="myPosts"></div>
-    </div>
-    <div class="card">
-        <h3>⚙️ 設定</h3>
-        <div style="padding:12px 0;border-bottom:1px solid #eee;" onclick="alert('🔔 通知設定')">🔔 通知設定</div>
-        <div style="padding:12px 0;border-bottom:1px solid #eee;" onclick="showMerchantPlans()">🏪 商家訂閱方案</div>
-        <div style="padding:12px 0;" onclick="showAdmin()">🖥️ 管理後台</div>
-    </div>
-    <button class="btn btn-secondary" style="width:100%;" onclick="logout()">登出</button>
-</div>
+  <div class="tabs">
+    <div class="tab active" data-page="home">首頁</div>
+    <div class="tab" data-page="mapPage">地圖</div>
+    <div class="tab" data-page="shop">商家</div>
+    <div class="tab" data-page="community">社群</div>
+    <div class="tab" data-page="profile">我的</div>
+  </div>
 
-<!-- Bottom Navigation -->
-<div class="bottom-nav">
-    <div class="nav-item active" onclick="switchTab('home')"><div class="nav-icon">🏠</div><div>首頁</div></div>
-    <div class="nav-item" onclick="switchTab('map')"><div class="nav-icon">🗺️</div><div>地圖</div></div>
-    <div class="nav-item" onclick="switchTab('shops')"><div class="nav-icon">🏪</div><div>商家</div></div>
-    <div class="nav-item" onclick="switchTab('community')"><div class="nav-icon">💬</div><div>社群</div></div>
-    <div class="nav-item" onclick="switchTab('my')"><div class="nav-icon">👤</div><div>我的</div></div>
-</div>
-
-<!-- Login Modal -->
-<div id="loginModal" class="modal">
+  <div class="modal" id="commentModal">
     <div class="modal-content">
-        <h2 style="text-align:center;margin-bottom:20px;">登入 / 註冊</h2>
-        <button class="btn" style="background:#06C755;color:white;width:100%;margin:10px 0;" onclick="loginLine()">💚 LINE 登入</button>
-        <button class="btn" style="background:#4285F4;color:white;width:100%;margin:10px 0;" onclick="loginGoogle()">🔵 Google 登入</button>
-        <div style="text-align:center;margin:20px 0;color:#999;">━ 或使用用戶名 ━</div>
-        <input type="text" id="loginName" placeholder="用戶名">
-        <input type="password" id="loginPassword" placeholder="密碼">
-        <button class="btn btn-primary" style="width:100%;" onclick="loginSimple()">登入</button>
-        <button class="btn btn-secondary" style="width:100%;margin-top:10px;" onclick="closeModal('loginModal')">取消</button>
+      <h3>留言</h3>
+      <div id="commentList"></div>
+      <input id="newComment" placeholder="輸入留言" />
+      <button onclick="addComment()">送出</button>
     </div>
-</div>
+  </div>
 
-<!-- New Post Modal -->
-<div id="postModal" class="modal">
-    <div class="modal-content">
-        <h2 style="margin-bottom:15px;">發布貼文</h2>
-        <textarea id="postInput" placeholder="分享你的露營趣事..." rows="4"></textarea>
-        <select id="postType">
-            <option value="general">一般貼文</option>
-            <option value="camp">營地推薦</option>
-            <option value="gear">裝備開箱</option>
-            <option value="food">美食料理</option>
-        </select>
-        <div style="display:flex;gap:10px;margin:15px 0;">
-            <button class="btn btn-secondary" onclick="alert('📷 相片上傳')">📷 相片</button>
-            <button class="btn btn-secondary" onclick="alert('📍 地點選擇')">📍 地點</button>
-        </div>
-        <button class="btn btn-primary" style="width:100%;" onclick="createPost()">發布</button>
-        <button class="btn btn-secondary" style="width:100%;margin-top:10px;" onclick="closeModal('postModal')">取消</button>
-    </div>
-</div>
+  <script>
+    let user = localStorage.getItem("campUser") || null;
+    let posts = Array.from({ length: 5 }).map((_, i) => ({
+      id: i,
+      title: "露營分享 " + (i + 1),
+      img: "https://picsum.photos/seed/camp" + i + "/400/250",
+      votes: 0,
+      comments: []
+    }));
+    let currentPostId = null;
 
-<!-- Booking Modal -->
-<div id="bookingModal" class="modal">
-    <div class="modal-content" id="bookingContent"></div>
-</div>
+    function renderPosts() {
+      const container = document.getElementById("postContainer");
+      container.innerHTML = "";
+      posts.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <img src="${p.img}" />
+          <h3>${p.title}</h3>
+          <div class="votes">
+            <button onclick="vote(${p.id},1)">👍</button>
+            <button onclick="vote(${p.id},-1)">👎</button>
+            <span>${p.votes}</span>
+            <button onclick="openComments(${p.id})">💬</button>
+          </div>
+        `;
+        addSwipe(card);
+        container.appendChild(card);
+      });
+    }
 
-<!-- Admin Modal -->
-<div id="adminModal" class="modal">
-    <div class="modal-content">
-        <h2>🖥️ 管理後台</h2>
-        <div class="admin-panel">
-            <h3>📊 數據概覽</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;">
-                <div class="stat-card"><div class="stat-number">1,234</div><div style="font-size:12px;color:#666;">會員數</div></div>
-                <div class="stat-card"><div class="stat-number">56</div><div style="font-size:12px;color:#666;">商家數</div></div>
-                <div class="stat-card"><div class="stat-number">$12K</div><div style="font-size:12px;color:#666;">本月收益</div></div>
-                <div class="stat-card"><div class="stat-number">89</div><div style="font-size:12px;color:#666;">貼文數</div></div>
-            </div>
-        </div>
-        <div class="card">
-            <h3>👥 用戶管理</h3>
-            <div style="padding:12px 0;border-bottom:1px solid #eee;">👤 查看會員列表</div>
-            <div style="padding:12px 0;border-bottom:1px solid #eee;">✅ 審核商家</div>
-            <div style="padding:12px 0;">⚠️ 投訴處理</div>
-        </div>
-        <div class="card">
-            <h3>💰 收益管理</h3>
-            <div style="padding:12px 0;border-bottom:1px solid #eee;">📋 查看訂單</div>
-            <div style="padding:12px 0;">📦 商家套餐管理</div>
-        </div>
-        <button class="btn btn-secondary" style="width:100%;margin-top:15px;" onclick="closeModal('adminModal')">關閉</button>
-    </div>
-</div>
+    function vote(id, val) {
+      posts.find(p => p.id === id).votes += val;
+      renderPosts();
+    }
 
-<script>
-// Firebase Config
-const firebaseConfig = {
-    apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
-    authDomain: "outdoorcamp.firebaseapp.com",
-    projectId: "outdoorcamp",
-    storageBucket: "outdoorcamp.firebasestorage.app",
-    messagingSenderId: "709693825585",
-    appId: "1:709693825585:web:eced280b0538cdc29bab10"
-};
+    function openComments(id) {
+      currentPostId = id;
+      document.getElementById("commentModal").style.display = "flex";
+      renderComments();
+    }
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+    function renderComments() {
+      const list = document.getElementById("commentList");
+      const post = posts.find(p => p.id === currentPostId);
+      list.innerHTML = post.comments.map(c => `<div>- ${c}</div>`).join("");
+    }
 
-let currentUser = null;
-let userMembership = 'free';
-let votesLeft = 2;
-let map = null;
+    function addComment() {
+      const input = document.getElementById("newComment");
+      if (!input.value) return;
+      posts.find(p => p.id === currentPostId).comments.push(input.value);
+      input.value = "";
+      renderComments();
+    }
 
-// Sample Data
-const shops = [
-    { id: 1, name: "太平山莊", type: "camp", location: "宜蘭縣大同鄉", lat: 24.5067, lng: 121.5167, tags: ["森林", "賞螢"], desc: "四季皆美", img: "https://picsum.photos/200?random=10", rating: 4.8, price: 500 },
-    { id: 2, name: "墾丁海灘營地", type: "camp", location: "屏東縣恆春鎮", lat: 21.9456, lng: 120.7456, tags: ["海邊", "水上"], desc: "離海灘最近", img: "https://picsum.photos/200?random=11", rating: 4.6, price: 600 },
-    { id: 3, name: "清境農場", type: "camp", location: "南投縣仁愛鄉", lat: 24.0444, lng: 121.1583, tags: ["高山", "草原"], desc: "海拔1750公尺", img: "https://picsum.photos/200?random=12", rating: 4.9, price: 450 },
-    { id: 4, name: "露營車工坊", type: "shop", location: "新北市", lat: 25.0417, lng: 121.4583, tags: ["改裝", "維修"], desc: "專業改裝", img: "https://picsum.photos/200?random=13", rating: 4.7 },
-    { id: 5, name: "快樂露營車", type: "rental", location: "台北市", lat: 25.0783, lng: 121.5917, tags: ["出租", "代駕"], desc: "多種車型", img: "https://picsum.photos/200?random=14", rating: 4.8 },
-];
+    function addSwipe(el) {
+      let startX = 0;
+      el.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+      el.addEventListener("touchend", e => {
+        let diff = e.changedTouches[0].clientX - startX;
+        if (diff > 80) el.style.transform = "translateX(100%)";
+        if (diff < -80) el.style.transform = "translateX(-100%)";
+      });
+    }
 
-const samplePosts = [
-    { id: 1, author: "Alan", content: "推薦太平山莊！春天賞螢火蟲超美🌲", location: "宜蘭", likes: 42, img: "https://picsum.photos/400?random=20", time: "2小時前", tags:["mountain"], commentsData:[] },
-    { id: 2, author: "Luna", content: "新入手 MSR 帳篷，輕量又防水！", location: "台北", likes: 65, img: "https://picsum.photos/400?random=21", time: "5小時前", tags:["car"], commentsData:[] },
-    { id: 3, author: "Tom", content: "露營烤肉趴！🔥", location: "台中", likes: 89, img: "https://picsum.photos/400?random=22", time: "昨天", tags:["beach"], commentsData:[] },
-];
+    function renderShop() {
+      const shop = document.getElementById("shop");
+      shop.innerHTML = [
+        { name: "森林營地", desc: "山景第一排" },
+        { name: "湖畔露營", desc: "親子首選" }
+      ].map(s => `<div class='card'><h3>${s.name}</h3><p>${s.desc}</p></div>`).join("");
+    }
 
-const postTags = ["all","car","motorcycle","rv","beach","mountain"];
-let activePostTag = "all";
+    function renderCommunity() {
+      const c = document.getElementById("community");
+      c.innerHTML = "<div class='card'>歡迎加入露營社群討論！</div>";
+    }
 
-// Initialize
-window.onload = function() {
-    renderShops();
+    function renderProfile() {
+      const sec = document.getElementById("loginSection");
+      if (user) {
+        sec.innerHTML = `<div class='card'>歡迎，${user}<br/><button onclick='logout()'>登出</button></div>`;
+      } else {
+        sec.innerHTML = `
+          <div class='card'>
+            <input id='username' placeholder='輸入使用者名稱'/>
+            <button onclick='login()'>登入</button>
+          </div>`;
+      }
+    }
+
+    function login() {
+      const name = document.getElementById("username").value;
+      if (!name) return;
+      user = name;
+      localStorage.setItem("campUser", name);
+      renderProfile();
+    }
+
+    function logout() {
+      user = null;
+      localStorage.removeItem("campUser");
+      renderProfile();
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        document.getElementById(tab.dataset.page).classList.add("active");
+      });
+    });
+
+    document.getElementById("commentModal").addEventListener("click", e => {
+      if (e.target.id === "commentModal") e.target.style.display = "none";
+    });
+
+    function initMap() {
+      const map = L.map("map").setView([25.03, 121.56], 10);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+      L.marker([25.03, 121.56]).addTo(map).bindPopup("台北露營點");
+      L.marker([24.8, 121.0]).addTo(map).bindPopup("新竹營地");
+    }
+
     renderPosts();
-    renderMyPage();
-    renderVotes();
-    renderPostTagFilters();
-    checkAuth();
-    setTimeout(initMap, 1000);
-};
-
-// Tab Switching
-function switchTab(tab) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    const page = document.getElementById(tab + 'Page');
-    if (page) page.classList.add('active');
-
-    document.querySelectorAll('.tab').forEach(t => {
-        if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + tab + "'")) {
-            t.classList.add('active');
-        } else {
-            t.classList.remove('active');
-        }
-    });
-
-    const navTabs = ['home','map','shops','community','my'];
-    document.querySelectorAll('.nav-item').forEach((n, i) => {
-        n.classList.toggle('active', navTabs[i] === tab);
-    });
-}
-
-// Render Shops
-function renderShops(filter = 'all', search = '') {
-    let list = shops;
-    if (filter !== 'all') list = list.filter(s => s.type === filter);
-    if (search) list = list.filter(s => s.name.includes(search) || s.location.includes(search));
-    document.getElementById('shopsList').innerHTML = list.map(shop => `
-        <div class="shop-card card" onclick="showShopDetail(${shop.id})">
-            <img src="${shop.img}" class="shop-img">
-            <div class="shop-info">
-                <div class="shop-name">${shop.name}</div>
-                <div style="color:#666;font-size:14px;">📍 ${shop.location}</div>
-                <div class="shop-tags">${shop.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-                ${shop.rating ? `<div style="margin-top:5px;">⭐ ${shop.rating}</div>` : ''}
-            </div>
-        </div>
-    `).join('');
-}
-
-function filterShops(type, el) {
-    document.querySelectorAll('#shopsPage .filter').forEach(f => f.classList.remove('active'));
-    el.classList.add('active');
-    renderShops(type, document.getElementById('shopSearch').value);
-}
-
-function filterMap(type, el) {
-    document.querySelectorAll('#mapPage .filter').forEach(f => f.classList.remove('active'));
-    el.classList.add('active');
-    renderMap(type);
-}
-
-function renderMap(filter = 'all') {
-    let list = shops;
-    if (filter !== 'all') list = list.filter(s => s.type === filter);
-    document.getElementById('mapResults').innerHTML = list.map(shop => `
-        <div class="card" style="display:flex;gap:10px;align-items:center;cursor:pointer;" onclick="showShopDetail(${shop.id})">
-            <div style="font-size:24px;">${shop.type === 'camp' ? '🏕️' : shop.type === 'shop' ? '🔧' : '🚐'}</div>
-            <div><strong>${shop.name}</strong><div style="font-size:12px;color:#666;">${shop.location}</div></div>
-        </div>
-    `).join('');
-}
-
-// Map
-function initMap() {
-    try {
-        if (typeof L === 'undefined') return;
-        map = L.map('map').setView([23.5, 121], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-        shops.forEach(shop => {
-            if (shop.lat && shop.lng) {
-                const icon = L.divIcon({ html: shop.type === 'camp' ? '🏕️' : shop.type === 'shop' ? '🔧' : '🚐', className: 'custom-marker', iconSize: [30, 30] });
-                L.marker([shop.lat, shop.lng], {icon}).addTo(map).bindPopup(`<b>${shop.name}</b><br>${shop.location}`);
-            }
-        });
-    } catch(e) { console.log('Map error:', e); }
-}
-
-// Posts
-function renderPosts() {
-    const list = activePostTag === 'all' ? samplePosts : samplePosts.filter(p => p.tags && p.tags.includes(activePostTag));
-    const html = list.map(post => `
-        <div class="card swipe-card">
-            <div class="post-header">
-                <div class="avatar">${post.author[0]}</div>
-                <div><strong>${post.author}</strong><span style="color:#666;font-size:12px;margin-left:10px;">📍 ${post.location} · ${post.time}</span></div>
-            </div>
-            <div>${post.content}</div>
-            ${post.img ? `<img src="${post.img}" class="post-img">` : ''}
-            <div class="post-actions">
-                <span class="action-btn" onclick="likePost(this)">👍 ${post.likes}</span>
-                <span class="action-btn" onclick="toggleComments(${post.id})">💬 ${post.commentsData.length}</span>
-                <span class="action-btn" onclick="alert('🔖 收藏')">🔖</span>
-            </div>
-            <div id="comments-${post.id}" style="display:none;margin-top:10px;">
-                ${post.commentsData.map(c=>`<div style='font-size:13px;margin-bottom:6px;'><strong>${c.author}:</strong> ${c.text}</div>`).join('')}
-                <div style="display:flex;gap:6px;margin-top:8px;">
-                    <input placeholder="留言..." id="comment-input-${post.id}" style="flex:1;padding:6px;border:1px solid #ddd;border-radius:8px;">
-                    <button class="btn btn-primary" style="padding:6px 10px;font-size:13px;" onclick="addComment(${post.id})">送出</button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-    document.getElementById('postsFeed').innerHTML = `<div class="swipe-stack">${html}</div>`;
-    document.getElementById('communityPosts').innerHTML = html;
-    initSwipe();
-}
-
-function toggleComments(id){
-    const el = document.getElementById('comments-'+id);
-    if(el) el.style.display = el.style.display==='none'?'block':'none';
-}
-
-function addComment(id){
-    if(!currentUser){ alert('訪客模式不可留言'); return; }
-    const input = document.getElementById('comment-input-'+id);
-    if(!input.value) return;
-    const post = samplePosts.find(p=>p.id===id);
-    post.commentsData.push({author:currentUser,text:input.value});
-    input.value='';
-    renderPosts();
-}
-
-function renderPostTagFilters(){
-    const container = document.getElementById('postTagFilters');
-    container.innerHTML = postTags.map(t=>`<div class="filter ${t===activePostTag?'active':''}" onclick="setPostTag('${t}',this)">${t}</div>`).join('');
-}
-
-function setPostTag(tag,el){
-    activePostTag=tag;
-    document.querySelectorAll('#postTagFilters .filter').forEach(f=>f.classList.remove('active'));
-    el.classList.add('active');
-    renderPosts();
-}
-
-function likePost(el) {
-    if (!currentUser) { showLogin(); return; }
-    el.style.color = '#4caf50';
-}
-
-// Swipe Cards (Tinder Style)
-function initSwipe() {
-    const stack = document.querySelector('#postsFeed .swipe-stack');
-    if (!stack) return;
-    let startX = 0;
-    let currentCard = stack.querySelector('.swipe-card');
-    if (!currentCard) return;
-
-    currentCard.addEventListener('touchstart', e => {
-        startX = e.touches[0].clientX;
-    });
-
-    currentCard.addEventListener('touchmove', e => {
-        const dx = e.touches[0].clientX - startX;
-        currentCard.style.transform = `translateX(${dx}px) rotate(${dx/10}deg)`;
-    });
-
-    currentCard.addEventListener('touchend', e => {
-        const dx = e.changedTouches[0].clientX - startX;
-        if (Math.abs(dx) > 100) {
-            currentCard.style.transform = `translateX(${dx > 0 ? 500 : -500}px) rotate(${dx/10}deg)`;
-            currentCard.style.opacity = '0';
-            setTimeout(() => {
-                currentCard.remove();
-                initSwipe();
-            }, 300);
-        } else {
-            currentCard.style.transform = '';
-        }
-    });
-
-    // Mouse support
-    let isDown = false;
-    currentCard.addEventListener('mousedown', e => {
-        isDown = true;
-        startX = e.clientX;
-    });
-
-    window.addEventListener('mousemove', e => {
-        if (!isDown) return;
-        const dx = e.clientX - startX;
-        currentCard.style.transform = `translateX(${dx}px) rotate(${dx/10}deg)`;
-    });
-
-    window.addEventListener('mouseup', e => {
-        if (!isDown) return;
-        isDown = false;
-        const dx = e.clientX - startX;
-        if (Math.abs(dx) > 100) {
-            currentCard.style.transform = `translateX(${dx > 0 ? 500 : -500}px) rotate(${dx/10}deg)`;
-            currentCard.style.opacity = '0';
-            setTimeout(() => {
-                currentCard.remove();
-                initSwipe();
-            }, 300);
-        } else {
-            currentCard.style.transform = '';
-        }
-    });
-}
-
-// Create Post
-function createPost() {
-    if (!currentUser) { alert('訪客模式不可發文'); showLogin(); return; }
-    const content = document.getElementById('postInput').value;
-    if (!content) return alert('請輸入內容');
-    const tag = document.getElementById('postType').value;
-    samplePosts.unshift({ id: Date.now(), author: currentUser, content, likes: 0, time: '剛剛', tags:[tag], commentsData:[] });
-    document.getElementById('postInput').value = '';
-    closeModal('postModal');
-    renderPosts();
-    alert('發布成功！');
-}
-
-// Votes
-function renderVotes() {
-    const today = new Date().toDateString();
-    const saved = JSON.parse(localStorage.getItem('votes-'+today) || '{}');
-    votesLeft = saved.left ?? 2;
-    document.getElementById('votesLeft').innerText = votesLeft;
-    const votes = [
-        { id: 1, title: "最美營地投票", options: [
-            { name: "太平山莊", img: "https://picsum.photos/100?random=20", votes: 45 },
-            { name: "墾丁海灘", img: "https://picsum.photos/100?random=21", votes: 32 },
-            { name: "清境農場", img: "https://picsum.photos/100?random=22", votes: 28 }
-        ]}
-    ];
-    document.getElementById('voteList').innerHTML = votes.map(v => `
-        <div style="margin-bottom:25px;">
-            <h4 style="margin-bottom:15px;">${v.title}</h4>
-            ${v.options.map((opt, i) => {
-                const total = v.options.reduce((a,b) => a + b.votes, 0);
-                const percent = Math.round(opt.votes / total * 100);
-                const votedKey = v.id+'-'+i;
-                const disabled = saved[votedKey];
-                return `<div class="vote-item" style="${disabled?'opacity:0.5;pointer-events:none;':''}" onclick="vote(${v.id}, ${i}, this)">
-                    <img src="${opt.img}" class="vote-img">
-                    <div style="flex:1;">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>${opt.name}</span><span style="font-weight:bold;color:var(--primary);">${opt.votes}</span></div>
-                        <div class="vote-bar"><div class="vote-fill" style="width:${percent}%"></div></div>
-                    </div>
-                </div>`;
-            }).join('')}
-        </div>
-    `).join('');
-}
-
-function vote(pollId, optionIdx, el) {
-    if (!currentUser) { alert('訪客不可投票'); return; }
-    if (votesLeft <= 0) { alert('今日投票次數已用完！'); return; }
-    const today = new Date().toDateString();
-    const key = pollId+'-'+optionIdx;
-    const saved = JSON.parse(localStorage.getItem('votes-'+today) || '{}');
-    if(saved[key]){ alert('不可重複投同一張'); return; }
-    votesLeft--;
-    saved.left = votesLeft;
-    saved[key]=true;
-    localStorage.setItem('votes-'+today,JSON.stringify(saved));
-    document.getElementById('votesLeft').innerText = votesLeft;
-    el.style.background = '#e8f5e9';
-    el.style.pointerEvents = 'none';
-    alert('投票成功！');
-}
-
-// My Page
-function renderMyPage() {
-    const isLoggedIn = currentUser !== null;
-    document.getElementById('myProfile').innerHTML = isLoggedIn ? `
-        <div style="text-align:center;padding:20px;">
-            <div class="avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto;">${currentUser[0]}</div>
-            <h2 style="margin-top:15px;">${currentUser}</h2>
-            <span class="membership-badge ${userMembership}">${userMembership === 'free' ? '普通會員' : userMembership === 'basic' ? '白銀會員' : '黃金會員'}</span>
-            <div style="margin-top:15px;"><span style="margin:0 15px;"><strong>12</strong> 貼文</span><span style="margin:0 15px;"><strong>45</strong> 收藏</span></div>
-        </div>
-    ` : `<div style="text-align:center;padding:40px;"><div style="font-size:48px;margin-bottom:20px;">👤</div><h2>登入體驗完整功能</h2><p style="color:#666;margin:15px 0;">登入後可發文、收藏、享折扣</p><button class="btn btn-primary" onclick="showLogin()">立即登入</button></div>`;
-}
-
-// Auth
-function showLogin() { document.getElementById('loginModal').classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-function loginSimple() {
-    const name = document.getElementById('loginName').value;
-    if (!name) return alert('請輸入用戶名');
-    currentUser = name;
-    closeModal('loginModal');
-    renderMyPage();
-    alert('登入成功！');
-}
-
-function loginGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).then(result => {
-        currentUser = result.user.displayName || result.user.email;
-        closeModal('loginModal');
-        renderMyPage();
-    }).catch(e => alert('Google 登入失敗: ' + e.message));
-}
-
-function loginLine() { alert('LINE 登入需要設定 LINE Bot'); }
-
-// 模擬 LINE 登入
-function loginLine() {
-    const name = 'LINE用戶'+Math.floor(Math.random()*1000);
-    currentUser = name;
-    closeModal('loginModal');
-    renderMyPage();
-    alert('LINE 登入成功');
-}
-
-function logout() { currentUser = null; renderMyPage(); alert('已登出'); }
-
-// 商家訂閱方案
-function showMerchantPlans(){
-    document.getElementById('bookingContent').innerHTML = `
-        <h2>商家訂閱方案</h2>
-        <div class="card"><h3>半年方案</h3><p>100元 / 6個月</p><button class="btn btn-primary" onclick="subscribe('basic')">購買</button></div>
-        <div class="card"><h3>一年方案</h3><p>200元 / 12個月</p><button class="btn btn-primary" onclick="subscribe('premium')">購買</button></div>
-        <button class="btn btn-secondary" style="width:100%;margin-top:10px;" onclick="closeModal('bookingModal')">關閉</button>
-    `;
-    document.getElementById('bookingModal').classList.add('active');
-}
-
-function subscribe(type){
-    if(!currentUser){ alert('請先登入'); return; }
-    userMembership = type;
-    closeModal('bookingModal');
-    renderMyPage();
-    alert('訂閱成功');
-}
-
-function checkAuth() {
-    auth.onAuthStateChanged(user => {
-        if (user) { currentUser = user.displayName || user.email; renderMyPage(); }
-    });
-}
-
-// Shop Detail
-function showShopDetail(id) {
-    const shop = shops.find(s => s.id === id);
-    if (!shop) return;
-    document.getElementById('bookingContent').innerHTML = `
-        <img src="${shop.img}" style="width:100%;height:200px;object-fit:cover;border-radius:12px;margin-bottom:15px;">
-        <h2>${shop.name}</h2>
-        <p style="color:#666;">📍 ${shop.location}</p>
-        <div class="shop-tags" style="margin-bottom:15px;">${shop.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-        <p>${shop.desc}</p>
-        ${shop.rating ? `<p>⭐ ${shop.rating}</p>` : ''}
-        ${shop.price ? `<p style="font-size:24px;color:var(--primary);font-weight:bold;">$${shop.price}<span style="font-size:14px;color:#666;">/晚</span></p>` : ''}
-        <div style="display:flex;gap:10px;margin-top:20px;">
-            <button class="btn btn-primary" style="flex:1;" onclick="showBooking(${shop.id})">📅 預約</button>
-            <button class="btn btn-secondary" onclick="alert('❤️ 已收藏')">❤️</button>
-        </div>
-        <button class="btn btn-secondary" style="width:100%;margin-top:10px;" onclick="closeModal('bookingModal')">關閉</button>
-    `;
-    document.getElementById('bookingModal').classList.add('active');
-}
-
-function showBooking(id) {
-    const shop = shops.find(s => s.id === id);
-    if (!currentUser) { closeModal('bookingModal'); showLogin(); return; }
-    const date = prompt('選擇日期 (YYYY
+    renderShop();
+    renderCommunity();
+    renderProfile();
+    setTimeout(initMap, 300);
+  </script>
+</body>
+</html>
