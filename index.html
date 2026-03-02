@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營探索 v15.1</title>
+  <title>露營探索 v15.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -77,12 +77,15 @@
     .compare-bar { display:flex; position:sticky; top:0; z-index:10; }
     .card.selected { outline:3px solid #ff7e5f; }
     .progress-bar { position:fixed; top:0; left:0; height:4px; background:var(--accent); width:0; transition:width .3s; z-index:100; }
+    .back-to-top { position:fixed; bottom:80px; right:20px; background:var(--accent); color:#fff; width:45px; height:45px; border-radius:50%; border:none; cursor:pointer; display:none; font-size:20px; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+    .back-to-top.show { display:block; animation:bounce .5s; }
+    @keyframes bounce { 50%{transform:translateY(-10px);} }
   </style>
 </head>
 <body>
   <div class="progress-bar" id="progressBar"></div>
   <header>
-    <h1>露營探索 v15.1</h1>
+    <h1>露營探索 v15.2</h1>
     <div>
       <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ 格狀</button>
       <button class="toggle" onclick="toggleDark()">深色模式</button>
@@ -132,8 +135,10 @@
 
   <div class="booking" id="bookingMsg">預約成功！</div>
 
+  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
   <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
-    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v15.1 | 22 個營地
+    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v15.2 | 22 個營地
   </footer>
 
   <script>
@@ -377,6 +382,10 @@
       if(e.key==='g'||e.key==='G') toggleView();
       if(e.key==='f'||e.key==='F') toggleFavFilter();
     });
+
+    window.onscroll = () => {
+      document.getElementById('backToTop').classList.toggle('show', window.scrollY > 300);
+    };
   </script>
 </body>
 </html>
