@@ -1,7 +1,8 @@
 {
-  "version": "17.9",
+  "version": "18.0",
   "lastUpdated": "2026-03-03",
   "changelog": [
+    { "version": "18.0", "date": "2026-03-03", "changes": ["新增常見問題 FAQ 區塊", "可展開/收合式問答"] },
     { "version": "17.9", "date": "2026-03-03", "changes": ["新增營地評論功能", "可發布評論並顯示星級"] },
     { "version": "17.8", "date": "2026-03-03", "changes": ["新增最近搜尋功能", "新增平滑滾動效果"] },
     { "version": "17.7", "date": "2026-03-03", "changes": ["新增營地分享功能", "新增圖片Lazy Loading優化"] },
