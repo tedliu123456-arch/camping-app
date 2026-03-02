@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v15.0</title>
+  <title>Camping App v1.4.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -53,8 +53,11 @@
     .badge { position:absolute; top:15px; right:15px; background:var(--accent); color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; }
     .btn { margin-top:10px; margin-right:6px; padding:8px 14px; border:none; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer; }
     .btn.secondary { background:var(--soft); color:var(--text); }
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
-    .modal-content { background:var(--card); padding:30px; border-radius:20px; max-width:400px; width:90%; animation:pop .4s ease; }
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+    .modal-content { background:var(--card); padding:30px; border-radius:20px; max-width:400px; width:90%; animation:pop .4s ease; position:relative; }
+    .modal-content h2 { margin-bottom:15px; color:var(--text); }
+    .modal-content p { margin:8px 0; color:var(--text); opacity:0.8; }
+    .modal-close { position:absolute; top:15px; right:15px; background:none; border:none; font-size:24px; cursor:pointer; opacity:0.6; }
     @keyframes pop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
     .skeleton { background:linear-gradient(90deg,#ddd 25%,#eee 50%,#ddd 75%); background-size:200% 100%; animation:shine 1.5s infinite; height:160px; border-radius:18px; }
     @keyframes shine { to{background-position:-200% 0;} }
@@ -68,7 +71,7 @@
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v15.0</h1>
+    <h1>Camping Explorer v1.4.0</h1>
     <button class="toggle" onclick="toggleDark()">Dark Mode</button>
   </header>
 
@@ -86,6 +89,7 @@
       <option value="high">Price: High → Low</option>
       <option value="name">Name A → Z</option>
     </select>
+    <button class="btn secondary" onclick="clearFilters()">Clear</button>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -176,6 +180,13 @@
         favorites.push(name);
       }
       localStorage.setItem('favorites', JSON.stringify(favorites));
+      render();
+    }
+
+    function clearFilters(){
+      document.getElementById('search').value = '';
+      document.getElementById('filter').value = '';
+      document.getElementById('sort').value = '';
       render();
     }
 
