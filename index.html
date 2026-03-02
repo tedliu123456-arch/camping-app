@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 會員端 App v8.0.0</title>
+    <title>露營趣 - 會員端 App v9.0.0</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
@@ -71,7 +71,7 @@
 <body>
 
 <div class="header">
-    <div class="logo">🏕️ 露營趣 v8.0</div>
+    <div class="logo">🏕️ 露營趣 v9.0</div>
     <div>
         <button class="header-btn" onclick="alert('🔔 通知')">🔔</button>
         <button class="header-btn" onclick="showLogin()">👤</button>
@@ -127,6 +127,7 @@
 
 <!-- Community Page -->
 <div id="communityPage" class="page">
+    <div class="filters" id="postTagFilters"></div>
     <div id="communityPosts"></div>
 </div>
 
@@ -154,7 +155,7 @@
     <div class="card">
         <h3>⚙️ 設定</h3>
         <div style="padding:12px 0;border-bottom:1px solid #eee;" onclick="alert('🔔 通知設定')">🔔 通知設定</div>
-        <div style="padding:12px 0;border-bottom:1px solid #eee;" onclick="alert('🏪 商家管理')">🏪 商家管理</div>
+        <div style="padding:12px 0;border-bottom:1px solid #eee;" onclick="showMerchantPlans()">🏪 商家訂閱方案</div>
         <div style="padding:12px 0;" onclick="showAdmin()">🖥️ 管理後台</div>
     </div>
     <button class="btn btn-secondary" style="width:100%;" onclick="logout()">登出</button>
@@ -266,10 +267,13 @@ const shops = [
 ];
 
 const samplePosts = [
-    { id: 1, author: "Alan", content: "推薦太平山莊！春天賞螢火蟲超美🌲", location: "宜蘭", likes: 42, comments: 5, img: "https://picsum.photos/400?random=20", time: "2小時前" },
-    { id: 2, author: "Luna", content: "新入手 MSR 帳篷，輕量又防水！", location: "台北", likes: 65, comments: 12, img: "https://picsum.photos/400?random=21", time: "5小時前" },
-    { id: 3, author: "Tom", content: "露營烤肉趴！🔥", location: "台中", likes: 89, comments: 23, img: "https://picsum.photos/400?random=22", time: "昨天" },
+    { id: 1, author: "Alan", content: "推薦太平山莊！春天賞螢火蟲超美🌲", location: "宜蘭", likes: 42, img: "https://picsum.photos/400?random=20", time: "2小時前", tags:["mountain"], commentsData:[] },
+    { id: 2, author: "Luna", content: "新入手 MSR 帳篷，輕量又防水！", location: "台北", likes: 65, img: "https://picsum.photos/400?random=21", time: "5小時前", tags:["car"], commentsData:[] },
+    { id: 3, author: "Tom", content: "露營烤肉趴！🔥", location: "台中", likes: 89, img: "https://picsum.photos/400?random=22", time: "昨天", tags:["beach"], commentsData:[] },
 ];
+
+const postTags = ["all","car","motorcycle","rv","beach","mountain"];
+let activePostTag = "all";
 
 // Initialize
 window.onload = function() {
@@ -277,6 +281,7 @@ window.onload = function() {
     renderPosts();
     renderMyPage();
     renderVotes();
+    renderPostTagFilters();
     checkAuth();
     setTimeout(initMap, 1000);
 };
@@ -350,7 +355,8 @@ function initMap() {
 
 // Posts
 function renderPosts() {
-    document.getElementById('postsFeed').innerHTML = samplePosts.map(post => `
+    const list = activePostTag === 'all' ? samplePosts : samplePosts.filter(p => p.tags && p.tags.includes(activePostTag));
+    const html = list.map(post => `
         <div class="card">
             <div class="post-header">
                 <div class="avatar">${post.author[0]}</div>
@@ -360,12 +366,47 @@ function renderPosts() {
             ${post.img ? `<img src="${post.img}" class="post-img">` : ''}
             <div class="post-actions">
                 <span class="action-btn" onclick="likePost(this)">👍 ${post.likes}</span>
-                <span class="action-btn" onclick="alert('💬 評論')">💬 ${post.comments}</span>
+                <span class="action-btn" onclick="toggleComments(${post.id})">💬 ${post.commentsData.length}</span>
                 <span class="action-btn" onclick="alert('🔖 收藏')">🔖</span>
+            </div>
+            <div id="comments-${post.id}" style="display:none;margin-top:10px;">
+                ${post.commentsData.map(c=>`<div style='font-size:13px;margin-bottom:6px;'><strong>${c.author}:</strong> ${c.text}</div>`).join('')}
+                <div style="display:flex;gap:6px;margin-top:8px;">
+                    <input placeholder="留言..." id="comment-input-${post.id}" style="flex:1;padding:6px;border:1px solid #ddd;border-radius:8px;">
+                    <button class="btn btn-primary" style="padding:6px 10px;font-size:13px;" onclick="addComment(${post.id})">送出</button>
+                </div>
             </div>
         </div>
     `).join('');
-    document.getElementById('communityPosts').innerHTML = document.getElementById('postsFeed').innerHTML;
+    document.getElementById('postsFeed').innerHTML = html;
+    document.getElementById('communityPosts').innerHTML = html;
+}
+
+function toggleComments(id){
+    const el = document.getElementById('comments-'+id);
+    if(el) el.style.display = el.style.display==='none'?'block':'none';
+}
+
+function addComment(id){
+    if(!currentUser){ alert('訪客模式不可留言'); return; }
+    const input = document.getElementById('comment-input-'+id);
+    if(!input.value) return;
+    const post = samplePosts.find(p=>p.id===id);
+    post.commentsData.push({author:currentUser,text:input.value});
+    input.value='';
+    renderPosts();
+}
+
+function renderPostTagFilters(){
+    const container = document.getElementById('postTagFilters');
+    container.innerHTML = postTags.map(t=>`<div class="filter ${t===activePostTag?'active':''}" onclick="setPostTag('${t}',this)">${t}</div>`).join('');
+}
+
+function setPostTag(tag,el){
+    activePostTag=tag;
+    document.querySelectorAll('#postTagFilters .filter').forEach(f=>f.classList.remove('active'));
+    el.classList.add('active');
+    renderPosts();
 }
 
 function likePost(el) {
@@ -375,10 +416,11 @@ function likePost(el) {
 
 // Create Post
 function createPost() {
-    if (!currentUser) { showLogin(); return; }
+    if (!currentUser) { alert('訪客模式不可發文'); showLogin(); return; }
     const content = document.getElementById('postInput').value;
     if (!content) return alert('請輸入內容');
-    samplePosts.unshift({ id: Date.now(), author: currentUser, content, likes: 0, comments: 0, time: '剛剛' });
+    const tag = document.getElementById('postType').value;
+    samplePosts.unshift({ id: Date.now(), author: currentUser, content, likes: 0, time: '剛剛', tags:[tag], commentsData:[] });
     document.getElementById('postInput').value = '';
     closeModal('postModal');
     renderPosts();
@@ -387,6 +429,10 @@ function createPost() {
 
 // Votes
 function renderVotes() {
+    const today = new Date().toDateString();
+    const saved = JSON.parse(localStorage.getItem('votes-'+today) || '{}');
+    votesLeft = saved.left ?? 2;
+    document.getElementById('votesLeft').innerText = votesLeft;
     const votes = [
         { id: 1, title: "最美營地投票", options: [
             { name: "太平山莊", img: "https://picsum.photos/100?random=20", votes: 45 },
@@ -395,12 +441,14 @@ function renderVotes() {
         ]}
     ];
     document.getElementById('voteList').innerHTML = votes.map(v => `
-innerHTML = votes        <div style="margin-bottom:25px;">
+        <div style="margin-bottom:25px;">
             <h4 style="margin-bottom:15px;">${v.title}</h4>
             ${v.options.map((opt, i) => {
                 const total = v.options.reduce((a,b) => a + b.votes, 0);
                 const percent = Math.round(opt.votes / total * 100);
-                return `<div class="vote-item" onclick="vote(${v.id}, ${i}, this)">
+                const votedKey = v.id+'-'+i;
+                const disabled = saved[votedKey];
+                return `<div class="vote-item" style="${disabled?'opacity:0.5;pointer-events:none;':''}" onclick="vote(${v.id}, ${i}, this)">
                     <img src="${opt.img}" class="vote-img">
                     <div style="flex:1;">
                         <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span>${opt.name}</span><span style="font-weight:bold;color:var(--primary);">${opt.votes}</span></div>
@@ -413,9 +461,16 @@ innerHTML = votes        <div style="margin-bottom:25px;">
 }
 
 function vote(pollId, optionIdx, el) {
-    if (!currentUser) { showLogin(); return; }
+    if (!currentUser) { alert('訪客不可投票'); return; }
     if (votesLeft <= 0) { alert('今日投票次數已用完！'); return; }
+    const today = new Date().toDateString();
+    const key = pollId+'-'+optionIdx;
+    const saved = JSON.parse(localStorage.getItem('votes-'+today) || '{}');
+    if(saved[key]){ alert('不可重複投同一張'); return; }
     votesLeft--;
+    saved.left = votesLeft;
+    saved[key]=true;
+    localStorage.setItem('votes-'+today,JSON.stringify(saved));
     document.getElementById('votesLeft').innerText = votesLeft;
     el.style.background = '#e8f5e9';
     alert('投票成功！');
@@ -458,7 +513,35 @@ function loginGoogle() {
 
 function loginLine() { alert('LINE 登入需要設定 LINE Bot'); }
 
+// 模擬 LINE 登入
+function loginLine() {
+    const name = 'LINE用戶'+Math.floor(Math.random()*1000);
+    currentUser = name;
+    closeModal('loginModal');
+    renderMyPage();
+    alert('LINE 登入成功');
+}
+
 function logout() { currentUser = null; renderMyPage(); alert('已登出'); }
+
+// 商家訂閱方案
+function showMerchantPlans(){
+    document.getElementById('bookingContent').innerHTML = `
+        <h2>商家訂閱方案</h2>
+        <div class="card"><h3>半年方案</h3><p>100元 / 6個月</p><button class="btn btn-primary" onclick="subscribe('basic')">購買</button></div>
+        <div class="card"><h3>一年方案</h3><p>200元 / 12個月</p><button class="btn btn-primary" onclick="subscribe('premium')">購買</button></div>
+        <button class="btn btn-secondary" style="width:100%;margin-top:10px;" onclick="closeModal('bookingModal')">關閉</button>
+    `;
+    document.getElementById('bookingModal').classList.add('active');
+}
+
+function subscribe(type){
+    if(!currentUser){ alert('請先登入'); return; }
+    userMembership = type;
+    closeModal('bookingModal');
+    renderMyPage();
+    alert('訂閱成功');
+}
 
 function checkAuth() {
     auth.onAuthStateChanged(user => {
