@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v18.0</title>
+  <title>露營趣 v18.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -33,6 +33,10 @@
     .form-group { margin-bottom:15px; }
     .form-group label { display:block; margin-bottom:5px; font-weight:bold; }
     input:focus, select:focus { outline:2px solid #2f855a; }
+    .rating-stars { color:#ffd700; font-size:24px; cursor:pointer; }
+    .rating-stars span { transition:transform 0.2s; }
+    .rating-stars span:hover { transform:scale(1.2); }
+    .no-results { text-align:center; color:#888; padding:20px; }
     @media(max-width:768px){ .tiers{flex-direction:column;} }
   </style>
 </head>
@@ -75,6 +79,24 @@
     <div id="favoritesList">
       <p style="color:#888;">尚未收藏營地</p>
     </div>
+  </section>
+
+  <section>
+    <h2>⭐ 營地評分</h2>
+    <form onsubmit="rateCamp(event)">
+      <input type="text" id="campName" placeholder="營地名稱" required style="margin-bottom:10px;">
+      <div class="rating-stars" style="margin-bottom:10px;">
+        <span onclick="setRating(1)">⭐</span>
+        <span onclick="setRating(2)">⭐</span>
+        <span onclick="setRating(3)">⭐</span>
+        <span onclick="setRating(4)">⭐</span>
+        <span onclick="setRating(5)">⭐</span>
+      </div>
+      <p id="ratingText" style="margin-bottom:10px;color:#888;">點擊星星評分</p>
+      <input type="hidden" id="ratingValue" value="0">
+      <button type="submit">提交評分</button>
+    </form>
+    <div id="ratingsList" style="margin-top:15px;"></div>
   </section>
 
   <section>
@@ -361,6 +383,46 @@
       }
     }
     renderFavorites();
+    
+    // 營地評分功能
+    let currentRating = 0;
+    function setRating(n) {
+      currentRating = n;
+      document.getElementById('ratingValue').value = n;
+      document.getElementById('ratingText').innerText = '您選擇了 ' + n + ' 顆星';
+      document.querySelectorAll('.rating-stars span').forEach((star, i) => {
+        star.innerText = i < n ? '⭐' : '☆';
+      });
+    }
+    
+    function rateCamp(e) {
+      e.preventDefault();
+      if (currentRating === 0) {
+        alert('請先選擇評分！');
+        return;
+      }
+      const campName = document.getElementById('campName').value;
+      const ratings = JSON.parse(localStorage.getItem('camping_ratings') || '[]');
+      ratings.push({ name: campName, rating: currentRating, date: new Date().toLocaleDateString() });
+      localStorage.setItem('camping_ratings', JSON.stringify(ratings));
+      renderRatings();
+      document.getElementById('campName').value = '';
+      setRating(0);
+      alert('評分成功！');
+    }
+    
+    function renderRatings() {
+      const ratings = JSON.parse(localStorage.getItem('camping_ratings') || '[]');
+      const container = document.getElementById('ratingsList');
+      if (ratings.length === 0) {
+        container.innerHTML = '<p style="color:#888;">尚無評分</p>';
+      } else {
+        container.innerHTML = ratings.slice(-5).reverse().map(r => 
+          '<div class="card" style="margin-bottom:10px;"><strong>' + r.name + '</strong> ' + '⭐'.repeat(r.rating) + ' <span style="color:#888;font-size:12px;">' + r.date + '</span></div>'
+        ).join('');
+      }
+    }
+    renderRatings();
     
     // 評論功能
     function addComment(e) {
