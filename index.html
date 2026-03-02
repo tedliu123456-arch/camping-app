@@ -500,6 +500,13 @@ if(window.firebase){
     });
     renderPostsRealtime();
     renderExplore('camp');
+    // 如果沒有 Firestore 資料，顯示範例貼文
+    setTimeout(() => {
+        const list = document.getElementById('postList');
+        if (!list || list.children.length === 0) {
+            list.innerHTML = '<div class="post" data-category="營地推薦"><div class="post-header"><img src="https://picsum.photos/80?random=10" class="avatar"><div><strong>Alan</strong><span class="badge">營地推薦</span><br><small style="color:#777;">2小時前 · 📍 宜蘭縣大同鄉</small></div></div><div class="post-content">推薦一個超棒的露營地！🌲 位於宜蘭縣大同鄉的「太平山莊」</div><img src="https://picsum.photos/600/400?random=11"><div class="reaction-bar"><div class="reaction-btn">👍 42</div><div class="reaction-btn">❤️ 28</div><div class="reaction-btn">💬 5</div></div></div><div class="post" data-category="裝備分享"><div class="post-header"><img src="https://picsum.photos/80?random=12" class="avatar"><div><strong>Luna</strong><span class="badge">裝備分享</span><br><small style="color:#777;">5小時前</small></div></div><div class="post-content">我的新帳篷開箱！🏕️ MSR Hubba Hubba，輕量又防水</div><img src="https://picsum.photos/600/400?random=13"><div class="reaction-bar"><div class="reaction-btn">👍 65</div><div class="reaction-btn">❤️ 43</div><div class="reaction-btn">💬 12</div></div></div>';
+        }
+    }, 1500);
 }
 </script>
 </body>
