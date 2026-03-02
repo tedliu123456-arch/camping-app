@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營探索 v15.3</title>
+  <title>露營探索 v16.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -85,7 +85,7 @@
 <body>
   <div class="progress-bar" id="progressBar"></div>
   <header>
-    <h1>露營探索 v15.3</h1>
+    <h1>露營探索 v16.0</h1>
     <div>
       <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ 格狀</button>
       <button class="toggle" onclick="toggleDark()">深色模式</button>
@@ -139,8 +139,49 @@
   <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
   <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
-    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v15.3 | 22 個營地
+    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v16.0 | 22 個營地
   </footer>
+
+  <!-- v16.0 New Systems -->
+  <section style="padding:40px 20px; background:var(--soft); margin-top:40px;">
+    <h2 style="margin-bottom:15px;">會員登入 (Mock)</h2>
+    <button class="btn" onclick="mockLogin('LINE')">LINE 登入</button>
+    <button class="btn" onclick="mockLogin('Google')">Google 登入</button>
+    <p id="memberInfo" style="margin-top:10px;"></p>
+    <canvas id="memberQR" width="120" height="120" style="margin-top:10px; display:none;"></canvas>
+  </section>
+
+  <section style="padding:40px 20px;">
+    <h2>評論系統</h2>
+    <input id="globalReviewInput" placeholder="留下評論" />
+    <button class="btn" onclick="addGlobalReview()">送出</button>
+    <ul id="globalReviewList" style="margin-top:10px;"></ul>
+  </section>
+
+  <section style="padding:40px 20px; background:var(--soft);">
+    <h2>商家發布</h2>
+    <input id="merchantName" placeholder="營地名稱" />
+    <button class="btn" onclick="publishMerchant()">發布</button>
+
+    <h2 style="margin-top:20px;">活動發布</h2>
+    <input id="eventTitle" placeholder="活動名稱" />
+    <button class="btn" onclick="publishEvent()">發布</button>
+  </section>
+
+  <section style="padding:40px 20px;">
+    <h2>跑馬燈廣告</h2>
+    <marquee behavior="scroll" direction="left">🔥 露營趣春季優惠開跑！立即預約享 8 折優惠！</marquee>
+  </section>
+
+  <section style="padding:40px 20px; background:var(--soft);">
+    <h2>地圖顯示</h2>
+    <iframe width="100%" height="250" src="https://maps.google.com/maps?q=Taiwan&t=&z=7&ie=UTF8&iwloc=&output=embed"></iframe>
+  </section>
+
+  <section style="padding:40px 20px;">
+    <h2>預約記錄</h2>
+    <ul id="bookingHistory"></ul>
+  </section>
 
   <script>
     const campData = [
@@ -258,6 +299,7 @@
       msg.style.display='block';
       setTimeout(()=>msg.style.display='none',2000);
       document.getElementById('modal').style.display='none';
+      addBookingHistory('即時預約');
     }
 
     function toggleDark(){ document.body.classList.toggle('dark'); }
@@ -403,6 +445,64 @@
     window.onscroll = () => {
       document.getElementById('backToTop').classList.toggle('show', window.scrollY > 300);
     };
+
+    // ===== v16.0 Mock Systems =====
+    let member = null;
+    let globalReviews = [];
+    let bookingRecords = [];
+
+    function mockLogin(provider){
+      member = {name: provider + ' 使用者', level:'Gold'};
+      document.getElementById('memberInfo').textContent = `歡迎 ${member.name} ｜ 等級: ${member.level}`;
+      const canvas = document.getElementById('memberQR');
+      canvas.style.display='block';
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle='#000';
+      ctx.fillRect(20,20,80,80);
+    }
+
+    function addGlobalReview(){
+      const input=document.getElementById('globalReviewInput');
+      if(!input.value) return;
+      globalReviews.push(input.value);
+      input.value='';
+      renderGlobalReviews();
+    }
+
+    function renderGlobalReviews(){
+      const ul=document.getElementById('globalReviewList');
+      ul.innerHTML='';
+      globalReviews.forEach(r=>{
+        const li=document.createElement('li');
+        li.textContent=r;
+        ul.appendChild(li);
+      });
+    }
+
+    function publishMerchant(){
+      const name=document.getElementById('merchantName').value;
+      if(!name) return;
+      camps.push({name,type:'Forest',price:80,description:'新發布營地',rating:4.0});
+      render();
+      alert('商家發布成功');
+    }
+
+    function publishEvent(){
+      const title=document.getElementById('eventTitle').value;
+      if(!title) return;
+      alert('活動發布成功: '+title);
+    }
+
+    function addBookingHistory(text){
+      bookingRecords.push(text + ' - ' + new Date().toLocaleString());
+      const ul=document.getElementById('bookingHistory');
+      ul.innerHTML='';
+      bookingRecords.forEach(b=>{
+        const li=document.createElement('li');
+        li.textContent=b;
+        ul.appendChild(li);
+      });
+    }
   </script>
 </body>
 </html>
