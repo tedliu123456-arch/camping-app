@@ -3,34 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v13.0</title>
+  <title>露營趣 v13.1</title>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
-    :root{--forest:#1f3d2b;--sand:#e6d5b8;--sun:#f2a65a;--cream:#f9f6ef}
+    :root{--forest:#1f3d2b;--deep:#13261b;--sand:#e6d5b8;--sun:#f2a65a;--cream:#f9f6ef;--sky:#b7d8c6}
     *{box-sizing:border-box;margin:0;padding:0;font-family:"Noto Sans TC",sans-serif}
-    body{background:linear-gradient(180deg,var(--cream),var(--sand));color:var(--forest)}
-    header{padding:16px;font-size:20px;font-weight:700;text-align:center;background:var(--forest);color:white}
-    .container{padding:16px 16px 80px}
+    body{background:linear-gradient(160deg,var(--sky),var(--cream) 40%,var(--sand));color:var(--forest);min-height:100vh;overflow-x:hidden}
+    header{padding:18px;font-size:22px;font-weight:800;text-align:center;color:white;background:linear-gradient(120deg,var(--deep),var(--forest));letter-spacing:1px}
+    .container{padding:16px 16px 100px;position:relative}
     .tab{display:none}
     .tab.active{display:block}
-    nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #ddd;display:flex}
-    nav button{flex:1;padding:12px;border:none;background:white;font-weight:600}
-    nav button.active{background:var(--sun);color:white}
+    nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);display:flex;box-shadow:0 -4px 20px rgba(0,0,0,0.1)}
+    nav button{flex:1;padding:14px;border:none;background:none;font-weight:700;color:var(--forest)}
+    nav button.active{color:white;background:linear-gradient(120deg,var(--sun),#ff7b54)}
     input,textarea,button{padding:8px;margin:4px 0;width:100%}
-    .card{background:white;padding:12px;border-radius:8px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+    .card{background:white;padding:14px;border-radius:16px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,0.12);transition:transform .25s,box-shadow .25s;animation:fadeIn .4s ease}
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.18)}
     .vote{cursor:pointer;margin-right:8px}
     #map{height:300px;border-radius:8px}
-    .shop-item{border-bottom:1px solid #eee;padding:8px 0}
+    .shop-item{background:white;border-radius:14px;margin-bottom:14px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.12);animation:fadeIn .5s ease}
+    .shop-item img{width:100%;height:140px;object-fit:cover}
+    .shop-item h4{padding:10px 12px 0}
+    .shop-item p{padding:0 12px 12px;font-size:14px;color:#555}
+    .loader{width:40px;height:40px;border:4px solid #eee;border-top:4px solid var(--sun);border-radius:50%;margin:20px auto;animation:spin 1s linear infinite}
+    .pull-indicator{position:absolute;top:-40px;left:0;right:0;text-align:center;font-size:14px;color:var(--forest);transition:.3s}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   </style>
 </head>
 <body>
-  <header>露營趣 Camping App v13.0</header>
+  <header>露營趣 Camping App v13.1</header>
   <div class="container">
     <div id="home" class="tab active">
+      <div class="pull-indicator" id="pullText">⬇ 下拉重新整理</div>
       <h3>最新貼文</h3>
       <div id="postList"></div>
+      <div id="loadingPosts" style="display:none" class="loader"></div>
       <h4>發佈貼文</h4>
       <textarea id="postContent" placeholder="分享你的露營心得..."></textarea>
       <button onclick="addPost()">發佈</button>
@@ -80,11 +90,51 @@
     function vote(id){const p=getPosts();const t=p.find(x=>x.id===id);t.votes++;savePosts(p);renderPosts()}
     function addComment(id){const text=document.getElementById('c'+id).value;const p=getPosts();const t=p.find(x=>x.id===id);t.comments.push(text);savePosts(p);renderPosts()}
     function renderPosts(){const k=document.getElementById('searchInput')?.value||'';const list=document.getElementById('postList');list.innerHTML='';getPosts().filter(p=>p.content.includes(k)).forEach(p=>{const d=document.createElement('div');d.className='card';d.innerHTML=`<p>${p.content}</p><span class='vote' onclick='vote(${p.id})'>👍 ${p.votes}</span><div>${p.comments.map(c=>`<p>💬 ${c}</p>`).join('')}<input id='c${p.id}' placeholder='留言...'/><button onclick='addComment(${p.id})'>留言</button></div>`;list.appendChild(d)})}
-    const shops=["山林裝備","露營達人","戶外生活館"];
-    function renderShops(){const q=document.getElementById('shopSearch').value||'';const list=document.getElementById('shopList');list.innerHTML='';shops.filter(s=>s.includes(q)).forEach(s=>{list.innerHTML+=`<div class='shop-item'>${s}</div>`})}
+    const shops=[
+      "山林裝備","露營達人","戶外生活館","野營部落","山野選物","森林補給站","露營王國","野趣戶外",
+      "高山裝備","自然系生活","戶外玩家","山系風格店","帳篷專門店","露營工坊","野外實驗室",
+      "山林補給","戶外倉庫","探索者","森活選品","營火小舖","山丘選物","旅人裝備"
+    ];
+    function renderShops(){
+      const q=document.getElementById('shopSearch').value||'';
+      const list=document.getElementById('shopList');
+      list.innerHTML='';
+      shops.filter(s=>s.includes(q)).forEach((s,i)=>{
+        list.innerHTML+=`<div class='shop-item'>
+          <img src='https://picsum.photos/seed/shop${i}/400/300'>
+          <h4>${s}</h4>
+          <p>高品質露營裝備與戶外選品，讓旅程更美好。</p>
+        </div>`
+      })
+    }
     function bookCamp(){const d=document.getElementById('bookDate').value;if(!d)return;const b=JSON.parse(localStorage.getItem('bookings')||'[]');b.push(d);localStorage.setItem('bookings',JSON.stringify(b));renderBookings()}
     function renderBookings(){const list=document.getElementById('bookingList');list.innerHTML='';const b=JSON.parse(localStorage.getItem('bookings')||'[]');b.forEach(x=>list.innerHTML+=`<p>📅 ${x}</p>`)}
-    const map=L.map('map').setView([23.7,121],7);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);L.marker([24.1477,120.6736]).addTo(map).bindPopup('示範營地');
+    const camps=[
+      {n:"台中大坑營地",c:[24.1477,120.6736]},{n:"新竹五峰營地",c:[24.632,121.12]},{n:"南投清境營地",c:[24.05,121.16]},
+      {n:"花蓮鯉魚潭",c:[23.97,121.55]},{n:"台東鹿野",c:[22.9,121.13]},{n:"嘉義阿里山",c:[23.51,120.8]},
+      {n:"宜蘭礁溪",c:[24.82,121.77]},{n:"苗栗南庄",c:[24.6,120.99]},{n:"屏東墾丁",c:[21.95,120.8]},
+      {n:"桃園復興",c:[24.8,121.37]},{n:"台南梅嶺",c:[23.2,120.5]},{n:"高雄美濃",c:[22.9,120.54]},
+      {n:"彰化田尾",c:[23.9,120.52]},{n:"雲林草嶺",c:[23.6,120.7]},{n:"基隆暖暖",c:[25.1,121.73]},
+      {n:"澎湖湖西",c:[23.6,119.65]},{n:"金門太武山",c:[24.43,118.32]},{n:"蘭嶼紅頭",c:[22.05,121.55]},
+      {n:"綠島朝日",c:[22.66,121.47]},{n:"新北坪林",c:[24.93,121.71]},{n:"台北陽明山",c:[25.16,121.55]}
+    ];
+    const map=L.map('map').setView([23.7,121],7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    camps.forEach(x=>L.marker(x.c).addTo(map).bindPopup(x.n));
+
+    function simulateLoading(){
+      const loader=document.getElementById('loadingPosts');
+      loader.style.display='block';
+      setTimeout(()=>{loader.style.display='none';renderPosts()},600);
+    }
+
+    let startY=0;
+    document.getElementById('home').addEventListener('touchstart',e=>startY=e.touches[0].clientY);
+    document.getElementById('home').addEventListener('touchend',e=>{
+      const diff=e.changedTouches[0].clientY-startY;
+      if(diff>80){document.getElementById('pullText').innerText='🔄 重新整理中...';simulateLoading();setTimeout(()=>document.getElementById('pullText').innerText='⬇ 下拉重新整理',800)}
+    });
+
     renderAuth();renderPosts();renderShops();
   </script>
 </body>
