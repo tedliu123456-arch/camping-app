@@ -3,418 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 露營生活社群</title>
+    <title>露營趣 - 露營生活社群 v5.0.0</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: "Noto Sans TC", "PingFang TC", sans-serif; background: linear-gradient(180deg,#f1f5f2,#e6efe9); color: #1f2933; }
-
-        .header {
-            background: linear-gradient(135deg, #1b4332, #2d6a4f);
-            color: white;
-            padding: 14px 18px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        :root {
+            --ig-pink: #fd1d1d;
+            --ig-purple: #c13584;
+            --ig-orange: #fcb045;
+            --bg-main: #fafafa;
+            --card-bg: #ffffff;
+            --text-main: #111;
+            --text-sub: #777;
+            --border-light: #e6e6e6;
         }
-
-        .logo { font-weight: 700; font-size: 18px; display: flex; gap: 8px; align-items: center; letter-spacing:1px; }
-        .version { font-size: 11px; background: rgba(255,255,255,0.25); padding: 2px 6px; border-radius: 6px; }
-        .avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.6); }
-
-        .user-box { position: relative; cursor: pointer; }
-        .dropdown {
-            position: absolute;
-            right: 0;
-            top: 36px;
-            background: white;
-            color: #333;
-            border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-            min-width: 140px;
-            overflow: hidden;
-        }
-        .dropdown div { padding: 10px 14px; cursor: pointer; }
-        .dropdown div:hover { background: #f0f0f0; }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            padding: 10px;
-            background: white;
-            overflow-x: auto;
-        }
-        .tab {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: #e9ecef;
-            border: none;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .tab.active { background: #1b4332; color: white; }
-
-        .page { display: none; padding: 16px; }
-        .page.active { display: block; }
-
-        .card {
-            background: white;
-            border-radius: 14px;
-            padding: 14px;
-            margin-bottom: 14px;
-            box-shadow: 0 6px 18px rgba(27,67,50,0.08);
-        }
-
-        .login-box {
-            max-width: 360px;
-            margin: 80px auto;
-            background: white;
-            padding: 28px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-        .login-box h2 { margin-bottom: 16px; }
-        .login-box input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-        }
-        .btn {
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-        }
-        .btn-primary { background: #2d6a4f; color: white; }
-        .btn-danger { background: #c1121f; color: white; }
-
-        textarea, select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-
-        .badge { display:inline-block; padding:2px 8px; font-size:11px; border-radius:20px; background:#d8f3dc; color:#1b4332; margin-left:6px; }
-        .profile-avatar { width:90px; height:90px; border-radius:50%; object-fit:cover; cursor:pointer; border:3px solid #2d6a4f; margin-bottom:12px; }
-        .hint { font-size:12px; color:#6b7280; }
-
-        .profile-field { margin-bottom: 10px; }
-        .profile-field input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
-
-        @media (max-width: 600px) {
-            .login-box { margin: 40px 16px; }
+        body { font-family: "Noto Sans TC", "PingFang TC", sans-serif; background: var(--bg-main); color: var(--text-main); }
+        .header { background:#fff; border-bottom:1px solid var(--border-light); padding:14px 16px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:20; }
+        .logo { font-weight:700; font-size:20px; display:flex; gap:8px; align-items:center; }
+        .ig-logo { width:26px; height:26px; border-radius:8px; background: radial-gradient(circle at 30% 30%, #fff 0%, #fff 15%, transparent 16%), linear-gradient(45deg,var(--ig-orange),var(--ig-pink),var(--ig-purple)); position:relative; }
+        .version { font-size:11px; background:#f2f2f2; padding:3px 8px; border-radius:999px; }
+        .stories { display:flex; gap:12px; padding:14px 16px; overflow-x:auto; background:#fff; }
+        .story-card { min-width:110px; height:170px; border-radius:20px; position:relative; overflow:hidden; flex-shrink:0; }
+        .story-card img { width:100%; height:100%; object-fit:cover; }
+        .story-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.1)); display:flex; align-items:flex-end; padding:10px; color:#fff; font-size:13px; font-weight:600; }
+        .page { display:none; padding-bottom:90px; }
+        .page.active { display:block; }
+        .composer { padding:16px; background:#fff; border-bottom:1px solid var(--border-light); }
+        .card { background: var(--card-bg); margin-bottom:18px; }
+        .post { background:#fff; border-top:1px solid var(--border-light); border-bottom:1px solid var(--border-light); }
+        .post-header { display:flex; gap:10px; align-items:center; padding:14px 16px; }
+        .post-content { padding:0 16px 12px 16px; font-size:15px; line-height:1.6; }
+        .post img { width:100%; display:block; }
+        .badge { display:inline-block; padding:4px 10px; font-size:11px; border-radius:999px; background:#f0f0f0; color:#555; margin-left:6px; }
+        .reaction-bar { display:flex; justify-content:space-around; padding:10px 0; font-size:15px; color:var(--text-sub); border-top:1px solid var(--border-light); }
+        .reaction-btn { cursor:pointer; }
+        textarea, select, input { width:100%; padding:10px; border-radius:12px; border:1px solid var(--border-light); margin-bottom:10px; }
+        .btn { padding:10px 16px; border:none; border-radius:999px; cursor:pointer; font-weight:600; }
+        .btn-primary { background:linear-gradient(45deg,var(--ig-orange),var(--ig-pink),var(--ig-purple)); color:#fff; }
+        .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--border-light); display:flex; justify-content:space-around; padding:8px 0; }
+        .bottom-nav button { background:none; border:none; font-size:12px; display:flex; flex-direction:column; align-items:center; color:var(--text-sub); cursor:pointer; }
+        .bottom-nav button.active { color: var(--ig-pink); font-weight:600; }
+        .avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; }
+        .fab { position:fixed; right:20px; bottom:90px; width:58px; height:58px; border-radius:50%; border:none; cursor:pointer; font-size:26px; color:#fff; background:linear-gradient(45deg,var(--ig-orange),var(--ig-pink),var(--ig-purple)); box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+        .filter-chips { display:flex; gap:8px; overflow-x:auto; padding:12px 16px; background:#fff; }
+        .chip { padding:6px 14px; border-radius:999px; background:#fff; border:1px solid var(--border-light); font-size:12px; cursor:pointer; white-space:nowrap; }
+        .chip.active { background:#111; color:#fff; border-color:#111; }
+        .heart-burst { position:absolute; pointer-events:none; font-size:22px; animation:burst 600ms ease-out forwards; }
+        @keyframes burst {
+            0% { opacity:1; transform:scale(0.6) translateY(0); }
+            100% { opacity:0; transform:scale(1.6) translateY(-40px); }
         }
     </style>
 </head>
 <body>
-
 <div class="header">
-    <div class="logo">⛺ 露營趣 <span class="version">v2.2.0</span></div>
-    <div id="headerRight"></div>
+    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v5.0.0</span></div>
+    <div>✉️</div>
 </div>
-
-<div id="loginPage" class="login-box">
-    <h2>登入</h2>
-    <input type="text" id="loginUsername" placeholder="輸入使用者名稱">
-    <button class="btn btn-primary" onclick="login()" style="width:100%">登入</button>
-</div>
-
-<div id="app" style="display:none">
-
-    <div class="tabs">
-        <button class="tab active" onclick="switchTab('community')">社群</button>
-        <button class="tab" onclick="switchTab('camp')">營地</button>
-        <button class="tab" onclick="switchTab('shop')">改裝店</button>
-        <button class="tab" onclick="switchTab('gear')">用品</button>
-        <button class="tab" onclick="switchTab('rent')">出租</button>
-        <button class="tab" onclick="switchTab('messages')">訊息</button>
-        <button class="tab" onclick="switchTab('profile')">個人</button>
+<div id="app">
+    <div class="stories">
+        <div class="story-card">
+            <img src="https://picsum.photos/300/500?random=1">
+            <div class="story-overlay">Alan · 山林秘境</div>
+        </div>
+        <div class="story-card">
+            <img src="https://picsum.photos/300/500?random=2">
+            <div class="story-overlay">Luna · 海邊露營</div>
+        </div>
+        <div class="story-card">
+            <img src="https://picsum.photos/300/500?random=3">
+            <div class="story-overlay">Tom · 星空夜晚</div>
+        </div>
     </div>
-
     <div id="communityPage" class="page active">
-        <div class="card">
+        <div class="composer">
             <select id="postCategory">
-                <option value="新手發問">新手發問</option>
-                <option value="裝備分享">裝備分享</option>
-                <option value="營地推薦">營地推薦</option>
-                <option value="美食料理">美食料理</option>
-                <option value="親子露營">親子露營</option>
+                <option>新手發問</option>
+                <option>裝備分享</option>
+                <option>營地推薦</option>
+                <option>美食料理</option>
             </select>
-            <textarea id="postInput" placeholder="分享你的露營故事與心得..."></textarea>
+            <textarea id="postInput" placeholder="分享你的露營故事..."></textarea>
+            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+            <img id="imagePreview" style="display:none;width:100%;border-radius:12px;margin-bottom:10px;" />
+            <input type="file" id="videoInput" accept="video/*" onchange="previewVideo(event)">
+            <video id="videoPreview" controls style="display:none;width:100%;border-radius:12px;margin-bottom:10px;"></video>
+            <input type="text" id="locationInput" placeholder="打卡地點 (點擊選擇)" readonly onclick="openMapPicker()">
+            <div id="mapPicker" style="display:none;margin-bottom:10px;">
+                <iframe id="mapFrame" width="100%" height="200" style="border:0;border-radius:12px;" loading="lazy"></iframe>
+                <button class="btn" style="margin-top:8px;" onclick="confirmLocation()">使用此位置</button>
+            </div>
             <button class="btn btn-primary" onclick="addPost()">發布貼文</button>
         </div>
+        <div class="filter-chips" id="categoryFilters"></div>
         <div id="postList"></div>
     </div>
-
-    <div id="campPage" class="page"><div class="card">營地資訊展示區</div></div>
-    <div id="shopPage" class="page"><div class="card">改裝店資訊展示區</div></div>
-    <div id="gearPage" class="page"><div class="card">露營用品展示區</div></div>
-    <div id="rentPage" class="page"><div class="card">露營車出租資訊展示區</div></div>
-
-    <div id="messagesPage" class="page">
-        <div class="card" id="messageList"></div>
-        <div class="card" id="conversationBox" style="display:none">
-            <div id="conversationTitle" style="font-weight:600;margin-bottom:8px"></div>
-            <div id="conversationMessages" style="max-height:240px;overflow-y:auto;margin-bottom:8px"></div>
-            <textarea id="messageInput" placeholder="輸入訊息..."></textarea>
-            <button class="btn btn-primary" onclick="sendMessage()">送出</button>
-        </div>
-    </div>
-
-    <div id="profilePage" class="page">
-        <div class="card" style="text-align:center">
-            <img id="profileAvatar" class="profile-avatar" src="" alt="avatar" onclick="triggerAvatarUpload()">
-            <div class="hint">點擊頭像上傳照片</div>
-            <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-            <div class="profile-field">
-                <label>顯示名稱</label>
-                <input type="text" id="profileName">
-            </div>
-            <div class="profile-field">
-                <label>Email</label>
-                <input type="text" id="profileEmail">
-            </div>
-            <div class="profile-field">
-                <label>性別</label>
-                <select id="profileGender">
-                    <option value="">未填寫</option>
-                    <option value="男">男</option>
-                    <option value="女">女</option>
-                    <option value="其他">其他</option>
-                </select>
-            </div>
-            <div class="profile-field">
-                <label>露營經驗</label>
-                <select id="profileExperience">
-                    <option value="新手">新手（0-1年）</option>
-                    <option value="進階">進階（1-3年）</option>
-                    <option value="老手">老手（3年以上）</option>
-                </select>
-            </div>
-            <div class="profile-field">
-                <label>最愛露營風格</label>
-                <input type="text" id="profileStyle" placeholder="例：豪華露營 / 野營 / 車宿">
-            </div>
-            <button class="btn btn-primary" onclick="saveProfile()">儲存資料</button>
-        </div>
-    </div>
-
+    <div id="messagesPage" class="page"><div class="card">訊息功能示意</div></div>
+    <div id="profilePage" class="page"><div class="card">個人頁面示意</div></div>
 </div>
-
+<button class="fab" onclick="scrollToComposer()">＋</button>
+<div class="bottom-nav">
+    <button class="active" onclick="switchTab('community',this)">🏠<span>首頁</span></button>
+    <button onclick="switchTab('messages',this)">💬<span>訊息</span></button>
+    <button onclick="switchTab('profile',this)">👤<span>個人</span></button>
+</div>
 <script>
-    let currentUser = null;
+const categories = ['全部','新手發問','裝備分享','營地推薦','美食料理'];
+let currentFilter = '全部';
 
-    function login() {
-        const username = document.getElementById('loginUsername').value.trim();
-        if (!username) return alert('請輸入使用者名稱');
+function initFilters() {
+    const container = document.getElementById('categoryFilters');
+    categories.forEach(cat => {
+        const chip = document.createElement('div');
+        chip.className = 'chip' + (cat==='全部' ? ' active':'');
+        chip.textContent = cat;
+        chip.onclick = () => {
+            currentFilter = cat;
+            document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+            chip.classList.add('active');
+            filterPosts();
+        };
+        container.appendChild(chip);
+    });
+}
 
-        currentUser = username;
-        localStorage.setItem('currentUser', username);
-
-        loadProfile();
-        renderPosts();
-        renderHeader();
-
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-    }
-
-    function logout() {
-        localStorage.removeItem('currentUser');
-        currentUser = null;
-        location.reload();
-    }
-
-    function renderHeader() {
-        const header = document.getElementById('headerRight');
-        const profile = JSON.parse(localStorage.getItem('userProfile_' + currentUser) || '{}');
-        const avatar = profile.avatar || 'https://via.placeholder.com/80x80?text=⛺';
-        header.innerHTML = `
-            <div class="user-box" onclick="toggleMenu()" style="display:flex;align-items:center;gap:8px">
-                <img src="${avatar}" class="avatar">
-                <span>${profile.name || currentUser}</span>
-                <div id="dropdown" class="dropdown" style="display:none">
-                    <div onclick="switchTab('profile');closeMenu()">編輯個人資料</div>
-                    <div onclick="logout()">登出</div>
-                </div>
+function switchTab(tab, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(tab + 'Page').classList.add('active');
+    document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+function previewImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        const img = document.getElementById('imagePreview');
+        img.src = reader.result;
+        img.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+function addPost() {
+    const text = document.getElementById('postInput').value.trim();
+    if (!text) return;
+    const list = document.getElementById('postList');
+    const category = document.getElementById('postCategory').value;
+    const preview = document.getElementById('imagePreview').src;
+    const card = document.createElement('div');
+    card.className = 'post';
+    card.setAttribute('data-category', category);
+    card.style.position = 'relative';
+    card.innerHTML = `
+        <div class="post-header">
+            <img src="https://picsum.photos/80?random=9" class="avatar">
+            <div>
+                <strong>你</strong><span class="badge">${category}</span><br>
+                <small style="color:#777;">${new Date().toLocaleString()} ${document.getElementById('locationInput').value ? '· 📍 ' + document.getElementById('locationInput').value : ''}</small>
             </div>
-        `;
+        </div>
+        <div class="post-content">${text}</div>
+        ${preview ? `<img src="${preview}">` : ''}
+        ${document.getElementById('videoPreview').src ? `<video src="${document.getElementById('videoPreview').src}" controls></video>` : ''}
+        <div class="reaction-bar">
+            <div class="reaction-btn">👍</div>
+            <div class="reaction-btn" onclick="heartBurst(event)">❤️</div>
+            <div class="reaction-btn">💬</div>
+            <div>🔖</div>
+        </div>
+    `;
+    list.prepend(card);
+    document.getElementById('postInput').value = '';
+    document.getElementById('imageInput').value = '';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('videoInput').value = '';
+    document.getElementById('videoPreview').style.display = 'none';
+    document.getElementById('videoPreview').src = '';
+    document.getElementById('locationInput').value = '';
+    filterPosts();
+}
+
+function heartBurst(e) {
+    const parent = e.target.closest('.post');
+    const heart = document.createElement('div');
+    heart.className = 'heart-burst';
+    heart.textContent = '❤️';
+    const rect = e.target.getBoundingClientRect();
+    const parentRect = parent.getBoundingClientRect();
+    heart.style.left = (rect.left - parentRect.left + 20) + 'px';
+    heart.style.top = (rect.top - parentRect.top) + 'px';
+    parent.appendChild(heart);
+    e.target.style.transform = 'scale(1.3)';
+    setTimeout(()=>{
+        heart.remove();
+        e.target.style.transform = 'scale(1)';
+    },600);
+}
+
+function filterPosts() {
+    document.querySelectorAll('#postList .post').forEach(card => {
+        const cat = card.getAttribute('data-category');
+        card.style.display = (currentFilter==='全部' || cat===currentFilter) ? 'block' : 'none';
+    });
+}
+
+function previewVideo(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        const video = document.getElementById('videoPreview');
+        video.src = reader.result;
+        video.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+function openMapPicker() {
+    const picker = document.getElementById('mapPicker');
+    picker.style.display = 'block';
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            document.getElementById('mapFrame').src = `https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`;
+        });
     }
+}
 
-    function toggleMenu() {
-        const d = document.getElementById('dropdown');
-        d.style.display = d.style.display === 'none' ? 'block' : 'none';
+function confirmLocation() {
+    const frame = document.getElementById('mapFrame').src;
+    if (!frame) return;
+    const match = frame.match(/q=([^&]+)/);
+    if (match) {
+        document.getElementById('locationInput').value = decodeURIComponent(match[1]);
     }
+    document.getElementById('mapPicker').style.display = 'none';
+}
 
-    function closeMenu() {
-        const d = document.getElementById('dropdown');
-        if (d) d.style.display = 'none';
-    }
+function scrollToComposer() {
+    switchTab('community', document.querySelector('.bottom-nav button'));
+    window.scrollTo({ top:0, behavior:'smooth' });
+    document.getElementById('postInput').focus();
+}
 
-    function switchTab(tab) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-        document.getElementById(tab + 'Page').classList.add('active');
-        event.target.classList.add('active');
-        if (tab === 'messages') renderMessageList();
-    }
-
-    function addPost() {
-        const text = document.getElementById('postInput').value.trim();
-        if (!text) return;
-
-        const posts = JSON.parse(localStorage.getItem('camping_posts') || '[]');
-        const category = document.getElementById('postCategory').value;
-        posts.unshift({ user: currentUser, category, content: text, time: new Date().toLocaleString() });
-        localStorage.setItem('camping_posts', JSON.stringify(posts));
-
-        document.getElementById('postInput').value = '';
-        renderPosts();
-    }
-
-    function renderPosts() {
-        const list = document.getElementById('postList');
-        const posts = JSON.parse(localStorage.getItem('camping_posts') || '[]');
-
-        list.innerHTML = posts.map(p => {
-            const profile = JSON.parse(localStorage.getItem('userProfile_' + p.user) || '{}');
-            const avatar = profile.avatar || 'https://via.placeholder.com/60x60?text=⛺';
-            return `
-            <div class="card">
-                <div style="display:flex;align-items:center;gap:10px">
-                    <img src="${avatar}" class="avatar">
-                    <div>
-                        <strong>${profile.name || p.user}</strong>
-                        <span class="badge">${p.category || '分享'}</span><br>
-                        <small>${p.time}</small>
-                    </div>
-                </div>
-                <p style="margin-top:10px">${p.content}</p>
-            </div>`;
-        }).join('');
-    }
-
-    function getMessageKey(user1, user2) {
-        return 'messages_' + [user1, user2].sort().join('_');
-    }
-
-    function renderMessageList() {
-        const listDiv = document.getElementById('messageList');
-        const users = new Set();
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('messages_')) {
-                const parts = key.replace('messages_', '').split('_');
-                if (parts.includes(currentUser)) {
-                    parts.forEach(u => { if (u !== currentUser) users.add(u); });
-                }
-            }
-        }
-
-        if (users.size === 0) {
-            listDiv.innerHTML = '<div>尚無對話</div>';
-            document.getElementById('conversationBox').style.display = 'none';
-            return;
-        }
-
-        listDiv.innerHTML = Array.from(users).map(u =>
-            `<div style="padding:8px 0;border-bottom:1px solid #eee;cursor:pointer" onclick="openConversation('${u}')">與 ${u} 的對話</div>`
-        ).join('');
-    }
-
-    let activeChatUser = null;
-
-    function openConversation(user) {
-        activeChatUser = user;
-        document.getElementById('conversationBox').style.display = 'block';
-        document.getElementById('conversationTitle').innerText = '與 ' + user + ' 對話';
-        renderConversation();
-    }
-
-    function renderConversation() {
-        if (!activeChatUser) return;
-        const key = getMessageKey(currentUser, activeChatUser);
-        const messages = JSON.parse(localStorage.getItem(key) || '[]');
-        const box = document.getElementById('conversationMessages');
-        box.innerHTML = messages.map(m =>
-            `<div style="margin-bottom:6px;text-align:${m.sender === currentUser ? 'right' : 'left'}">
-                <span style="display:inline-block;padding:6px 10px;border-radius:12px;background:${m.sender === currentUser ? '#2d6a4f' : '#e9ecef'};color:${m.sender === currentUser ? '#fff' : '#333'}">
-                    ${m.text}
-                </span>
-            </div>`
-        ).join('');
-        box.scrollTop = box.scrollHeight;
-    }
-
-    function sendMessage() {
-        const input = document.getElementById('messageInput');
-        const text = input.value.trim();
-        if (!text || !activeChatUser) return;
-        const key = getMessageKey(currentUser, activeChatUser);
-        const messages = JSON.parse(localStorage.getItem(key) || '[]');
-        messages.push({ sender: currentUser, text, time: Date.now() });
-        localStorage.setItem(key, JSON.stringify(messages));
-        input.value = '';
-        renderConversation();
-    }
-
-    function loadProfile() {
-        const key = 'userProfile_' + currentUser;
-        const saved = JSON.parse(localStorage.getItem(key) || '{}');
-
-        document.getElementById('profileName').value = saved.name || currentUser;
-        document.getElementById('profileEmail').value = saved.email || '';
-        document.getElementById('profileGender').value = saved.gender || '';
-        document.getElementById('profileExperience').value = saved.experience || '新手';
-        document.getElementById('profileStyle').value = saved.style || '';
-        document.getElementById('profileAvatar').src = saved.avatar || 'https://via.placeholder.com/120x120?text=⛺';
-    }
-
-    function saveProfile() {
-        const key = 'userProfile_' + currentUser;
-        const data = {
-            name: document.getElementById('profileName').value,
-            email: document.getElementById('profileEmail').value,
-            gender: document.getElementById('profileGender').value,
-            experience: document.getElementById('profileExperience').value,
-            style: document.getElementById('profileStyle').value,
-            avatar: document.getElementById('profileAvatar').src
-        };
-        localStorage.setItem(key, JSON.stringify(data));
-        alert('個人資料已更新');
-        renderHeader();
-    }
-
-    function triggerAvatarUpload() {
-        document.getElementById('avatarInput').click();
-    }
-
-    function handleAvatarUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('profileAvatar').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-
-    window.onload = function() {
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            currentUser = savedUser;
-            renderHeader();
-            renderPosts();
-            loadProfile();
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-        }
-    }
+initFilters();
 </script>
-
 </body>
 </html>
