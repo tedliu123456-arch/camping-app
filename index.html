@@ -246,6 +246,12 @@ function scrollToComposer() {
 }
 
 initFilters();
+
+// 加入範例貼文
+const samplePosts = `<div class="post" data-category="營地推薦"><div class="post-header"><img src="https://picsum.photos/80?random=10" class="avatar"><div><strong>Alan</strong><span class="badge">營地推薦</span><br><small style="color:#777;">2小時前 · 📍 宜蘭縣大同鄉</small></div></div><div class="post-content">推薦一個超棒的露營地！🌲 位於宜蘭縣大同鄉的「太平山莊」，夏天可以賞螢火蟲，冬天看雪景，一年四季都有不同風貌～<br><br>🚗 開車可達<br>⛺ 營位充足<br>🌲 原始森林環繞</div><img src="https://picsum.photos/600/400?random=11"><div class="reaction-bar"><div class="reaction-btn">👍 42</div><div class="reaction-btn">❤️ 28</div><div class="reaction-btn">💬 5</div><div>🔖</div></div></div>
+<div class="post" data-category="裝備分享"><div class="post-header"><img src="https://picsum.photos/80?random=12" class="avatar"><div><strong>Luna</strong><span class="badge">裝備分享</span><br><small style="color:#777;">5小時前 · 📍 新北市</small></div></div><div class="post-content">我的新帳篷開箱！🏕️ 這次入手了 MSR Hubba Hubba，輕量又防水，很適合台灣山區的天氣。<br><br>優點：<br>✅ 輕量（只有1.5kg）<br>✅ 防水係數高<br>✅ 搭建簡單<br><br>缺點：💰 價格不便宜QQ</div><img src="https://picsum.photos/600/400?random=13"><div class="reaction-bar"><div class="reaction-btn">👍 65</div><div class="reaction-btn">❤️ 43</div><div class="reaction-btn">💬 12</div><div>🔖</div></div></div>
+<div class="post" data-category="美食料理"><div class="post-header"><img src="https://picsum.photos/80?random=14" class="avatar"><div><strong>Tom</strong><span class="badge">美食料理</span><br><small style="color:#777;">昨天 · 📍 台中市和平區</small></div></div><div class="post-content">露營就是要烤肉！🔥 分享一下我的烤肉秘方～<br><br>🥩 牛肉：用醬油、味醂、糖調味<br>🥬 蔬菜：玉米、甜椒、杏鮑菇<br>🍺 啤酒：台灣精釀<br><br>大家露營都吃什麼？</div><img src="https://picsum.photos/600/400?random=15"><div class="reaction-bar"><div class="reaction-btn">👍 89</div><div class="reaction-btn">❤️ 67</div><div class="reaction-btn">💬 23</div><div>🔖</div></div></div>`;
+document.getElementById('postList').innerHTML = samplePosts;
 </script>
 </body>
 </html>
