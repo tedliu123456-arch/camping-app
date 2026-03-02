@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v11.0</title>
+  <title>露營趣 v11.1</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
@@ -35,7 +35,7 @@
   </style>
 </head>
 <body>
-  <header>露營趣 v11.0</header>
+  <header>露營趣 v11.1</header>
 
   <div id="home" class="page active">
     <div class="swipe-container" id="postContainer"></div>
@@ -72,13 +72,18 @@
 
   <script>
     let user = localStorage.getItem("campUser") || null;
-    let posts = Array.from({ length: 5 }).map((_, i) => ({
-      id: i,
-      title: "露營分享 " + (i + 1),
-      img: "https://picsum.photos/seed/camp" + i + "/400/250",
-      votes: 0,
-      comments: []
-    }));
+    let posts = [
+      { id: 1, user: "小山", title: "合歡山星空夜", content: "第一次高山露營，星空超震撼！", img: "https://picsum.photos/seed/camp1/400/250", votes: 12, fire: 3, heart: 5, comments: ["好美！","想去！"] },
+      { id: 2, user: "露營爸", title: "親子湖畔營地", content: "小孩玩到不想回家。", img: "https://picsum.photos/seed/camp2/400/250", votes: 8, fire: 2, heart: 4, comments: [] },
+      { id: 3, user: "阿哲", title: "森林系秘境", content: "人少清幽，很放鬆。", img: "https://picsum.photos/seed/camp3/400/250", votes: 5, fire: 1, heart: 2, comments: [] },
+      { id: 4, user: "Mina", title: "海邊車宿", content: "聽著海浪聲入睡。", img: "https://picsum.photos/seed/camp4/400/250", votes: 15, fire: 6, heart: 7, comments: [] },
+      { id: 5, user: "Kevin", title: "溪邊烤肉趣", content: "溪水冰涼超消暑。", img: "https://picsum.photos/seed/camp5/400/250", votes: 3, fire: 0, heart: 1, comments: [] },
+      { id: 6, user: "露營新手", title: "第一次搭帳", content: "花了2小時才搭好。", img: "https://picsum.photos/seed/camp6/400/250", votes: 6, fire: 1, heart: 3, comments: [] },
+      { id: 7, user: "山女孩", title: "雲海日出", content: "清晨5點起床值得。", img: "https://picsum.photos/seed/camp7/400/250", votes: 18, fire: 8, heart: 9, comments: [] },
+      { id: 8, user: "老王", title: "豪華露營體驗", content: "不用自己搭帳太爽。", img: "https://picsum.photos/seed/camp8/400/250", votes: 9, fire: 2, heart: 4, comments: [] },
+      { id: 9, user: "小綠", title: "寵物友善營地", content: "毛孩跑整天。", img: "https://picsum.photos/seed/camp9/400/250", votes: 11, fire: 4, heart: 6, comments: [] },
+      { id: 10, user: "阿豪", title: "雨天露營", content: "帳篷防水很重要。", img: "https://picsum.photos/seed/camp10/400/250", votes: 4, fire: 1, heart: 2, comments: [] }
+    ];
     let currentPostId = null;
 
     function renderPosts() {
@@ -90,10 +95,12 @@
         card.innerHTML = `
           <img src="${p.img}" />
           <h3>${p.title}</h3>
+          <p><strong>@${p.user}</strong></p>
+          <p>${p.content}</p>
           <div class="votes">
-            <button onclick="vote(${p.id},1)">👍</button>
-            <button onclick="vote(${p.id},-1)">👎</button>
-            <span>${p.votes}</span>
+            <button onclick="vote(${p.id},'like')">👍 ${p.votes}</button>
+            <button onclick="vote(${p.id},'fire')">🔥 ${p.fire}</button>
+            <button onclick="vote(${p.id},'heart')">❤️ ${p.heart}</button>
             <button onclick="openComments(${p.id})">💬</button>
           </div>
         `;
@@ -102,8 +109,11 @@
       });
     }
 
-    function vote(id, val) {
-      posts.find(p => p.id === id).votes += val;
+    function vote(id, type) {
+      const post = posts.find(p => p.id === id);
+      if (type === 'like') post.votes++;
+      if (type === 'fire') post.fire++;
+      if (type === 'heart') post.heart++;
       renderPosts();
     }
 
@@ -139,10 +149,15 @@
 
     function renderShop() {
       const shop = document.getElementById("shop");
-      shop.innerHTML = [
-        { name: "森林營地", desc: "山景第一排" },
-        { name: "湖畔露營", desc: "親子首選" }
-      ].map(s => `<div class='card'><h3>${s.name}</h3><p>${s.desc}</p></div>`).join("");
+      const shops = [
+        { name: "森林營地", desc: "山景第一排", img: "https://picsum.photos/seed/shop1/400/200" },
+        { name: "湖畔露營", desc: "親子首選", img: "https://picsum.photos/seed/shop2/400/200" },
+        { name: "山野改裝", desc: "露營車改裝專家", img: "https://picsum.photos/seed/shop3/400/200" },
+        { name: "戶外補給站", desc: "裝備一次購足", img: "https://picsum.photos/seed/shop4/400/200" },
+        { name: "星空Glamping", desc: "豪華露營體驗", img: "https://picsum.photos/seed/shop5/400/200" },
+        { name: "車泊俱樂部", desc: "車宿交流改裝", img: "https://picsum.photos/seed/shop6/400/200" }
+      ];
+      shop.innerHTML = shops.map(s => `<div class='card'><img src='${s.img}'/><h3>${s.name}</h3><p>${s.desc}</p></div>`).join("");
     }
 
     function renderCommunity() {
@@ -191,10 +206,23 @@
     });
 
     function initMap() {
-      const map = L.map("map").setView([25.03, 121.56], 10);
+      const map = L.map("map").setView([23.8, 120.9], 8);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-      L.marker([25.03, 121.56]).addTo(map).bindPopup("台北露營點");
-      L.marker([24.8, 121.0]).addTo(map).bindPopup("新竹營地");
+      const campgrounds = [
+        { name: "台北露營點", lat: 25.03, lng: 121.56 },
+        { name: "新竹營地", lat: 24.8, lng: 121.0 },
+        { name: "苗栗山林營", lat: 24.5, lng: 120.9 },
+        { name: "南投清境營地", lat: 24.05, lng: 121.16 },
+        { name: "嘉義阿里山營地", lat: 23.5, lng: 120.8 },
+        { name: "台南曾文水庫營地", lat: 23.2, lng: 120.5 },
+        { name: "高雄美濃營區", lat: 22.9, lng: 120.5 },
+        { name: "花蓮海岸營地", lat: 23.9, lng: 121.6 },
+        { name: "台東鹿野高台", lat: 22.9, lng: 121.1 },
+        { name: "宜蘭礁溪營地", lat: 24.8, lng: 121.75 }
+      ];
+      campgrounds.forEach(c => {
+        L.marker([c.lat, c.lng]).addTo(map).bindPopup(c.name);
+      });
     }
 
     renderPosts();
