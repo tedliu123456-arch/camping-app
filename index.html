@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.9.0</title>
+  <title>Camping App v2.0.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -80,7 +80,7 @@
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v1.9.0</h1>
+    <h1>Camping Explorer v2.0.0</h1>
     <div>
       <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ Grid</button>
       <button class="toggle" onclick="toggleDark()">Dark Mode</button>
@@ -112,6 +112,7 @@
     <input type="number" id="maxPrice" placeholder="Max $" style="width:70px" oninput="render()" />
     <button class="btn secondary" onclick="clearFilters()">Clear</button>
     <button class="btn" id="favFilter" onclick="toggleFavFilter()">★ Favorites</button>
+    <button class="btn secondary" id="recentBtn" onclick="showRecent()">🕐 Recent</button>
     <button class="btn secondary" onclick="shuffleCamps()">🔀 Shuffle</button>
   </div>
 
@@ -130,7 +131,7 @@
   <div class="booking" id="bookingMsg">Booking Confirmed!</div>
 
   <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
-    ⌨️ Tips: Press 'D' for Dark Mode | 'G' for Grid View | 'F' for Favorites
+    ⌨️ D: Dark | G: Grid | F: Favorites | v2.0.0 | 22 camps
   </footer>
 
   <script>
@@ -166,6 +167,7 @@
     let showFavOnly = false;
     let listView = false;
     let compareList = [];
+    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')||'[]');
 
     function render() {
       const search = document.getElementById('search').value.toLowerCase();
@@ -222,11 +224,19 @@
     function openModal(name) {
       const camp = camps.find(c=>c.name===name);
       if(!camp) return;
+      
+      // Track recently viewed
+      recentlyViewed = recentlyViewed.filter(n=>n!==name);
+      recentlyViewed.unshift(name);
+      recentlyViewed = recentlyViewed.slice(0,5);
+      localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+      
       document.getElementById('modalContent').innerHTML = `
         <h2>${camp.name}</h2>
         <p>Type: ${camp.type}</p>
         <p>${camp.description}</p>
         <p><strong>$${camp.price}/night</strong></p>
+        <p class="rating">★ ${camp.rating}</p>
         <button class="btn" onclick="book()">Book Now</button>
       `;
       document.getElementById('modal').style.display='flex';
@@ -310,6 +320,22 @@
     function clearCompare(){
       compareList = [];
       render();
+    }
+
+    function showRecent(){
+      if(recentlyViewed.length === 0) return;
+      const recentCamps = camps.filter(c=>recentlyViewed.includes(c.name));
+      // Sort by recentlyViewed order
+      recentCamps.sort((a,b)=>recentlyViewed.indexOf(a.name) - recentlyViewed.indexOf(b.name));
+      let html = '<h2>Recently Viewed</h2><div style="display:flex;flex-direction:column;gap:10px;">';
+      recentCamps.forEach(c=>{
+        html += `<div style="padding:10px;background:var(--soft);border-radius:10px;cursor:pointer" onclick="openModal('${c.name}');document.getElementById('modal').style.display='flex'">
+          <strong>${c.name}</strong> - $${c.price}/night ★ ${c.rating}
+        </div>`;
+      });
+      html += '</div><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">Close</button>';
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modal').style.display='flex';
     }
 
     function showSkeleton(){
