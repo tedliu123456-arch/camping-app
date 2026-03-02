@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 露營生活社群 v5.0.0</title>
+    <title>露營趣 - 露營生活社群 v5.1.0</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -56,7 +56,7 @@
 </head>
 <body>
 <div class="header">
-    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v5.0.0</span></div>
+    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v5.1.0</span></div>
     <div>✉️</div>
 </div>
 <div id="app">
@@ -97,12 +97,22 @@
         <div class="filter-chips" id="categoryFilters"></div>
         <div id="postList"></div>
     </div>
+    <div id="explorePage" class="page">
+        <div class="filter-chips" id="exploreTabs">
+            <div class="chip active" onclick="switchExploreTab('camp',this)">營地</div>
+            <div class="chip" onclick="switchExploreTab('modify',this)">改裝店</div>
+            <div class="chip" onclick="switchExploreTab('gear',this)">用品</div>
+            <div class="chip" onclick="switchExploreTab('rental',this)">出租</div>
+        </div>
+        <div id="exploreContent" style="padding:16px;"></div>
+    </div>
     <div id="messagesPage" class="page"><div class="card">訊息功能示意</div></div>
     <div id="profilePage" class="page"><div class="card">個人頁面示意</div></div>
 </div>
 <button class="fab" onclick="scrollToComposer()">＋</button>
 <div class="bottom-nav">
     <button class="active" onclick="switchTab('community',this)">🏠<span>首頁</span></button>
+    <button onclick="switchTab('explore',this)">🧭<span>探索</span></button>
     <button onclick="switchTab('messages',this)">💬<span>訊息</span></button>
     <button onclick="switchTab('profile',this)">👤<span>個人</span></button>
 </div>
@@ -252,6 +262,58 @@ const samplePosts = `<div class="post" data-category="營地推薦"><div class="
 <div class="post" data-category="裝備分享"><div class="post-header"><img src="https://picsum.photos/80?random=12" class="avatar"><div><strong>Luna</strong><span class="badge">裝備分享</span><br><small style="color:#777;">5小時前 · 📍 新北市</small></div></div><div class="post-content">我的新帳篷開箱！🏕️ 這次入手了 MSR Hubba Hubba，輕量又防水，很適合台灣山區的天氣。<br><br>優點：<br>✅ 輕量（只有1.5kg）<br>✅ 防水係數高<br>✅ 搭建簡單<br><br>缺點：💰 價格不便宜QQ</div><img src="https://picsum.photos/600/400?random=13"><div class="reaction-bar"><div class="reaction-btn">👍 65</div><div class="reaction-btn">❤️ 43</div><div class="reaction-btn">💬 12</div><div>🔖</div></div></div>
 <div class="post" data-category="美食料理"><div class="post-header"><img src="https://picsum.photos/80?random=14" class="avatar"><div><strong>Tom</strong><span class="badge">美食料理</span><br><small style="color:#777;">昨天 · 📍 台中市和平區</small></div></div><div class="post-content">露營就是要烤肉！🔥 分享一下我的烤肉秘方～<br><br>🥩 牛肉：用醬油、味醂、糖調味<br>🥬 蔬菜：玉米、甜椒、杏鮑菇<br>🍺 啤酒：台灣精釀<br><br>大家露營都吃什麼？</div><img src="https://picsum.photos/600/400?random=15"><div class="reaction-bar"><div class="reaction-btn">👍 89</div><div class="reaction-btn">❤️ 67</div><div class="reaction-btn">💬 23</div><div>🔖</div></div></div>`;
 document.getElementById('postList').innerHTML = samplePosts;
+
+// 探索頁範例資料
+const exploreData = {
+    camp: [
+        { name: '太平山森林遊樂區', location: '宜蘭縣大同鄉', desc: '高海拔森林營地，雲海與檜木林環繞，四季皆美。', img: 'https://picsum.photos/600/400?random=21' },
+        { name: '清境小瑞士花園營地', location: '南投縣仁愛鄉', desc: '可遠眺合歡山，夜晚星空清晰，親子友善。', img: 'https://picsum.photos/600/400?random=22' },
+        { name: '墾丁後灣露營區', location: '屏東縣恆春鎮', desc: '海景第一排，適合露營車與沙灘活動。', img: 'https://picsum.photos/600/400?random=23' }
+    ],
+    modify: [
+        { name: '山野工坊露營車改裝', location: '台中市北屯區', desc: '專業露營車內裝設計，提供客製化木作與電力系統配置。', img: 'https://picsum.photos/600/400?random=24' },
+        { name: 'OffRoad 越野改裝中心', location: '桃園市八德區', desc: '專精 4x4 越野套件、車頂帳與升高套件安裝。', img: 'https://picsum.photos/600/400?random=25' }
+    ],
+    gear: [
+        { name: 'Outdoor Pro 戶外專賣店', location: '台北市中山區', desc: '販售 Snow Peak、Coleman 等品牌裝備，品項齊全。', img: 'https://picsum.photos/600/400?random=26' },
+        { name: '山系生活選物', location: '高雄市鼓山區', desc: '主打質感露營用品與風格選物，適合風格露營玩家。', img: 'https://picsum.photos/600/400?random=27' }
+    ],
+    rental: [
+        { name: 'CampGo 露營車出租', location: '新竹縣竹北市', desc: '提供 4 人座露營車日租服務，含基本炊具與寢具。', img: 'https://picsum.photos/600/400?random=28' },
+        { name: 'RV Life 休旅車租賃', location: '台南市安平區', desc: '豪華型露營車，適合家庭長途旅行，附發電機與冷氣。', img: 'https://picsum.photos/600/400?random=29' }
+    ]
+};
+
+function switchExploreTab(type, el) {
+    document.querySelectorAll('#exploreTabs .chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    renderExplore(type);
+}
+
+function renderExplore(type) {
+    const container = document.getElementById('exploreContent');
+    container.innerHTML = '';
+    exploreData[type].forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.borderRadius = '16px';
+        card.style.overflow = 'hidden';
+        card.style.marginBottom = '16px';
+        card.innerHTML = `
+            <img src="${item.img}" style="width:100%;height:180px;object-fit:cover;">
+            <div style="padding:14px;">
+                <strong style="font-size:16px;">${item.name}</strong><br>
+                <small style="color:#777;">📍 ${item.location}</small>
+                <p style="margin-top:8px;font-size:14px;line-height:1.5;">${item.desc}</p>
+                <button class="btn btn-primary" style="margin-top:10px;">查看詳情</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// 初始化探索頁
+renderExplore('camp');
 </script>
 </body>
 </html>
