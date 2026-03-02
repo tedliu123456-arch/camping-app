@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.8.0</title>
+  <title>Camping App v1.9.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -80,7 +80,7 @@
 </head>
 <body>
   <header>
-    <h1>Camping Explorer v1.8.0</h1>
+    <h1>Camping Explorer v1.9.0</h1>
     <div>
       <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ Grid</button>
       <button class="toggle" onclick="toggleDark()">Dark Mode</button>
@@ -102,6 +102,12 @@
       <option value="name">Name A → Z</option>
       <option value="rating">Rating ★</option>
     </select>
+    <select id="minRating" onchange="render()" style="width:90px">
+      <option value="">Any Rating</option>
+      <option value="4.5">4.5+ ★</option>
+      <option value="4.0">4.0+ ★</option>
+      <option value="3.5">3.5+ ★</option>
+    </select>
     <input type="number" id="minPrice" placeholder="Min $" style="width:70px" oninput="render()" />
     <input type="number" id="maxPrice" placeholder="Max $" style="width:70px" oninput="render()" />
     <button class="btn secondary" onclick="clearFilters()">Clear</button>
@@ -122,6 +128,10 @@
   </div>
 
   <div class="booking" id="bookingMsg">Booking Confirmed!</div>
+
+  <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
+    ⌨️ Tips: Press 'D' for Dark Mode | 'G' for Grid View | 'F' for Favorites
+  </footer>
 
   <script>
     const campData = [
@@ -162,6 +172,7 @@
       const filter = document.getElementById('filter').value;
       const minPrice = parseInt(document.getElementById('minPrice').value) || 0;
       const maxPrice = parseInt(document.getElementById('maxPrice').value) || Infinity;
+      const minRating = parseFloat(document.getElementById('minRating').value) || 0;
       grid.innerHTML = '';
       grid.classList.toggle('list-view', listView);
 
@@ -170,6 +181,7 @@
         (filter === '' || c.type === filter) &&
         c.price >= minPrice &&
         c.price <= maxPrice &&
+        c.rating >= minRating &&
         (!showFavOnly || favorites.includes(c.name))
       );
 
@@ -245,6 +257,7 @@
       document.getElementById('search').value = '';
       document.getElementById('filter').value = '';
       document.getElementById('sort').value = '';
+      document.getElementById('minRating').value = '';
       document.getElementById('minPrice').value = '';
       document.getElementById('maxPrice').value = '';
       showFavOnly = false;
@@ -309,6 +322,12 @@
 
     showSkeleton();
     setTimeout(render,1200);
+
+    document.addEventListener('keydown', e => {
+      if(e.key==='d'||e.key==='D') toggleDark();
+      if(e.key==='g'||e.key==='G') toggleView();
+      if(e.key==='f'||e.key==='F') toggleFavFilter();
+    });
   </script>
 </body>
 </html>
