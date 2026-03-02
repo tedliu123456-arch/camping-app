@@ -1,141 +1,144 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v13.1</title>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <title>Camping App v14.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    :root{--forest:#1f3d2b;--deep:#13261b;--sand:#e6d5b8;--sun:#f2a65a;--cream:#f9f6ef;--sky:#b7d8c6}
-    *{box-sizing:border-box;margin:0;padding:0;font-family:"Noto Sans TC",sans-serif}
-    body{background:linear-gradient(160deg,var(--sky),var(--cream) 40%,var(--sand));color:var(--forest);min-height:100vh;overflow-x:hidden}
-    header{padding:18px;font-size:22px;font-weight:800;text-align:center;color:white;background:linear-gradient(120deg,var(--deep),var(--forest));letter-spacing:1px}
-    .container{padding:16px 16px 100px;position:relative}
-    .tab{display:none}
-    .tab.active{display:block}
-    nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);display:flex;box-shadow:0 -4px 20px rgba(0,0,0,0.1)}
-    nav button{flex:1;padding:14px;border:none;background:none;font-weight:700;color:var(--forest)}
-    nav button.active{color:white;background:linear-gradient(120deg,var(--sun),#ff7b54)}
-    input,textarea,button{padding:8px;margin:4px 0;width:100%}
-    .card{background:white;padding:14px;border-radius:16px;margin-bottom:16px;box-shadow:0 10px 30px rgba(0,0,0,0.12);transition:transform .25s,box-shadow .25s;animation:fadeIn .4s ease}
-    .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.18)}
-    .vote{cursor:pointer;margin-right:8px}
-    #map{height:300px;border-radius:8px}
-    .shop-item{background:white;border-radius:14px;margin-bottom:14px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.12);animation:fadeIn .5s ease}
-    .shop-item img{width:100%;height:140px;object-fit:cover}
-    .shop-item h4{padding:10px 12px 0}
-    .shop-item p{padding:0 12px 12px;font-size:14px;color:#555}
-    .loader{width:40px;height:40px;border:4px solid #eee;border-top:4px solid var(--sun);border-radius:50%;margin:20px auto;animation:spin 1s linear infinite}
-    .pull-indicator{position:absolute;top:-40px;left:0;right:0;text-align:center;font-size:14px;color:var(--forest);transition:.3s}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1b2430;
+      --accent: linear-gradient(135deg,#ff7e5f,#feb47b);
+      --soft: #eef2f7;
+    }
+    body.dark {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --soft: #1a2233;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at 20% 20%, #ffd6c7 0%, transparent 40%), var(--bg);
+      color: var(--text);
+      transition: .3s ease;
+      min-height:100vh;
+    }
+    header { padding: 20px; display:flex; justify-content:space-between; align-items:center; }
+    h1 { font-family:'Playfair Display', serif; font-size:28px; }
+    .toggle { cursor:pointer; padding:8px 14px; border-radius:20px; background:var(--accent); color:#fff; border:none; }
+    .controls { padding:20px; display:flex; gap:10px; flex-wrap:wrap; }
+    input, select { padding:10px; border-radius:10px; border:1px solid #ccc; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:20px; }
+    .card { background:var(--card); border-radius:18px; padding:18px; box-shadow:0 8px 20px rgba(0,0,0,0.08); transition:.3s; position:relative; }
+    .card:hover { transform:translateY(-6px); }
+    .badge { position:absolute; top:15px; right:15px; background:var(--accent); color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; }
+    .btn { margin-top:10px; margin-right:6px; padding:8px 14px; border:none; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer; }
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; }
+    .modal-content { background:var(--card); padding:30px; border-radius:20px; max-width:400px; width:90%; animation:pop .4s ease; }
+    @keyframes pop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
+    .skeleton { background:linear-gradient(90deg,#ddd 25%,#eee 50%,#ddd 75%); background-size:200% 100%; animation:shine 1.5s infinite; height:160px; border-radius:18px; }
+    @keyframes shine { to{background-position:-200% 0;} }
+    .booking { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:14px 28px; border-radius:30px; display:none; animation:slide .6s ease; }
+    @keyframes slide { from{opacity:0; transform:translate(-50%,50px);} to{opacity:1; transform:translate(-50%,0);} }
   </style>
 </head>
 <body>
-  <header>露營趣 Camping App v13.1</header>
-  <div class="container">
-    <div id="home" class="tab active">
-      <div class="pull-indicator" id="pullText">⬇ 下拉重新整理</div>
-      <h3>最新貼文</h3>
-      <div id="postList"></div>
-      <div id="loadingPosts" style="display:none" class="loader"></div>
-      <h4>發佈貼文</h4>
-      <textarea id="postContent" placeholder="分享你的露營心得..."></textarea>
-      <button onclick="addPost()">發佈</button>
-    </div>
-    <div id="mapTab" class="tab">
-      <h3>營地地圖</h3>
-      <div id="map"></div>
-    </div>
-    <div id="shop" class="tab">
-      <h3>露營商家</h3>
-      <input id="shopSearch" placeholder="搜尋商家" oninput="renderShops()"/>
-      <div id="shopList"></div>
-    </div>
-    <div id="community" class="tab">
-      <h3>搜尋貼文</h3>
-      <input id="searchInput" placeholder="關鍵字" oninput="renderPosts()"/>
-    </div>
-    <div id="me" class="tab">
-      <div id="authArea"></div>
-      <div id="memberArea" style="display:none">
-        <h4>會員 QR Code</h4>
-        <div id="qrcode"></div>
-        <h4>預約營地</h4>
-        <input type="date" id="bookDate"/>
-        <button onclick="bookCamp()">預約</button>
-        <div id="bookingList"></div>
-      </div>
-    </div>
+  <header>
+    <h1>Camping Explorer v14.0</h1>
+    <button class="toggle" onclick="toggleDark()">Dark Mode</button>
+  </header>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search camps..." oninput="render()" />
+    <select id="filter" onchange="render()">
+      <option value="">All Types</option>
+      <option value="Forest">Forest</option>
+      <option value="Lake">Lake</option>
+      <option value="Mountain">Mountain</option>
+    </select>
   </div>
-  <nav>
-    <button onclick="switchTab('home')" class="active">首頁</button>
-    <button onclick="switchTab('mapTab')">地圖</button>
-    <button onclick="switchTab('shop')">商家</button>
-    <button onclick="switchTab('community')">社群</button>
-    <button onclick="switchTab('me')">我的</button>
-  </nav>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="modal" id="modal" onclick="closeModal(event)">
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+
+  <div class="booking" id="bookingMsg">Booking Confirmed!</div>
+
   <script>
-    const tabs=document.querySelectorAll('.tab');
-    const navBtns=document.querySelectorAll('nav button');
-    function switchTab(id){tabs.forEach(t=>t.classList.remove('active'));navBtns.forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');event.target.classList.add('active')}
-    function renderAuth(){const user=localStorage.getItem('user');const area=document.getElementById('authArea');if(!user){area.innerHTML=`<h4>登入</h4><input id='username' placeholder='輸入名稱'/><button onclick='login()'>登入</button>`;document.getElementById('memberArea').style.display='none'}else{area.innerHTML=`<p>歡迎 ${user}</p><button onclick='logout()'>登出</button>`;document.getElementById('memberArea').style.display='block';document.getElementById('qrcode').innerHTML='';new QRCode(document.getElementById('qrcode'),user);renderBookings()}}
-    function login(){const name=document.getElementById('username').value;if(name){localStorage.setItem('user',name);renderAuth()}}
-    function logout(){localStorage.removeItem('user');location.reload()}
-    function getPosts(){return JSON.parse(localStorage.getItem('posts')||'[]')}
-    function savePosts(p){localStorage.setItem('posts',JSON.stringify(p))}
-    function addPost(){const c=document.getElementById('postContent').value;if(!c)return;const p=getPosts();p.unshift({id:Date.now(),content:c,votes:0,comments:[]});savePosts(p);renderPosts();document.getElementById('postContent').value=''}
-    function vote(id){const p=getPosts();const t=p.find(x=>x.id===id);t.votes++;savePosts(p);renderPosts()}
-    function addComment(id){const text=document.getElementById('c'+id).value;const p=getPosts();const t=p.find(x=>x.id===id);t.comments.push(text);savePosts(p);renderPosts()}
-    function renderPosts(){const k=document.getElementById('searchInput')?.value||'';const list=document.getElementById('postList');list.innerHTML='';getPosts().filter(p=>p.content.includes(k)).forEach(p=>{const d=document.createElement('div');d.className='card';d.innerHTML=`<p>${p.content}</p><span class='vote' onclick='vote(${p.id})'>👍 ${p.votes}</span><div>${p.comments.map(c=>`<p>💬 ${c}</p>`).join('')}<input id='c${p.id}' placeholder='留言...'/><button onclick='addComment(${p.id})'>留言</button></div>`;list.appendChild(d)})}
-    const shops=[
-      "山林裝備","露營達人","戶外生活館","野營部落","山野選物","森林補給站","露營王國","野趣戶外",
-      "高山裝備","自然系生活","戶外玩家","山系風格店","帳篷專門店","露營工坊","野外實驗室",
-      "山林補給","戶外倉庫","探索者","森活選品","營火小舖","山丘選物","旅人裝備"
-    ];
-    function renderShops(){
-      const q=document.getElementById('shopSearch').value||'';
-      const list=document.getElementById('shopList');
-      list.innerHTML='';
-      shops.filter(s=>s.includes(q)).forEach((s,i)=>{
-        list.innerHTML+=`<div class='shop-item'>
-          <img src='https://picsum.photos/seed/shop${i}/400/300'>
-          <h4>${s}</h4>
-          <p>高品質露營裝備與戶外選品，讓旅程更美好。</p>
-        </div>`
-      })
-    }
-    function bookCamp(){const d=document.getElementById('bookDate').value;if(!d)return;const b=JSON.parse(localStorage.getItem('bookings')||'[]');b.push(d);localStorage.setItem('bookings',JSON.stringify(b));renderBookings()}
-    function renderBookings(){const list=document.getElementById('bookingList');list.innerHTML='';const b=JSON.parse(localStorage.getItem('bookings')||'[]');b.forEach(x=>list.innerHTML+=`<p>📅 ${x}</p>`)}
-    const camps=[
-      {n:"台中大坑營地",c:[24.1477,120.6736]},{n:"新竹五峰營地",c:[24.632,121.12]},{n:"南投清境營地",c:[24.05,121.16]},
-      {n:"花蓮鯉魚潭",c:[23.97,121.55]},{n:"台東鹿野",c:[22.9,121.13]},{n:"嘉義阿里山",c:[23.51,120.8]},
-      {n:"宜蘭礁溪",c:[24.82,121.77]},{n:"苗栗南庄",c:[24.6,120.99]},{n:"屏東墾丁",c:[21.95,120.8]},
-      {n:"桃園復興",c:[24.8,121.37]},{n:"台南梅嶺",c:[23.2,120.5]},{n:"高雄美濃",c:[22.9,120.54]},
-      {n:"彰化田尾",c:[23.9,120.52]},{n:"雲林草嶺",c:[23.6,120.7]},{n:"基隆暖暖",c:[25.1,121.73]},
-      {n:"澎湖湖西",c:[23.6,119.65]},{n:"金門太武山",c:[24.43,118.32]},{n:"蘭嶼紅頭",c:[22.05,121.55]},
-      {n:"綠島朝日",c:[22.66,121.47]},{n:"新北坪林",c:[24.93,121.71]},{n:"台北陽明山",c:[25.16,121.55]}
-    ];
-    const map=L.map('map').setView([23.7,121],7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    camps.forEach(x=>L.marker(x.c).addTo(map).bindPopup(x.n));
+    const camps = Array.from({length:22}, (_,i)=>({
+      name:`Camp ${i+1}`,
+      type:["Forest","Lake","Mountain"][i%3],
+      price:50 + i*5,
+      description:"Beautiful scenery and peaceful vibes with full facilities."
+    }));
 
-    function simulateLoading(){
-      const loader=document.getElementById('loadingPosts');
-      loader.style.display='block';
-      setTimeout(()=>{loader.style.display='none';renderPosts()},600);
+    const grid = document.getElementById('grid');
+
+    function render() {
+      const search = document.getElementById('search').value.toLowerCase();
+      const filter = document.getElementById('filter').value;
+      grid.innerHTML = '';
+
+      const filtered = camps.filter(c =>
+        c.name.toLowerCase().includes(search) &&
+        (filter === '' || c.type === filter)
+      );
+
+      if (!filtered.length) { grid.innerHTML = '<p>No camps found.</p>'; return; }
+
+      filtered.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="badge">${c.type}</div>
+          <h3>${c.name}</h3>
+          <p>$${c.price}/night</p>
+          <button class="btn" onclick="openModal('${c.name}')">Shop</button>
+          <button class="btn" onclick="book()">Book</button>
+        `;
+        grid.appendChild(card);
+      });
     }
 
-    let startY=0;
-    document.getElementById('home').addEventListener('touchstart',e=>startY=e.touches[0].clientY);
-    document.getElementById('home').addEventListener('touchend',e=>{
-      const diff=e.changedTouches[0].clientY-startY;
-      if(diff>80){document.getElementById('pullText').innerText='🔄 重新整理中...';simulateLoading();setTimeout(()=>document.getElementById('pullText').innerText='⬇ 下拉重新整理',800)}
-    });
+    function openModal(name) {
+      const camp = camps.find(c=>c.name===name);
+      document.getElementById('modalContent').innerHTML = `
+        <h2>${camp.name}</h2>
+        <p>Type: ${camp.type}</p>
+        <p>${camp.description}</p>
+        <p><strong>$${camp.price}/night</strong></p>
+        <button class="btn" onclick="book()">Book Now</button>
+      `;
+      document.getElementById('modal').style.display='flex';
+    }
 
-    renderAuth();renderPosts();renderShops();
+    function closeModal(e){ if(e.target.id==='modal') document.getElementById('modal').style.display='none'; }
+
+    function book(){
+      const msg=document.getElementById('bookingMsg');
+      msg.style.display='block';
+      setTimeout(()=>msg.style.display='none',2000);
+      document.getElementById('modal').style.display='none';
+    }
+
+    function toggleDark(){ document.body.classList.toggle('dark'); }
+
+    function showSkeleton(){
+      for(let i=0;i<6;i++){
+        const s=document.createElement('div');
+        s.className='skeleton';
+        grid.appendChild(s);
+      }
+    }
+
+    showSkeleton();
+    setTimeout(render,1200);
   </script>
 </body>
 </html>
