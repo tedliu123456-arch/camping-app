@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v18.1</title>
+  <title>露營趣 v18.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -158,6 +158,34 @@
   <section>
     <h2>附近營地地圖</h2>
     <iframe width="100%" height="300" src="https://maps.google.com/maps?q=Taiwan%20camping&t=&z=10&ie=UTF8&iwloc=&output=embed"></iframe>
+  </section>
+
+  <section>
+    <h2>🏕️ 熱門營地推薦</h2>
+    <div class="tiers">
+      <div class="card">
+        <h3>星空露營區</h3>
+        <p>⭐ 4.8 (256則評論)</p>
+        <div style="margin:10px 0;">
+          <span style="background:#e0ffe0;padding:3px 8px;border-radius:10px;font-size:12px;">🌙 觀星</span>
+          <span style="background:#e0e0ff;padding:3px 8px;border-radius:10px;font-size:12px;">🚿 熱水</span>
+          <span style="background:#ffe0e0;padding:3px 8px;border-radius:10px;font-size:12px;">📶 WiFi</span>
+        </div>
+        <button onclick="contactCamp('星空露營區','0912345678')">📞 聯絡營地</button>
+        <button onclick="messageCamp('星空露營區')" style="background:#3182ce;">💬 傳訊息</button>
+      </div>
+      <div class="card">
+        <h3>森林親子營地</h3>
+        <p>⭐ 4.6 (189則評論)</p>
+        <div style="margin:10px 0;">
+          <span style="background:#e0ffe0;padding:3px 8px;border-radius:10px;font-size:12px;">🌲 森林</span>
+          <span style="background:#ffe0e0;padding:3px 8px;border-radius:10px;font-size:12px;">👶 親子</span>
+          <span style="background:#e0e0ff;padding:3px 8px;border-radius:10px;font-size:12px;">🍖 烤肉</span>
+        </div>
+        <button onclick="contactCamp('森林親子營地','0987654321')">📞 聯絡營地</button>
+        <button onclick="messageCamp('森林親子營地')" style="background:#3182ce;">💬 傳訊息</button>
+      </div>
+    </div>
   </section>
 
   <section>
@@ -443,6 +471,21 @@
       document.getElementById('commentName').value = '';
       document.getElementById('commentText').value = '';
       alert('評論發布成功！');
+    }
+    
+    // 聯絡營地功能
+    function contactCamp(name, phone) {
+      if (confirm('是否要撥打 ' + name + ' 的電話 ' + phone + ' ？')) {
+        window.location.href = 'tel:' + phone;
+      }
+    }
+    
+    // 傳訊息給營地
+    function messageCamp(name) {
+      const msg = prompt('輸入要傳給 ' + name + ' 的訊息：');
+      if (msg) {
+        alert('訊息已傳送：' + msg + '\n\n' + name + ' 將盡快回覆您！');
+      }
     }
     
     // 表單提交後清空
