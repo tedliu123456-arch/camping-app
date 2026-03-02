@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>露營趣 - 露營生活社群 v6.0.0</title>
+    <title>露營趣 - 露營生活社群 v7.0.0</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -71,7 +71,7 @@
 </head>
 <body>
 <div class="header">
-    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v6.0.0</span></div>
+    <div class="logo"><div class="ig-logo"></div> 露營趣 <span class="version">v7.0.0</span></div>
     <div id="authArea">
         <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" onclick="openLogin()">登入</button>
     </div>
@@ -194,6 +194,7 @@ const firebaseConfig = {
 };
 
 let currentUser = null;
+let db = null;
 
 function openLogin(){ document.getElementById('loginModal').style.display='flex'; }
 function closeLogin(){ document.getElementById('loginModal').style.display='none'; }
@@ -201,18 +202,26 @@ function closeLogin(){ document.getElementById('loginModal').style.display='none
 function simpleLogin(){
     const name = document.getElementById('usernameLogin').value.trim();
     if(!name) return;
-    currentUser = { name, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random` };
-    localStorage.setItem('campUser', JSON.stringify(currentUser));
-    afterLogin();
+    firebase.auth().signInAnonymously().then(res=>{
+        const user = res.user;
+        const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+        return db.collection('profiles').doc(user.uid).set({
+            name,
+            avatar,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        },{merge:true});
+    });
 }
 
 function googleLogin(){
     if(!window.firebase){ alert('尚未設定 Firebase'); return; }
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider).then(result=>{
-        currentUser = { name: result.user.displayName, avatar: result.user.photoURL };
-        localStorage.setItem('campUser', JSON.stringify(currentUser));
-        afterLogin();
+        return db.collection('profiles').doc(result.user.uid).set({
+            name: result.user.displayName,
+            avatar: result.user.photoURL,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        },{merge:true});
     });
 }
 
@@ -237,10 +246,7 @@ function renderAuthHeader(){
 }
 
 function logout(){
-    currentUser = null;
-    localStorage.removeItem('campUser');
-    renderAuthHeader();
-    renderProfile();
+    firebase.auth().signOut();
 }
 
 function renderProfile(){
@@ -293,34 +299,18 @@ function previewImage(e) {
 function addPost() {
     const text = document.getElementById('postInput').value.trim();
     if (!text) return;
-    const list = document.getElementById('postList');
     const category = document.getElementById('postCategory').value;
     const preview = document.getElementById('imagePreview').src;
-    const card = document.createElement('div');
-    card.className = 'post';
-    card.setAttribute('data-category', category);
-    card.style.position = 'relative';
-    const authorName = currentUser ? currentUser.name : '你';
-    const authorAvatar = currentUser ? currentUser.avatar : 'https://picsum.photos/80?random=9';
-    card.innerHTML = `
-        <div class="post-header">
-            <img src="${authorAvatar}" class="avatar">
-            <div>
-                <strong>${authorName}</strong><span class="badge">${category}</span><br>
-                <small style="color:#777;">${new Date().toLocaleString()} ${document.getElementById('locationInput').value ? '· 📍 ' + document.getElementById('locationInput').value : ''}</small>
-            </div>
-        </div>
-        <div class="post-content">${text}</div>
-        ${preview ? `<img src="${preview}">` : ''}
-        ${document.getElementById('videoPreview').src ? `<video src="${document.getElementById('videoPreview').src}" controls></video>` : ''}
-        <div class="reaction-bar">
-            <div class="reaction-btn">👍</div>
-            <div class="reaction-btn" onclick="heartBurst(event)">❤️</div>
-            <div class="reaction-btn">💬</div>
-            <div>🔖</div>
-        </div>
-    `;
-    list.prepend(card);
+    const location = document.getElementById('locationInput').value;
+    db.collection('posts').add({
+        text,
+        category,
+        image: preview || null,
+        video: document.getElementById('videoPreview').src || null,
+        location: location || null,
+        authorId: currentUser.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
     document.getElementById('postInput').value = '';
     document.getElementById('imageInput').value = '';
     document.getElementById('imagePreview').style.display = 'none';
@@ -396,32 +386,64 @@ function scrollToComposer() {
 
 initFilters();
 
-// 加入範例貼文
-const samplePosts = `<div class="post" data-category="營地推薦"><div class="post-header"><img src="https://picsum.photos/80?random=10" class="avatar"><div><strong>Alan</strong><span class="badge">營地推薦</span><br><small style="color:#777;">2小時前 · 📍 宜蘭縣大同鄉</small></div></div><div class="post-content">推薦一個超棒的露營地！🌲 位於宜蘭縣大同鄉的「太平山莊」，夏天可以賞螢火蟲，冬天看雪景，一年四季都有不同風貌～<br><br>🚗 開車可達<br>⛺ 營位充足<br>🌲 原始森林環繞</div><img src="https://picsum.photos/600/400?random=11"><div class="reaction-bar"><div class="reaction-btn">👍 42</div><div class="reaction-btn">❤️ 28</div><div class="reaction-btn">💬 5</div><div>🔖</div></div></div>
-<div class="post" data-category="裝備分享"><div class="post-header"><img src="https://picsum.photos/80?random=12" class="avatar"><div><strong>Luna</strong><span class="badge">裝備分享</span><br><small style="color:#777;">5小時前 · 📍 新北市</small></div></div><div class="post-content">我的新帳篷開箱！🏕️ 這次入手了 MSR Hubba Hubba，輕量又防水，很適合台灣山區的天氣。<br><br>優點：<br>✅ 輕量（只有1.5kg）<br>✅ 防水係數高<br>✅ 搭建簡單<br><br>缺點：💰 價格不便宜QQ</div><img src="https://picsum.photos/600/400?random=13"><div class="reaction-bar"><div class="reaction-btn">👍 65</div><div class="reaction-btn">❤️ 43</div><div class="reaction-btn">💬 12</div><div>🔖</div></div></div>
-<div class="post" data-category="美食料理"><div class="post-header"><img src="https://picsum.photos/80?random=14" class="avatar"><div><strong>Tom</strong><span class="badge">美食料理</span><br><small style="color:#777;">昨天 · 📍 台中市和平區</small></div></div><div class="post-content">露營就是要烤肉！🔥 分享一下我的烤肉秘方～<br><br>🥩 牛肉：用醬油、味醂、糖調味<br>🥬 蔬菜：玉米、甜椒、杏鮑菇<br>🍺 啤酒：台灣精釀<br><br>大家露營都吃什麼？</div><img src="https://picsum.photos/600/400?random=15"><div class="reaction-bar"><div class="reaction-btn">👍 89</div><div class="reaction-btn">❤️ 67</div><div class="reaction-btn">💬 23</div><div>🔖</div></div></div>`;
-document.getElementById('postList').innerHTML = samplePosts;
+function renderPostsRealtime(){
+    db.collection('posts').orderBy('createdAt','desc').onSnapshot(async snap=>{
+        const list = document.getElementById('postList');
+        list.innerHTML='';
+        for(const doc of snap.docs){
+            const post = doc.data();
+            const profileDoc = await db.collection('profiles').doc(post.authorId).get();
+            const profile = profileDoc.data() || {name:'使用者',avatar:'https://picsum.photos/80?random=9'};
+            const card = document.createElement('div');
+            card.className='post';
+            card.setAttribute('data-category', post.category);
+            card.innerHTML=`
+            <div class="post-header">
+                <img src="${profile.avatar}" class="avatar">
+                <div>
+                    <strong>${profile.name}</strong><span class="badge">${post.category}</span><br>
+                    <small style="color:#777;">${post.location? '📍 '+post.location:''}</small>
+                </div>
+            </div>
+            <div class="post-content">${post.text}</div>
+            ${post.image? `<img src="${post.image}">`:''}
+            ${post.video? `<video src="${post.video}" controls></video>`:''}
+            <div class="reaction-bar">
+                <div class="reaction-btn">👍</div>
+                <div class="reaction-btn" onclick="heartBurst(event)">❤️</div>
+                <div class="reaction-btn">💬</div>
+                <div>🔖</div>
+            </div>`;
+            list.appendChild(card);
+        }
+        filterPosts();
+    });
+}
 
 // 探索頁範例資料
-const exploreData = {
-    camp: [
-        { name: '太平山森林遊樂區', location: '宜蘭縣大同鄉', desc: '高海拔森林營地，雲海與檜木林環繞，四季皆美。', img: 'https://picsum.photos/600/400?random=21' },
-        { name: '清境小瑞士花園營地', location: '南投縣仁愛鄉', desc: '可遠眺合歡山，夜晚星空清晰，親子友善。', img: 'https://picsum.photos/600/400?random=22' },
-        { name: '墾丁後灣露營區', location: '屏東縣恆春鎮', desc: '海景第一排，適合露營車與沙灘活動。', img: 'https://picsum.photos/600/400?random=23' }
-    ],
-    modify: [
-        { name: '山野工坊露營車改裝', location: '台中市北屯區', desc: '專業露營車內裝設計，提供客製化木作與電力系統配置。', img: 'https://picsum.photos/600/400?random=24' },
-        { name: 'OffRoad 越野改裝中心', location: '桃園市八德區', desc: '專精 4x4 越野套件、車頂帳與升高套件安裝。', img: 'https://picsum.photos/600/400?random=25' }
-    ],
-    gear: [
-        { name: 'Outdoor Pro 戶外專賣店', location: '台北市中山區', desc: '販售 Snow Peak、Coleman 等品牌裝備，品項齊全。', img: 'https://picsum.photos/600/400?random=26' },
-        { name: '山系生活選物', location: '高雄市鼓山區', desc: '主打質感露營用品與風格選物，適合風格露營玩家。', img: 'https://picsum.photos/600/400?random=27' }
-    ],
-    rental: [
-        { name: 'CampGo 露營車出租', location: '新竹縣竹北市', desc: '提供 4 人座露營車日租服務，含基本炊具與寢具。', img: 'https://picsum.photos/600/400?random=28' },
-        { name: 'RV Life 休旅車租賃', location: '台南市安平區', desc: '豪華型露營車，適合家庭長途旅行，附發電機與冷氣。', img: 'https://picsum.photos/600/400?random=29' }
-    ]
-};
+function renderExplore(type) {
+    const container = document.getElementById('exploreContent');
+    db.collection('explore').where('type','==',type).onSnapshot(snap=>{
+        container.innerHTML='';
+        snap.forEach(doc=>{
+            const item=doc.data();
+            const card=document.createElement('div');
+            card.className='card';
+            card.style.borderRadius='16px';
+            card.style.overflow='hidden';
+            card.style.marginBottom='16px';
+            card.innerHTML=`
+                <img src="${item.img}" style="width:100%;height:180px;object-fit:cover;">
+                <div style="padding:14px;">
+                    <strong style="font-size:16px;">${item.name}</strong><br>
+                    <small style="color:#777;">📍 ${item.location}</small>
+                    <p style="margin-top:8px;font-size:14px;line-height:1.5;">${item.desc}</p>
+                    <button class="btn btn-primary" style="margin-top:10px;">查看詳情</button>
+                </div>`;
+            container.appendChild(card);
+        });
+    });
+}
 
 function switchExploreTab(type, el) {
     document.querySelectorAll('#exploreTabs .chip').forEach(c=>c.classList.remove('active'));
@@ -452,20 +474,32 @@ function renderExplore(type) {
 }
 
 // 初始化探索頁
-renderExplore('camp');
+// renderExplore called after Firebase init
 
-// 初始化使用者
-const saved = localStorage.getItem('campUser');
-if(saved){ currentUser = JSON.parse(saved); }
-renderAuthHeader();
-renderProfile();
+// Firebase CDN
 </script>
 <!-- Firebase CDN -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 if(window.firebase){
     firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebase.auth().onAuthStateChanged(async user=>{
+        if(user){
+            const doc = await db.collection('profiles').doc(user.uid).get();
+            currentUser = { uid:user.uid, ...doc.data() };
+            renderAuthHeader();
+            renderProfile();
+        }else{
+            currentUser=null;
+            renderAuthHeader();
+            renderProfile();
+        }
+    });
+    renderPostsRealtime();
+    renderExplore('camp');
 }
 </script>
 </body>
