@@ -1,518 +1,135 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營探索 v16.1</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>露營趣 v17.0</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #f4f7fb;
-      --card: #ffffff;
-      --text: #1b2430;
-      --accent: linear-gradient(135deg,#ff7e5f,#feb47b);
-      --soft: #eef2f7;
-      --radius: 18px;
-    }
-    body.dark {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --text: #f1f5f9;
-      --soft: #1a2233;
-    }
-    * { box-sizing: border-box; margin:0; padding:0; }
-    body {
-      font-family: 'Outfit', sans-serif;
-      background:
-        radial-gradient(circle at 20% 20%, #ffd6c7 0%, transparent 40%),
-        radial-gradient(circle at 80% 0%, #c7e9ff 0%, transparent 40%),
-        var(--bg);
-      color: var(--text);
-      transition: background .4s ease, color .3s ease;
-      min-height:100vh;
-      overflow-x:hidden;
-    }
-    header { padding: 20px; display:flex; justify-content:space-between; align-items:center; }
-    h1 { font-family:'Playfair Display', serif; font-size:28px; }
-    .toggle { cursor:pointer; padding:8px 14px; border-radius:20px; background:var(--accent); color:#fff; border:none; }
-    .controls { padding:20px; display:flex; gap:10px; flex-wrap:wrap; }
-    input, select { padding:10px; border-radius:10px; border:1px solid #ccc; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; padding:20px; }
-    .card { 
-      background:var(--card); 
-      border-radius:var(--radius); 
-      padding:18px; 
-      box-shadow:0 10px 25px rgba(0,0,0,0.08); 
-      transition:transform .3s ease, box-shadow .3s ease;
-      position:relative; 
-      opacity:0;
-      transform:translateY(20px);
-      animation:fadeUp .6s forwards;
-    }
-    .card:hover { transform:translateY(-8px) scale(1.02); box-shadow:0 16px 35px rgba(0,0,0,0.12);} 
-    .badge { position:absolute; top:15px; right:15px; background:var(--accent); color:#fff; padding:4px 10px; border-radius:12px; font-size:12px; }
-    .btn { margin-top:10px; margin-right:6px; padding:8px 14px; border:none; border-radius:12px; background:var(--accent); color:#fff; cursor:pointer; }
-    .btn.secondary { background:var(--soft); color:var(--text); }
-    .btn.active { background:var(--accent); color:#fff; }
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
-    .modal-content { background:var(--card); padding:30px; border-radius:20px; max-width:400px; width:90%; animation:pop .4s ease; position:relative; }
-    .modal-content h2 { margin-bottom:15px; color:var(--text); }
-    .modal-content p { margin:8px 0; color:var(--text); opacity:0.8; }
-    .modal-close { position:absolute; top:15px; right:15px; background:none; border:none; font-size:24px; cursor:pointer; opacity:0.6; }
-    @keyframes pop { from{transform:scale(.8);opacity:0} to{transform:scale(1);opacity:1} }
-    .skeleton { background:linear-gradient(90deg,#ddd 25%,#eee 50%,#ddd 75%); background-size:200% 100%; animation:shine 1.5s infinite; height:160px; border-radius:18px; }
-    @keyframes shine { to{background-position:-200% 0;} }
-    .booking { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:14px 28px; border-radius:30px; display:none; animation:slide .6s ease; }
-    @keyframes slide { from{opacity:0; transform:translate(-50%,50px);} to{opacity:1; transform:translate(-50%,0);} }
-    @keyframes fadeUp { to{opacity:1; transform:translateY(0);} }
-    .favorite { position:absolute; top:15px; left:15px; cursor:pointer; font-size:18px; }
-    .favorite.active { color:#ff7e5f; }
-    .stats { padding:0 20px 10px; font-size:14px; opacity:.7; }
-    .grid.list-view { display:flex; flex-direction:column; }
-    .grid.list-view .card { display:flex; align-items:center; gap:15px; padding:12px 18px; }
-    .grid.list-view .card h3 { margin:0; }
-    .grid.list-view .card .badge { position:static; display:inline-block; margin-left:10px; }
-    .grid.list-view .card .favorite { position:static; }
-    .rating { color:#feb47b; font-weight:600; margin:4px 0; }
-    .compare-bar { display:flex; position:sticky; top:0; z-index:10; }
-    .card.selected { outline:3px solid #ff7e5f; }
-    .progress-bar { position:fixed; top:0; left:0; height:4px; background:var(--accent); width:0; transition:width .3s; z-index:100; }
-    .back-to-top { position:fixed; bottom:80px; right:20px; background:var(--accent); color:#fff; width:45px; height:45px; border-radius:50%; border:none; cursor:pointer; display:none; font-size:20px; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
-    .back-to-top.show { display:block; animation:bounce .5s; }
-    @keyframes bounce { 50%{transform:translateY(-10px);} }
-    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:12px 24px; border-radius:25px; font-size:14px; opacity:0; transition:opacity .3s; z-index:200; }
-    .toast.show { opacity:1; }
+    body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); }
+    h1 { text-align:center; padding:20px; }
+    section { padding:20px; }
+    .tiers { display:flex; gap:15px; flex-wrap:wrap; }
+    .card { background:#fff; padding:15px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08); flex:1; min-width:200px; }
+    .gallery { display:flex; gap:15px; flex-wrap:wrap; }
+    .photo img { width:100%; border-radius:12px; }
+    button { margin-top:10px; padding:8px 14px; border:none; border-radius:8px; background:#2f855a; color:#fff; cursor:pointer; }
+    button:hover { background:#276749; }
+    form { display:flex; flex-direction:column; gap:10px; max-width:400px; }
+    input, select { padding:8px; border-radius:8px; border:1px solid #ccc; }
+    .marquee { overflow:hidden; background:#2f855a; color:#fff; }
+    .track { display:inline-block; padding:10px; white-space:nowrap; animation:scroll 12s linear infinite; }
+    @keyframes scroll { from { transform:translateX(100%);} to { transform:translateX(-100%);} }
+    @media(max-width:768px){ .tiers{flex-direction:column;} }
   </style>
 </head>
 <body>
-  <div class="progress-bar" id="progressBar"></div>
-  <header>
-    <h1>露營探索 v16.0</h1>
-    <div>
-      <button class="btn secondary" id="viewToggle" onclick="toggleView()">▦ 格狀</button>
-      <button class="toggle" onclick="toggleDark()">深色模式</button>
-      <button class="btn" onclick="installApp()" id="installBtn" style="display:none">安裝 App</button>
+  <h1>露營趣 v17.0</h1>
+
+  <div class="marquee">
+    <div class="track">🔥 春季露營節開跑！每日照片投票抽好禮！商家方案限時優惠中！🔥</div>
+  </div>
+
+  <section>
+    <h2>會員等級</h2>
+    <div class="tiers">
+      <div class="card">
+        <h3>普通會員</h3>
+        <ul>
+          <li>每日2次照片投票</li>
+          <li>可預約營地</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>白銀會員</h3>
+        <ul>
+          <li>每日2次照片投票</li>
+          <li>活動優先報名</li>
+          <li>專屬優惠</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>黃金會員</h3>
+        <ul>
+          <li>每日2次照片投票</li>
+          <li>活動優先報名</li>
+          <li>專屬折扣</li>
+          <li>首頁曝光</li>
+        </ul>
+      </div>
     </div>
-  </header>
-
-  <div class="controls">
-    <input type="text" id="search" placeholder="搜尋營地..." oninput="render()" />
-    <select id="filter" onchange="render()">
-      <option value="">全部類型</option>
-      <option value="Forest">森林</option>
-      <option value="Lake">湖畔</option>
-      <option value="Mountain">山區</option>
-    </select>
-    <select id="sort" onchange="render()">
-      <option value="">排序</option>
-      <option value="low">價格：低 → 高</option>
-      <option value="high">價格：高 → 低</option>
-      <option value="name">名稱 A → Z</option>
-      <option value="rating">評分 ★</option>
-    </select>
-    <select id="minRating" onchange="render()" style="width:90px">
-      <option value="">任何評分</option>
-      <option value="4.5">4.5 以上 ★</option>
-      <option value="4.0">4.0 以上 ★</option>
-      <option value="3.5">3.5 以上 ★</option>
-    </select>
-    <input type="number" id="minPrice" placeholder="最低 $" style="width:70px" oninput="render()" />
-    <input type="number" id="maxPrice" placeholder="最高 $" style="width:70px" oninput="render()" />
-    <button class="btn secondary" onclick="clearFilters()">清除</button>
-    <button class="btn" id="favFilter" onclick="toggleFavFilter()">★ 收藏</button>
-    <button class="btn secondary" id="recentBtn" onclick="showRecent()">🕐 最近瀏覽</button>
-    <button class="btn secondary" onclick="shuffleCamps()">🔀 隨機</button>
-  </div>
-
-  <div class="stats" id="stats"></div>
-  <div class="compare-bar" id="compareBar" style="display:none; padding:10px 20px; background:var(--soft); align-items:center; gap:10px;">
-    <span id="compareCount">0 個已選擇</span>
-    <button class="btn" onclick="showCompare()">比較</button>
-    <button class="btn secondary" onclick="clearCompare()">清除</button>
-  </div>
-  <div class="grid" id="grid"></div>
-
-  <div class="modal" id="modal" onclick="closeModal(event)">
-    <div class="modal-content" id="modalContent"></div>
-  </div>
-
-  <div class="booking" id="bookingMsg">預約成功！</div>
-  <div class="toast" id="toast"></div>
-
-  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-
-  <footer style="text-align:center; padding:20px; opacity:0.6; font-size:13px;">
-    ⌨️ D: 深色 | G: 格狀 | F: 收藏 | v16.1 | 22 個營地
-  </footer>
-
-  <!-- v16.0 New Systems -->
-  <section style="padding:40px 20px; background:var(--soft); margin-top:40px;">
-    <h2 style="margin-bottom:15px;">會員登入 (Mock)</h2>
-    <button class="btn" onclick="mockLogin('LINE')">LINE 登入</button>
-    <button class="btn" onclick="mockLogin('Google')">Google 登入</button>
-    <p id="memberInfo" style="margin-top:10px;"></p>
-    <canvas id="memberQR" width="120" height="120" style="margin-top:10px; display:none;"></canvas>
   </section>
 
-  <section style="padding:40px 20px;">
-    <h2>評論系統</h2>
-    <input id="globalReviewInput" placeholder="留下評論" />
-    <button class="btn" onclick="addGlobalReview()">送出</button>
-    <ul id="globalReviewList" style="margin-top:10px;"></ul>
+  <section>
+    <h2>照片投票（每日2票）</h2>
+    <div class="gallery">
+      <div class="photo">
+        <img src="https://source.unsplash.com/400x300/?camping" alt="camp1">
+        <button onclick="vote(this)">投票</button>
+      </div>
+      <div class="photo">
+        <img src="https://source.unsplash.com/400x300/?mountain,camp" alt="camp2">
+        <button onclick="vote(this)">投票</button>
+      </div>
+    </div>
+    <p id="voteCount">今日剩餘票數：2</p>
   </section>
 
-  <section style="padding:40px 20px; background:var(--soft);">
-    <h2>商家發布</h2>
-    <input id="merchantName" placeholder="營地名稱" />
-    <button class="btn" onclick="publishMerchant()">發布</button>
-
-    <h2 style="margin-top:20px;">活動發布</h2>
-    <input id="eventTitle" placeholder="活動名稱" />
-    <button class="btn" onclick="publishEvent()">發布</button>
+  <section>
+    <h2>附近營地地圖</h2>
+    <iframe width="100%" height="300" src="https://maps.google.com/maps?q=Taiwan%20camping&t=&z=10&ie=UTF8&iwloc=&output=embed"></iframe>
   </section>
 
-  <section style="padding:40px 20px;">
-    <h2>跑馬燈廣告</h2>
-    <marquee behavior="scroll" direction="left">🔥 露營趣春季優惠開跑！立即預約享 8 折優惠！</marquee>
+  <section>
+    <h2>營地預約</h2>
+    <form>
+      <input type="date" required>
+      <input type="text" placeholder="地點" required>
+      <select required>
+        <option value="">選擇方案</option>
+        <option>單日露營</option>
+        <option>豪華帳篷</option>
+      </select>
+      <button type="submit">立即預約</button>
+    </form>
   </section>
 
-  <section style="padding:40px 20px; background:var(--soft);">
-    <h2>地圖顯示</h2>
-    <iframe width="100%" height="250" src="https://maps.google.com/maps?q=Taiwan&t=&z=7&ie=UTF8&iwloc=&output=embed"></iframe>
+  <section>
+    <h2>商家方案購買</h2>
+    <div class="tiers">
+      <div class="card">
+        <h3>100元 / 半年</h3>
+        <button>購買</button>
+      </div>
+      <div class="card">
+        <h3>200元 / 一年</h3>
+        <button>購買</button>
+      </div>
+    </div>
   </section>
 
-  <section style="padding:40px 20px;">
-    <h2>預約記錄</h2>
-    <ul id="bookingHistory"></ul>
+  <section>
+    <h2>活動發布</h2>
+    <form>
+      <input type="text" placeholder="活動名稱" required>
+      <input type="date" required>
+      <input type="text" placeholder="地點" required>
+      <button type="submit">發布活動</button>
+    </form>
   </section>
 
   <script>
-    const campData = [
-      {name:"Sunny Meadow",type:"Forest",price:55,description:"Peaceful forest setting with rolling meadows and wildlife.",rating:4.5},
-      {name:"Lakeside Haven",type:"Lake",price:85,description:"Direct lake access with stunning sunset views.",rating:4.8},
-      {name:"Mountain Peak",type:"Mountain",price:120,description:"Breathtaking mountain panoramas at 2000m altitude.",rating:4.9},
-      {name:"Pine Forest",type:"Forest",price:45,description:"Dense pine forest with hiking trails.",rating:4.3},
-      {name:"Crystal Lake",type:"Lake",price:95,description:"Crystal clear waters perfect for swimming.",rating:4.7},
-      {name:"Eagle's Nest",type:"Mountain",price:150,description:"Remote mountain camp with adventure activities.",rating:4.6},
-      {name:"River Bend",type:"Forest",price:60,description:"Riverside camping with fishing opportunities.",rating:4.4},
-      {name:"Sunset Bay",type:"Lake",price:75,description:"Beautiful bay with kayaking and paddle boarding.",rating:4.5},
-      {name:"Alpine Meadow",type:"Mountain",price:110,description:"High altitude meadow with wildflowers.",rating:4.7},
-      {name:"Hidden Valley",type:"Forest",price:50,description:"Secluded valley away from crowds.",rating:4.2},
-      {name:"Starry Night",type:"Lake",price:90,description:"Minimal light pollution for stargazing.",rating:4.8},
-      {name:"Rocky Ridge",type:"Mountain",price:130,description:"Rocky terrain with rock climbing nearby.",rating:4.4},
-      {name:"Willow Creek",type:"Forest",price:55,description:"Gentle creek with willow trees.",rating:4.3},
-      {name:"Blue Horizon",type:"Lake",price:100,description:"Panoramic lake views from elevated site.",rating:4.6},
-      {name:"Cloud Peak",type:"Mountain",price:140,description:"Above the clouds with sunrise views.",rating:4.9},
-      {name:"Fern Gully",type:"Forest",price:48,description:"Lush fern-covered forest trails.",rating:4.1},
-      {name:"Mirror Lake",type:"Lake",price:88,description:"Perfect mirror-like lake reflections.",rating:4.7},
-      {name:"Thunder Ridge",type:"Mountain",price:125,description:"Dramatic thunderstorm views safely.",rating:4.5},
-      {name:"Ancient Trees",type:"Forest",price:65,description:"Camp under centuries-old giant trees.",rating:4.6},
-      {name:"Sandy Shore",type:"Lake",price:70,description:"Natural sandy beach on the lakeside.",rating:4.4},
-      {name:"Summit View",type:"Mountain",price:135,description:"360-degree views from the summit.",rating:4.8},
-      {name:"Whispering Pines",type:"Forest",price:52,description:"Pine trees that whisper in the wind.",rating:4.3}
-    ];
-    const camps = [...campData];
-
-    const grid = document.getElementById('grid');
-    const stats = document.getElementById('stats');
-    let favorites = JSON.parse(localStorage.getItem('favorites')||'[]');
-    let showFavOnly = false;
-    let listView = false;
-    let compareList = [];
-    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed')||'[]');
-
-    function render() {
-      const search = document.getElementById('search').value.toLowerCase();
-      const filter = document.getElementById('filter').value;
-      const minPrice = parseInt(document.getElementById('minPrice').value) || 0;
-      const maxPrice = parseInt(document.getElementById('maxPrice').value) || Infinity;
-      const minRating = parseFloat(document.getElementById('minRating').value) || 0;
-      grid.innerHTML = '';
-      grid.classList.toggle('list-view', listView);
-
-      let filtered = camps.filter(c =>
-        c.name.toLowerCase().includes(search) &&
-        (filter === '' || c.type === filter) &&
-        c.price >= minPrice &&
-        c.price <= maxPrice &&
-        c.rating >= minRating &&
-        (!showFavOnly || favorites.includes(c.name))
-      );
-
-      const sort = document.getElementById('sort').value;
-      if(sort==='low') filtered.sort((a,b)=>a.price-b.price);
-      if(sort==='high') filtered.sort((a,b)=>b.price-a.price);
-      if(sort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name));
-      if(sort==='rating') filtered.sort((a,b)=>b.rating-a.rating);
-
-      const minP = filtered.length ? Math.min(...filtered.map(c=>c.price)) : 0;
-      const maxP = filtered.length ? Math.max(...filtered.map(c=>c.price)) : 0;
-      stats.textContent = `${filtered.length} 個營地 · $${minP}-$${maxP}/晚 · ${favorites.length} 個收藏`;
-
-      if (!filtered.length) { grid.innerHTML = '<p>找不到符合條件的營地。</p>'; return; }
-
-      filtered.forEach(c => {
-        const card = document.createElement('div');
-        card.className = 'card' + (compareList.includes(c.name) ? ' selected' : '');
-        const isFav = favorites.includes(c.name);
-        card.style.animationDelay = `${Math.random()*0.3}s`;
-        card.innerHTML = `
-          <div class="favorite ${isFav?'active':''}" onclick="toggleFav('${c.name}')">${isFav?'★':'☆'}</div>
-          <div class="badge">${c.type}</div>
-          <h3>${c.name}</h3>
-          <p class="rating">★ ${c.rating}</p>
-          <p>$${c.price}/night</p>
-          <label style="cursor:pointer"><input type="checkbox" ${compareList.includes(c.name)?'checked':''} onchange="toggleCompare('${c.name}')"> 比較</label>
-          <button class="btn secondary" onclick="shareCamp('${c.name}')">分享</button>
-          <button class="btn" onclick="openModal('${c.name}')">詳細資訊</button>
-          <button class="btn secondary" onclick="book()">預約</button>
-        `;
-        grid.appendChild(card);
-      });
-      
-      document.getElementById('compareBar').style.display = compareList.length ? 'flex' : 'none';
-      document.getElementById('compareCount').textContent = `${compareList.length} 個已選擇`;
-    }
-
-    function openModal(name) {
-      const camp = camps.find(c=>c.name===name);
-      if(!camp) return;
-      
-      // Track recently viewed
-      recentlyViewed = recentlyViewed.filter(n=>n!==name);
-      recentlyViewed.unshift(name);
-      recentlyViewed = recentlyViewed.slice(0,5);
-      localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
-      
-      document.getElementById('modalContent').innerHTML = `
-        <h2>${camp.name}</h2>
-        <p>類型：${camp.type}</p>
-        <p>${camp.description}</p>
-        <p><strong>$${camp.price}/晚</strong></p>
-        <p class="rating">★ ${camp.rating}</p>
-        <button class="btn" onclick="book()">立即預約</button>
-      `;
-      document.getElementById('modal').style.display='flex';
-    }
-
-    function closeModal(e){ if(e.target.id==='modal') document.getElementById('modal').style.display='none'; }
-
-    function book(){
-      const msg=document.getElementById('bookingMsg');
-      msg.style.display='block';
-      setTimeout(()=>msg.style.display='none',2000);
-      document.getElementById('modal').style.display='none';
-      addBookingHistory('即時預約');
-    }
-
-    function toggleDark(){ document.body.classList.toggle('dark'); }
-
-    function toggleFav(name){
-      if(favorites.includes(name)){
-        favorites = favorites.filter(f=>f!==name);
-      }else{
-        favorites.push(name);
+    let votesLeft = 2;
+    function vote(btn){
+      if(votesLeft>0){
+        votesLeft--;
+        document.getElementById('voteCount').innerText = '今日剩餘票數：' + votesLeft;
+        btn.disabled = true;
+      } else {
+        alert('今日票數已用完');
       }
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-      render();
-    }
-
-    function clearFilters(){
-      document.getElementById('search').value = '';
-      document.getElementById('filter').value = '';
-      document.getElementById('sort').value = '';
-      document.getElementById('minRating').value = '';
-      document.getElementById('minPrice').value = '';
-      document.getElementById('maxPrice').value = '';
-      showFavOnly = false;
-      document.getElementById('favFilter').classList.remove('active');
-      render();
-    }
-
-    function shuffleCamps(){
-      for(let i=camps.length-1;i>0;i--){
-        const j=Math.floor(Math.random()*(i+1));
-        [camps[i],camps[j]]=[camps[j],camps[i]];
-      }
-      render();
-    }
-
-    function toggleFavFilter(){
-      showFavOnly = !showFavOnly;
-      const btn = document.getElementById('favFilter');
-      btn.classList.toggle('active', showFavOnly);
-      render();
-    }
-
-    function toggleView(){
-      listView = !listView;
-      document.getElementById('viewToggle').textContent = listView ? '☰ List' : '▦ Grid';
-      render();
-    }
-
-    function toggleCompare(name){
-      if(compareList.includes(name)){
-        compareList = compareList.filter(c=>c!==name);
-      }else if(compareList.length < 4){
-        compareList.push(name);
-      }
-      render();
-    }
-
-    function showCompare(){
-      const campsToCompare = camps.filter(c=>compareList.includes(c.name));
-      if(campsToCompare.length < 2) return;
-      let html = '<h2>營地比較</h2><table style="width:100%;text-align:left"><tr><th>名稱</th><th>類型</th><th>價格</th><th>評分</th></tr>';
-      campsToCompare.forEach(c=>{
-        html += `<tr><td>${c.name}</td><td>${c.type}</td><td>$${c.price}</td><td>★ ${c.rating}</td></tr>`;
-      });
-      html += '</table><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">關閉</button>';
-      document.getElementById('modalContent').innerHTML = html;
-      document.getElementById('modal').style.display='flex';
-    }
-
-    function clearCompare(){
-      compareList = [];
-      render();
-    }
-
-    function showRecent(){
-      if(recentlyViewed.length === 0) return;
-      const recentCamps = camps.filter(c=>recentlyViewed.includes(c.name));
-      // Sort by recentlyViewed order
-      recentCamps.sort((a,b)=>recentlyViewed.indexOf(a.name) - recentlyViewed.indexOf(b.name));
-      let html = '<h2>最近瀏覽</h2><div style="display:flex;flex-direction:column;gap:10px;">';
-      recentCamps.forEach(c=>{
-        html += `<div style="padding:10px;background:var(--soft);border-radius:10px;cursor:pointer" onclick="openModal('${c.name}');document.getElementById('modal').style.display='flex'">
-          <strong>${c.name}</strong> - $${c.price}/晚 ★ ${c.rating}
-        </div>`;
-      });
-      html += '</div><button class="btn" onclick="document.getElementById(\'modal\').style.display=\'none\'">關閉</button>';
-      document.getElementById('modalContent').innerHTML = html;
-      document.getElementById('modal').style.display='flex';
-    }
-
-    function showSkeleton(){
-      for(let i=0;i<6;i++){
-        const s=document.createElement('div');
-        s.className='skeleton';
-        grid.appendChild(s);
-      }
-    }
-
-    showSkeleton();
-    setTimeout(render,1200);
-
-    function showProgress(){
-      const bar = document.getElementById('progressBar');
-      bar.style.width = '30%';
-      setTimeout(()=>bar.style.width='60%',100);
-      setTimeout(()=>bar.style.width='100%',200);
-      setTimeout(()=>bar.style.width='0',500);
-    }
-
-    function showToast(msg){
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(()=>t.classList.remove('show'),2500);
-    }
-
-    function shareCamp(name){
-      const camp = camps.find(c=>c.name===name);
-      if(!camp) return;
-      const text = `看看這個營地 ${camp.name} - $${camp.price}/晚 ★ ${camp.rating}`;
-      if(navigator.share){
-        navigator.share({title:'露營探索',text});
-      }else{
-        navigator.clipboard.writeText(text);
-        alert('連結已複製！');
-      }
-    }
-
-    document.addEventListener('keydown', e => {
-      if(e.key==='d'||e.key==='D') toggleDark();
-      if(e.key==='g'||e.key==='G') toggleView();
-      if(e.key==='f'||e.key==='F') toggleFavFilter();
-    });
-
-    // PWA install prompt
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      deferredPrompt = e;
-      document.getElementById('installBtn').style.display = 'inline-block';
-    });
-
-    async function installApp(){
-      if(!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const {outcome} = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      document.getElementById('installBtn').style.display = 'none';
-    }
-
-    window.onscroll = () => {
-      document.getElementById('backToTop').classList.toggle('show', window.scrollY > 300);
-    };
-
-    // ===== v16.0 Mock Systems =====
-    let member = null;
-    let globalReviews = [];
-    let bookingRecords = [];
-
-    function mockLogin(provider){
-      member = {name: provider + ' 使用者', level:'Gold'};
-      document.getElementById('memberInfo').textContent = `歡迎 ${member.name} ｜ 等級: ${member.level}`;
-      const canvas = document.getElementById('memberQR');
-      canvas.style.display='block';
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle='#000';
-      ctx.fillRect(20,20,80,80);
-    }
-
-    function addGlobalReview(){
-      const input=document.getElementById('globalReviewInput');
-      if(!input.value) return;
-      globalReviews.push(input.value);
-      input.value='';
-      renderGlobalReviews();
-    }
-
-    function renderGlobalReviews(){
-      const ul=document.getElementById('globalReviewList');
-      ul.innerHTML='';
-      globalReviews.forEach(r=>{
-        const li=document.createElement('li');
-        li.textContent=r;
-        ul.appendChild(li);
-      });
-    }
-
-    function publishMerchant(){
-      const name=document.getElementById('merchantName').value;
-      if(!name) return;
-      camps.push({name,type:'Forest',price:80,description:'新發布營地',rating:4.0});
-      render();
-      alert('商家發布成功');
-    }
-
-    function publishEvent(){
-      const title=document.getElementById('eventTitle').value;
-      if(!title) return;
-      alert('活動發布成功: '+title);
-    }
-
-    function addBookingHistory(text){
-      bookingRecords.push(text + ' - ' + new Date().toLocaleString());
-      const ul=document.getElementById('bookingHistory');
-      ul.innerHTML='';
-      bookingRecords.forEach(b=>{
-        const li=document.createElement('li');
-        li.textContent=b;
-        ul.appendChild(li);
-      });
     }
   </script>
+
 </body>
 </html>
