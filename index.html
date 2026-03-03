@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v18.4</title>
+  <title>露營趣 v18.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -60,6 +60,28 @@
   <div class="marquee">
     <div class="track">🔥 春季露營節開跑！每日照片投票抽好禮！商家方案限時優惠中！🔥</div>
   </div>
+
+  <section>
+    <h2>💡 露營小知識</h2>
+    <div id="tipsContainer" style="display:flex;gap:15px;flex-wrap:wrap;">
+      <div class="card" style="cursor:pointer;" onclick="showTip(0)">
+        <h3>🌡️ 溫度</h3>
+        <p>高山溫差大，記得帶保暖衣物</p>
+      </div>
+      <div class="card" style="cursor:pointer;" onclick="showTip(1)">
+        <h3>🔦 照明</h3>
+        <p>攜帶手電筒和露營燈</p>
+      </div>
+      <div class="card" style="cursor:pointer;" onclick="showTip(2)">
+        <h3>🦟 防蟲</h3>
+        <p>防蚊液和蚊香必備</p>
+      </div>
+      <div class="card" style="cursor:pointer;" onclick="showTip(3)">
+        <h3>🏕️ 帳篷</h3>
+        <p>選擇防風防水的帳篷</p>
+      </div>
+    </div>
+  </section>
 
   <section id="campsSection">
     <input type="text" id="searchPosts" placeholder="🔍 搜尋文章..." oninput="filterPosts();saveSearch(this.value)" style="width:100%;padding:12px;border-radius:25px;border:1px solid #ccc;font-size:16px;">
@@ -615,6 +637,18 @@
     }
     const savedUser = localStorage.getItem('camping_user');
     if(savedUser){document.getElementById('profileInfo').innerText='歡迎，'+savedUser;}
+  </script>
+  <script>
+    // 露營小知識
+    const campingTips = [
+      '🌡️ 溫度提示：高山溫差大，白天可能20°C，晚上可能降到10°C以下。建議攜帶保暖衣物和睡袋。',
+      '🔦 照明提示：天黑後營地光線不足，記得攜帶手電筒、露營燈或頭燈，方便夜間活動。',
+      '🦟 防蟲提示：野外蚊蟲多，尤其是夏天。建議攜帶防蚊液、蚊香或電蚊拍。',
+      '🏕️ 帳篷提示：選擇帳篷時要注意防風防水功能，外帳可增加防雨效果。'
+    ];
+    function showTip(idx) {
+      alert(campingTips[idx]);
+    }
   </script>
 
   <section>
