@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v21.0</title>
+  <title>露營趣 v21.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -350,6 +350,31 @@
         <p style="margin:0;font-size:14px;">高山可能結霜，注意保暖。建議選擇低海拔營地，攜帶足夠的保暖裝備。</p>
       </div>
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4299e1,#3182ce);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🗺️ 營地搜尋</h2>
+    <p>依縣市搜尋熱門營地</p>
+    <select id="regionSearch" style="width:100%;padding:12px;border-radius:8px;border:none;margin:15px 0;font-size:16px;color:#333;">
+      <option value="">選擇縣市...</option>
+      <option value="taipei">台北、新北</option>
+      <option value="taoyuan">桃園</option>
+      <option value="hsinchu">新竹</option>
+      <option value="miaoli">苗栗</option>
+      <option value="taichung">台中</option>
+      <option value="nantou">南投</option>
+      <option value="changhua">彰化</option>
+      <option value="yunlin">雲林</option>
+      <option value="chiayi">嘉義</option>
+      <option value="tainan">台南</option>
+      <option value="kaohsiung">高雄</option>
+      <option value="pingtung">屏東</option>
+      <option value="hualien">花蓮</option>
+      <option value="taitung">台東</option>
+      <option value="yilan">宜蘭</option>
+    </select>
+    <button onclick="searchCamps()" style="background:#fff;color:#3182ce;width:100%;padding:12px;">🔍 搜尋營地</button>
+    <div id="searchResults" style="margin-top:15px;"></div>
   </section>
 
   <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
@@ -1051,6 +1076,37 @@
         items.map(item => 
           '<label style="display:block;padding:8px;background:rgba(255,255,255,0.9);color:#333;margin:5px 0;border-radius:5px;">' +
           '<input type="checkbox"> ' + item + '</label>'
+        ).join('');
+    }
+    
+    // 營地搜尋功能
+    const campData = {
+      taipei: ['烏來老字號露營區', '坪林親水吊橋營地', '淡水河岸露營區'],
+      taoyuan: ['拉拉山露營區', '石門水庫營地', '小人國主題樂園營地'],
+      hsinchu: ['雪霸休閒農場', '五峰，清泉溫泉營地', '新竹北埔冷泉營地'],
+      miaoli: ['南庄雲台山莊', '三義西湖渡假村', '公館休日休憩區'],
+      taichung: ['福壽山農場', '武陵農場', '大雪山森林遊樂區'],
+      nantou: ['日月潭水庫營地', '清境農場', '奧萬大森林遊樂區'],
+      hualien: ['太魯閣國家公園營地', '七星潭海岸營地', '瑞穗溫泉營地'],
+      taitung: ['知本溫泉露營區', '三仙台海岸營地', '綠島露營區'],
+      yilan: ['太平山森林遊樂區', '福山植物園營地', '頭城海水浴場營地']
+    };
+    
+    function searchCamps() {
+      const region = document.getElementById('regionSearch').value;
+      const container = document.getElementById('searchResults');
+      
+      if (!region) {
+        alert('請選擇縣市');
+        return;
+      }
+      
+      const camps = campData[region] || ['目前沒有資料'];
+      container.innerHTML = '<h3 style="margin:10px 0;color:#fff;">熱門營地：</h3>' + 
+        camps.map(c => 
+          '<div style="background:rgba(255,255,255,0.9);color:#333;padding:12px;margin:8px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span>' + c + '</span>' +
+          '<button onclick="addFavorite(\'' + c + '\')" style="padding:5px 10px;background:#e53e3e;">❤️</button></div>'
         ).join('');
     }
     
