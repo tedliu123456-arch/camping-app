@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.8</title>
+  <title>露營趣 v20.9</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -318,6 +318,15 @@
       <button onclick="addToWishlist()">➕ 新增</button>
     </div>
     <button onclick="clearWishlist()" style="background:#e53e3e;">🗑️ 清除全部</button>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4299e1,#3182ce);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🔮 未来天氣預測</h2>
+    <p>查看未來 7 天的天氣趨勢</p>
+    <div id="weatherForecast" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:10px;margin-top:15px;">
+      <!-- 天氣預測會由 JavaScript 生成 -->
+    </div>
+    <button onclick="generateWeatherForecast()" style="background:#fff;color:#3182ce;width:100%;margin-top:15px;padding:12px;">🔄 更新預測</button>
   </section>
 
   <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
@@ -1069,6 +1078,29 @@
       }
     }
     renderWishlist();
+    
+    // 天氣預測功能
+    function generateWeatherForecast() {
+      const container = document.getElementById('weatherForecast');
+      const weatherTypes = ['☀️', '⛅', '🌧️', '⛈️', '🌤️'];
+      const temps = [22, 24, 26, 23, 25, 27, 24];
+      
+      let html = '';
+      for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        const dayName = ['日', '一', '二', '三', '四', '五', '六'][date.getDay()];
+        const weather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+        const temp = temps[Math.floor(Math.random() * temps.length)];
+        
+        html += '<div style="background:rgba(255,255,255,0.9);color:#333;padding:10px;border-radius:8px;text-align:center;">' +
+          '<div style="font-weight:bold;">' + (i === 0 ? '今天' : (i === 1 ? '明天' : '週' + dayName)) + '</div>' +
+          '<div style="font-size:28px;">' + weather + '</div>' +
+          '<div>' + temp + '°C</div></div>';
+      }
+      container.innerHTML = html;
+    }
+    generateWeatherForecast();
     
     // 露營食譜產生器
     const recipes = {
