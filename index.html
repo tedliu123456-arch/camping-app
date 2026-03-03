@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.6</title>
+  <title>露營趣 v19.7</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -68,6 +68,34 @@
     <input type="date" id="countdownDate" style="padding:10px;border-radius:8px;border:none;margin:10px 0;">
     <button onclick="setCountdown()" style="background:#fff;color:#2f855a;padding:10px 20px;">設定倒數</button>
     <button onclick="clearCountdown()" style="background:rgba(255,255,255,0.3);color:#fff;padding:10px 20px;">清除</button>
+  </section>
+
+  <section style="background:#fff5f5;border-left:4px solid #e53e3e;padding:20px;border-radius:8px;margin:20px;">
+    <h2>🆘 緊急聯絡</h2>
+    <div id="emergencyContacts" style="display:flex;flex-wrap:wrap;gap:10px;">
+      <div class="card" style="background:#fed7d7;min-width:150px;">
+        <h3>消防隊</h3>
+        <p style="font-size:24px;">119</p>
+        <button onclick="callEmergency('119')">📞 呼叫</button>
+      </div>
+      <div class="card" style="background:#fed7d7;min-width:150px;">
+        <h3>警察局</h3>
+        <p style="font-size:24px;">110</p>
+        <button onclick="callEmergency('110')">📞 呼叫</button>
+      </div>
+      <div class="card" style="background:#fed7d7;min-width:150px;">
+        <h3>山難救援</h3>
+        <p style="font-size:24px;">112</p>
+        <button onclick="callEmergency('112')">📞 呼叫</button>
+      </div>
+    </div>
+    <h3 style="margin-top:20px;">自訂緊急聯絡人</h3>
+    <div id="customContacts" style="margin-bottom:10px;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" id="emergencyName" placeholder="聯絡人姓名" style="flex:1;">
+      <input type="tel" id="emergencyPhone" placeholder="電話號碼" style="flex:1;">
+      <button onclick="addEmergencyContact()">➕ 新增</button>
+    </div>
   </section>
 
   <section style="background:linear-gradient(135deg,#ed8936,#dd6b20);color:#fff;border-radius:12px;margin:20px;padding:20px;">
@@ -537,6 +565,50 @@
         document.getElementById('countdownText').innerText = '距離露營還有 ' + days + ' 天';
       }
     }
+    
+    // 緊急聯絡功能
+    let emergencyContacts = JSON.parse(localStorage.getItem('camping_emergency_contacts') || '[]');
+    
+    function callEmergency(number) {
+      if (confirm('確定要撥打 ' + number + ' 嗎？')) {
+        window.location.href = 'tel:' + number;
+      }
+    }
+    
+    function addEmergencyContact() {
+      const name = document.getElementById('emergencyName').value.trim();
+      const phone = document.getElementById('emergencyPhone').value.trim();
+      if (name && phone) {
+        emergencyContacts.push({ name, phone });
+        localStorage.setItem('camping_emergency_contacts', JSON.stringify(emergencyContacts));
+        renderEmergencyContacts();
+        document.getElementById('emergencyName').value = '';
+        document.getElementById('emergencyPhone').value = '';
+        alert('已新增緊急聯絡人：' + name);
+      } else {
+        alert('請輸入姓名和電話');
+      }
+    }
+    
+    function renderEmergencyContacts() {
+      const container = document.getElementById('customContacts');
+      if (emergencyContacts.length === 0) {
+        container.innerHTML = '<p style="color:#888;">尚未新增緊急聯絡人</p>';
+      } else {
+        container.innerHTML = emergencyContacts.map((c, i) => 
+          '<div class="card" style="display:inline-block;margin:5px;padding:10px;background:#fff;">' +
+          '<strong>' + c.name + '</strong> ' + c.phone + ' ' +
+          '<button onclick="removeEmergencyContact(' + i + ')" style="padding:3px 8px;background:#e53e3e;margin-left:10px;">移除</button></div>'
+        ).join('');
+      }
+    }
+    
+    function removeEmergencyContact(index) {
+      emergencyContacts.splice(index, 1);
+      localStorage.setItem('camping_emergency_contacts', JSON.stringify(emergencyContacts));
+      renderEmergencyContacts();
+    }
+    renderEmergencyContacts();
     
     // 天氣提醒功能
     let weatherAlerts = JSON.parse(localStorage.getItem('camping_weather_alerts') || '[]');
