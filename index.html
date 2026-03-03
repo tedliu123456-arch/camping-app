@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.6</title>
+  <title>露營趣 v22.7</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -343,6 +343,17 @@
           <p>✅ 準備備用衣物和毛巾</p>
         </div>
       </details>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);color:#744210;border-radius:12px;margin:20px;padding:25px;text-align:center;">
+    <h2>💬 露營名言佳句</h2>
+    <div id="quoteDisplay" style="font-size:20px;font-style:italic;margin:20px 0;min-height:60px;">
+      「走出城市的喧囂，投入大自然的懷抱，感受星空的寧靜與營火的溫暖。🏕️」
+    </div>
+    <button onclick="newQuote()" style="background:#744210;color:#fff;padding:12px 25px;font-size:16px;">🔄 換一句</button>
+    <div style="margin-top:15px;font-size:14px;opacity:0.8;">
+      <span id="quoteAuthor" style="font-weight:bold;">— 露營趣</span>
     </div>
   </section>
 
@@ -2564,6 +2575,27 @@
       document.getElementById('recipeSteps').textContent = recipe.steps;
       document.getElementById('recipeDetail').style.display = 'block';
       document.getElementById('recipeDetail').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    // 露營名言佳句
+    const quotes = [
+      { text: '走出城市的喧囂，投入大自然的懷抱，感受星空的寧靜與營火的溫暖。🏕️', author: '露營趣' },
+      { text: '露營是最真實的生活，遠離電子設備，與家人朋友共享美好時光。⛺', author: '約翰· Muir' },
+      { text: '大地母親會照顧我們，只要我們願意傾聽她的聲音。🌲', author: '北美印第安諺語' },
+      { text: '沒有什麼問題是一次露營解決不了的，如果有，那就两次！🔥', author: '露營趣' },
+      { text: '星空下的夜晚，是地球上最美的夜景。🌟', author: '未知' },
+      { text: '旅行的意義不在於去了多遠，而在於重新認識自己。🚐', author: '露營趣' },
+      { text: '讓我們在星空下入眠，在鳥鳴中醒來，這就是最簡單的幸福。☀️', author: '露營趣' },
+      { text: '山不會走向你，但你必須走向山。🏔️', author: '非洲諺語' },
+      { text: '營火的光芒溫暖了身體，朋友的陪伴溫暖了心靈。❤️', author: '露營趣' },
+      { text: '每一次露營都是一次冒險，每一個帳篷都是一個故事。📖', author: '露營趣' }
+    ];
+    
+    function newQuote() {
+      const randomIdx = Math.floor(Math.random() * quotes.length);
+      const quote = quotes[randomIdx];
+      document.getElementById('quoteDisplay').textContent = '「' + quote.text + '」';
+      document.getElementById('quoteAuthor').textContent = '— ' + quote.author;
     }
     
     // 露營歌單功能
