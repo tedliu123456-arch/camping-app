@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.1</title>
+  <title>露營趣 v22.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -594,6 +594,42 @@
       <div class="card" style="cursor:pointer;" onclick="showTip(3)">
         <h3>🏕️ 帳篷</h3>
         <p>選擇防風防水的帳篷</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed8936,#dd6b20);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🍳 露營食譜推薦</h2>
+    <div id="recipeContainer" style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;min-width:200px;cursor:pointer;" onclick="showRecipe(0)">
+        <h3>🔥 營火烤棉花糖</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">經典露營甜點</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;cursor:pointer;" onclick="showRecipe(1)">
+        <h3>🍳 煎蛋早餐</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">元氣滿滿的一天</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;cursor:pointer;" onclick="showRecipe(2)">
+        <h3>🥘 野外火鍋</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">暖心暖胃必備</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;cursor:pointer;" onclick="showRecipe(3)">
+        <h3>🍢 烤肉串</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">多人派對首選</p>
+      </div>
+    </div>
+    <div id="recipeDetail" style="display:none;background:#fff;color:#333;padding:20px;border-radius:12px;margin-top:15px;text-align:left;">
+      <h3 id="recipeTitle" style="margin-top:0;"></h3>
+      <p id="recipeDesc"></p>
+      <div style="margin-top:10px;">
+        <strong>🥬 材料：</strong><span id="recipeIngredients"></span>
+      </div>
+      <div style="margin-top:10px;">
+        <strong>👨‍🍳 做法：</strong><span id="recipeSteps"></span>
       </div>
     </div>
   </section>
@@ -2346,15 +2382,42 @@
       alert(campingTips[idx]);
     }
     
-    // 食譜功能
-    const recipes = {
-      '烤肉': '🥩 烤肉食譜：\n1. 準備肉片（豬/牛/雞）\n2. 醃製 30 分鐘\n3. 生火後架上烤網\n4. 翻面烤至熟透\n5. 搭配蔬菜更美味！',
-      '火鍋': '🍲 火鍋食譜：\n1. 準備火鍋底料\n2. 加入清水或高湯\n3. 依序放入肉片、海鮮\n4. 加入蔬菜、豆製品\n5. 調製喜歡的醬料',
-      '煎蛋': '🍳 煎蛋食譜：\n1. 熱鍋後加少許油\n2. 打入雞蛋\n3. 撒少許鹽巴\n4. 煎至蛋白凝固\n5. 翻面再煎一下',
-      '咖啡': '☕ 咖啡食譜：\n1. 準備咖啡粉或即溶咖啡\n2. 熱水煮沸\n3. 倒入杯中沖泡\n4. 加入糖和奶精\n5. 享受美味咖啡！'
-    };
-    function showRecipe(name) {
-      alert(recipes[name] || '尚無食譜');
+    // 露營食譜功能
+    const recipes = [
+      {
+        title: '🔥 營火烤棉花糖',
+        desc: '經典露營甜點，簡單又美味！',
+        ingredients: '棉花糖、餅乾棒（可選）',
+        steps: '1. 將棉花糖串在竹籤上\n2. 放在營火上慢慢烤\n3. 翻轉至表面微焦\n4. 夾在餅乾中享用'
+      },
+      {
+        title: '🍳 煎蛋早餐',
+        desc: '元氣滿滿的露營早餐！',
+        ingredients: '雞蛋、鹽巴、油、黑胡椒（可選）',
+        steps: '1. 熱鍋後加少許油\n2. 打入雞蛋\n3. 撒少許鹽巴\n4. 煎至蛋白凝固\n5. 翻面再煎一下'
+      },
+      {
+        title: '🥘 野外火鍋',
+        desc: '暖心暖胃，適合多人共享！',
+        ingredients: '火鍋底料、肉片、蔬菜、火鍋料、麵條',
+        steps: '1. 準備火鍋底料\n2. 加入清水或高湯\n3. 依序放入肉片、海鮮\n4. 加入蔬菜、豆製品\n5. 最後放入麵條'
+      },
+      {
+        title: '🍢 烤肉串',
+        desc: '多人派對首選！',
+        ingredients: '豬肉/牛肉/雞肉、烤肉醬、洋蔥、彩椒',
+        steps: '1. 將肉切塊醃製30分鐘\n2. 搭配蔬菜串起\n3. 生火後架上烤網\n4. 刷上烤肉醬\n5. 翻面烤至熟透'
+      }
+    ];
+    
+    function showRecipe(idx) {
+      const recipe = recipes[idx];
+      document.getElementById('recipeTitle').textContent = recipe.title;
+      document.getElementById('recipeDesc').textContent = recipe.desc;
+      document.getElementById('recipeIngredients').textContent = recipe.ingredients;
+      document.getElementById('recipeSteps').textContent = recipe.steps;
+      document.getElementById('recipeDetail').style.display = 'block';
+      document.getElementById('recipeDetail').scrollIntoView({behavior: 'smooth'});
     }
     
     // 優惠券功能
