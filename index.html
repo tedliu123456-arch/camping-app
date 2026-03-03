@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.5</title>
+  <title>露營趣 v19.6</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -68,6 +68,22 @@
     <input type="date" id="countdownDate" style="padding:10px;border-radius:8px;border:none;margin:10px 0;">
     <button onclick="setCountdown()" style="background:#fff;color:#2f855a;padding:10px 20px;">設定倒數</button>
     <button onclick="clearCountdown()" style="background:rgba(255,255,255,0.3);color:#fff;padding:10px 20px;">清除</button>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed8936,#dd6b20);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🌧️ 天氣提醒設定</h2>
+    <p>設定提醒，避免惡劣天氣破壞露營心情</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
+      <select id="weatherAlertType" style="flex:1;min-width:120px;">
+        <option value="rain">🌧️ 下雨</option>
+        <option value="cold">❄️ 寒冷</option>
+        <option value="hot">🔥 炎熱</option>
+        <option value="wind">💨 強風</option>
+      </select>
+      <input type="number" id="weatherThreshold" placeholder="溫度閾值" value="20" style="width:80px;">
+      <button onclick="setWeatherAlert()" style="background:#fff;color:#dd6b20;">設定提醒</button>
+    </div>
+    <div id="weatherAlerts" style="margin-top:15px;"></div>
   </section>
 
   <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
@@ -521,6 +537,37 @@
         document.getElementById('countdownText').innerText = '距離露營還有 ' + days + ' 天';
       }
     }
+    
+    // 天氣提醒功能
+    let weatherAlerts = JSON.parse(localStorage.getItem('camping_weather_alerts') || '[]');
+    function renderWeatherAlerts() {
+      const container = document.getElementById('weatherAlerts');
+      if (weatherAlerts.length === 0) {
+        container.innerHTML = '<p style="opacity:0.8;">尚未設定天氣提醒</p>';
+      } else {
+        container.innerHTML = weatherAlerts.map((a, i) => 
+          '<div style="background:rgba(255,255,255,0.2);padding:10px;margin:5px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span>' + a.icon + ' ' + a.type + ' 低於 ' + a.threshold + '°C</span>' +
+          '<button onclick="removeWeatherAlert(' + i + ')" style="padding:5px 10px;background:rgba(0,0,0,0.2);">✕</button></div>'
+        ).join('');
+      }
+    }
+    function setWeatherAlert() {
+      const type = document.getElementById('weatherAlertType').value;
+      const threshold = parseInt(document.getElementById('weatherThreshold').value);
+      const icons = { rain: '🌧️', cold: '❄️', hot: '🔥', wind: '💨' };
+      const labels = { rain: '下雨', cold: '寒冷', hot: '炎熱', wind: '強風' };
+      weatherAlerts.push({ type: labels[type], icon: icons[type], threshold: threshold });
+      localStorage.setItem('camping_weather_alerts', JSON.stringify(weatherAlerts));
+      renderWeatherAlerts();
+      alert('天氣提醒已設定！');
+    }
+    function removeWeatherAlert(index) {
+      weatherAlerts.splice(index, 1);
+      localStorage.setItem('camping_weather_alerts', JSON.stringify(weatherAlerts));
+      renderWeatherAlerts();
+    }
+    renderWeatherAlerts();
     
     // 打包清單功能
     const defaultPacking = ['帳篷', '睡袋', '睡墊', '手電筒', '炊具', '食材', '水壺', '防蚊液', '防曬', '保暖衣物', '雨衣', '行動電源'];
