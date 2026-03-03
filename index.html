@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.8</title>
+  <title>露營趣 v19.9</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -107,6 +107,28 @@
       <input type="tel" id="emergencyPhone" placeholder="電話號碼" style="flex:1;">
       <button onclick="addEmergencyContact()">➕ 新增</button>
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>💰 露營費用記錄</h2>
+    <p>記錄每次露營的支出，掌握預算</p>
+    <div id="expenseList" style="margin:15px 0;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;">
+      <input type="text" id="expenseName" placeholder="項目（如：營地費）" style="flex:1;">
+      <input type="number" id="expenseAmount" placeholder="金額" style="width:100px;">
+      <select id="expenseCategory" style="width:100px;">
+        <option value="營地">🏕️ 營地</option>
+        <option value="食材">🍖 食材</option>
+        <option value="裝備">🎒 裝備</option>
+        <option value="交通">🚗 交通</option>
+        <option value="其他">📦 其他</option>
+      </select>
+      <button onclick="addExpense()">➕ 新增</button>
+    </div>
+    <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;">
+      <h3 style="margin:0;">總支出：<span id="totalExpense">0</span> 元</h3>
+    </div>
+    <button onclick="clearExpenses()" style="background:#e53e3e;margin-top:10px;">🗑️ 清除所有記錄</button>
   </section>
 
   <section style="background:linear-gradient(135deg,#ed8936,#dd6b20);color:#fff;border-radius:12px;margin:20px;padding:20px;">
@@ -620,6 +642,63 @@
       renderEmergencyContacts();
     }
     renderEmergencyContacts();
+    
+    // 露營費用記錄功能
+    let expenses = JSON.parse(localStorage.getItem('camping_expenses') || '[]');
+    
+    function addExpense() {
+      const name = document.getElementById('expenseName').value.trim();
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      const category = document.getElementById('expenseCategory').value;
+      
+      if (name && amount > 0) {
+        expenses.push({ name, amount, category, date: new Date().toLocaleDateString() });
+        localStorage.setItem('camping_expenses', JSON.stringify(expenses));
+        renderExpenses();
+        document.getElementById('expenseName').value = '';
+        document.getElementById('expenseAmount').value = '';
+        alert('已記錄：' + name + ' - ' + amount + ' 元');
+      } else {
+        alert('請輸入項目名稱和金額');
+      }
+    }
+    
+    function renderExpenses() {
+      const container = document.getElementById('expenseList');
+      const totalEl = document.getElementById('totalExpense');
+      
+      if (expenses.length === 0) {
+        container.innerHTML = '<p style="opacity:0.8;">尚未記錄任何費用</p>';
+        totalEl.innerText = '0';
+      } else {
+        const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+        totalEl.innerText = total;
+        
+        const categoryIcons = { '🏕️': '營地', '🍖': '食材', '🎒': '裝備', '🚗': '交通', '📦': '其他' };
+        const icon = Object.keys(categoryIcons).find(k => categoryIcons[k] === expenses[expenses.length-1].category) || '📦';
+        
+        container.innerHTML = expenses.slice().reverse().map((e, i) => 
+          '<div style="background:rgba(255,255,255,0.9);color:#333;padding:10px;margin:5px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span><strong>' + e.category + '</strong> ' + e.name + '</span>' +
+          '<span>' + e.amount + ' 元 <button onclick="removeExpense(' + (expenses.length - 1 - i) + ')" style="padding:3px 8px;background:#e53e3e;margin-left:10px;">✕</button></span></div>'
+        ).join('');
+      }
+    }
+    
+    function removeExpense(index) {
+      expenses.splice(index, 1);
+      localStorage.setItem('camping_expenses', JSON.stringify(expenses));
+      renderExpenses();
+    }
+    
+    function clearExpenses() {
+      if (confirm('確定要清除所有費用記錄嗎？')) {
+        expenses = [];
+        localStorage.setItem('camping_expenses', JSON.stringify(expenses));
+        renderExpenses();
+      }
+    }
+    renderExpenses();
     
     // 露營気分轉盤功能
     const spinItems = [
