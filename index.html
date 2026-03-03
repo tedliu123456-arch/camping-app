@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.2</title>
+  <title>露營趣 v20.3</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -209,6 +209,14 @@
         <div style="font-size:32px;font-weight:bold;" id="statFavorites">0</div>
         <div>個營地</div>
       </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#9f7aea,#805ad5);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🏆 露營成就</h2>
+    <p>解鎖專屬成就，記錄露營里程碑</p>
+    <div id="achievements" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:15px;margin-top:15px;">
+      <!-- 成就會由 JavaScript 動態生成 -->
     </div>
   </section>
 
@@ -821,6 +829,37 @@
       document.getElementById('statFavorites').innerText = favorites.length;
     }
     updateStats();
+    
+    // 露營成就功能
+    const achievementsList = [
+      { id: 'first_trip', name: '初體驗', desc: '第一次使用露營趣', icon: '⛺', req: () => true },
+      { id: 'photo_lover', name: '照片達人', desc: '收藏 5 張照片', icon: '📸', req: () => photos.length >= 5 },
+      { id: 'expense_master', name: '理財高手', desc: '記錄費用超過 1000 元', icon: '💰', req: () => expenses.reduce((s, e) => s + (e.amount || 0), 0) >= 1000 },
+      { id: 'buddy_lover', name: '人緣好', desc: '新增 3 位露營夥伴', icon: '👥', req: () => buddies.length >= 3 },
+      { id: 'favorite_camper', name: '營地收藏家', desc: '收藏 5 個營地', icon: '❤️', req: () => favorites.length >= 5 },
+      { id: 'countdown_set', name: '計畫通', desc: '設定露營倒數', icon: '⏰', req: () => !!localStorage.getItem('camping_countdown_date') },
+      { id: 'journal_writer', name: '日記作者', desc: '發布 3 篇日誌', icon: '📔', req: () => {
+        const journals = JSON.parse(localStorage.getItem('camping_journals') || '[]');
+        return journals.length >= 3;
+      }},
+      { id: 'gear_prep', name: '裝備控', desc: '完成打包清單', icon: '🎒', req: () => {
+        const packing = JSON.parse(localStorage.getItem('camping_packing') || '[]');
+        return packing.length > 0 && packing.filter(i => i.checked).length >= 5;
+      }}
+    ];
+    
+    function renderAchievements() {
+      const container = document.getElementById('achievements');
+      container.innerHTML = achievementsList.map(a => {
+        const unlocked = a.req();
+        return '<div style="background:' + (unlocked ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.3)') + ';color:' + (unlocked ? '#333' : '#aaa') + ';padding:15px;border-radius:8px;text-align:center;opacity:' + (unlocked ? '1' : '0.6') + ';">' +
+          '<div style="font-size:32px;">' + a.icon + '</div>' +
+          '<div style="font-weight:bold;margin:5px 0;">' + a.name + '</div>' +
+          '<div style="font-size:12px;">' + a.desc + '</div>' +
+          '<div style="margin-top:5px;font-size:12px;">' + (unlocked ? '✅ 已解鎖' : '🔒 未解鎖') + '</div></div>';
+      }).join('');
+    }
+    renderAchievements();
     
     // 露營夥伴功能
     let buddies = JSON.parse(localStorage.getItem('camping_buddies') || '[]');
