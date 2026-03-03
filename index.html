@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.9</title>
+  <title>露營趣 v20.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -167,6 +167,18 @@
       <button onclick="clearExpenses()" style="background:#e53e3e;">清除全部</button>
     </div>
     <p id="expenseTotal" style="text-align:right;font-size:18px;font-weight:bold;margin-top:15px;">總計：0 元</p>
+  </section>
+
+  <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+    <h2>📸 露營回憶相簿</h2>
+    <p style="color:#666;">記錄每次露營的精彩瞬間</p>
+    <div id="photoAlbum" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px;margin:15px 0;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" id="photoUrl" placeholder="圖片網址" style="flex:1;min-width:150px;">
+      <input type="text" id="photoCaption" placeholder="照片描述" style="flex:1;min-width:150px;">
+      <button onclick="addPhoto()">➕ 新增</button>
+    </div>
+    <button onclick="clearPhotos()" style="background:#e53e3e;margin-top:10px;">🗑️ 清除</button>
   </section>
 
   <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
@@ -699,6 +711,55 @@
       }
     }
     renderExpenses();
+    
+    // 露營回憶相簿功能
+    let photos = JSON.parse(localStorage.getItem('camping_photos') || '[]');
+    
+    function addPhoto() {
+      const url = document.getElementById('photoUrl').value.trim();
+      const caption = document.getElementById('photoCaption').value.trim();
+      
+      if (url) {
+        photos.push({ url, caption: caption || '露營回憶', date: new Date().toLocaleDateString() });
+        localStorage.setItem('camping_photos', JSON.stringify(photos));
+        renderPhotos();
+        document.getElementById('photoUrl').value = '';
+        document.getElementById('photoCaption').value = '';
+        alert('已新增照片！');
+      } else {
+        alert('請輸入圖片網址');
+      }
+    }
+    
+    function renderPhotos() {
+      const container = document.getElementById('photoAlbum');
+      
+      if (photos.length === 0) {
+        container.innerHTML = '<p style="color:#888;grid-column:1/-1;">尚無回憶照片</p>';
+      } else {
+        container.innerHTML = photos.slice().reverse().map((p, i) => 
+          '<div style="position:relative;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">' +
+          '<img src="' + p.url + '" style="width:100%;height:120px;object-fit:cover;" onerror="this.src=\'https://source.unsplash.com/400x300/?camping\'">' +
+          '<div style="padding:8px;background:#fff;"><p style="margin:0;font-size:12px;color:#666;">' + p.caption + '</p></div>' +
+          '<button onclick="removePhoto(' + (photos.length - 1 - i) + ')" style="position:absolute;top:5px;right:5px;padding:3px 8px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:4px;">✕</button></div>'
+        ).join('');
+      }
+    }
+    
+    function removePhoto(index) {
+      photos.splice(index, 1);
+      localStorage.setItem('camping_photos', JSON.stringify(photos));
+      renderPhotos();
+    }
+    
+    function clearPhotos() {
+      if (confirm('確定要清除所有照片嗎？')) {
+        photos = [];
+        localStorage.setItem('camping_photos', JSON.stringify(photos));
+        renderPhotos();
+      }
+    }
+    renderPhotos();
     
     // 露營気分轉盤功能
     const spinItems = [
