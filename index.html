@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v21.9</title>
+  <title>露營趣 v22.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -480,6 +480,37 @@
     </select>
     <div id="weatherAdvice" style="background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:8px;min-height:100px;">
       <p style="text-align:center;color:#888;margin:20px 0;">選擇天氣獲得建議</p>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#805ad5,#6b46c1);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🎯 營地類型推薦</h2>
+    <p>根據您的偏好推薦營地類型</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-top:15px;">
+      <div onclick="recommendCamp('forest')" style="background:rgba(255,255,255,0.9);color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;transition:transform 0.2s;">
+        <div style="font-size:32px;">🌲</div>
+        <h3 style="margin:10px 0;font-size:16px;">森林營地</h3>
+        <p style="font-size:12px;color:#666;">親近大自然</p>
+      </div>
+      <div onclick="recommendCamp('lake')" style="background:rgba(255,255,255,0.9);color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;transition:transform 0.2s;">
+        <div style="font-size:32px;">🏞️</div>
+        <h3 style="margin:10px 0;font-size:16px;">湖畔營地</h3>
+        <p style="font-size:12px;color:#666;">水邊悠閒</p>
+      </div>
+      <div onclick="recommendCamp('mountain')" style="background:rgba(255,255,255,0.9);color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;transition:transform 0.2s;">
+        <div style="font-size:32px;">🏔️</div>
+        <h3 style="margin:10px 0;font-size:16px;">高山營地</h3>
+        <p style="font-size:12px;color:#666;">壯闊景色</p>
+      </div>
+      <div onclick="recommendCamp('sea')" style="background:rgba(255,255,255,0.9);color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;transition:transform 0.2s;">
+        <div style="font-size:32px;">🏖️</div>
+        <h3 style="margin:10px 0;font-size:16px;">海邊營地</h3>
+        <p style="font-size:12px;color:#666;">沙灘風光</p>
+      </div>
+    </div>
+    <div id="campRecommendation" style="background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:8px;margin-top:15px;display:none;">
+      <h3 id="recTitle" style="margin:0 0 10px 0;"></h3>
+      <p id="recContent" style="margin:0;"></p>
     </div>
   </section>
 
@@ -1421,6 +1452,26 @@
         container.innerHTML = weatherAdvices[condition];
       } else {
         container.innerHTML = '<p style="text-align:center;color:#888;margin:20px 0;">選擇天氣獲得建議</p>';
+      }
+    }
+    
+    // 營地類型推薦功能
+    const campRecommendations = {
+      forest: { title: '🌲 森林營地推薦', content: '適合喜歡寧靜與自然的您！建議攜帶：帳篷、睡袋、防蚊液、相機。推薦活動：森林漫步、賞鳥、觀察植物。' },
+      lake: { title: '🏞️ 湖畔營地推薦', content: '適合喜歡水邊悠閒時光！建議攜帶：帳篷、釣具、玩水裝備、防曬。推薦活動：垂釣、划船、夕陽觀賞。' },
+      mountain: { title: '🏔️ 高山營地推薦', content: '適合挑戰自我、欣賞壯闊景色！建議攜帶：保暖衣物、頭燈、高熱量食物、登山鞋。推薦活動：日出觀賞、雲海攝影、森林浴。' },
+      sea: { title: '🏖️ 海邊營地推薦', content: '適合喜歡沙灘與海風！建議攜帶：帳篷（加強防風）、防曬、泳具、涼鞋。推薦活動：沙灘遊戲、日出日落、潮間帶探索。' }
+    };
+    
+    function recommendCamp(type) {
+      const container = document.getElementById('campRecommendation');
+      const titleEl = document.getElementById('recTitle');
+      const contentEl = document.getElementById('recContent');
+      
+      if (campRecommendations[type]) {
+        container.style.display = 'block';
+        titleEl.innerText = campRecommendations[type].title;
+        contentEl.innerText = campRecommendations[type].content;
       }
     }
     
