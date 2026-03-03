@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.1</title>
+  <title>露營趣 v20.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -179,6 +179,37 @@
       <button onclick="addPhoto()">➕ 新增</button>
     </div>
     <button onclick="clearPhotos()" style="background:#e53e3e;margin-top:10px;">🗑️ 清除</button>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4fd1c5,#38b2ac);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>📊 露營統計</h2>
+    <p>回顧您的露營足跡</p>
+    <div id="statsDashboard" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;margin-top:15px;">
+      <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;" id="statTrips">0</div>
+        <div>次露營</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;" id="statDays">0</div>
+        <div>天數</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;" id="statPhotos">0</div>
+        <div>张照片</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;" id="statExpenses">0</div>
+        <div>元總花費</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;" id="statBuddies">0</div>
+        <div>位夥伴</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;text-align:center;">
+        <div style="font-size:32px;font-weight:bold;" id="statFavorites">0</div>
+        <div>個營地</div>
+      </div>
+    </div>
   </section>
 
   <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
@@ -771,6 +802,25 @@
       }
     }
     renderPhotos();
+    
+    // 露營統計功能
+    function updateStats() {
+      const expenses = JSON.parse(localStorage.getItem('camping_expenses') || '[]');
+      const photos = JSON.parse(localStorage.getItem('camping_photos') || '[]');
+      const buddies = JSON.parse(localStorage.getItem('camping_buddies') || '[]');
+      const favorites = JSON.parse(localStorage.getItem('camping_favorites') || '[]');
+      const countdownDate = localStorage.getItem('camping_countdown_date');
+      
+      const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      
+      document.getElementById('statTrips').innerText = countdownDate ? '1' : '0';
+      document.getElementById('statDays').innerText = countdownDate ? Math.ceil((new Date(countdownDate) - new Date()) / (1000*60*60*24)) : '0';
+      document.getElementById('statPhotos').innerText = photos.length;
+      document.getElementById('statExpenses').innerText = totalExpenses;
+      document.getElementById('statBuddies').innerText = buddies.length;
+      document.getElementById('statFavorites').innerText = favorites.length;
+    }
+    updateStats();
     
     // 露營夥伴功能
     let buddies = JSON.parse(localStorage.getItem('camping_buddies') || '[]');
