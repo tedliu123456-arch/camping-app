@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v21.2</title>
+  <title>露營趣 v21.3</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -348,6 +348,33 @@
       <div style="background:rgba(255,255,255,0.9);color:#333;padding:15px;border-radius:8px;">
         <h3 style="margin:0 0 10px 0;">❄️ 冬季 (12-2月)</h3>
         <p style="margin:0;font-size:14px;">高山可能結霜，注意保暖。建議選擇低海拔營地，攜帶足夠的保暖裝備。</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed8936,#dd6b20);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🎯 露營挑戰</h2>
+    <p>完成挑戰，解鎖成就！</p>
+    <div id="challenges" style="margin-top:15px;">
+      <div style="background:rgba(255,255,255,0.9);color:#333;padding:12px;border-radius:8px;margin:8px 0;cursor:pointer;" onclick="toggleChallenge(0)">
+        <input type="checkbox" id="ch0" onchange="saveChallenge(0)"> 
+        <strong>🌟 初次露營</strong> - 第一次使用露營趣
+      </div>
+      <div style="background:rgba(255,255,255,0.9);color:#333;padding:12px;border-radius:8px;margin:8px 0;cursor:pointer;" onclick="toggleChallenge(1)">
+        <input type="checkbox" id="ch1" onchange="saveChallenge(1)"> 
+        <strong>📸 記憶大師</strong> - 上傳 5 張照片
+      </div>
+      <div style="background:rgba(255,255,255,0.9);color:#333;padding:12px;border-radius:8px;margin:8px 0;cursor:pointer;" onclick="toggleChallenge(2)">
+        <input type="checkbox" id="ch2" onchange="saveChallenge(2)"> 
+        <strong>💰 預算管理</strong> - 記錄費用超過 1000 元
+      </div>
+      <div style="background:rgba(255,255,255,0.9);color:#333;padding:12px;border-radius:8px;margin:8px 0;cursor:pointer;" onclick="toggleChallenge(3)">
+        <input type="checkbox" id="ch3" onchange="saveChallenge(3)"> 
+        <strong>👥 社交達人</strong> - 新增 3 位露營夥伴
+      </div>
+      <div style="background:rgba(255,255,255,0.9);color:#333;padding:12px;border-radius:8px;margin:8px 0;cursor:pointer;" onclick="toggleChallenge(4)">
+        <input type="checkbox" id="ch4" onchange="saveChallenge(4)"> 
+        <strong>❤️ 收藏家</strong> - 收藏 5 個營地
       </div>
     </div>
   </section>
@@ -1167,6 +1194,37 @@
       }
     }
     renderWishlist();
+    
+    // 露營挑戰功能
+    let challenges = JSON.parse(localStorage.getItem('camping_challenges') || '[]');
+    
+    function toggleChallenge(index) {
+      const checkbox = document.getElementById('ch' + index);
+      checkbox.checked = !checkbox.checked;
+      saveChallenge(index);
+    }
+    
+    function saveChallenge(index) {
+      const checkbox = document.getElementById('ch' + index);
+      if (checkbox.checked && !challenges.includes(index)) {
+        challenges.push(index);
+      } else if (!checkbox.checked) {
+        challenges = challenges.filter(c => c !== index);
+      }
+      localStorage.setItem('camping_challenges', JSON.stringify(challenges));
+      
+      if (challenges.length === 5) {
+        alert('🎉 恭喜！你已完成所有露營挑戰！');
+      }
+    }
+    
+    function loadChallenges() {
+      challenges.forEach(index => {
+        const checkbox = document.getElementById('ch' + index);
+        if (checkbox) checkbox.checked = true;
+      });
+    }
+    loadChallenges();
     
     // 天氣預測功能
     function generateWeatherForecast() {
