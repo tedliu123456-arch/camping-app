@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.3</title>
+  <title>露營趣 v22.4</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -666,6 +666,20 @@
     <div id="nowPlaying" style="display:none;background:rgba(0,0,0,0.3);padding:15px;border-radius:10px;margin-top:15px;text-align:center;">
       <p style="margin:0;">🎧 現在播放：<span id="currentPlaylist"></span></p>
       <p style="margin:5px 0 0 0;font-size:12px;">(純文字模擬播放)</p>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#38a169,#2f855a);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>📝 露營技巧小測驗</h2>
+    <p>測試你的露營知識！</p>
+    <div id="quizContainer" style="background:#fff;color:#333;padding:20px;border-radius:12px;margin-top:15px;">
+      <div id="quizQuestion" style="font-size:18px;font-weight:bold;margin-bottom:15px;"></div>
+      <div id="quizOptions" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <div id="quizResult" style="display:none;margin-top:15px;padding:15px;background:#e6fffa;border-radius:8px;">
+        <p style="font-size:18px;font-weight:bold;" id="quizScore"></p>
+        <button onclick="nextQuiz()" style="background:#38a169;">下一題</button>
+      </div>
+      <button onclick="startQuiz()" id="startQuizBtn" style="background:#38a169;width:100%;">開始測驗</button>
     </div>
   </section>
 
@@ -2468,6 +2482,88 @@
       document.getElementById('nowPlaying').style.display = 'block';
       document.getElementById('nowPlaying').scrollIntoView({behavior: 'smooth'});
       showToast('🎵 已播放：' + playlists[type]);
+    }
+    
+    // 露營技巧測驗
+    const quizQuestions = [
+      {
+        question: '露營時，以下哪個時間最適合搭帳篷？',
+        options: ['中午太陽最大時', '傍晚天黑前', '深夜抵達後直接搭', '雨天時'],
+        correct: 1
+      },
+      {
+        question: '帳篷通風口應該？',
+        options: ['完全關閉', '打開保持通風', '用膠帶貼住', '不需要通風口'],
+        correct: 1
+      },
+      {
+        question: '露營時，如何處理食物垃圾？',
+        options: ['隨手丟在營地', '裝在垃圾袋帶走', '埋在土裡', '丟到溪流裡'],
+        correct: 1
+      },
+      {
+        question: '以下哪種睡袋最適合高山露營？',
+        options: ['信封式睡袋', '木乃伊式睡袋', '只需要毯子', '任何睡袋都可以'],
+        correct: 1
+      },
+      {
+        question: '離開營地時應該？',
+        options: ['留下一些裝備下次用', '恢復原狀，不留垃圾', '把帳篷留在原地', '只要帶走貴重物品'],
+        correct: 1
+      }
+    ];
+    let currentQuiz = 0;
+    let correctAnswers = 0;
+    
+    function startQuiz() {
+      currentQuiz = 0;
+      correctAnswers = 0;
+      document.getElementById('startQuizBtn').style.display = 'none';
+      document.getElementById('quizResult').style.display = 'none';
+      showQuizQuestion();
+    }
+    
+    function showQuizQuestion() {
+      const q = quizQuestions[currentQuiz];
+      document.getElementById('quizQuestion').textContent = (currentQuiz + 1) + '. ' + q.question;
+      const optionsDiv = document.getElementById('quizOptions');
+      optionsDiv.innerHTML = '';
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.style.marginTop = '5px';
+        btn.onclick = () => checkAnswer(idx);
+        optionsDiv.appendChild(btn);
+      });
+    }
+    
+    function checkAnswer(idx) {
+      const q = quizQuestions[currentQuiz];
+      if (idx === q.correct) {
+        correctAnswers++;
+        showToast('✅ 答對了！');
+      } else {
+        showToast('❌ 答錯了！');
+      }
+      currentQuiz++;
+      if (currentQuiz < quizQuestions.length) {
+        showQuizQuestion();
+      } else {
+        showQuizResult();
+      }
+    }
+    
+    function showQuizResult() {
+      document.getElementById('quizOptions').innerHTML = '';
+      document.getElementById('quizQuestion').textContent = '測驗完成！';
+      document.getElementById('quizResult').style.display = 'block';
+      document.getElementById('quizScore').textContent = '🎉 得分：' + correctAnswers + ' / ' + quizQuestions.length;
+      document.getElementById('startQuizBtn').style.display = 'block';
+      document.getElementById('startQuizBtn').textContent = '重新測驗';
+    }
+    
+    function nextQuiz() {
+      showQuizResult();
     }
     
     // 優惠券功能
