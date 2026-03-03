@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v21.8</title>
+  <title>露營趣 v21.9</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -464,6 +464,23 @@
     <textarea id="moodNote" placeholder="記錄此刻心情..." style="width:100%;padding:10px;border-radius:8px;border:none;margin:10px 0;min-height:60px;"></textarea>
     <button onclick="saveMood()" style="background:#fff;color:#f56565;width:100%;padding:12px;">💾 儲存心情</button>
     <div id="moodHistory" style="margin-top:15px;"></div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4fd1c5,#38b2ac);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🌤️ 露營天氣小幫手</h2>
+    <p>根據天氣狀況給您建議</p>
+    <select id="weatherCondition" onchange="showWeatherAdvice()" style="width:100%;padding:12px;border-radius:8px;border:none;margin:15px 0;font-size:16px;color:#333;">
+      <option value="">選擇天氣狀況...</option>
+      <option value="sunny">☀️ 晴天</option>
+      <option value="cloudy">⛅ 多雲</option>
+      <option value="rainy">🌧️ 下雨</option>
+      <option value="cold">❄️ 寒冷</option>
+      <option value="hot">🔥 炎熱</option>
+      <option value="windy">💨 強風</option>
+    </select>
+    <div id="weatherAdvice" style="background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:8px;min-height:100px;">
+      <p style="text-align:center;color:#888;margin:20px 0;">選擇天氣獲得建議</p>
+    </div>
   </section>
 
   <section style="background:linear-gradient(135deg,#4299e1,#3182ce);color:#fff;border-radius:12px;margin:20px;padding:20px;">
@@ -1385,6 +1402,27 @@
       }
     }
     renderMoodHistory();
+    
+    // 天氣建議功能
+    const weatherAdvices = {
+      sunny: '<h3 style="margin:10px 0;">☀️ 晴天建議</h3><ul style="text-align:left;"><li>適合戶外活動，記得防曬</li><li>攜帶太陽鏡和遮陽帽</li><li>水分補充很重要</li><li>適合曬帳篷和睡袋</li></ul>',
+      cloudy: '<h3 style="margin:10px 0;">⛅ 多雲建議</h3><ul style="text-align:left;"><li>天氣舒適，適合露營</li><li>可攜帶輕便雨具備用</li><li>適合長時間徒步</li><li>注意早晚溫差</li></ul>',
+      rainy: '<h3 style="margin:10px 0;">🌧️ 下雨建議</h3><ul style="text-align:left;"><li>檢查帳篷防水性</li><li>攜帶雨衣和防水袋</li><li>準備室內活動如桌遊</li><li>注意排水溝通暢</li></ul>',
+      cold: '<h3 style="margin:10px 0;">❄️ 寒冷建議</h3><ul style="text-align:left;"><li>攜帶足夠保暖衣物</li><li>睡袋溫標要夠低</li><li>可攜帶熱水袋</li><li>注意用火安全</li></ul>',
+      hot: '<h3 style="margin:10px 0;">🔥 炎熱建議</h3><ul style="text-align:left;"><li>選擇有樹蔭的營地</li><li>大量補充水分</li><li>避開中午時段活動</li><li>攜帶涼感用品</li></ul>',
+      windy: '<h3 style="margin:10px 0;">💨 強風建議</h3><ul style="text-align:left;"><li>確保帳篷營釘牢固</li><li>避免使用輕便天幕</li><li>小心火源安全</li><li>可找天然防風處</li></ul>'
+    };
+    
+    function showWeatherAdvice() {
+      const condition = document.getElementById('weatherCondition').value;
+      const container = document.getElementById('weatherAdvice');
+      
+      if (condition && weatherAdvices[condition]) {
+        container.innerHTML = weatherAdvices[condition];
+      } else {
+        container.innerHTML = '<p style="text-align:center;color:#888;margin:20px 0;">選擇天氣獲得建議</p>';
+      }
+    }
     
     // 露營里程碑功能
     let milestones = JSON.parse(localStorage.getItem('camping_milestones') || '[]');
