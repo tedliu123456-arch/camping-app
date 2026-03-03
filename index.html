@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v18.9</title>
+  <title>露營趣 v19.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -765,6 +765,39 @@
       saveChecklist();
     }
     loadChecklist();
+    
+    // 露營計畫功能
+    const trips = JSON.parse(localStorage.getItem('camping_trips') || '[]');
+    function addTrip(e) {
+      e.preventDefault();
+      const name = document.getElementById('tripName').value;
+      const date = document.getElementById('tripDate').value;
+      const days = document.getElementById('tripDays').value;
+      trips.push({ name, date, days, id: Date.now() });
+      localStorage.setItem('camping_trips', JSON.stringify(trips));
+      renderTrips();
+      e.target.reset();
+      alert('行程已新增！');
+    }
+    function renderTrips() {
+      const container = document.getElementById('tripsList');
+      if (trips.length === 0) {
+        container.innerHTML = '<p style="color:#888;text-align:center;">尚未新增行程</p>';
+        return;
+      }
+      container.innerHTML = trips.map(t => 
+        '<div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;"><div><strong>' + t.name + '</strong><br><small>' + t.date + ' • ' + t.days + '天</small></div><button onclick="deleteTrip(' + t.id + ')" style="background:#e53e3e;padding:5px 10px;">刪除</button></div>'
+      ).join('');
+    }
+    function deleteTrip(id) {
+      const idx = trips.findIndex(t => t.id === id);
+      if (idx > -1) {
+        trips.splice(idx, 1);
+        localStorage.setItem('camping_trips', JSON.stringify(trips));
+        renderTrips();
+      }
+    }
+    renderTrips();
   </script>
   <script>
     // 露營小知識
@@ -813,6 +846,28 @@
       <summary style="font-weight:bold;padding:10px;">露營時要注意哪些安全事項？</summary>
       <p style="padding:10px;color:#666;">務必注意用火安全、妥善存放食物（防野生動物）、檢查天氣預報、攜帶急救用品、告知親友行程等。</p>
     </details>
+  </section>
+
+  <section>
+    <h2>📅 我的露營計畫</h2>
+    <div id="tripPlanner">
+      <div class="card" style="margin-bottom:15px;">
+        <h3>新增行程</h3>
+        <form onsubmit="addTrip(event)">
+          <input type="text" id="tripName" placeholder="營地名稱" required style="margin-bottom:10px;width:100%;">
+          <input type="date" id="tripDate" required style="margin-bottom:10px;width:100%;">
+          <select id="tripDays" style="margin-bottom:10px;width:100%;">
+            <option value="1">1天</option>
+            <option value="2">2天</option>
+            <option value="3">3天</option>
+            <option value="4">4天</option>
+            <option value="5">5天</option>
+          </select>
+          <button type="submit">➕ 新增行程</button>
+        </form>
+      </div>
+      <div id="tripsList"></div>
+    </div>
   </section>
 
   <footer>
