@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.3</title>
+  <title>露營趣 v20.4</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -218,6 +218,21 @@
     <div id="achievements" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:15px;margin-top:15px;">
       <!-- 成就會由 JavaScript 動態生成 -->
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#fc8181,#f56565);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🎵 露營音樂電台</h2>
+    <p>放鬆身心，享受露營時光</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
+      <button onclick="playAmbient('forest')" style="flex:1;">🌲 森林音</button>
+      <button onclick="playAmbient('rain')" style="flex:1;">🌧️ 雨聲</button>
+      <button onclick="playAmbient('fire')" style="flex:1;">🔥 營火</button>
+      <button onclick="playAmbient('stream')" style="flex:1;">💧 溪流</button>
+    </div>
+    <div id="nowPlaying" style="text-align:center;padding:15px;background:rgba(0,0,0,0.2);border-radius:8px;">
+      <p style="margin:0;">點擊上方按鈕播放環境音樂</p>
+    </div>
+    <button onclick="stopAmbient()" style="background:#e53e3e;margin-top:10px;">⏹️ 停止播放</button>
   </section>
 
   <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
@@ -860,6 +875,41 @@
       }).join('');
     }
     renderAchievements();
+    
+    // 露營音樂電台功能
+    let currentAudio = null;
+    const ambientSounds = {
+      forest: { name: '森林音', icon: '🌲', url: 'https://cdn.pixabay.com/audio/2022/05/16/audio_1333a2d0c8.mp3' },
+      rain: { name: '雨聲', icon: '🌧️', url: 'https://cdn.pixabay.com/audio/2022/03/10/audio_6d009e3e46.mp3' },
+      fire: { name: '營火', icon: '🔥', url: 'https://cdn.pixabay.com/audio/2021/08/09/audio_0f023a1e36.mp3' },
+      stream: { name: '溪流', icon: '💧', url: 'https://cdn.pixabay.com/audio/2022/02/07/audio_8742bf8f4c.mp3' }
+    };
+    
+    function playAmbient(type) {
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+      
+      const sound = ambientSounds[type];
+      if (sound) {
+        currentAudio = new Audio(sound.url);
+        currentAudio.loop = true;
+        currentAudio.volume = 0.5;
+        currentAudio.play().catch(e => console.log('播放失敗:', e));
+        
+        document.getElementById('nowPlaying').innerHTML = 
+          '<p style="margin:0;font-size:18px;">🎶 正在播放：' + sound.icon + ' ' + sound.name + '</p>';
+      }
+    }
+    
+    function stopAmbient() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+      document.getElementById('nowPlaying').innerHTML = 
+        '<p style="margin:0;">點擊上方按鈕播放環境音樂</p>';
+    }
     
     // 露營夥伴功能
     let buddies = JSON.parse(localStorage.getItem('camping_buddies') || '[]');
