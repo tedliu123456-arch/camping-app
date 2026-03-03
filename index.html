@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.4</title>
+  <title>露營趣 v22.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -511,6 +511,37 @@
     <div id="campRecommendation" style="background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:8px;margin-top:15px;display:none;">
       <h3 id="recTitle" style="margin:0 0 10px 0;"></h3>
       <p id="recContent" style="margin:0;"></p>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed8936,#c05621);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>👕 露營服裝建議</h2>
+    <p>根據季節選擇適合的服裝</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-top:15px;">
+      <div onclick="showClothingAdvice('spring')" style="background:#fff;color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;min-width:140px;">
+        <div style="font-size:32px;">🌸</div>
+        <h3 style="margin:10px 0;font-size:14px;">春季</h3>
+        <p style="font-size:12px;color:#666;">3-5月</p>
+      </div>
+      <div onclick="showClothingAdvice('summer')" style="background:#fff;color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;min-width:140px;">
+        <div style="font-size:32px;">☀️</div>
+        <h3 style="margin:10px 0;font-size:14px;">夏季</h3>
+        <p style="font-size:12px;color:#666;">6-8月</p>
+      </div>
+      <div onclick="showClothingAdvice('autumn')" style="background:#fff;color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;min-width:140px;">
+        <div style="font-size:32px;">🍂</div>
+        <h3 style="margin:10px 0;font-size:14px;">秋季</h3>
+        <p style="font-size:12px;color:#666;">9-11月</p>
+      </div>
+      <div onclick="showClothingAdvice('winter')" style="background:#fff;color:#333;padding:15px;border-radius:8px;cursor:pointer;text-align:center;min-width:140px;">
+        <div style="font-size:32px;">❄️</div>
+        <h3 style="margin:10px 0;font-size:14px;">冬季</h3>
+        <p style="font-size:12px;color:#666;">12-2月</p>
+      </div>
+    </div>
+    <div id="clothingAdvice" style="display:none;background:rgba(255,255,255,0.95);color:#333;padding:20px;border-radius:10px;margin-top:15px;text-align:left;">
+      <h3 id="clothingTitle" style="margin-top:0;"></h3>
+      <div id="clothingContent"></div>
     </div>
   </section>
 
@@ -1562,6 +1593,34 @@
       mountain: { title: '🏔️ 高山營地推薦', content: '適合挑戰自我、欣賞壯闊景色！建議攜帶：保暖衣物、頭燈、高熱量食物、登山鞋。推薦活動：日出觀賞、雲海攝影、森林浴。' },
       sea: { title: '🏖️ 海邊營地推薦', content: '適合喜歡沙灘與海風！建議攜帶：帳篷（加強防風）、防曬、泳具、涼鞋。推薦活動：沙灘遊戲、日出日落、潮間帶探索。' }
     };
+    
+    // 露營服裝建議功能
+    const clothingAdvice = {
+      spring: {
+        title: '🌸 春季露營服裝建議',
+        content: '• 上衣：長袖T恤+薄外套\n• 褲子：輕便長褲\n• 配件：薄帽子、防曬\n• 建議：洋蔥式穿法，早晚溫差大'
+      },
+      summer: {
+        title: '☀️ 夏季露營服裝建議',
+        content: '• 上衣：涼爽短袖為主\n• 褲子：短褲或輕薄長褲\n• 配件：防蚊液、防曬帽、太陽眼鏡\n• 建議：注意防蚊防曬，多帶替換衣物'
+      },
+      autumn: {
+        title: '🍂 秋季露營服裝建議',
+        content: '• 上衣：長袖+中等厚度外套\n• 褲子：舒適長褲\n• 配件：圍巾、帽子\n• 建議：秋高氣爽，日夜溫差較大'
+      },
+      winter: {
+        title: '❄️ 冬季露營服裝建議',
+        content: '• 上衣：發熱衣+毛衣+羽絨外套\n• 褲子：保暖長褲或刷毛褲\n• 配件：毛帽、手套、暖暖包\n• 建議：高山露營務必注意保暖'
+      }
+    };
+    
+    function showClothingAdvice(season) {
+      const advice = clothingAdvice[season];
+      document.getElementById('clothingTitle').textContent = advice.title;
+      document.getElementById('clothingContent').innerText = advice.content;
+      document.getElementById('clothingAdvice').style.display = 'block';
+      document.getElementById('clothingAdvice').scrollIntoView({behavior: 'smooth'});
+    }
     
     function recommendCamp(type) {
       const container = document.getElementById('campRecommendation');
