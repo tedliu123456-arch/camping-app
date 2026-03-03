@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.4</title>
+  <title>露營趣 v19.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -90,6 +90,17 @@
       <button onclick="clearExpenses()" style="background:#e53e3e;">清除全部</button>
     </div>
     <p id="expenseTotal" style="text-align:right;font-size:18px;font-weight:bold;margin-top:15px;">總計：0 元</p>
+  </section>
+
+  <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+    <h2>📔 露營日誌</h2>
+    <div id="journalEntries" style="margin:15px 0;"></div>
+    <form onsubmit="addJournalEntry(event)">
+      <input type="date" id="journalDate" required style="margin-bottom:10px;">
+      <textarea id="journalContent" placeholder="記錄今天的露營趣事..." required style="padding:8px;border-radius:8px;border:1px solid #ccc;width:100%;min-height:80px;margin-bottom:10px;"></textarea>
+      <button type="submit">新增日誌</button>
+      <button type="button" onclick="clearJournal()" style="background:#e53e3e;">清除全部</button>
+    </form>
   </section>
 
   <section>
@@ -614,6 +625,51 @@
         renderExpenses();
       }
     }
+    
+    // 露營日誌功能
+    const journalEntries = JSON.parse(localStorage.getItem('camping_journal') || '[]');
+    document.getElementById('journalDate').valueAsDate = new Date();
+    
+    function addJournalEntry(e) {
+      e.preventDefault();
+      const date = document.getElementById('journalDate').value;
+      const content = document.getElementById('journalContent').value;
+      
+      journalEntries.unshift({ date, content });
+      localStorage.setItem('camping_journal', JSON.stringify(journalEntries));
+      renderJournal();
+      
+      document.getElementById('journalContent').value = '';
+      alert('日誌儲存成功！');
+    }
+    
+    function renderJournal() {
+      const container = document.getElementById('journalEntries');
+      if (journalEntries.length === 0) {
+        container.innerHTML = '<p style="color:#888;">尚未記錄日誌</p>';
+      } else {
+        container.innerHTML = journalEntries.map((j, i) => 
+          '<div style="padding:12px;margin-bottom:10px;background:#f7fafc;border-radius:8px;border-left:4px solid #2f855a;"><p style="font-weight:bold;color:#2f855a;margin:0 0 5px 0;">' + j.date + '</p><p style="margin:0;">' + j.content + '</p><button onclick="removeJournal(' + i + ')" style="padding:4px 8px;margin-top:8px;background:#e53e3e;font-size:12px;">刪除</button></div>'
+        ).join('');
+      }
+    }
+    
+    function removeJournal(index) {
+      if (confirm('確定要刪除這篇日誌嗎？')) {
+        journalEntries.splice(index, 1);
+        localStorage.setItem('camping_journal', JSON.stringify(journalEntries));
+        renderJournal();
+      }
+    }
+    
+    function clearJournal() {
+      if (confirm('確定要清除所有日誌嗎？')) {
+        journalEntries.length = 0;
+        localStorage.removeItem('camping_journal');
+        renderJournal();
+      }
+    }
+    renderJournal();
     
     function vote(btn){
       if(votesLeft>0){
