@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.0</title>
+  <title>露營趣 v22.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -511,6 +511,21 @@
     <div id="campRecommendation" style="background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:8px;margin-top:15px;display:none;">
       <h3 id="recTitle" style="margin:0 0 10px 0;"></h3>
       <p id="recContent" style="margin:0;"></p>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#f687b3,#d53f8c);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🎮 露營小遊戲</h2>
+    <p>放鬆一下！</p>
+    <div id="gameContainer" style="background:rgba(255,255,255,0.95);color:#333;padding:20px;border-radius:8px;margin-top:15px;text-align:center;">
+      <div style="font-size:48px;margin:20px 0;" id="diceResult">🎲</div>
+      <div style="font-size:24px;margin-bottom:15px;" id="diceNumber">點擊擲骰</div>
+      <button onclick="rollDice()" style="background:#d53f8c;color:#fff;padding:12px 30px;font-size:16px;">🎲 擲骰子</button>
+    </div>
+    <div style="margin-top:15px;background:rgba(255,255,255,0.9);color:#333;padding:15px;border-radius:8px;">
+      <h3 style="margin:0 0 10px 0;">擲骰結果統計</h3>
+      <p style="margin:5px;">擲出次數：<span id="totalRolls">0</span> 次</p>
+      <p style="margin:5px;">平均值：<span id="avgRoll">0</span></p>
     </div>
   </section>
 
@@ -1474,6 +1489,29 @@
         contentEl.innerText = campRecommendations[type].content;
       }
     }
+    
+    // 擲骰子遊戲功能
+    let rollHistory = JSON.parse(localStorage.getItem('camping_dice_rolls') || '[]');
+    
+    function rollDice() {
+      const dice = Math.floor(Math.random() * 6) + 1;
+      const emojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+      
+      document.getElementById('diceResult').innerText = emojis[dice - 1];
+      document.getElementById('diceNumber').innerText = '擲出 ' + dice + ' 點！';
+      
+      rollHistory.push(dice);
+      localStorage.setItem('camping_dice_rolls', JSON.stringify(rollHistory));
+      updateDiceStats();
+    }
+    
+    function updateDiceStats() {
+      const total = rollHistory.length;
+      const avg = total > 0 ? (rollHistory.reduce((a, b) => a + b, 0) / total).toFixed(1) : 0;
+      document.getElementById('totalRolls').innerText = total;
+      document.getElementById('avgRoll').innerText = avg;
+    }
+    updateDiceStats();
     
     // 露營里程碑功能
     let milestones = JSON.parse(localStorage.getItem('camping_milestones') || '[]');
