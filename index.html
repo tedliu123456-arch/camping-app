@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v21.4</title>
+  <title>露營趣 v21.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -376,6 +376,20 @@
         <input type="checkbox" id="ch4" onchange="saveChallenge(4)"> 
         <strong>❤️ 收藏家</strong> - 收藏 5 個營地
       </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#f6ad55,#ed8936);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🎂 露營里程碑</h2>
+    <p>記錄您的露營重要時刻</p>
+    <div id="milestones" style="margin-top:15px;">
+      <div style="background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:8px;margin:10px 0;">
+        <input type="date" id="milestoneDate" style="padding:8px;border-radius:5px;border:none;margin-bottom:10px;width:100%;">
+        <input type="text" id="milestoneTitle" placeholder="里程碑標題（如：第一次露營）" style="padding:8px;border-radius:5px;border:none;margin-bottom:10px;width:100%;">
+        <textarea id="milestoneDesc" placeholder="描述這個重要時刻..." style="padding:8px;border-radius:5px;border:none;width:100%;min-height:60px;margin-bottom:10px;"></textarea>
+        <button onclick="addMilestone()" style="background:#ed8936;color:#fff;width:100%;padding:10px;">➕ 新增里程碑</button>
+      </div>
+      <div id="milestoneList" style="margin-top:15px;"></div>
     </div>
   </section>
 
@@ -1249,6 +1263,52 @@
       });
     }
     loadChallenges();
+    
+    // 露營里程碑功能
+    let milestones = JSON.parse(localStorage.getItem('camping_milestones') || '[]');
+    
+    function addMilestone() {
+      const date = document.getElementById('milestoneDate').value;
+      const title = document.getElementById('milestoneTitle').value.trim();
+      const desc = document.getElementById('milestoneDesc').value.trim();
+      
+      if (date && title) {
+        milestones.push({ date, title, desc: desc || '' });
+        milestones.sort((a, b) => new Date(a.date) - new Date(b.date));
+        localStorage.setItem('camping_milestones', JSON.stringify(milestones));
+        renderMilestones();
+        document.getElementById('milestoneDate').value = '';
+        document.getElementById('milestoneTitle').value = '';
+        document.getElementById('milestoneDesc').value = '';
+        alert('已新增里程碑：' + title);
+      } else {
+        alert('請填寫日期和標題');
+      }
+    }
+    
+    function renderMilestones() {
+      const container = document.getElementById('milestoneList');
+      if (milestones.length === 0) {
+        container.innerHTML = '<p style="color:#888;text-align:center;">尚無里程碑</p>';
+      } else {
+        container.innerHTML = milestones.slice().reverse().map((m, i) => 
+          '<div style="background:rgba(255,255,255,0.95);color:#333;padding:12px;border-radius:8px;margin:10px 0;border-left:4px solid #ed8936;">' +
+          '<div style="font-size:12px;color:#888;">' + m.date + '</div>' +
+          '<div style="font-weight:bold;margin:5px 0;">🎉 ' + m.title + '</div>' +
+          '<div style="font-size:14px;color:#666;">' + (m.desc || '') + '</div>' +
+          '<button onclick="removeMilestone(' + (milestones.length - 1 - i) + ')" style="background:#e53e3e;color:#fff;padding:5px 10px;border:none;border-radius:5px;margin-top:10px;">刪除</button></div>'
+        ).join('');
+      }
+    }
+    
+    function removeMilestone(index) {
+      if (confirm('確定要刪除這個里程碑嗎？')) {
+        milestones.splice(index, 1);
+        localStorage.setItem('camping_milestones', JSON.stringify(milestones));
+        renderMilestones();
+      }
+    }
+    renderMilestones();
     
     // 天氣預測功能
     function generateWeatherForecast() {
