@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v21.5</title>
+  <title>露營趣 v21.6</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -391,6 +391,16 @@
       </div>
       <div id="milestoneList" style="margin-top:15px;"></div>
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#48bb78,#2f855a);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>💡 隨機露營小技巧</h2>
+    <div id="tipOfDay" style="background:rgba(255,255,255,0.95);color:#333;padding:20px;border-radius:8px;margin:15px 0;text-align:center;">
+      <p style="font-size:48px;margin:10px 0;" id="tipEmoji">🔦</p>
+      <h3 style="margin:10px 0;" id="tipTitle">點擊獲取技巧</h3>
+      <p id="tipContent">點擊下方按鈕顯示隨機露營技巧</p>
+    </div>
+    <button onclick="showRandomTip()" style="background:#fff;color:#2f855a;width:100%;padding:12px;font-size:16px;">🎲 顯示隨機技巧</button>
   </section>
 
   <section style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:12px;margin:20px;padding:20px;">
@@ -1263,6 +1273,29 @@
       });
     }
     loadChallenges();
+    
+    // 隨機露營技巧功能
+    const campingTips = [
+      { emoji: '🔦', title: '照明技巧', content: '使用紅光手電筒可以保護夜視能力，同時不會影響同伴睡眠' },
+      { emoji: '💧', title: '水源處理', content: '野外水源建議煮沸至少1分鐘，或使用濾水器處理後再飲用' },
+      { emoji: '🔥', title: '生火技巧', content: '引火物使用乾燥樹葉或紙巾，順風生火更安全' },
+      { emoji: '⛺', title: '帳篷選擇', content: '新手建議選擇自動帳篷，收搭快速又方便' },
+      { emoji: '🦟', title: '防蚊技巧', content: '傍晚在營地周圍點蚊香，或使用天然精油驅蚊' },
+      { emoji: '🌡️', title: '溫度應對', content: '高山溫差大，建議攜帶備用保暖層衣物' },
+      { emoji: '🎒', title: '打包技巧', content: '重物放靠近背部的位置，維持背包重心' },
+      { emoji: '🍖', title: '食材保存', content: '保冷箱內放冰塊，食材分袋包裝避免交叉污染' },
+      { emoji: '👟', title: '舒適穿著', content: '選擇透氣衣物和舒適鞋子，減少磨腳和悶熱' },
+      { emoji: '📱', title: '手機省電', content: '開啟飛航模式省電，或攜帶備用行動電源' },
+      { emoji: '🧴', title: '防曬提醒', content: '高山紫外線強烈，記得攜帶防曬霜和遮陽帽' },
+      { emoji: '🏔️', title: '安全第一', content: '登山或徒步時務必告知親友行程，並攜帶緊急聯絡方式' }
+    ];
+    
+    function showRandomTip() {
+      const randomTip = campingTips[Math.floor(Math.random() * campingTips.length)];
+      document.getElementById('tipEmoji').innerText = randomTip.emoji;
+      document.getElementById('tipTitle').innerText = randomTip.title;
+      document.getElementById('tipContent').innerText = randomTip.content;
+    }
     
     // 露營里程碑功能
     let milestones = JSON.parse(localStorage.getItem('camping_milestones') || '[]');
