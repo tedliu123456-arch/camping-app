@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.7</title>
+  <title>露營趣 v20.8</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -306,6 +306,18 @@
         </div>
       </details>
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed64a6,#d53f8c);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🌟 願望清單</h2>
+    <p>收藏想去的營地，列為目標！</p>
+    <div id="wishlist" style="margin:15px 0;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;">
+      <input type="text" id="wishlistName" placeholder="營地名稱" style="flex:1;min-width:150px;">
+      <input type="text" id="wishlistReason" placeholder="想去的原因" style="flex:1;min-width:150px;">
+      <button onclick="addToWishlist()">➕ 新增</button>
+    </div>
+    <button onclick="clearWishlist()" style="background:#e53e3e;">🗑️ 清除全部</button>
   </section>
 
   <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
@@ -1009,6 +1021,54 @@
           '<input type="checkbox"> ' + item + '</label>'
         ).join('');
     }
+    
+    // 願望清單功能
+    let wishlist = JSON.parse(localStorage.getItem('camping_wishlist') || '[]');
+    
+    function addToWishlist() {
+      const name = document.getElementById('wishlistName').value.trim();
+      const reason = document.getElementById('wishlistReason').value.trim() || '想去看看！';
+      
+      if (name) {
+        wishlist.push({ name, reason, date: new Date().toLocaleDateString() });
+        localStorage.setItem('camping_wishlist', JSON.stringify(wishlist));
+        renderWishlist();
+        document.getElementById('wishlistName').value = '';
+        document.getElementById('wishlistReason').value = '';
+        alert('已添加到願望清單：' + name);
+      } else {
+        alert('請輸入營地名稱');
+      }
+    }
+    
+    function renderWishlist() {
+      const container = document.getElementById('wishlist');
+      
+      if (wishlist.length === 0) {
+        container.innerHTML = '<p style="opacity:0.8;">願望清單是空的，快去新增想去的營地吧！</p>';
+      } else {
+        container.innerHTML = wishlist.slice().reverse().map((w, i) => 
+          '<div style="background:rgba(255,255,255,0.95);color:#333;padding:12px;margin:8px 0;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<div><strong>' + w.name + '</strong><br><small style="color:#666;">' + w.reason + '</small></div>' +
+          '<button onclick="removeFromWishlist(' + (wishlist.length - 1 - i) + ')" style="padding:5px 10px;background:#e53e3e;color:#fff;border:none;border-radius:5px;">✕</button></div>'
+        ).join('');
+      }
+    }
+    
+    function removeFromWishlist(index) {
+      wishlist.splice(index, 1);
+      localStorage.setItem('camping_wishlist', JSON.stringify(wishlist));
+      renderWishlist();
+    }
+    
+    function clearWishlist() {
+      if (confirm('確定要清除所有願望嗎？')) {
+        wishlist = [];
+        localStorage.setItem('camping_wishlist', JSON.stringify(wishlist));
+        renderWishlist();
+      }
+    }
+    renderWishlist();
     
     // 露營食譜產生器
     const recipes = {
