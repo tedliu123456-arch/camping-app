@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.1</title>
+  <title>露營趣 v19.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -60,6 +60,15 @@
   <div class="marquee">
     <div class="track">🔥 春季露營節開跑！每日照片投票抽好禮！商家方案限時優惠中！🔥</div>
   </div>
+
+  <section id="countdownSection" style="background:linear-gradient(135deg,#48bb78,#2f855a);color:#fff;text-align:center;padding:30px;border-radius:12px;margin:20px;">
+    <h2>⏰ 露營倒數</h2>
+    <div id="countdownDisplay" style="font-size:48px;font-weight:bold;margin:20px 0;">--</div>
+    <p id="countdownText">設定您的露營日期</p>
+    <input type="date" id="countdownDate" style="padding:10px;border-radius:8px;border:none;margin:10px 0;">
+    <button onclick="setCountdown()" style="background:#fff;color:#2f855a;padding:10px 20px;">設定倒數</button>
+    <button onclick="clearCountdown()" style="background:rgba(255,255,255,0.3);color:#fff;padding:10px 20px;">清除</button>
+  </section>
 
   <section>
     <h2>💡 露營小知識</h2>
@@ -435,6 +444,50 @@
       document.getElementById('voteCount').innerText = '今日剩餘票數：' + votesLeft;
     }
     updateVoteDisplay();
+    
+    // 露營倒數功能
+    const savedDate = localStorage.getItem('camping_countdown_date');
+    if (savedDate) {
+      document.getElementById('countdownDate').value = savedDate;
+      updateCountdown();
+      setInterval(updateCountdown, 60000); // 每分鐘更新
+    }
+    
+    function setCountdown() {
+      const dateInput = document.getElementById('countdownDate').value;
+      if (dateInput) {
+        localStorage.setItem('camping_countdown_date', dateInput);
+        updateCountdown();
+        alert('倒數設定成功！');
+      } else {
+        alert('請選擇日期');
+      }
+    }
+    
+    function clearCountdown() {
+      localStorage.removeItem('camping_countdown_date');
+      document.getElementById('countdownDate').value = '';
+      document.getElementById('countdownDisplay').innerText = '--';
+      document.getElementById('countdownText').innerText = '設定您的露營日期';
+    }
+    
+    function updateCountdown() {
+      const savedDate = localStorage.getItem('camping_countdown_date');
+      if (!savedDate) return;
+      
+      const target = new Date(savedDate);
+      const now = new Date();
+      const diff = target - now;
+      
+      if (diff <= 0) {
+        document.getElementById('countdownDisplay').innerText = '🎉';
+        document.getElementById('countdownText').innerText = '今天是露營日！玩得開心！';
+      } else {
+        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        document.getElementById('countdownDisplay').innerText = days + ' 天';
+        document.getElementById('countdownText').innerText = '距離露營還有 ' + days + ' 天';
+      }
+    }
     
     function vote(btn){
       if(votesLeft>0){
