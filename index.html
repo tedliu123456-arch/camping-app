@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v21.1</title>
+  <title>露營趣 v21.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -599,6 +599,16 @@
       <button type="submit">提交評分</button>
     </form>
     <div id="ratingsList" style="margin-top:15px;"></div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🎯 露營願望清單</h2>
+    <p>寫下你想去的營地或想做的事</p>
+    <div style="display:flex;gap:10px;margin:15px 0;">
+      <input type="text" id="wishItem" placeholder="我想去..." style="flex:1;padding:10px;border-radius:8px;border:none;">
+      <button onclick="addWish()" style="background:#fff;color:#764ba2;padding:10px 20px;">➕</button>
+    </div>
+    <div id="wishList" style="display:flex;flex-direction:column;gap:10px;"></div>
   </section>
 
   <section>
@@ -1688,6 +1698,48 @@
       }
     }
     renderRatings();
+    
+    // 露營願望清單功能
+    let wishes = JSON.parse(localStorage.getItem('camping_wishes') || '[]');
+    
+    function addWish() {
+      const item = document.getElementById('wishItem').value.trim();
+      if (item) {
+        wishes.push({ item, done: false, date: new Date().toLocaleDateString() });
+        localStorage.setItem('camping_wishes', JSON.stringify(wishes));
+        renderWishes();
+        document.getElementById('wishItem').value = '';
+      } else {
+        alert('請輸入願望');
+      }
+    }
+    
+    function renderWishes() {
+      const container = document.getElementById('wishList');
+      if (wishes.length === 0) {
+        container.innerHTML = '<p style="opacity:0.7;">還沒有願望，快來許願吧！</p>';
+      } else {
+        container.innerHTML = wishes.map((w, i) => 
+          '<div style="background:rgba(255,255,255,0.9);color:#333;padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">' +
+          '<span style="text-decoration:' + (w.done ? 'line-through' : 'none') + ';opacity:' + (w.done ? '0.5' : '1') + ';">' + w.item + '</span>' +
+          '<div><input type="checkbox" ' + (w.done ? 'checked' : '') + ' onchange="toggleWish(' + i + ')">' +
+          '<button onclick="removeWish(' + i + ')" style="padding:3px 8px;background:#e53e3e;margin-left:5px;">✕</button></div></div>'
+        ).join('');
+      }
+    }
+    
+    function toggleWish(index) {
+      wishes[index].done = !wishes[index].done;
+      localStorage.setItem('camping_wishes', JSON.stringify(wishes));
+      renderWishes();
+    }
+    
+    function removeWish(index) {
+      wishes.splice(index, 1);
+      localStorage.setItem('camping_wishes', JSON.stringify(wishes));
+      renderWishes();
+    }
+    renderWishes();
     
     // 評論功能
     function addComment(e) {
