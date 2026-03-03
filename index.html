@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.2</title>
+  <title>露營趣 v19.3</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -68,6 +68,18 @@
     <input type="date" id="countdownDate" style="padding:10px;border-radius:8px;border:none;margin:10px 0;">
     <button onclick="setCountdown()" style="background:#fff;color:#2f855a;padding:10px 20px;">設定倒數</button>
     <button onclick="clearCountdown()" style="background:rgba(255,255,255,0.3);color:#fff;padding:10px 20px;">清除</button>
+  </section>
+
+  <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+    <h2>💰 露營費用記錄</h2>
+    <div id="expenseList" style="margin:15px 0;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" id="expenseName" placeholder="項目（如：交通費）" style="flex:1;min-width:120px;">
+      <input type="number" id="expenseAmount" placeholder="金額" style="width:100px;">
+      <button onclick="addExpense()">新增</button>
+      <button onclick="clearExpenses()" style="background:#e53e3e;">清除全部</button>
+    </div>
+    <p id="expenseTotal" style="text-align:right;font-size:18px;font-weight:bold;margin-top:15px;">總計：0 元</p>
   </section>
 
   <section>
@@ -486,6 +498,58 @@
         const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
         document.getElementById('countdownDisplay').innerText = days + ' 天';
         document.getElementById('countdownText').innerText = '距離露營還有 ' + days + ' 天';
+      }
+    }
+    
+    // 露營費用記錄功能
+    let expenses = JSON.parse(localStorage.getItem('camping_expenses') || '[]');
+    renderExpenses();
+    
+    function addExpense() {
+      const name = document.getElementById('expenseName').value;
+      const amount = parseFloat(document.getElementById('expenseAmount').value);
+      
+      if (!name || !amount || amount <= 0) {
+        alert('請輸入項目和金額');
+        return;
+      }
+      
+      expenses.push({ name, amount, date: new Date().toLocaleDateString() });
+      localStorage.setItem('camping_expenses', JSON.stringify(expenses));
+      renderExpenses();
+      
+      document.getElementById('expenseName').value = '';
+      document.getElementById('expenseAmount').value = '';
+    }
+    
+    function renderExpenses() {
+      const container = document.getElementById('expenseList');
+      let total = 0;
+      
+      if (expenses.length === 0) {
+        container.innerHTML = '<p style="color:#888;">尚未記錄費用</p>';
+      } else {
+        container.innerHTML = expenses.map((e, i) => {
+          total += e.amount;
+          return '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;"><span>' + e.name + '</span><span>' + e.amount + ' 元 <button onclick="removeExpense(' + i + ')" style="padding:2px 8px;margin-left:10px;background:#e53e3e;">✕</button></span></div>';
+        }).join('');
+      }
+      
+      document.getElementById('expenseTotal').innerText = '總計：' + total + ' 元';
+      localStorage.setItem('camping_expense_total', total);
+    }
+    
+    function removeExpense(index) {
+      expenses.splice(index, 1);
+      localStorage.setItem('camping_expenses', JSON.stringify(expenses));
+      renderExpenses();
+    }
+    
+    function clearExpenses() {
+      if (confirm('確定要清除所有費用記錄嗎？')) {
+        expenses = [];
+        localStorage.removeItem('camping_expenses');
+        renderExpenses();
       }
     }
     
