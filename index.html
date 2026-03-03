@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v18.7</title>
+  <title>露營趣 v18.8</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -122,6 +122,20 @@
     <section>
       <h2>👤 會員中心</h2>
       <div id="profileInfo">尚未登入</div>
+    </section>
+    <section>
+      <h2>📝 露營清單</h2>
+      <div id="checklist">
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 帳篷</label>
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 睡袋</label>
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 防潮墊</label>
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 頭燈</label>
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 烤肉食材</label>
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 行動電源</label>
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 防晒乳</label>
+        <label style="display:block;padding:8px;"><input type="checkbox" onchange="saveChecklist()"> 個人藥品</label>
+      </div>
+      <button onclick="clearChecklist()" style="margin-top:10px;">清除勾選</button>
     </section>
   </div>
 
@@ -715,6 +729,24 @@
     }
     const savedUser = localStorage.getItem('camping_user');
     if(savedUser){document.getElementById('profileInfo').innerText='歡迎，'+savedUser;}
+    
+    // 露營清單功能
+    function saveChecklist() {
+      const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+      const checked = Array.from(checkboxes).map(cb => cb.checked);
+      localStorage.setItem('camping_checklist', JSON.stringify(checked));
+    }
+    function loadChecklist() {
+      const saved = JSON.parse(localStorage.getItem('camping_checklist') || '[]');
+      const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+      checkboxes.forEach((cb, i) => { if(saved[i]) cb.checked = true; });
+    }
+    function clearChecklist() {
+      const checkboxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = false);
+      saveChecklist();
+    }
+    loadChecklist();
   </script>
   <script>
     // 露營小知識
