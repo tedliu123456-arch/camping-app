@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.5</title>
+  <title>露營趣 v20.6</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -248,6 +248,20 @@
     </select>
     <button onclick="generateChecklist()" style="background:#fff;color:#38a169;width:100%;padding:12px;">✨ 產生清單</button>
     <div id="generatedChecklist" style="margin-top:15px;"></div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed8936,#dd6b20);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🍳 露營食譜產生器</h2>
+    <p>根據餐次產生美味露營食譜</p>
+    <select id="mealType" style="width:100%;padding:12px;border-radius:8px;border:none;margin:15px 0;font-size:16px;color:#333;">
+      <option value="">選擇餐次...</option>
+      <option value="breakfast">🌅 早餐</option>
+      <option value="lunch">☀️ 午餐</option>
+      <option value="dinner">🌙 晚餐</option>
+      <option value="snack">🍪 點心</option>
+    </select>
+    <button onclick="generateRecipe()" style="background:#fff;color:#dd6b20;width:100%;padding:12px;">🍳 產生食譜</button>
+    <div id="recipeResult" style="margin-top:15px;"></div>
   </section>
 
   <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
@@ -950,6 +964,53 @@
           '<label style="display:block;padding:8px;background:rgba(255,255,255,0.9);color:#333;margin:5px 0;border-radius:5px;">' +
           '<input type="checkbox"> ' + item + '</label>'
         ).join('');
+    }
+    
+    // 露營食譜產生器
+    const recipes = {
+      breakfast: [
+        { name: '培根蛋早餐', emoji: '🥓', desc: '簡單美味的營地早餐', items: ['培根', '雞蛋', '吐司', '奶油'] },
+        { name: '營養燕麥粥', emoji: '🥣', desc: '健康又暖胃', items: ['燕麥片', '牛奶', '蜂蜜', '堅果'] },
+        { name: '法式吐司', emoji: '🍞', desc: '甜滋滋的早餐選擇', items: ['吐司', '雞蛋', '牛奶', '糖粉'] },
+        { name: '煎香腸配薯條', emoji: '🌭', desc: '元氣滿滿', items: ['香腸', '馬鈴薯', '鹽', '胡椒'] }
+      ],
+      lunch: [
+        { name: '越南法棍', emoji: '🥖', desc: '清爽好吃', items: ['法棍', '火腿', '生菜', '醬汁'] },
+        { name: '日式飯糰', emoji: '🍙', desc: '簡單方便', items: ['白飯', '海苔', '鹽', '配料'] },
+        { name: '涼麵', emoji: '🍜', desc: '消暑首選', items: ['涼麵', '小黃瓜', '紅蘿蔔', '醬料'] },
+        { name: '三明治', emoji: '🥪', desc: '經典選擇', items: ['吐司', '火腿', '起司', '生菜'] }
+      ],
+      dinner: [
+        { name: '烤肉派對', emoji: '🍖', desc: '露營必備！', items: ['牛肉', '豬肉', '雞翅', '香腸', '蔬菜', '烤肉醬'] },
+        { name: '火鍋', emoji: '🍲', desc: '暖心暖胃', items: ['火鍋底料', '肉片', '高麗菜', '豆腐', '火鍋料'] },
+        { name: '帳篷義大利麵', emoji: '🍝', desc: '西式露營', items: ['義大利麵', '番茄醬', '起司', '蒜頭'] },
+        { name: '竹筒飯', emoji: '🍚', desc: '特色風味', items: ['米', '香腸', '玉米', '鹽'] }
+      ],
+      snack: [
+        { name: '棉花糖烤餅', emoji: '🍡', desc: '甜點首選', items: ['棉花糖', '餅乾', '巧克力'] },
+        { name: '烤棉花糖', emoji: '🔥', desc: '經典露營甜點', items: ['棉花糖', '竹籤'] },
+        { name: '堅果拼盤', emoji: '🥜', desc: '健康零嘴', items: ['杏仁', '核桃', '腰果', '葡萄乾'] },
+        { name: '水果沙拉', emoji: '🍓', desc: '清爽解膩', items: ['草莓', '藍莓', '香蕉', '優格'] }
+      ]
+    };
+    
+    function generateRecipe() {
+      const type = document.getElementById('mealType').value;
+      const container = document.getElementById('recipeResult');
+      
+      if (!type) {
+        alert('請先選擇餐次');
+        return;
+      }
+      
+      const mealRecipes = recipes[type];
+      const randomRecipe = mealRecipes[Math.floor(Math.random() * mealRecipes.length)];
+      
+      container.innerHTML = '<div style="background:rgba(255,255,255,0.95);color:#333;padding:15px;border-radius:8px;">' +
+        '<h3 style="margin:0 0 10px 0;">' + randomRecipe.emoji + ' ' + randomRecipe.name + '</h3>' +
+        '<p style="margin:0 0 10px 0;color:#666;">' + randomRecipe.desc + '</p>' +
+        '<p style="margin:0 0 5px 0;font-weight:bold;">所需食材：</p>' +
+        '<p style="margin:0;">' + randomRecipe.items.join('、') + '</p></div>';
     }
     
     // 露營夥伴功能
