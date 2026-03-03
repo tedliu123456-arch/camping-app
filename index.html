@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.0</title>
+  <title>露營趣 v20.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -179,6 +179,17 @@
       <button onclick="addPhoto()">➕ 新增</button>
     </div>
     <button onclick="clearPhotos()" style="background:#e53e3e;margin-top:10px;">🗑️ 清除</button>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
+    <h2>👫 露營夥伴</h2>
+    <p>記錄一起露營的朋友們</p>
+    <div id="buddyList" style="display:flex;flex-wrap:wrap;gap:10px;margin:15px 0;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" id="buddyName" placeholder="夥伴名稱" style="flex:1;min-width:120px;">
+      <input type="text" id="buddyEmoji" placeholder="表情符號" style="width:60px;" maxlength="2">
+      <button onclick="addBuddy()">➕ 新增</button>
+    </div>
   </section>
 
   <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
@@ -760,6 +771,46 @@
       }
     }
     renderPhotos();
+    
+    // 露營夥伴功能
+    let buddies = JSON.parse(localStorage.getItem('camping_buddies') || '[]');
+    
+    function addBuddy() {
+      const name = document.getElementById('buddyName').value.trim();
+      const emoji = document.getElementById('buddyEmoji').value.trim() || '😊';
+      
+      if (name) {
+        buddies.push({ name, emoji, adventures: 0 });
+        localStorage.setItem('camping_buddies', JSON.stringify(buddies));
+        renderBuddies();
+        document.getElementById('buddyName').value = '';
+        document.getElementById('buddyEmoji').value = '';
+      } else {
+        alert('請輸入夥伴名稱');
+      }
+    }
+    
+    function renderBuddies() {
+      const container = document.getElementById('buddyList');
+      
+      if (buddies.length === 0) {
+        container.innerHTML = '<p style="color:#888;">尚無露營夥伴</p>';
+      } else {
+        container.innerHTML = buddies.map((b, i) => 
+          '<div style="background:#fff;padding:10px 15px;border-radius:20px;display:flex;align-items:center;gap:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);">' +
+          '<span style="font-size:24px;">' + b.emoji + '</span>' +
+          '<span><strong>' + b.name + '</strong></span>' +
+          '<button onclick="removeBuddy(' + i + ')" style="padding:3px 8px;background:#e53e3e;margin-left:10px;">✕</button></div>'
+        ).join('');
+      }
+    }
+    
+    function removeBuddy(index) {
+      buddies.splice(index, 1);
+      localStorage.setItem('camping_buddies', JSON.stringify(buddies));
+      renderBuddies();
+    }
+    renderBuddies();
     
     // 露營気分轉盤功能
     const spinItems = [
