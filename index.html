@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v20.4</title>
+  <title>露營趣 v20.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -233,6 +233,21 @@
       <p style="margin:0;">點擊上方按鈕播放環境音樂</p>
     </div>
     <button onclick="stopAmbient()" style="background:#e53e3e;margin-top:10px;">⏹️ 停止播放</button>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#68d391,#38a169);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>📋 露營類型產生器</h2>
+    <p>根據露營類型產生建議物品清單</p>
+    <select id="tripType" style="width:100%;padding:12px;border-radius:8px;border:none;margin:15px 0;font-size:16px;">
+      <option value="">選擇露營類型...</option>
+      <option value="tent">🏕️ 帳篷露營</option>
+      <option value="glamping">✨ 豪華露營</option>
+      <option value="car">🚗 車泊露營</option>
+      <option value="backpack">🎒 背包露營</option>
+      <option value="family">👨‍👩‍👧‍👦 親子露營</option>
+    </select>
+    <button onclick="generateChecklist()" style="background:#fff;color:#38a169;width:100%;padding:12px;">✨ 產生清單</button>
+    <div id="generatedChecklist" style="margin-top:15px;"></div>
   </section>
 
   <section style="background:linear-gradient(135deg,#f6e05e,#ecc94b);border-radius:12px;margin:20px;padding:20px;">
@@ -909,6 +924,32 @@
       }
       document.getElementById('nowPlaying').innerHTML = 
         '<p style="margin:0;">點擊上方按鈕播放環境音樂</p>';
+    }
+    
+    // 露營類型產生器
+    const checklists = {
+      tent: ['帳篷', '睡袋', '睡墊', '營槌', '營繩', '營釘', '手電筒', '頭燈', '電池', '防潮墊', '地布', '天幕'],
+      glamping: ['豪華帳篷', '床墊', '棉被', '枕頭', '床單', '燈串', '折疊椅', '折疊桌', '露營桌布', '藍牙音響', '蚊香', '精油'],
+      car: ['車用露營套件', '充氣床墊', '車用電源', '行動電源', '露營椅', '露營桌', '保冷箱', '食材', '炊具', '爐具', '瓦斯罐'],
+      backpack: ['背包', '防水背包套', '輕量帳篷', '睡袋（輕量）', '充氣枕', '濾水器', '緊急毯', '頭燈', '多功能刀', '火種', '行動糧'],
+      family: ['帳篷（大）', '睡袋', '防潮墊', '童鞋', '濕紙巾', '玩具', '畫本', '野餐墊', '吹泡泡', '捕蟲網', '急救包', '手電筒']
+    };
+    
+    function generateChecklist() {
+      const type = document.getElementById('tripType').value;
+      const container = document.getElementById('generatedChecklist');
+      
+      if (!type) {
+        alert('請先選擇露營類型');
+        return;
+      }
+      
+      const items = checklists[type];
+      container.innerHTML = '<h3 style="margin:10px 0;">建議清單：</h3>' + 
+        items.map(item => 
+          '<label style="display:block;padding:8px;background:rgba(255,255,255,0.9);color:#333;margin:5px 0;border-radius:5px;">' +
+          '<input type="checkbox"> ' + item + '</label>'
+        ).join('');
     }
     
     // 露營夥伴功能
