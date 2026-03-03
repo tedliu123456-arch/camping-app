@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v18.6</title>
+  <title>露營趣 v18.7</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -124,6 +124,50 @@
       <div id="profileInfo">尚未登入</div>
     </section>
   </div>
+
+  <section>
+    <h2>🍳 露營食譜</h2>
+    <div class="tiers">
+      <div class="card">
+        <h3>🔥 烤肉</h3>
+        <p>香氣四溢的烤肉是露營經典</p>
+        <button onclick="showRecipe('烤肉')">查看食譜</button>
+      </div>
+      <div class="card">
+        <h3>🍲 火鍋</h3>
+        <p>暖胃又暖心的火鍋料理</p>
+        <button onclick="showRecipe('火鍋')">查看食譜</button>
+      </div>
+      <div class="card">
+        <h3>🍳 煎蛋</h3>
+        <p>簡單快速的營養早餐</p>
+        <button onclick="showRecipe('煎蛋')">查看食譜</button>
+      </div>
+      <div class="card">
+        <h3>☕ 咖啡</h3>
+        <p>清晨必備的香濃咖啡</p>
+        <button onclick="showRecipe('咖啡')">查看食譜</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>🎫 優惠券</h2>
+    <div id="couponList">
+      <div class="card" style="border:2px dashed #e53e3e;margin-bottom:10px;">
+        <h3 style="color:#e53e3e;">🌸 春季限定</h3>
+        <p>營地費用 9 折優惠</p>
+        <p style="font-size:12px;color:#888;">優惠碼：SPRING2026</p>
+        <button onclick="copyCoupon('SPRING2026')">複製優惠碼</button>
+      </div>
+      <div class="card" style="border:2px dashed #3182ce;margin-bottom:10px;">
+        <h3 style="color:#3182ce;">🏕️ 新會員</h3>
+        <p>首次預約現折 100 元</p>
+        <p style="font-size:12px;color:#888;">優惠碼：NEW100</p>
+        <button onclick="copyCoupon('NEW100')">複製優惠碼</button>
+      </div>
+    </div>
+  </section>
 
   <section>
     <h2>🌤️ 天氣資訊</h2>
@@ -682,6 +726,26 @@
     ];
     function showTip(idx) {
       alert(campingTips[idx]);
+    }
+    
+    // 食譜功能
+    const recipes = {
+      '烤肉': '🥩 烤肉食譜：\n1. 準備肉片（豬/牛/雞）\n2. 醃製 30 分鐘\n3. 生火後架上烤網\n4. 翻面烤至熟透\n5. 搭配蔬菜更美味！',
+      '火鍋': '🍲 火鍋食譜：\n1. 準備火鍋底料\n2. 加入清水或高湯\n3. 依序放入肉片、海鮮\n4. 加入蔬菜、豆製品\n5. 調製喜歡的醬料',
+      '煎蛋': '🍳 煎蛋食譜：\n1. 熱鍋後加少許油\n2. 打入雞蛋\n3. 撒少許鹽巴\n4. 煎至蛋白凝固\n5. 翻面再煎一下',
+      '咖啡': '☕ 咖啡食譜：\n1. 準備咖啡粉或即溶咖啡\n2. 熱水煮沸\n3. 倒入杯中沖泡\n4. 加入糖和奶精\n5. 享受美味咖啡！'
+    };
+    function showRecipe(name) {
+      alert(recipes[name] || '尚無食譜');
+    }
+    
+    // 優惠券功能
+    function copyCoupon(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        alert('優惠碼 ' + code + ' 已複製！');
+      }).catch(() => {
+        alert('優惠碼：' + code);
+      });
     }
   </script>
 
