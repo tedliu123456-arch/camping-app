@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v18.3</title>
+  <title>露營趣 v18.4</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -78,6 +78,13 @@
         <option value="中部">中部</option>
         <option value="東部">東部</option>
       </select>
+      <div style="margin-bottom:15px;">
+        <span style="font-weight:bold;">設施：</span>
+        <label><input type="checkbox" id="filterWifi" onchange="renderCampList()"> WiFi</label>
+        <label><input type="checkbox" id="filterShower" onchange="renderCampList()"> 淋浴</label>
+        <label><input type="checkbox" id="filterPower" onchange="renderCampList()"> 電源</label>
+        <label><input type="checkbox" id="filterParking" onchange="renderCampList()"> 停車場</label>
+      </div>
       <div id="campList" class="tiers"></div>
     </section>
   </div>
@@ -547,11 +554,19 @@
     function renderCampList(){
       const q = (document.getElementById('campSearch').value||'').toLowerCase();
       const area = document.getElementById('areaFilter').value;
+      const filterWifi = document.getElementById('filterWifi').checked;
+      const filterShower = document.getElementById('filterShower').checked;
+      const filterPower = document.getElementById('filterPower').checked;
+      const filterParking = document.getElementById('filterParking').checked;
       const container = document.getElementById('campList');
       const filtered = campData.filter(c=>{
         const matchQ = c.name.toLowerCase().includes(q) || c.tags.join('').toLowerCase().includes(q);
         const matchArea = !area || c.area===area;
-        return matchQ && matchArea;
+        const matchWifi = !filterWifi || c.tags.includes('WiFi');
+        const matchShower = !filterShower || c.tags.includes('淋浴');
+        const matchPower = !filterPower || c.tags.includes('電源');
+        const matchParking = !filterParking || c.tags.includes('停車場');
+        return matchQ && matchArea && matchWifi && matchShower && matchPower && matchParking;
       });
       if(filtered.length===0){
         container.innerHTML='<p class="no-results">找不到符合條件的營地</p>';
