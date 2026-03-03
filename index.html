@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.0</title>
+  <title>露營趣 v19.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -106,6 +106,15 @@
         <label><input type="checkbox" id="filterShower" onchange="renderCampList()"> 淋浴</label>
         <label><input type="checkbox" id="filterPower" onchange="renderCampList()"> 電源</label>
         <label><input type="checkbox" id="filterParking" onchange="renderCampList()"> 停車場</label>
+      </div>
+      <div style="margin-bottom:15px;">
+        <span style="font-weight:bold;">排序：</span>
+        <select id="sortOrder" onchange="renderCampList()" style="padding:5px;border-radius:5px;">
+          <option value="rating">⭐ 評分最高</option>
+          <option value="popular">🔥 熱門程度</option>
+          <option value="name">📛 名稱排序</option>
+        </select>
+        <button onclick="toggleFavoritesView()" style="margin-left:10px;padding:5px 10px;">❤️ 我的收藏</button>
       </div>
       <div id="campList" class="tiers"></div>
     </section>
@@ -678,9 +687,11 @@
 
     // ---------- 營地資料 ----------
     const campData = [
-      {name:'星空露營區',area:'北部',price:1200,tags:['觀星','WiFi']},
-      {name:'森林親子營地',area:'中部',price:1000,tags:['親子','烤肉']},
-      {name:'海岸日出營地',area:'東部',price:1500,tags:['海景','日出']}
+      {name:'星空露營區',area:'北部',price:1200,tags:['觀星','WiFi'],rating:4.8,views:1250},
+      {name:'森林親子營地',area:'中部',price:1000,tags:['親子','烤肉'],rating:4.5,views:980},
+      {name:'海岸日出營地',area:'東部',price:1500,tags:['海景','日出'],rating:4.9,views:2100},
+      {name:'高山草原營地',area:'中部',price:800,tags:['草原','健行'],rating:4.3,views:650},
+      {name:'溪流戲水營地',area:'北部',price:900,tags:['戲水','垂釣'],rating:4.6,views:870}
     ];
 
     function renderCampList(){
@@ -690,8 +701,10 @@
       const filterShower = document.getElementById('filterShower').checked;
       const filterPower = document.getElementById('filterPower').checked;
       const filterParking = document.getElementById('filterParking').checked;
+      const sortOrder = document.getElementById('sortOrder')?.value || 'rating';
       const container = document.getElementById('campList');
-      const filtered = campData.filter(c=>{
+      
+      let filtered = campData.filter(c=>{
         const matchQ = c.name.toLowerCase().includes(q) || c.tags.join('').toLowerCase().includes(q);
         const matchArea = !area || c.area===area;
         const matchWifi = !filterWifi || c.tags.includes('WiFi');
@@ -700,15 +713,48 @@
         const matchParking = !filterParking || c.tags.includes('停車場');
         return matchQ && matchArea && matchWifi && matchShower && matchPower && matchParking;
       });
+      
+      // 排序功能
+      if(sortOrder === 'rating'){
+        filtered.sort((a,b) => (b.rating||0) - (a.rating||0));
+      } else if(sortOrder === 'popular'){
+        filtered.sort((a,b) => (b.views||0) - (a.views||0));
+      } else if(sortOrder === 'name'){
+        filtered.sort((a,b) => a.name.localeCompare(b.name, 'zh-TW'));
+      }
+      
       if(filtered.length===0){
         container.innerHTML='<p class="no-results">找不到符合條件的營地</p>';
         return;
       }
       container.innerHTML = filtered.map(c=>
-        '<div class="card"><h3>'+c.name+'</h3><p>地區：'+c.area+'</p><p>價格：$'+c.price+'/晚</p><p>'+c.tags.join(' / ')+'</p>'+
+        '<div class="card"><h3>'+c.name+'</h3><p>地區：'+c.area+'</p><p>⭐ 評分：'+(c.rating||'暂无')+'</p><p>價格：$'+c.price+'/晚</p><p>'+c.tags.join(' / ')+'</p>'+
         '<button onclick="openBooking(\''+c.name+'\')">立即預約</button> '+
         '<button onclick="addFavorite(\''+c.name+'\')" style="background:#e53e3e;">收藏</button></div>'
       ).join('');
+    }
+    
+    // 收藏檢視模式
+    let favoritesView = false;
+    function toggleFavoritesView(){
+      favoritesView = !favoritesView;
+      const container = document.getElementById('campList');
+      const userFavorites = JSON.parse(localStorage.getItem('camping_favorites') || '[]');
+      
+      if(favoritesView){
+        const filtered = campData.filter(c => userFavorites.includes(c.name));
+        if(filtered.length === 0){
+          container.innerHTML = '<p class="no-results">尚未收藏任何營地</p>';
+        } else {
+          container.innerHTML = filtered.map(c=>
+            '<div class="card"><h3>'+c.name+'</h3><p>地區：'+c.area+'</p><p>⭐ 評分：'+(c.rating||'暂无')+'</p><p>價格：$'+c.price+'/晚</p><p>'+c.tags.join(' / ')+'</p>'+
+            '<button onclick="openBooking(\''+c.name+'\')">立即預約</button> '+
+            '<button onclick="removeFavorite(\''+c.name+'\')" style="background:#718096;">移除收藏</button></div>'
+          ).join('');
+        }
+      } else {
+        renderCampList();
+      }
     }
     renderCampList();
 
