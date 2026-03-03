@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v19.3</title>
+  <title>露營趣 v19.4</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -68,6 +68,16 @@
     <input type="date" id="countdownDate" style="padding:10px;border-radius:8px;border:none;margin:10px 0;">
     <button onclick="setCountdown()" style="background:#fff;color:#2f855a;padding:10px 20px;">設定倒數</button>
     <button onclick="clearCountdown()" style="background:rgba(255,255,255,0.3);color:#fff;padding:10px 20px;">清除</button>
+  </section>
+
+  <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+    <h2>🎒 打包清單檢查</h2>
+    <div id="packingList" style="margin:15px 0;"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" id="packingItem" placeholder="新增物品..." style="flex:1;min-width:150px;">
+      <button onclick="addPackingItem()">新增物品</button>
+      <button onclick="resetPacking()" style="background:#e53e3e;">重置清單</button>
+    </div>
   </section>
 
   <section style="background:#fff;border-radius:12px;margin:20px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
@@ -498,6 +508,58 @@
         const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
         document.getElementById('countdownDisplay').innerText = days + ' 天';
         document.getElementById('countdownText').innerText = '距離露營還有 ' + days + ' 天';
+      }
+    }
+    
+    // 打包清單功能
+    const defaultPacking = ['帳篷', '睡袋', '睡墊', '手電筒', '炊具', '食材', '水壺', '防蚊液', '防曬', '保暖衣物', '雨衣', '行動電源'];
+    let packingList = JSON.parse(localStorage.getItem('camping_packing') || '[]');
+    if (packingList.length === 0) {
+      packingList = defaultPacking.map(item => ({ name: item, checked: false }));
+    }
+    renderPacking();
+    
+    function renderPacking() {
+      const container = document.getElementById('packingList');
+      container.innerHTML = packingList.map((item, idx) => 
+        '<label style="display:flex;align-items:center;gap:10px;padding:8px;background:#f7f7f7;margin:5px 0;border-radius:8px;cursor:pointer;">' +
+        '<input type="checkbox" ' + (item.checked ? 'checked' : '') + ' onchange="togglePacking(' + idx + ')">' +
+        '<span style="' + (item.checked ? 'text-decoration:line-through;color:#888;' : '') + '">' + item.name + '</span>' +
+        '<button onclick="removePacking(' + idx + ')" style="margin-left:auto;padding:4px 8px;background:#e53e3e;">✕</button>' +
+        '</label>'
+      ).join('');
+      
+      const checked = packingList.filter(p => p.checked).length;
+      container.innerHTML += '<p style="margin-top:15px;color:#666;">已打包: ' + checked + '/' + packingList.length + '</p>';
+    }
+    
+    function togglePacking(idx) {
+      packingList[idx].checked = !packingList[idx].checked;
+      localStorage.setItem('camping_packing', JSON.stringify(packingList));
+      renderPacking();
+    }
+    
+    function addPackingItem() {
+      const item = document.getElementById('packingItem').value.trim();
+      if (item) {
+        packingList.push({ name: item, checked: false });
+        localStorage.setItem('camping_packing', JSON.stringify(packingList));
+        renderPacking();
+        document.getElementById('packingItem').value = '';
+      }
+    }
+    
+    function removePacking(idx) {
+      packingList.splice(idx, 1);
+      localStorage.setItem('camping_packing', JSON.stringify(packingList));
+      renderPacking();
+    }
+    
+    function resetPacking() {
+      if (confirm('確定要重置清單嗎？')) {
+        packingList = defaultPacking.map(item => ({ name: item, checked: false }));
+        localStorage.setItem('camping_packing', JSON.stringify(packingList));
+        renderPacking();
       }
     }
     
