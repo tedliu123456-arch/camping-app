@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.2</title>
+  <title>露營趣 v22.3</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -631,6 +631,41 @@
       <div style="margin-top:10px;">
         <strong>👨‍🍳 做法：</strong><span id="recipeSteps"></span>
       </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#3182ce,#2b6cb0);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🎵 露營歌單</h2>
+    <p>精選露營氛圍音樂</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;min-width:180px;text-align:center;">
+        <h3>🌲 森林風</h3>
+        <p style="font-size:30px;">🎶</p>
+        <p style="font-size:12px;">鳥鳴、溪流、風聲</p>
+        <button onclick="playPlaylist('forest')" style="background:#3182ce;">▶ 播放</button>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;text-align:center;">
+        <h3>🔥 營火晚會</h3>
+        <p style="font-size:30px;">🎸</p>
+        <p style="font-size:12px;">吉他、民謠、合唱</p>
+        <button onclick="playPlaylist('campfire')" style="background:#e53e3e;">▶ 播放</button>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;text-align:center;">
+        <h3>🌙 星空下</h3>
+        <p style="font-size:30px;">🎹</p>
+        <p style="font-size:12px;">鋼琴、輕音樂、放鬆</p>
+        <button onclick="playPlaylist('night')" style="background:#805ad5;">▶ 播放</button>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;text-align:center;">
+        <h3>☕ 早晨咖啡</h3>
+        <p style="font-size:30px;">☕</p>
+        <p style="font-size:12px;">輕快、活力、元氣</p>
+        <button onclick="playPlaylist('morning')" style="background:#38a169;">▶ 播放</button>
+      </div>
+    </div>
+    <div id="nowPlaying" style="display:none;background:rgba(0,0,0,0.3);padding:15px;border-radius:10px;margin-top:15px;text-align:center;">
+      <p style="margin:0;">🎧 現在播放：<span id="currentPlaylist"></span></p>
+      <p style="margin:5px 0 0 0;font-size:12px;">(純文字模擬播放)</p>
     </div>
   </section>
 
@@ -2418,6 +2453,21 @@
       document.getElementById('recipeSteps').textContent = recipe.steps;
       document.getElementById('recipeDetail').style.display = 'block';
       document.getElementById('recipeDetail').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    // 露營歌單功能
+    const playlists = {
+      'forest': '🌲 森林風 - 鳥鳴、溪流、風聲的自然交響',
+      'campfire': '🔥 營火晚會 - 吉他、民謠、合唱的歡樂時光',
+      'night': '🌙 星空下 - 鋼琴、輕音樂的浪漫時刻',
+      'morning': '☀️ 早晨咖啡 - 輕快、活力的元氣早晨'
+    };
+    
+    function playPlaylist(type) {
+      document.getElementById('currentPlaylist').textContent = playlists[type];
+      document.getElementById('nowPlaying').style.display = 'block';
+      document.getElementById('nowPlaying').scrollIntoView({behavior: 'smooth'});
+      showToast('🎵 已播放：' + playlists[type]);
     }
     
     // 優惠券功能
