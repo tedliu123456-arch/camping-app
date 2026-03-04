@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v3.0</title>
+  <title>台灣露營平台 MVP v3.1</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -51,13 +51,18 @@
     .post-page-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1500;display:none;align-items:flex-end;justify-content:center}
     .post-page-card{width:min(720px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:16px 16px 0 0;padding:16px;box-shadow:0 -10px 30px rgba(0,0,0,.2)}
     .post-page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .contest-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1510;display:none;align-items:center;justify-content:center}
+    .contest-modal-card{width:min(760px,94vw);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:16px}
+    .contest-round-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;margin-top:10px}
+    .contest-round-item{text-align:center}
+    .contest-round-img{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #2563eb;box-shadow:0 4px 12px rgba(37,99,235,.25)}
 
                       </style>
 </head>
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v3.0</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v3.1</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -117,13 +122,13 @@
         <div class="contest-banner">
           <div style="font-weight:700">📸 會員照片比賽</div>
           <div style="font-size:12px;opacity:.92">會員投稿參加，每日票選人氣作品</div>
-          <button class="contest-join" onclick="joinPhotoContest()">📷 參加比賽</button>
+          <button class="contest-join" onclick="openContestGallery()">📷 參加比賽</button>
           <div class="contest-marquee">
-            <img class="contest-photo" src="https://picsum.photos/seed/camp1/200/140" alt="contest-1" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp2/200/140" alt="contest-2" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp3/200/140" alt="contest-3" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp4/200/140" alt="contest-4" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp5/200/140" alt="contest-5" />
+            <img class="contest-photo" src="https://picsum.photos/seed/camp1/200/140" alt="contest-1" onclick="openContestGallery()" />
+            <img class="contest-photo" src="https://picsum.photos/seed/camp2/200/140" alt="contest-2" onclick="openContestGallery()" />
+            <img class="contest-photo" src="https://picsum.photos/seed/camp3/200/140" alt="contest-3" onclick="openContestGallery()" />
+            <img class="contest-photo" src="https://picsum.photos/seed/camp4/200/140" alt="contest-4" onclick="openContestGallery()" />
+            <img class="contest-photo" src="https://picsum.photos/seed/camp5/200/140" alt="contest-5" onclick="openContestGallery()" />
           </div>
         </div>
         <div class="social-nav" id="socialNav">
@@ -217,6 +222,27 @@
         <h4 style="margin:0 0 8px 0">圖片投票</h4>
         <button class="gray" onclick="votePhoto()">圖片投票（每日 2 票）</button>
         <div id="voteState" class="muted" style="margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="contestModal" class="contest-modal">
+    <div class="contest-modal-card">
+      <div class="post-page-head">
+        <h3 style="margin:0">照片比賽作品（圓圖）</h3>
+        <button class="gray" onclick="closeContestGallery()">關閉</button>
+      </div>
+      <div class="muted">點右下「＋貼文」即可投稿參賽</div>
+      <div class="contest-round-grid">
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp1/220/220" /><div class="muted">會員 A</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp2/220/220" /><div class="muted">會員 B</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp3/220/220" /><div class="muted">會員 C</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp4/220/220" /><div class="muted">會員 D</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp5/220/220" /><div class="muted">會員 E</div></div>
+      </div>
+      <div class="top-actions" style="margin-top:12px">
+        <button onclick="closeContestGallery(); openPostComposer();">📷 我要投稿</button>
       </div>
     </div>
   </div>
@@ -555,10 +581,14 @@
       if(box) box.style.display = 'block';
     }
 
-    function joinPhotoContest(){
-      openPostComposer();
-      const hint = document.getElementById('voteState');
-      if(hint) hint.textContent = '已開啟投稿頁，請上傳照片並發佈貼文參加比賽。';
+    function openContestGallery(){
+      const modal = document.getElementById('contestModal');
+      if(modal) modal.style.display = 'flex';
+    }
+
+    function closeContestGallery(){
+      const modal = document.getElementById('contestModal');
+      if(modal) modal.style.display = 'none';
     }
 
     function openPostComposer(){
