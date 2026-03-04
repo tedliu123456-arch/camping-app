@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.7</title>
+  <title>露營趣 v23.8</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1173,6 +1173,47 @@
         <button onclick="togglePlay()" id="playBtn" style="background:#fff;color:#b7791f;padding:10px 20px;">⏸️ 暫停</button>
         <button onclick="stopMusic()" style="background:#fff;color:#b7791f;padding:10px 20px;">⏹️ 停止</button>
       </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#805ad5,#6b46c1);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🎒 露營必備清單</h2>
+    <p>出發前檢查一下這些必備物品！</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;text-align:center;cursor:pointer;" onclick="toggleChecklist(0)">
+        <h3 style="font-size:32px;">⛺</h3>
+        <p>帳篷</p>
+        <span id="check0" style="color:green;">⬜</span>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;cursor:pointer;" onclick="toggleChecklist(1)">
+        <h3 style="font-size:32px;">🛏️</h3>
+        <p>睡袋</p>
+        <span id="check1" style="color:green;">⬜</span>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;cursor:pointer;" onclick="toggleChecklist(2)">
+        <h3 style="font-size:32px;">🔦</h3>
+        <p>手電筒</p>
+        <span id="check2" style="color:green;">⬜</span>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;cursor:pointer;" onclick="toggleChecklist(3)">
+        <h3 style="font-size:32px;">🔪</h3>
+        <p>瑞士刀</p>
+        <span id="check3" style="color:green;">⬜</span>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;cursor:pointer;" onclick="toggleChecklist(4)">
+        <h3 style="font-size:32px;">🧴</h3>
+        <p>防蚊液</p>
+        <span id="check4" style="color:green;">⬜</span>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;cursor:pointer;" onclick="toggleChecklist(5)">
+        <h3 style="font-size:32px;">💊</h3>
+        <p>急救包</p>
+        <span id="check5" style="color:green;">⬜</span>
+      </div>
+    </div>
+    <div style="margin-top:15px;text-align:center;">
+      <span id="checklistStatus" style="font-size:18px;">已準備 0/6 項</span>
+      <button onclick="resetChecklist()" style="margin-left:10px;background:#fff;color:#6b46c1;">🔄 重置</button>
     </div>
   </section>
 
@@ -2879,6 +2920,37 @@
       '🦟 防蟲提示：野外蚊蟲多，尤其是夏天。建議攜帶防蚊液、蚊香或電蚊拍。',
       '🏕️ 帳篷提示：選擇帳篷時要注意防風防水功能，外帳可增加防雨效果。'
     ];
+    
+    // 露營必備清單功能
+    let checklistState = JSON.parse(localStorage.getItem('campingChecklist')) || [false,false,false,false,false,false];
+    
+    function initChecklist() {
+      checklistState.forEach((checked,i) => {
+        document.getElementById('check'+i).textContent = checked ? '✅' : '⬜';
+      });
+      updateChecklistStatus();
+    }
+    
+    function toggleChecklist(idx) {
+      checklistState[idx] = !checklistState[idx];
+      localStorage.setItem('campingChecklist',JSON.stringify(checklistState));
+      document.getElementById('check'+idx).textContent = checklistState[idx] ? '✅' : '⬜';
+      updateChecklistStatus();
+    }
+    
+    function updateChecklistStatus() {
+      const count = checklistState.filter(c => c).length;
+      document.getElementById('checklistStatus').textContent = '已準備 ' + count + '/6 項';
+    }
+    
+    function resetChecklist() {
+      checklistState = [false,false,false,false,false,false];
+      localStorage.setItem('campingChecklist',JSON.stringify(checklistState));
+      initChecklist();
+    }
+    
+    initChecklist();
+    
     function showTip(idx) {
       alert(campingTips[idx]);
     }
