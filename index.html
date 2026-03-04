@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.3</title>
+  <title>露營趣 v23.4</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1045,6 +1045,34 @@
         <p style="font-size:32px;">🌧️ 24°C</p>
         <p>記得帶傘</p>
       </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#38b2ac,#2c7a7b);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🔋 露營省電攻略</h2>
+    <p>在野外如何省電？以下技巧學起來！</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;min-width:180px;">
+        <h3>🔦 LED 燈具</h3>
+        <p>使用 LED 燈比傳統燈泡省電 80%</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;">
+        <h3>🔋 太陽能</h3>
+        <p>白天用太陽能板充電，晚上就有電</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;">
+        <h3>📱 省電模式</h3>
+        <p>開啟手機省電模式，延長續航力</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;">
+        <h3>🔌 定量供電</h3>
+        <p>攜帶功率較低的電器，減輕負擔</p>
+      </div>
+    </div>
+    <div style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.2);border-radius:8px;">
+      <h3 style="margin-top:0;">💡 專業建議</h3>
+      <p id="powerTip">點擊按鈕獲取隨機省電技巧</p>
+      <button onclick="showPowerTip()" style="background:#fff;color:#2c7a7b;">🔄 獲取技巧</button>
     </div>
   </section>
 
@@ -2739,6 +2767,23 @@
     ];
     function showTip(idx) {
       alert(campingTips[idx]);
+    }
+    
+    // 露營省電技巧
+    const powerTips = [
+      '使用 AAA 電池供電的 LED 燈，壽命更長！',
+      '行動電源省電技巧：關閉不必要的 App 和通知',
+      '營地用電首選：發電機或太陽能充電板',
+      '手機省電：調低亮度、關閉定位、關閉 WiFi 搜尋',
+      '相機省電：省電模式 + 備用電池',
+      '筆記型電腦：攜帶足夠的變壓器與延長線',
+      '攜帶 USB LED 燈，比傳統露營燈更省電',
+      '使用 12V 車用冰箱，比壓縮機冰箱省電'
+    ];
+    
+    function showPowerTip() {
+      const randomTip = powerTips[Math.floor(Math.random() * powerTips.length)];
+      document.getElementById('powerTip').textContent = randomTip;
     }
     
     // 露營食譜功能
