@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v1.0</title>
+  <title>台灣露營平台 MVP v1.1</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -28,7 +28,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v1.0</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v1.1</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -42,7 +42,7 @@
     <section class="card" style="margin-bottom:12px">
       <h3 style="margin-top:0">登入 / 會員</h3>
       <div class="row">
-        <div style="flex:1;min-width:220px">
+        <div style="flex:1;min-width:200px">
           <label>登入方式</label>
           <select id="loginMethod">
             <option value="line">LINE</option>
@@ -50,12 +50,28 @@
             <option value="guest">遊客模式</option>
           </select>
         </div>
-        <div style="flex:2;min-width:220px">
+        <div style="flex:1;min-width:200px">
+          <label>帳號</label>
+          <input id="loginAccount" placeholder="測試帳號：tester01" />
+        </div>
+        <div style="flex:1;min-width:200px">
+          <label>密碼</label>
+          <input id="loginPassword" type="password" placeholder="測試密碼：123456" />
+        </div>
+        <div style="flex:1;min-width:200px">
           <label>顯示名稱</label>
           <input id="displayName" placeholder="例如：Teddy" />
         </div>
         <div style="display:flex;align-items:flex-end">
           <button onclick="login()">登入</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:10px;background:#f8fbff">
+        <b>測試帳號（已預設）</b>
+        <div class="top-actions" style="margin-top:8px">
+          <button class="gray" onclick="quickFill('tester01')">tester01 / 123456（LINE）</button>
+          <button class="gray" onclick="quickFill('tester02')">tester02 / 123456（Google）</button>
+          <button class="gray" onclick="quickFill('merchant01')">merchant01 / 123456（商家）</button>
         </div>
       </div>
       <div id="loginStatus" class="muted" style="margin-top:8px">尚未登入</div>
@@ -195,6 +211,11 @@
   <script>
     const state = {
       user: { name:'', method:'guest', isMember:false, votesToday:0, lastVoteDate:'' },
+      testAccounts: {
+        tester01: { password:'123456', method:'line', displayName:'測試用戶 A' },
+        tester02: { password:'123456', method:'google', displayName:'測試用戶 B' },
+        merchant01: { password:'123456', method:'google', displayName:'測試商家' }
+      },
       camps: [
         { id:1,name:'溪頭松林營地', area:'南投', tags:['可進房車','靠山','親子'] },
         { id:2,name:'海風灣露營區', area:'花蓮', tags:['海景','親子'] },
@@ -213,14 +234,40 @@
       refreshAdmin();
     }
 
+    function quickFill(account){
+      const preset = state.testAccounts[account];
+      if(!preset) return;
+      document.getElementById('loginAccount').value = account;
+      document.getElementById('loginPassword').value = preset.password;
+      document.getElementById('loginMethod').value = preset.method;
+      document.getElementById('displayName').value = preset.displayName;
+    }
+
     function login(){
-      state.user.method = document.getElementById('loginMethod').value;
-      state.user.name = document.getElementById('displayName').value.trim() || '訪客';
+      const method = document.getElementById('loginMethod').value;
+      const account = document.getElementById('loginAccount').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const customName = document.getElementById('displayName').value.trim();
+
+      if(method !== 'guest'){
+        const preset = state.testAccounts[account];
+        if(!preset || preset.password !== password){
+          document.getElementById('loginStatus').textContent = '登入失敗：帳號或密碼錯誤（可使用上方測試帳號）';
+          return;
+        }
+        state.user.method = method;
+        state.user.name = customName || preset.displayName;
+      }else{
+        state.user.method = 'guest';
+        state.user.name = customName || '訪客';
+      }
+
       const text = state.user.method==='guest'
         ? `目前為遊客模式：${state.user.name}（不可評論）`
         : `登入成功：${state.user.name}（${state.user.method.toUpperCase()}）`;
       document.getElementById('loginStatus').textContent = text;
       renderFeed();
+      refreshAdmin();
     }
 
     function upgradeMember(){
@@ -331,6 +378,7 @@
       renderAdminMerchants();
     }
 
+    quickFill('tester01');
     renderCamps();
     renderFeed();
     refreshAdmin();
