@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v2.7</title>
+  <title>台灣露營平台 MVP v2.8</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -35,12 +35,21 @@
     .file-upload-btn:hover{border-color:#2563eb;color:#2563eb}
     .file-upload-name{font-size:13px;color:#6b7280}
 
+    .fab-post{position:fixed;right:18px;bottom:18px;z-index:1300;border-radius:999px;padding:12px 16px;background:#2563eb;color:#fff;border:none;box-shadow:0 8px 20px rgba(37,99,235,.35);font-weight:700;display:none}
+    .post-actions{display:flex;gap:10px;align-items:center;margin-top:8px}
+    .action-btn{border:1px solid #e5e7eb;background:#fff;color:#111827;padding:6px 10px;border-radius:999px;cursor:pointer}
+    .action-btn.liked{color:#dc2626;border-color:#fecaca;background:#fff5f5}
+    .comments-wrap{margin-top:8px;padding:8px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb}
+    .comment-item{font-size:13px;margin-bottom:6px}
+    .comment-input-row{display:flex;gap:6px;margin-top:6px}
+    .comment-input-row input{flex:1}
+
                       </style>
 </head>
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v2.7</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v2.8</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -178,6 +187,8 @@
     </div>
   </main>
 
+  <button id="fabPost" class="fab-post" onclick="openPostComposer()">＋ 貼文</button>
+
   <script>
     const state = {
       user: { name:'', method:'guest', isMember:false, votesToday:0, lastVoteDate:'', loggedIn:false },
@@ -233,6 +244,8 @@
       if(nav){
         nav.style.display = (id === 'user' && state.user.loggedIn) ? 'block' : 'none';
       }
+      const fab = document.getElementById('fabPost');
+      if(fab){ fab.style.display = (id === 'user' && state.user.loggedIn) ? 'inline-flex' : 'none'; }
 
       refreshAdmin();
     }
@@ -274,6 +287,8 @@
       document.getElementById('loginStatus').textContent = '';
       const nav = document.getElementById('socialNav');
       if(nav) nav.style.display = 'block';
+      const fab = document.getElementById('fabPost');
+      if(fab) fab.style.display = 'inline-flex';
       document.body.classList.add('social-nav-on');
       updateSocialNav(state.activeSocialCategory);
 
@@ -461,6 +476,8 @@
         category,
         text: text || '分享了新內容',
         likes:0,
+        likedBy:[],
+        comments:[],
         ts:new Date().toLocaleString(),
         mediaType,
         mediaUrl
@@ -473,7 +490,45 @@
       renderFeed();
     }
 
-    function likePost(i){ state.posts[i].likes++; renderFeed(); }
+    function likePost(i){
+      if(state.user.method === 'guest'){ alert('請先登入後再按愛心'); return; }
+      const post = state.posts[i];
+      if(!post) return;
+      const me = state.user.name || '匿名';
+      post.likedBy = post.likedBy || [];
+      if(post.likedBy.includes(me)) return;
+      post.likedBy.push(me);
+      post.likes = (post.likes || 0) + 1;
+      renderFeed();
+    }
+
+    function toggleComments(i){
+      const box = document.getElementById(`comments-${i}`);
+      if(!box) return;
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addComment(i){
+      if(state.user.method === 'guest'){ alert('請先登入後再留言'); return; }
+      const input = document.getElementById(`commentInput-${i}`);
+      if(!input) return;
+      const text = input.value.trim();
+      if(!text) return;
+      const post = state.posts[i];
+      post.comments = post.comments || [];
+      post.comments.push({ user: state.user.name || '匿名', text, ts: new Date().toLocaleTimeString() });
+      input.value = '';
+      renderFeed();
+      const box = document.getElementById(`comments-${i}`);
+      if(box) box.style.display = 'block';
+    }
+
+    function openPostComposer(){
+      if(!state.user.loggedIn) return;
+      switchTab('user');
+      const el = document.getElementById('postText');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); }
+    }
 
     function categoryCover(category){
       const map = {
@@ -502,7 +557,11 @@
       }
 
       feed.className = '';
-      feed.innerHTML = rows.map(({p,idx})=>`
+      feed.innerHTML = rows.map(({p,idx})=>{
+        const me = state.user.name || '匿名';
+        const liked = (p.likedBy || []).includes(me);
+        const comments = p.comments || [];
+        return `
         <div class="list-item">
           <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
             <b>${p.user}</b>
@@ -511,8 +570,19 @@
           ${p.mediaType === 'image' ? `<img src="${p.mediaUrl}" alt="post-media" style="width:100%;max-height:320px;object-fit:cover;border-radius:8px;margin-top:8px" />` : ''}
           ${p.mediaType === 'video' ? `<video src="${p.mediaUrl}" controls playsinline style="width:100%;max-height:320px;border-radius:8px;margin-top:8px"></video>` : ''}
           <div style="margin-top:8px">${p.text}</div>
-          <button style="margin-top:8px" onclick="likePost(${idx})">👍 ${p.likes}</button>
-        </div>`).join('');
+          <div class="post-actions">
+            <button class="action-btn ${liked ? 'liked' : ''}" onclick="likePost(${idx})">❤️ ${p.likes || 0}</button>
+            <button class="action-btn" onclick="toggleComments(${idx})">💬 ${comments.length}</button>
+          </div>
+          <div id="comments-${idx}" class="comments-wrap" style="display:none">
+            ${comments.length ? comments.map(c=>`<div class='comment-item'><b>${c.user}</b>：${c.text} <span class='muted'>${c.ts}</span></div>`).join('') : '<div class="muted">還沒有留言</div>'}
+            <div class="comment-input-row">
+              <input id="commentInput-${idx}" placeholder="寫下留言..." />
+              <button onclick="addComment(${idx})">送出</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
     }
 
     function votePhoto(){
