@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.6</title>
+  <title>露營趣 v24.7</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1495,6 +1495,33 @@
     <h2>❤️ 我的最愛營地</h2>
     <div id="favoritesList">
       <p style="color:#888;">尚未收藏營地</p>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#e53e3e,#c53030);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>⚠️ 露營安全須知</h2>
+    <p>安全第一，開心露營！</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showSafetyTip('fire')">
+        <h3>🔥 用火安全</h3>
+        <p style="font-size:12px;">離開務必熄滅</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showSafetyTip('water')">
+        <h3>💧 防溺水</h3>
+        <p style="font-size:12px;">遠離溪流險境</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showSafetyTip('wild')">
+        <h3>🦌 野生動物</h3>
+        <p style="font-size:12px;">保持距離不餵食</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showSafetyTip('weather')">
+        <h2>⛈️ 惡劣天氣</h2>
+        <p style="font-size:12px;">遠離空曠地區</p>
+      </div>
+    </div>
+    <div id="safetyDetail" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
+      <h3 id="safetyTitle" style="margin-top:0;"></h3>
+      <p id="safetyDesc"></p>
     </div>
   </section>
 
@@ -3297,6 +3324,22 @@
     function showAppTip() {
       const tip = appTips[Math.floor(Math.random() * appTips.length)];
       document.getElementById('appTip').textContent = tip;
+    }
+    
+    // 露營安全須知功能
+    const safetyInfo = {
+      'fire': { title: '🔥 用火安全', desc: '1. 遠離帳篷和易燃物\n2. 使用焚火台要通風\n3. 離開前務必完全熄滅\n4. 隨時注意火勢變化\n5. 準備滅火工具' },
+      'water': { title: '💧 防溺水', desc: '1. 遠離溪流瀑布\n2. 不在危險水域戲水\n3. 留意天氣和水位變化\n4. 孩童需成人陪同\n5. 學習基本自救技巧' },
+      'wild': { title: '🦌 野生動物', desc: '1. 保持安全距離\n2. 不餵食野生動物\n3. 食物妥善存放\n4. 晚上關好帳篷\n5. 遇動物冷靜應對' },
+      'weather': { title: '⛈️ 惡劣天氣', desc: '1. 提前查看天氣預報\n2. 遠離空曠地區\n3. 避免在山下紮營\n4. 雷雨時遠離金屬物品\n5. 聽從管理員指示' }
+    };
+    
+    function showSafetyTip(type) {
+      const info = safetyInfo[type];
+      document.getElementById('safetyTitle').textContent = info.title;
+      document.getElementById('safetyDesc').textContent = info.desc;
+      document.getElementById('safetyDetail').style.display = 'block';
+      document.getElementById('safetyDetail').scrollIntoView({behavior: 'smooth'});
     }
     
     // 露營回憶牆功能
