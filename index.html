@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.7</title>
+  <title>露營趣 v24.8</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1488,6 +1488,37 @@
       <h3 style="margin-top:0;">💡 小提示</h3>
       <p id="appTip">出發前先下載離線地圖和天氣資料！</p>
       <button onclick="showAppTip()" style="background:#fff;color:#0f766e;">🔄 更多提示</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#e53e3e,#c53030);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🏕️ 營地類型推薦</h2>
+    <p>選擇適合您的露營方式！</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;text-align:center;" onclick="showCampType('tent')">
+        <h3>⛺ 帳篷營</h3>
+        <p>🏰 傳統露營</p>
+        <p style="font-size:12px;color:#666;">親近大自然</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;" onclick="showCampType('car')">
+        <h3>🚙 車泊</h3>
+        <p>🚗 汽車露營</p>
+        <p style="font-size:12px;color:#666;">舒適又便利</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;" onclick="showCampType('glamping')">
+        <h3>🏠 豪華露營</h3>
+        <p>🛋️ Glamping</p>
+        <p style="font-size:12px;color:#666;">懶人首選</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;" onclick="showCampType('van')">
+        <h3>🚐 露營車</h3>
+        <p>🚎 Van Life</p>
+        <p style="font-size:12px;color:#666;">移動城堡</p>
+      </div>
+    </div>
+    <div id="campTypeInfo" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
+      <h3 id="campTypeTitle" style="margin-top:0;"></h3>
+      <p id="campTypeDesc"></p>
     </div>
   </section>
 
@@ -3324,6 +3355,22 @@
     function showAppTip() {
       const tip = appTips[Math.floor(Math.random() * appTips.length)];
       document.getElementById('appTip').textContent = tip;
+    }
+    
+    // 營地類型推薦功能
+    const campTypes = {
+      'tent': { title: '⛺ 帳篷營', desc: '傳統露營方式，親近大自然。適合喜歡冒險、想要體驗原始露營樂趣的人。需要自行搭帳篷、準備睡袋等裝備。' },
+      'car': { title: '🚙 車泊', desc: '開車到營地，利用車輛作為主要住宿空間。適合想要舒適便利又不想花太多錢的人。' },
+      'glamping': { title: '🏠 豪華露營', desc: '提供現成帳篷或小木屋等設施，懶人首選！適合不想帶太多裝備，想要輕鬆享受露營樂趣的人。' },
+      'van': { title: '🚐 露營車', desc: '以露營車作為行動住所，彈性極高。適合想要到處旅行、體驗 Van Life 的人。' }
+    };
+    
+    function showCampType(type) {
+      const info = campTypes[type];
+      document.getElementById('campTypeTitle').textContent = info.title;
+      document.getElementById('campTypeDesc').textContent = info.desc;
+      document.getElementById('campTypeInfo').style.display = 'block';
+      document.getElementById('campTypeInfo').scrollIntoView({behavior: 'smooth'});
     }
     
     // 露營安全須知功能
