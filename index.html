@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.9</title>
+  <title>露營趣 v23.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -26,6 +26,7 @@
     .marquee { overflow:hidden; background:#2f855a; color:#fff; }
     .track { display:inline-block; padding:10px; white-space:nowrap; animation:scroll 12s linear infinite; }
     @keyframes scroll { from { transform:translateX(100%);} to { transform:translateX(-100%);} }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     img { transition:opacity 0.3s; }
     img.loading { opacity:0.3; }
     footer { text-align:center; padding:20px; color:#666; font-size:14px; border-top:1px solid #ddd; margin-top:30px; }
@@ -185,6 +186,23 @@
       <h3 style="margin:0;">總支出：<span id="totalExpense">0</span> 元</h3>
     </div>
     <button onclick="clearExpenses()" style="background:#e53e3e;margin-top:10px;">🗑️ 清除所有記錄</button>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#319795,#234e52);color:#fff;border-radius:12px;margin:20px;padding:20px;">
+    <h2>🎵 露營氛圍音樂</h2>
+    <p>選擇適合露營的氛圍音樂</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin:20px 0;">
+      <button onclick="playMoodMusic('campfire')" style="background:#fff;color:#319795;padding:15px 25px;font-size:16px;">🔥 營火晚會</button>
+      <button onclick="playMoodMusic('forest')" style="background:#fff;color:#319795;padding:15px 25px;font-size:16px;">🌲 森林物語</button>
+      <button onclick="playMoodMusic('rain')" style="background:#fff;color:#319795;padding:15px 25px;font-size:16px;">🌧️ 雨中露營</button>
+      <button onclick="playMoodMusic('morning')" style="background:#fff;color:#319795;padding:15px 25px;font-size:16px;">🌅 晨間時光</button>
+    </div>
+    <div id="musicStatus" style="background:rgba(255,255,255,0.2);padding:15px;border-radius:8px;text-align:center;font-size:18px;">
+      👆 點擊上方按鈕播放氛圍音樂
+    </div>
+    <div style="margin-top:15px;text-align:center;">
+      <button onclick="stopMusic()" style="background:#e53e3e;color:#fff;padding:10px 20px;">⏹️ 停止播放</button>
+    </div>
   </section>
 
   <section style="background:linear-gradient(135deg,#ed8936,#dd6b20);color:#fff;border-radius:12px;margin:20px;padding:20px;">
@@ -1244,6 +1262,30 @@
       renderEmergencyContacts();
     }
     renderEmergencyContacts();
+    
+    // 露營氛圍音樂功能
+    let currentAudio = null;
+    const moodMusic = {
+      'campfire': { title: '🔥 營火晚會', emoji: '🔥', desc: '溫暖的營火聲 + 吉他音樂' },
+      'forest': { title: '🌲 森林物語', emoji: '🌲', desc: '鳥鳴 + 風聲 + 輕柔音樂' },
+      'rain': { title: '🌧️ 雨中露營', emoji: '🌧️', desc: '雨聲 + 雷聲 + 舒緩音樂' },
+      'morning': { title: '🌅 晨間時光', emoji: '🌅', desc: '鳥叫 + 輕快音樂 + 大自然聲' }
+    };
+    
+    function playMoodMusic(mood) {
+      const music = moodMusic[mood];
+      const status = document.getElementById('musicStatus');
+      status.innerHTML = '🎵 正在播放：' + music.emoji + ' ' + music.title + '<br><small>' + music.desc + '</small>';
+      
+      // 模擬播放（實際可用 Web Audio API 或外部音樂服務）
+      status.style.animation = 'pulse 1s infinite';
+    }
+    
+    function stopMusic() {
+      const status = document.getElementById('musicStatus');
+      status.innerHTML = '👆 點擊上方按鈕播放氛圍音樂';
+      status.style.animation = 'none';
+    }
     
     // 露營費用記錄功能
     let expenses = JSON.parse(localStorage.getItem('camping_expenses') || '[]');
