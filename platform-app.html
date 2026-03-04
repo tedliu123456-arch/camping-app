@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>台灣露營平台 MVP v1.0</title>
+  <style>
+    :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
+    header{padding:16px;background:linear-gradient(120deg,#1f8f5f,#2176ff);color:#fff}
+    .container{max-width:1120px;margin:0 auto;padding:16px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    button{border:0;background:var(--pri);color:#fff;padding:9px 14px;border-radius:10px;cursor:pointer}
+    button.gray{background:#6b7280} button.blue{background:#2563eb} button.orange{background:#ea580c}
+    input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .tab-content{display:none}.tab-content.active{display:block}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#e6f7ef;color:#0f7f51;font-size:12px;margin-right:6px;margin-top:6px}
+    .grid{display:grid;gap:12px}.grid2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+    .muted{color:var(--muted);font-size:13px}
+    .map{height:230px;border-radius:12px;border:1px dashed #7fbba2;background:linear-gradient(180deg,#e8fff4,#f4fbff);padding:10px;position:relative}
+    .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#ef4444;cursor:pointer;box-shadow:0 0 0 4px rgba(239,68,68,.16)}
+    .kpi{font-weight:800;font-size:24px}
+    .list-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h2 style="margin:0">台灣露營平台 MVP v1.0</h2>
+      <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
+      <div class="tabs">
+        <button onclick="switchTab('user')">使用者端 APP</button>
+        <button onclick="switchTab('merchant')">商家端 APP</button>
+        <button onclick="switchTab('admin')">後台管理 PC</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card" style="margin-bottom:12px">
+      <h3 style="margin-top:0">登入 / 會員</h3>
+      <div class="row">
+        <div style="flex:1;min-width:220px">
+          <label>登入方式</label>
+          <select id="loginMethod">
+            <option value="line">LINE</option>
+            <option value="google">Google</option>
+            <option value="guest">遊客模式</option>
+          </select>
+        </div>
+        <div style="flex:2;min-width:220px">
+          <label>顯示名稱</label>
+          <input id="displayName" placeholder="例如：Teddy" />
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button onclick="login()">登入</button>
+        </div>
+      </div>
+      <div id="loginStatus" class="muted" style="margin-top:8px">尚未登入</div>
+      <div style="margin-top:8px">
+        <span class="pill" id="memberBadge">一般會員</span>
+        <button class="orange" onclick="upgradeMember()">升級平台會員（取得折扣 QR）</button>
+      </div>
+      <div id="qrBox" style="margin-top:10px" class="muted"></div>
+    </section>
+
+    <section id="user" class="tab-content active">
+      <div class="grid grid2">
+        <div class="card">
+          <h3 style="margin-top:0">區域搜尋 + 標籤篩選</h3>
+          <div class="row">
+            <div style="flex:1"><input id="kw" placeholder="搜尋地區（例：南投、花蓮）」 /></div>
+            <div style="width:180px">
+              <select id="filterTag">
+                <option value="">全部標籤</option>
+                <option>可進房車</option>
+                <option>靠山</option>
+                <option>親子</option>
+                <option>海景</option>
+              </select>
+            </div>
+            <div><button onclick="renderCamps()">搜尋</button></div>
+          </div>
+          <div id="campList" style="margin-top:10px"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0">地圖點位（MVP 模擬）</h3>
+          <div class="map" id="map">
+            <div class="dot" style="left:20%;top:32%" onclick="pickCamp(1)"></div>
+            <div class="dot" style="left:50%;top:60%" onclick="pickCamp(2)"></div>
+            <div class="dot" style="left:75%;top:25%" onclick="pickCamp(3)"></div>
+          </div>
+          <div id="mapTip" class="muted" style="margin-top:8px">點擊紅點可查看營地並預約</div>
+        </div>
+      </div>
+
+      <div class="grid grid2" style="margin-top:12px">
+        <div class="card">
+          <h3 style="margin-top:0">預約（時間 / 地點 / 套餐）</h3>
+          <div class="row">
+            <div style="flex:1">
+              <label>營地</label>
+              <select id="bookingCamp"></select>
+            </div>
+            <div style="flex:1">
+              <label>日期</label>
+              <input id="bookingDate" type="date" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <div style="flex:1">
+              <label>套餐</label>
+              <select id="bookingPkg">
+                <option>標準套餐 NT$1,200</option>
+                <option>家庭套餐 NT$2,000</option>
+                <option>豪華套餐 NT$3,200</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button class="blue" onclick="createBooking()">線上支付並預約</button>
+            </div>
+          </div>
+          <div id="bookingLogs" class="muted" style="margin-top:8px"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0">廣場社交 / 留言 / 按讚</h3>
+          <textarea id="postText" rows="3" placeholder="分享你的露營心得（可顯示個人標籤）"></textarea>
+          <div class="top-actions" style="margin-top:8px">
+            <button onclick="addPost()">發佈貼文</button>
+            <button class="gray" onclick="votePhoto()">圖片投票（每日 2 票）</button>
+          </div>
+          <div id="voteState" class="muted" style="margin-top:6px"></div>
+          <div id="feed" style="margin-top:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="merchant" class="tab-content">
+      <div class="grid grid2">
+        <div class="card">
+          <h3 style="margin-top:0">商家資訊上傳</h3>
+          <input id="mName" placeholder="商家名稱" />
+          <textarea id="mDesc" rows="3" placeholder="商家介紹（露營地 / 房車改裝 / 用品 / 租車）" style="margin-top:8px"></textarea>
+          <div class="row" style="margin-top:8px">
+            <div style="flex:1"><input id="mArea" placeholder="地區（台中/南投/花蓮）" /></div>
+            <div style="flex:1"><input id="mTags" placeholder="標籤（逗號分隔）」 /></div>
+          </div>
+          <button style="margin-top:8px" onclick="publishMerchant()">發布商家資訊</button>
+          <div id="merchantOut" class="muted" style="margin-top:8px"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0">活動發布 + 跑馬燈</h3>
+          <input id="eventTitle" placeholder="活動名稱（例：春季露營節）」 />
+          <textarea id="eventDesc" rows="2" placeholder="活動內容" style="margin-top:8px"></textarea>
+          <button style="margin-top:8px" onclick="publishEvent()">發布活動</button>
+          <div id="eventList" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3 style="margin-top:0">商家會員方案（曝光套餐）</h3>
+        <div class="row">
+          <div class="card" style="flex:1;min-width:220px"><b>半年方案</b><div>NT$100</div><button onclick="buyPlan('半年',100)">購買</button></div>
+          <div class="card" style="flex:1;min-width:220px"><b>一年方案</b><div>NT$200</div><button onclick="buyPlan('一年',200)">購買</button></div>
+        </div>
+        <div id="planLog" class="muted" style="margin-top:8px"></div>
+      </div>
+    </section>
+
+    <section id="admin" class="tab-content">
+      <div class="grid grid2">
+        <div class="card">
+          <h3 style="margin-top:0">平台收益總覽</h3>
+          <div class="kpi" id="kpiRevenue">NT$0</div>
+          <div class="muted">來自商家曝光套餐</div>
+          <hr style="border:none;border-top:1px solid #eee;margin:12px 0" />
+          <div>商家數：<b id="kpiMerchants">0</b></div>
+          <div>活動數：<b id="kpiEvents">0</b></div>
+          <div>會員數：<b id="kpiMembers">0</b></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0">管理清單</h3>
+          <div id="adminMerchants"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      user: { name:'', method:'guest', isMember:false, votesToday:0, lastVoteDate:'' },
+      camps: [
+        { id:1,name:'溪頭松林營地', area:'南投', tags:['可進房車','靠山','親子'] },
+        { id:2,name:'海風灣露營區', area:'花蓮', tags:['海景','親子'] },
+        { id:3,name:'雲霧森林營地', area:'台中', tags:['靠山','可進房車'] }
+      ],
+      bookings: [],
+      posts: [],
+      merchants: [],
+      events: [],
+      revenue: 0
+    };
+
+    function switchTab(id){
+      document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      refreshAdmin();
+    }
+
+    function login(){
+      state.user.method = document.getElementById('loginMethod').value;
+      state.user.name = document.getElementById('displayName').value.trim() || '訪客';
+      const text = state.user.method==='guest'
+        ? `目前為遊客模式：${state.user.name}（不可評論）`
+        : `登入成功：${state.user.name}（${state.user.method.toUpperCase()}）`;
+      document.getElementById('loginStatus').textContent = text;
+      renderFeed();
+    }
+
+    function upgradeMember(){
+      state.user.isMember = true;
+      document.getElementById('memberBadge').textContent = '平台會員（享折扣）';
+      document.getElementById('qrBox').innerHTML = '會員 QR：<b>MEMBER-' + (state.user.name || 'USER') + '-TW</b>';
+      refreshAdmin();
+    }
+
+    function renderCamps(){
+      const kw = document.getElementById('kw').value.trim();
+      const tag = document.getElementById('filterTag').value;
+      const list = state.camps.filter(c=>{
+        const hitKw = !kw || c.area.includes(kw) || c.name.includes(kw);
+        const hitTag = !tag || c.tags.includes(tag);
+        return hitKw && hitTag;
+      });
+      const el = document.getElementById('campList');
+      if(!list.length){ el.innerHTML = '<div class="muted">查無資料</div>'; return; }
+      el.innerHTML = list.map(c=>`<div class="list-item"><b>${c.name}</b>｜${c.area}<br>${c.tags.map(t=>`<span class='pill'>${t}</span>`).join('')}</div>`).join('');
+      document.getElementById('bookingCamp').innerHTML = list.map(c=>`<option>${c.name}</option>`).join('');
+    }
+
+    function pickCamp(id){
+      const camp = state.camps.find(c=>c.id===id);
+      document.getElementById('mapTip').textContent = `已選擇：${camp.name}，可直接到下方預約。`;
+      document.getElementById('bookingCamp').value = camp.name;
+    }
+
+    function createBooking(){
+      const camp = document.getElementById('bookingCamp').value;
+      const date = document.getElementById('bookingDate').value;
+      const pkg = document.getElementById('bookingPkg').value;
+      if(!camp || !date){ alert('請選擇營地與日期'); return; }
+      state.bookings.push({ camp,date,pkg,user:state.user.name||'訪客' });
+      document.getElementById('bookingLogs').innerHTML = '最新預約：' + state.bookings.slice(-3).map(b=>`${b.date} ${b.camp} / ${b.pkg}`).join(' ｜ ');
+    }
+
+    function addPost(){
+      if(state.user.method === 'guest'){ alert('遊客模式不可評論，請先使用 LINE 或 Google 登入'); return; }
+      const text = document.getElementById('postText').value.trim();
+      if(!text) return;
+      state.posts.unshift({ user:state.user.name || '匿名', text, likes:0, ts:new Date().toLocaleString() });
+      document.getElementById('postText').value = '';
+      renderFeed();
+    }
+
+    function likePost(i){ state.posts[i].likes++; renderFeed(); }
+
+    function renderFeed(){
+      const feed = document.getElementById('feed');
+      if(!state.posts.length){ feed.innerHTML = '<div class="muted">還沒有貼文，來發第一篇吧。</div>'; return; }
+      feed.innerHTML = state.posts.map((p,i)=>`
+        <div class="list-item">
+          <b>${p.user}</b> <span class="muted">${p.ts}</span>
+          <div style="margin-top:6px">${p.text}</div>
+          <button style="margin-top:6px" onclick="likePost(${i})">👍 ${p.likes}</button>
+        </div>`).join('');
+    }
+
+    function votePhoto(){
+      const today = new Date().toISOString().slice(0,10);
+      if(state.user.lastVoteDate !== today){ state.user.votesToday = 0; state.user.lastVoteDate = today; }
+      if(state.user.votesToday >= 2){ document.getElementById('voteState').textContent = '今日票數已用完（每日 2 票）'; return; }
+      state.user.votesToday++;
+      document.getElementById('voteState').textContent = `投票成功，今日剩餘 ${2 - state.user.votesToday} 票`;
+    }
+
+    function publishMerchant(){
+      const m = {
+        name:document.getElementById('mName').value.trim(),
+        desc:document.getElementById('mDesc').value.trim(),
+        area:document.getElementById('mArea').value.trim(),
+        tags:document.getElementById('mTags').value.trim()
+      };
+      if(!m.name){ alert('請填商家名稱'); return; }
+      state.merchants.unshift(m);
+      document.getElementById('merchantOut').textContent = `已發布：${m.name}（${m.area || '未填地區'}）`;
+      renderAdminMerchants();
+    }
+
+    function publishEvent(){
+      const title = document.getElementById('eventTitle').value.trim();
+      const desc = document.getElementById('eventDesc').value.trim();
+      if(!title) return;
+      state.events.unshift({title,desc});
+      document.getElementById('eventList').innerHTML = state.events.map(e=>`<div class='list-item'><b>${e.title}</b><div class='muted'>${e.desc||''}</div></div>`).join('');
+      renderAdminMerchants();
+    }
+
+    function buyPlan(name,price){
+      state.revenue += price;
+      document.getElementById('planLog').textContent = `已購買 ${name}方案，入帳 NT$${price}`;
+      refreshAdmin();
+    }
+
+    function renderAdminMerchants(){
+      const box = document.getElementById('adminMerchants');
+      if(!state.merchants.length){ box.innerHTML = '<div class="muted">目前尚無商家資料</div>'; return; }
+      box.innerHTML = state.merchants.map((m,idx)=>`<div class='list-item'><b>${idx+1}. ${m.name}</b><div>${m.area||'未填地區'}｜${m.tags||'無標籤'}</div><div class='muted'>${m.desc||''}</div></div>`).join('');
+    }
+
+    function refreshAdmin(){
+      document.getElementById('kpiRevenue').textContent = `NT$${state.revenue}`;
+      document.getElementById('kpiMerchants').textContent = state.merchants.length;
+      document.getElementById('kpiEvents').textContent = state.events.length;
+      document.getElementById('kpiMembers').textContent = state.user.isMember ? 1 : 0;
+      renderAdminMerchants();
+    }
+
+    renderCamps();
+    renderFeed();
+    refreshAdmin();
+  </script>
+</body>
+</html>
