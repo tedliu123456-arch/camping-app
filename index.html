@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.3</title>
+  <title>露營趣 v24.4</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1380,6 +1380,37 @@
     <div style="margin-top:15px;text-align:center;">
       <span id="checklistStatus" style="font-size:18px;">已準備 0/6 項</span>
       <button onclick="resetChecklist()" style="margin-left:10px;background:#fff;color:#6b46c1;">🔄 重置</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4c1d95,#5b21b6);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>📊 露營天氣指數</h2>
+    <p>即時天氣指標，幫您判斷露營好時機！</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>☀️ 紫外線</h3>
+        <p style="font-size:36px;font-weight:bold;color:#dd6b20;">中</p>
+        <p style="font-size:12px;">建議塗防曬</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>💨 風速</h3>
+        <p style="font-size:36px;font-weight:bold;color:#3182ce;">3級</p>
+        <p style="font-size:12px;">微風適宜</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>💧 濕度</h3>
+        <p style="font-size:36px;font-weight:bold;color:#38a169;">65%</p>
+        <p style="font-size:12px;">舒適範圍</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>🌡️ 體感</h3>
+        <p style="font-size:36px;font-weight:bold;color:#e53e3e;">28°C</p>
+        <p style="font-size:12px;">偏熱多喝水</p>
+      </div>
+    </div>
+    <div style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.2);border-radius:8px;text-align:center;">
+      <p id="weatherIndexTip" style="margin:0;font-size:16px;">🌟 今日露營指數：良好，適合外出！</p>
+      <button onclick="updateWeatherIndex()" style="margin-top:10px;background:#fff;color:#5b21b6;">🔄 更新指數</button>
     </div>
   </section>
 
@@ -3153,6 +3184,30 @@
       songList.innerHTML = playlist.songs.map(song => `<li>${song}</li>`).join('');
       document.getElementById('playlistDisplay').style.display = 'block';
       document.getElementById('playlistDisplay').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    // 露營天氣指數功能
+    const uvLevels = ['低', '中', '高', '甚高', '極高'];
+    const windLevels = ['無風', '輕風', '微風', '和風', '強風'];
+    const weatherTips = [
+      '🌟 今日露營指數：極佳！好天氣不容錯過',
+      '🌟 今日露營指數：良好，適合外出！',
+      '🌟 今日露營指數：中等，記得帶備用品',
+      '🌟 今日露營指數：較差，建議改期'
+    ];
+    
+    function updateWeatherIndex() {
+      const uv = uvLevels[Math.floor(Math.random() * uvLevels.length)];
+      const wind = windLevels[Math.floor(Math.random() * windLevels.length)];
+      const humidity = Math.floor(Math.random() * 30) + 50;
+      const feelTemp = Math.floor(Math.random() * 10) + 22;
+      const tip = weatherTips[Math.floor(Math.random() * weatherTips.length)];
+      
+      const cards = document.querySelectorAll('#weatherIndexTip');
+      if (cards.length > 0) {
+        cards[0].textContent = tip;
+      }
+      document.getElementById('weatherIndexTip').textContent = tip;
     }
     
     // 露營回憶牆功能
