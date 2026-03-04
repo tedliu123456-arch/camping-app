@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v3.3</title>
+  <title>台灣露營平台 MVP v3.4</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -60,6 +60,10 @@
     .contest-round-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:10px}
     .contest-round-item{text-align:center}
     .contest-round-img{width:100%;height:auto;border-radius:12px;object-fit:cover;border:0;box-shadow:0 6px 16px rgba(37,99,235,.18)}
+    .contest-vote-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+    .contest-vote-btn{background:#2563eb;color:#fff;border:none;border-radius:999px;padding:6px 10px;cursor:pointer;font-weight:700}
+    .contest-vote-btn:disabled{background:#9ca3af;cursor:not-allowed}
+
     @keyframes slideUp{from{transform:translateY(24px);opacity:.4}to{transform:translateY(0);opacity:1}}
 
                       </style>
@@ -67,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v3.3</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v3.4</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -245,13 +249,8 @@
         <button class="gray" onclick="closeContestGallery()">關閉</button>
       </div>
       <div class="muted">點右下「＋貼文」即可投稿參賽</div>
-      <div class="contest-round-grid">
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp1/1080/720" /><div class="muted">會員 A</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp2/1080/720" /><div class="muted">會員 B</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp3/1080/720" /><div class="muted">會員 C</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp4/1080/720" /><div class="muted">會員 D</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp5/1080/720" /><div class="muted">會員 E</div></div>
-      </div>
+      <div class="contest-round-grid" id="contestEntriesList"></div>
+      <div id="contestVoteHint" class="muted" style="margin-top:8px"></div>
       <div class="top-actions" style="margin-top:12px">
         <button onclick="closeContestGallery(); openPostComposer();">📷 我要投稿</button>
       </div>
@@ -299,6 +298,13 @@
         { name:'GoCamp 車隊台北站', pickup:'台北市南港區重陽路120號', contact:'02-2788-1122', fleet:'12 台' },
         { name:'野趣租車台中站', pickup:'台中市北屯區松竹路二段66號', contact:'04-2233-7788', fleet:'8 台' },
         { name:'海線露營車高雄站', pickup:'高雄市左營區博愛三路88號', contact:'07-556-9900', fleet:'10 台' }
+      ],
+      contestEntries: [
+        { id:'c1', user:'會員 A', image:'https://picsum.photos/seed/camp1/1080/720', votes:12 },
+        { id:'c2', user:'會員 B', image:'https://picsum.photos/seed/camp2/1080/720', votes:8 },
+        { id:'c3', user:'會員 C', image:'https://picsum.photos/seed/camp3/1080/720', votes:15 },
+        { id:'c4', user:'會員 D', image:'https://picsum.photos/seed/camp4/1080/720', votes:6 },
+        { id:'c5', user:'會員 E', image:'https://picsum.photos/seed/camp5/1080/720', votes:10 }
       ],
       merchants: [],
       events: [],
@@ -592,9 +598,78 @@
       if(box) box.style.display = 'block';
     }
 
+    function getContestVoteKey(){
+      const now = new Date();
+      // 每天 00:10 後才切換到新的一日 key（符合需求：每天12點10刷新）
+      if(now.getHours() === 0 && now.getMinutes() < 10){
+        now.setDate(now.getDate() - 1);
+      }
+      const y = now.getFullYear();
+      const m = String(now.getMonth()+1).padStart(2,'0');
+      const d = String(now.getDate()).padStart(2,'0');
+      return `contest-vote-${y}${m}${d}`;
+    }
+
+    function getContestVoteState(){
+      const key = getContestVoteKey();
+      const raw = localStorage.getItem(key);
+      if(!raw) return { count:0, votedIds:[] };
+      try { return JSON.parse(raw); } catch { return { count:0, votedIds:[] }; }
+    }
+
+    function setContestVoteState(stateObj){
+      localStorage.setItem(getContestVoteKey(), JSON.stringify(stateObj));
+    }
+
+    function renderContestEntries(){
+      const box = document.getElementById('contestEntriesList');
+      const hint = document.getElementById('contestVoteHint');
+      if(!box) return;
+      const voteState = getContestVoteState();
+      const remaining = Math.max(0, 2 - (voteState.count || 0));
+      if(hint) hint.textContent = `今日剩餘票數：${remaining}（每人每天 2 票，不可重複）`;
+      box.innerHTML = state.contestEntries.map(e => {
+        const voted = (voteState.votedIds || []).includes(e.id);
+        const disabled = voted || (voteState.count || 0) >= 2;
+        return `
+          <div class="contest-round-item">
+            <img class="contest-round-img" src="${e.image}" alt="${e.user}" />
+            <div class="contest-vote-row">
+              <div>
+                <div><b>${e.user}</b></div>
+                <div class="muted">得票數：${e.votes}</div>
+              </div>
+              <button class="contest-vote-btn" ${disabled ? 'disabled' : ''} onclick="voteContest('${e.id}')">${voted ? '已投票' : '投票'}</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function voteContest(entryId){
+      if(state.user.method === 'guest'){ alert('請先登入會員再投票'); return; }
+      const voteState = getContestVoteState();
+      voteState.count = voteState.count || 0;
+      voteState.votedIds = voteState.votedIds || [];
+      if(voteState.votedIds.includes(entryId)){
+        alert('同一作品不可重複投票');
+        return;
+      }
+      if(voteState.count >= 2){
+        alert('今日票數已用完（每天最多 2 票）');
+        return;
+      }
+      const item = state.contestEntries.find(x => x.id === entryId);
+      if(item) item.votes += 1;
+      voteState.count += 1;
+      voteState.votedIds.push(entryId);
+      setContestVoteState(voteState);
+      renderContestEntries();
+    }
+
     function openContestGallery(){
       const modal = document.getElementById('contestModal');
       if(modal) modal.style.display = 'flex';
+      renderContestEntries();
     }
 
     function closeContestGallery(){
