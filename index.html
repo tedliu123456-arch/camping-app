@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.2</title>
+  <title>露營趣 v24.3</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1130,6 +1130,37 @@
     <div id="playlistDisplay" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
       <h3 id="playlistTitle" style="margin-top:0;"></h3>
       <ul id="playlistSongs" style="padding-left:20px;"></ul>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#f687b3,#d53f8c);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>📸 露營回憶牆</h2>
+    <p>記錄您的美好露營時光！</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;justify-content:center;">
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;">
+        <h3>🏕️ 第一次</h3>
+        <p style="font-size:24px;">🌟</p>
+        <button onclick="addMemory('first')" style="padding:5px 10px;">➕ 記錄</button>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;">
+        <h3>🔥 營火夜</h3>
+        <p style="font-size:24px;">🔥</p>
+        <button onclick="addMemory('campfire')" style="padding:5px 10px;">➕ 記錄</button>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;">
+        <h3>🌄 日出</h3>
+        <p style="font-size:24px;">🌅</p>
+        <button onclick="addMemory('sunrise')" style="padding:5px 10px;">➕ 記錄</button>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;">
+        <h3>🌙 星空</h3>
+        <p style="font-size:24px;">✨</p>
+        <button onclick="addMemory('stars')" style="padding:5px 10px;">➕ 記錄</button>
+      </div>
+    </div>
+    <div style="margin-top:15px;">
+      <h3 style="margin:10px 0;">我的回憶記錄</h3>
+      <div id="memoryList" style="display:flex;gap:10px;flex-wrap:wrap;"></div>
     </div>
   </section>
 
@@ -3123,6 +3154,41 @@
       document.getElementById('playlistDisplay').style.display = 'block';
       document.getElementById('playlistDisplay').scrollIntoView({behavior: 'smooth'});
     }
+    
+    // 露營回憶牆功能
+    const memoryTypes = {
+      'first': { emoji: '🏕️', label: '第一次', color: '#48bb78' },
+      'campfire': { emoji: '🔥', label: '營火夜', color: '#ed8936' },
+      'sunrise': { emoji: '🌄', label: '日出', color: '#f6e05e' },
+      'stars': { emoji: '✨', label: '星空', color: '#667eea' }
+    };
+    
+    function loadMemories() {
+      const memories = JSON.parse(localStorage.getItem('campingMemories') || '[]');
+      const container = document.getElementById('memoryList');
+      container.innerHTML = memories.map((m, i) => 
+        `<div style="background:${memoryTypes[m.type].color};padding:8px 12px;border-radius:20px;color:#333;font-size:14px;">
+          ${memoryTypes[m.type].emoji} ${memoryTypes[m.type].label} <span style="cursor:pointer;" onclick="deleteMemory(${i})">❌</span>
+        </div>`
+      ).join('');
+    }
+    
+    function addMemory(type) {
+      const memories = JSON.parse(localStorage.getItem('campingMemories') || '[]');
+      memories.push({ type: type, date: new Date().toLocaleDateString() });
+      localStorage.setItem('campingMemories', JSON.stringify(memories));
+      loadMemories();
+      alert('✅ 已記錄您的' + memoryTypes[type].label + '回憶！');
+    }
+    
+    function deleteMemory(index) {
+      const memories = JSON.parse(localStorage.getItem('campingMemories') || '[]');
+      memories.splice(index, 1);
+      localStorage.setItem('campingMemories', JSON.stringify(memories));
+      loadMemories();
+    }
+    
+    loadMemories();
     
     // 星座運勢功能
     const horoscopes = {
