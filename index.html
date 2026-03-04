@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.4</title>
+  <title>露營趣 v23.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1073,6 +1073,40 @@
       <h3 style="margin-top:0;">💡 專業建議</h3>
       <p id="powerTip">點擊按鈕獲取隨機省電技巧</p>
       <button onclick="showPowerTip()" style="background:#fff;color:#2c7a7b;">🔄 獲取技巧</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#d69e2e,#b7791f);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🎵 露營音樂電台</h2>
+    <p>野外露營必聽歌單🎸</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;justify-content:center;">
+      <div class="card" style="background:#fff;color:#333;min-width:200px;text-align:center;" onclick="playMusic('🎸')">
+        <h3>🎸 營火音樂</h3>
+        <p style="font-size:32px;">🔥</p>
+        <p>民謠吉他彈唱</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;text-align:center;" onclick="playMusic('🌙')">
+        <h3>🌙 星空音樂</h3>
+        <p style="font-size:32px;">✨</p>
+        <p>輕柔鋼琴曲</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;text-align:center;" onclick="playMusic('🌲')">
+        <h3>🌲 森林音樂</h3>
+        <p style="font-size:32px;">🍃</p>
+        <p>自然環境音效</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;text-align:center;" onclick="playMusic('⛺')">
+        <h3>⛺ 派對音樂</h3>
+        <p style="font-size:32px;">🎉</p>
+        <p>歡樂氣氛歌曲</p>
+      </div>
+    </div>
+    <div id="musicPlayer" style="display:none;margin-top:20px;padding:20px;background:rgba(0,0,0,0.3);border-radius:12px;text-align:center;">
+      <p id="nowPlaying" style="font-size:24px;font-weight:bold;">🎵 正在播放...</p>
+      <div style="margin-top:10px;">
+        <button onclick="togglePlay()" id="playBtn" style="background:#fff;color:#b7791f;padding:10px 20px;">⏸️ 暫停</button>
+        <button onclick="stopMusic()" style="background:#fff;color:#b7791f;padding:10px 20px;">⏹️ 停止</button>
+      </div>
     </div>
   </section>
 
@@ -2784,6 +2818,35 @@
     function showPowerTip() {
       const randomTip = powerTips[Math.floor(Math.random() * powerTips.length)];
       document.getElementById('powerTip').textContent = randomTip;
+    }
+    
+    // 露營音樂電台
+    let isPlaying = false;
+    let currentMusic = '';
+    
+    function playMusic(type) {
+      const musicNames = {
+        '🎸': '營火音樂 - 吉他彈唱經典',
+        '🌙': '星空音樂 - 輕柔鋼琴',
+        '🌲': '森林音樂 - 自然音效',
+        '⛺': '派對音樂 - 歡樂時光'
+      };
+      currentMusic = musicNames[type];
+      document.getElementById('nowPlaying').textContent = '🎵 正在播放：' + currentMusic;
+      document.getElementById('musicPlayer').style.display = 'block';
+      isPlaying = true;
+      document.getElementById('playBtn').textContent = '⏸️ 暫停';
+      document.getElementById('musicPlayer').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      document.getElementById('playBtn').textContent = isPlaying ? '⏸️ 暫停' : '▶️ 播放';
+    }
+    
+    function stopMusic() {
+      isPlaying = false;
+      document.getElementById('musicPlayer').style.display = 'none';
     }
     
     // 露營食譜功能
