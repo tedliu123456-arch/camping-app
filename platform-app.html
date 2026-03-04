@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v2.3</title>
+  <title>台灣露營平台 MVP v2.4</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -29,22 +29,12 @@
     .social-nav-inner button{width:100%;background:#fff;color:#1f2937;border:1px solid #d1d5db;padding:10px 6px;border-radius:10px;font-weight:700}
     .social-nav-inner button.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:inset 0 -3px 0 rgba(255,255,255,.3)}
 
-                        .ig-feed{display:grid;gap:12px}
-    .ig-post{border:1px solid #e5e7eb;border-radius:14px;background:#fff;overflow:hidden}
-    .ig-post-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px}
-    .ig-user{font-weight:700;font-size:14px}
-    .ig-meta{font-size:12px;color:#6b7280}
-    .ig-cover{height:220px;display:flex;align-items:flex-end;padding:12px;color:#fff;font-weight:700;background:linear-gradient(135deg,#2f855a,#276749)}
-    .ig-media{width:100%;max-height:360px;object-fit:cover;background:#000}
-    .ig-actions{display:flex;gap:12px;padding:10px 12px 0;font-size:20px}
-    .ig-likes{padding:6px 12px 0;font-weight:700;font-size:14px}
-    .ig-caption{padding:6px 12px 12px;font-size:14px;line-height:1.5}
-  </style>
+                      </style>
 </head>
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v2.3</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v2.4</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -516,28 +506,23 @@
       renderCamperMods();
       renderCamperRentals();
       if(!rows.length){
+        feed.className = '';
         feed.innerHTML = '<div class="muted">此分類尚無貼文。</div>';
         return;
       }
-      feed.className = 'ig-feed';
+
+      feed.className = '';
       feed.innerHTML = rows.map(({p,idx})=>`
-        <article class="ig-post">
-          <div class="ig-post-head">
-            <div>
-              <div class="ig-user">${p.user}</div>
-              <div class="ig-meta">${p.category||'未分類'} · ${p.ts}</div>
-            </div>
-            <div class="ig-meta">•••</div>
+        <div class="list-item">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+            <b>${p.user}</b>
+            <span class="muted">${p.category||'社群媒體'} · ${p.ts}</span>
           </div>
-          ${p.mediaType === 'image' ? `<img class="ig-media" src="${p.mediaUrl}" alt="post-media" />` : ''}
-          ${p.mediaType === 'video' ? `<video class="ig-media" src="${p.mediaUrl}" controls playsinline></video>` : ''}
-          ${!p.mediaType ? `<div class="ig-cover" style="background:${categoryCover(p.category)}">${p.category||'社群媒體'}</div>` : ''}
-          <div class="ig-actions">
-            <span style="cursor:pointer" onclick="likePost(${idx})">❤️</span><span>💬</span><span>📤</span><span style="margin-left:auto">🔖</span>
-          </div>
-          <div class="ig-likes">${p.likes} 個讚</div>
-          <div class="ig-caption"><b>${p.user}</b> ${p.text}</div>
-        </article>`).join('');
+          ${p.mediaType === 'image' ? `<img src="${p.mediaUrl}" alt="post-media" style="width:100%;max-height:320px;object-fit:cover;border-radius:8px;margin-top:8px" />` : ''}
+          ${p.mediaType === 'video' ? `<video src="${p.mediaUrl}" controls playsinline style="width:100%;max-height:320px;border-radius:8px;margin-top:8px"></video>` : ''}
+          <div style="margin-top:8px">${p.text}</div>
+          <button style="margin-top:8px" onclick="likePost(${idx})">👍 ${p.likes}</button>
+        </div>`).join('');
     }
 
     function votePhoto(){
