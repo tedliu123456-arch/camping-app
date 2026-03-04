@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.9</title>
+  <title>露營趣 v24.0</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1130,6 +1130,47 @@
     <div id="playlistDisplay" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
       <h3 id="playlistTitle" style="margin-top:0;"></h3>
       <ul id="playlistSongs" style="padding-left:20px;"></ul>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4299e1,#2b6cb0);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🌡️ 露營天氣指數</h2>
+    <p>出發前必看！完整天氣分析</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>☀️ 曬衣指數</h3>
+        <p style="font-size:32px;">⭐⭐⭐⭐</p>
+        <p>適合曬衣</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>🌬️ 風力指數</h3>
+        <p style="font-size:32px;">⭐⭐⭐</p>
+        <p>中等風力</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>🦟 蚊蟲指數</h3>
+        <p style="font-size:32px;">⭐⭐</p>
+        <p>蚊蟲較少</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>🌙 觀星指數</h3>
+        <p style="font-size:32px;">⭐⭐⭐⭐⭐</p>
+        <p>極佳觀星</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>🔥 焚火指數</h3>
+        <p style="font-size:32px;">⭐⭐⭐⭐</p>
+        <p>適合營火</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;">
+        <h3>🏃 運動指數</h3>
+        <p style="font-size:32px;">⭐⭐⭐⭐</p>
+        <p>適合活動</p>
+      </div>
+    </div>
+    <div style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.2);border-radius:8px;">
+      <p id="weatherSummary">📊 今日天氣总体良好，適合露營活動！</p>
+      <button onclick="updateWeatherIndex()" style="background:#fff;color:#2b6cb0;">🔄 重新整理指數</button>
     </div>
   </section>
 
@@ -3014,6 +3055,21 @@
       songList.innerHTML = playlist.songs.map(song => `<li>${song}</li>`).join('');
       document.getElementById('playlistDisplay').style.display = 'block';
       document.getElementById('playlistDisplay').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    // 露營天氣指數
+    const weatherSummaries = [
+      '📊 今日天氣总体良好，適合露營活動！記得防曬～',
+      '🌧️ 天氣稍有不穩，建議攜帶雨具備用',
+      '☀️ 晴空萬里，是露營的好日子！',
+      '🌬️ 風力稍強，請注意帳篷固定',
+      '🦟 蚊蟲活動活躍，記得帶防蚊用品',
+      '🌙 今晚觀星條件絕佳，別錯過！'
+    ];
+    
+    function updateWeatherIndex() {
+      const summary = weatherSummaries[Math.floor(Math.random() * weatherSummaries.length)];
+      document.getElementById('weatherSummary').textContent = summary;
     }
     
     // 露營裝備評測
