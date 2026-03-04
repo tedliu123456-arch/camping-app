@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v4.1</title>
+  <title>台灣露營平台 MVP v4.2</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v4.1</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v4.2</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -119,6 +119,7 @@
           <button class="gray" onclick="quickFill('tester01')">tester01 / 123456（LINE）</button>
           <button class="gray" onclick="quickFill('tester02')">tester02 / 123456（Google）</button>
           <button class="gray" onclick="quickFill('merchant01')">merchant01 / 123456（商家）</button>
+          <button class="gray" onclick="quickGuest()">訪客模式（免帳密）</button>
         </div>
       </div>
       <div id="loginStatus" class="muted" style="margin-top:8px">尚未登入</div>
@@ -414,6 +415,26 @@
       document.getElementById('loginMethod').value = preset.method;
       document.getElementById('displayName').value = preset.displayName;
       updateLoginButtonState();
+    }
+
+    function quickGuest(){
+      document.getElementById('loginMethod').value = 'guest';
+      document.getElementById('loginAccount').value = '';
+      document.getElementById('loginPassword').value = '';
+      if(!document.getElementById('displayName').value.trim()){
+        document.getElementById('displayName').value = '訪客';
+      }
+      updateLoginButtonState();
+    }
+
+    function bindLoginEnter(){
+      ['loginAccount','loginPassword','displayName'].forEach((id)=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter') login();
+        });
+      });
     }
 
     function updateLoginButtonState(){
@@ -1041,6 +1062,7 @@ function openPostComposer(){
     async function bootstrapApp(){
       quickFill('tester01');
       updateLoginButtonState();
+      bindLoginEnter();
       await initFirebaseAndLoad();
       renderFeed();
       renderContestBanner();
