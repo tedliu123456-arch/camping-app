@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v3.2</title>
+  <title>台灣露營平台 MVP v3.3</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -55,18 +55,19 @@
     .post-card-section{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px}
     .post-primary-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
     .post-primary-btn:hover{opacity:.94}
-    .contest-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1510;display:none;align-items:center;justify-content:center}
-    .contest-modal-card{width:min(760px,94vw);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:16px}
-    .contest-round-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:10px}
+    .contest-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1510;display:none;align-items:flex-end;justify-content:center}
+    .contest-modal-card{width:min(860px,98vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:16px;animation:slideUp .25s ease-out}
+    .contest-round-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:10px}
     .contest-round-item{text-align:center}
-    .contest-round-img{width:138px;height:138px;border-radius:50%;object-fit:cover;border:4px solid #2563eb;box-shadow:0 6px 16px rgba(37,99,235,.28)}
+    .contest-round-img{width:100%;height:auto;border-radius:12px;object-fit:cover;border:0;box-shadow:0 6px 16px rgba(37,99,235,.18)}
+    @keyframes slideUp{from{transform:translateY(24px);opacity:.4}to{transform:translateY(0);opacity:1}}
 
                       </style>
 </head>
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v3.2</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v3.3</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -240,16 +241,16 @@
   <div id="contestModal" class="contest-modal">
     <div class="contest-modal-card">
       <div class="post-page-head">
-        <h3 style="margin:0">照片比賽作品（圓圖）</h3>
+        <h3 style="margin:0">會員照片比賽（原圖展示）</h3>
         <button class="gray" onclick="closeContestGallery()">關閉</button>
       </div>
       <div class="muted">點右下「＋貼文」即可投稿參賽</div>
       <div class="contest-round-grid">
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp1/220/220" /><div class="muted">會員 A</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp2/220/220" /><div class="muted">會員 B</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp3/220/220" /><div class="muted">會員 C</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp4/220/220" /><div class="muted">會員 D</div></div>
-        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp5/220/220" /><div class="muted">會員 E</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp1/1080/720" /><div class="muted">會員 A</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp2/1080/720" /><div class="muted">會員 B</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp3/1080/720" /><div class="muted">會員 C</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp4/1080/720" /><div class="muted">會員 D</div></div>
+        <div class="contest-round-item"><img class="contest-round-img" src="https://picsum.photos/seed/camp5/1080/720" /><div class="muted">會員 E</div></div>
       </div>
       <div class="top-actions" style="margin-top:12px">
         <button onclick="closeContestGallery(); openPostComposer();">📷 我要投稿</button>
