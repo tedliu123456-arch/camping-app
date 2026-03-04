@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.7</title>
+  <title>露營趣 v22.8</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -766,6 +766,19 @@
   <section id="campsSection">
     <input type="text" id="searchPosts" placeholder="🔍 搜尋文章..." oninput="filterPosts();saveSearch(this.value)" style="width:100%;padding:12px;border-radius:25px;border:1px solid #ccc;font-size:16px;">
     <div id="recentSearches" style="margin-top:10px;font-size:12px;color:#888;"></div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed64a6,#d53f8c);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>📸 露營回憶牆</h2>
+    <p>記錄您的露營美好時光</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
+      <input type="text" id="memoryTitle" placeholder="回憶標題" style="flex:1;min-width:150px;padding:10px;border-radius:8px;border:none;">
+      <input type="text" id="memoryLocation" placeholder="營地名稱" style="flex:1;min-width:150px;padding:10px;border-radius:8px;border:none;">
+      <input type="date" id="memoryDate" style="padding:10px;border-radius:8px;border:none;">
+    </div>
+    <textarea id="memoryContent" placeholder="寫下您的露營故事..." style="width:100%;padding:10px;border-radius:8px;border:none;margin-bottom:10px;min-height:80px;"></textarea>
+    <button onclick="addMemory()" style="background:#fff;color:#d53f8c;padding:10px 20px;font-weight:bold;">💾 儲存回憶</button>
+    <div id="memoryList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;margin-top:20px;"></div>
   </section>
 
   </div>
@@ -2703,6 +2716,58 @@
         alert('優惠碼：' + code);
       });
     }
+    
+    // 露營回憶牆功能
+    function loadMemories() {
+      const memories = JSON.parse(localStorage.getItem('camping_memories') || '[]');
+      const container = document.getElementById('memoryList');
+      if (memories.length === 0) {
+        container.innerHTML = '<p style="color:#fff;opacity:0.8;text-align:center;grid-column:1/-1;">尚無回憶，快來記錄您的第一次露營吧！</p>';
+        return;
+      }
+      container.innerHTML = memories.map((m, idx) => `
+        <div class="card" style="background:#fff;color:#333;position:relative;">
+          <button onclick="deleteMemory(${idx})" style="position:absolute;top:5px;right:5px;background:#e53e3e;padding:2px 8px;font-size:12px;">✕</button>
+          <h3 style="margin-top:0;color:#d53f8c;">${m.title}</h3>
+          <p style="font-size:12px;color:#888;">📍 ${m.location} | 📅 ${m.date}</p>
+          <p>${m.content}</p>
+        </div>
+      `).join('');
+    }
+    
+    function addMemory() {
+      const title = document.getElementById('memoryTitle').value.trim();
+      const location = document.getElementById('memoryLocation').value.trim();
+      const date = document.getElementById('memoryDate').value;
+      const content = document.getElementById('memoryContent').value.trim();
+      
+      if (!title || !content) {
+        alert('請填寫標題和內容！');
+        return;
+      }
+      
+      const memories = JSON.parse(localStorage.getItem('camping_memories') || '[]');
+      memories.unshift({ title, location: location || '未知地點', date: date || new Date().toISOString().split('T')[0], content });
+      localStorage.setItem('camping_memories', JSON.stringify(memories));
+      
+      document.getElementById('memoryTitle').value = '';
+      document.getElementById('memoryLocation').value = '';
+      document.getElementById('memoryDate').value = '';
+      document.getElementById('memoryContent').value = '';
+      
+      loadMemories();
+      alert('回憶已儲存！💕');
+    }
+    
+    function deleteMemory(idx) {
+      if (!confirm('確定要刪除這段回憶嗎？')) return;
+      const memories = JSON.parse(localStorage.getItem('camping_memories') || '[]');
+      memories.splice(idx, 1);
+      localStorage.setItem('camping_memories', JSON.stringify(memories));
+      loadMemories();
+    }
+    
+    loadMemories();
   </script>
 
   <section>
