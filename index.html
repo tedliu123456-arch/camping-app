@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v4.2</title>
+  <title>台灣露營平台 MVP v4.3</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -18,6 +18,10 @@
     .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#e6f7ef;color:#0f7f51;font-size:12px;margin-right:6px;margin-top:6px}
     .grid{display:grid;gap:12px}.grid2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
     .muted{color:var(--muted);font-size:13px}
+    .status-msg{margin-top:8px;padding:8px 10px;border-radius:10px;font-size:13px;border:1px solid transparent}
+    .status-msg.idle{color:#6b7280;background:#f3f4f6;border-color:#e5e7eb}
+    .status-msg.ok{color:#065f46;background:#ecfdf5;border-color:#a7f3d0}
+    .status-msg.err{color:#991b1b;background:#fef2f2;border-color:#fecaca}
     .map{height:230px;border-radius:12px;border:1px dashed #7fbba2;background:linear-gradient(180deg,#e8fff4,#f4fbff);padding:10px;position:relative}
     .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#ef4444;cursor:pointer;box-shadow:0 0 0 4px rgba(239,68,68,.16)}
     .kpi{font-weight:800;font-size:24px}
@@ -71,7 +75,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v4.2</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v4.3</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -122,7 +126,7 @@
           <button class="gray" onclick="quickGuest()">訪客模式（免帳密）</button>
         </div>
       </div>
-      <div id="loginStatus" class="muted" style="margin-top:8px">尚未登入</div>
+      <div id="loginStatus" class="status-msg idle">尚未登入</div>
       <div style="margin-top:8px">
         <span class="pill" id="memberBadge">一般會員</span>
         <button class="orange" onclick="upgradeMember()">升級平台會員（取得折扣 QR）</button>
@@ -457,6 +461,13 @@
       pwdEl.type = showEl.checked ? 'text' : 'password';
     }
 
+    function setLoginStatus(message, type='idle'){
+      const el = document.getElementById('loginStatus');
+      if(!el) return;
+      el.textContent = message;
+      el.className = `status-msg ${type}`;
+    }
+
     function login(){
       const method = document.getElementById('loginMethod').value;
       const account = document.getElementById('loginAccount').value.trim();
@@ -466,7 +477,7 @@
       if(method !== 'guest'){
         const preset = state.testAccounts[account];
         if(!preset || preset.password !== password){
-          document.getElementById('loginStatus').textContent = '登入失敗：帳號或密碼錯誤（可使用上方測試帳號）';
+          setLoginStatus('登入失敗：帳號或密碼錯誤（可使用上方測試帳號）', 'err');
           return;
         }
         state.user.method = method;
@@ -482,7 +493,8 @@
       document.getElementById('authSection').style.display = 'none';
       document.getElementById('mainTabs').style.display = 'flex';
       document.getElementById('appShell').style.display = 'block';
-      document.getElementById('loginStatus').textContent = '';
+      const methodLabel = method === 'guest' ? '遊客模式' : method.toUpperCase();
+      setLoginStatus(`登入成功：${state.user.name}（${methodLabel}）`, 'ok');
       const nav = document.getElementById('socialNav');
       if(nav) nav.style.display = 'block';
       const fab = document.getElementById('fabPost');
