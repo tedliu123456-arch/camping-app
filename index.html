@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.8</title>
+  <title>露營趣 v23.9</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1103,6 +1103,33 @@
       <h3 style="margin-top:0;">💡 專業建議</h3>
       <p id="powerTip">點擊按鈕獲取隨機省電技巧</p>
       <button onclick="showPowerTip()" style="background:#fff;color:#2c7a7b;">🔄 獲取技巧</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#d69e2e,#b7791f);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🎵 露營歌單推薦</h2>
+    <p>享受露營時光必聽的音樂！</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;min-width:150px;cursor:pointer;" onclick="playPlaylist('chill')">
+        <h3>🌙 夜間放鬆</h3>
+        <p>🎸 輕音樂 / 古典</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:150px;cursor:pointer;" onclick="playPlaylist('campfire')">
+        <h3>🔥 營火晚會</h3>
+        <p>🎤 歡樂民謠</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:150px;cursor:pointer;" onclick="playPlaylist('morning')">
+        <h3>☀️ 晨間喚醒</h3>
+        <p>🎹 輕快旋律</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:150px;cursor:pointer;" onclick="playPlaylist('nature')">
+        <h3>🌲 大自然</h3>
+        <p>🐦 環境音樂</p>
+      </div>
+    </div>
+    <div id="playlistDisplay" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
+      <h3 id="playlistTitle" style="margin-top:0;"></h3>
+      <ul id="playlistSongs" style="padding-left:20px;"></ul>
     </div>
   </section>
 
@@ -2970,6 +2997,23 @@
     function showPowerTip() {
       const randomTip = powerTips[Math.floor(Math.random() * powerTips.length)];
       document.getElementById('powerTip').textContent = randomTip;
+    }
+    
+    // 露營歌單功能
+    const playlists = {
+      'chill': { title: '🌙 夜間放鬆歌單', songs: ['星空 ◎ 李宗盛', '夜空中最亮的星 ◎ 逃跑計劃', '月光 ◎ 王心凌', '寧靜的夏天 ◎ 梁靜茹'] },
+      'campfire': { title: '🔥 營火晚會歌單', songs: ['朋友 ◎ 周華健', '愛拼才會贏 ◎ 葉啟田', '山谷裡的笛聲 ◎ 陳淑樺', '快樂的露營歌 ◎ 兒歌'] },
+      'morning': { title: '☀️ 晨間喚醒歌單', songs: ['早安，晨之美 ◎ 盧廣仲', '完美的早餐 ◎ 周杰倫', '早晨的陽光 ◎ 自然聲', '小鳥叫了 ◎ 童謠'] },
+      'nature': { title: '🌲 大自然音樂', songs: ['森林狂想曲 ◎ 吳金黛', '溪邊的水滴 ◎ 自然音樂', '風聲 ◎ 輕音樂', '鳥鳴 ◎ 環境音樂'] }
+    };
+    
+    function playPlaylist(type) {
+      const playlist = playlists[type];
+      document.getElementById('playlistTitle').textContent = playlist.title;
+      const songList = document.getElementById('playlistSongs');
+      songList.innerHTML = playlist.songs.map(song => `<li>${song}</li>`).join('');
+      document.getElementById('playlistDisplay').style.display = 'block';
+      document.getElementById('playlistDisplay').scrollIntoView({behavior: 'smooth'});
     }
     
     // 露營裝備評測
