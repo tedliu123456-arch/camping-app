@@ -1,7 +1,16 @@
 {
-  "version": "27.5",
+  "version": "27.6",
   "lastUpdated": "2026-03-04",
   "changelog": [
+    {
+      "version": "27.6",
+      "date": "2026-03-04",
+      "changes": [
+        "首頁比賽 Banner 改為依得票數自動顯示前幾名作品",
+        "投票後會即時更新首頁 Banner 排名順序",
+        "投稿新作品後也會同步刷新首頁 Banner"
+      ]
+    },
     {
       "version": "27.5",
       "date": "2026-03-04",

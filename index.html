@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v3.5</title>
+  <title>台灣露營平台 MVP v3.6</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v3.5</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v3.6</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -132,13 +132,7 @@
           <div style="font-weight:700">📸 會員照片比賽</div>
           <div style="font-size:12px;opacity:.92">會員投稿參加，每日票選人氣作品</div>
           <button class="contest-join" onclick="openContestGallery()">📷 參加比賽</button>
-          <div class="contest-marquee">
-            <img class="contest-photo" src="https://picsum.photos/seed/camp1/200/140" alt="contest-1" onclick="openContestGallery()" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp2/200/140" alt="contest-2" onclick="openContestGallery()" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp3/200/140" alt="contest-3" onclick="openContestGallery()" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp4/200/140" alt="contest-4" onclick="openContestGallery()" />
-            <img class="contest-photo" src="https://picsum.photos/seed/camp5/200/140" alt="contest-5" onclick="openContestGallery()" />
-          </div>
+          <div class="contest-marquee" id="contestBannerList"></div>
         </div>
         <div class="social-nav" id="socialNav">
           <div class="social-nav-inner">
@@ -580,6 +574,7 @@
       setPostTarget('social');
       renderFeed();
       renderContestEntries();
+      renderContestBanner();
     }
 
     function likePost(i){
@@ -638,6 +633,21 @@
       localStorage.setItem(getContestVoteKey(), JSON.stringify(stateObj));
     }
 
+    function getRankedContestEntries(){
+      return [...state.contestEntries].sort((a,b)=> (b.votes||0) - (a.votes||0));
+    }
+
+    function renderContestBanner(){
+      const box = document.getElementById('contestBannerList');
+      if(!box) return;
+      const ranked = getRankedContestEntries().slice(0,5);
+      if(!ranked.length){
+        box.innerHTML = '<div class="muted" style="color:#e5edff">暫無作品</div>';
+        return;
+      }
+      box.innerHTML = ranked.map((e,idx)=>`<img class="contest-photo" src="${e.image}" alt="${e.user}" title="#${idx+1} ${e.user}｜${e.votes}票" onclick="openContestGallery()" />`).join('');
+    }
+
     function renderContestEntries(){
       const box = document.getElementById('contestEntriesList');
       const hint = document.getElementById('contestVoteHint');
@@ -645,7 +655,7 @@
       const voteState = getContestVoteState();
       const remaining = Math.max(0, 2 - (voteState.count || 0));
       if(hint) hint.textContent = `今日剩餘票數：${remaining}（每人每天 2 票，不可重複）`;
-      box.innerHTML = state.contestEntries.map(e => {
+      box.innerHTML = getRankedContestEntries().map(e => {
         const voted = (voteState.votedIds || []).includes(e.id);
         const disabled = voted || (voteState.count || 0) >= 2;
         return `
@@ -682,12 +692,14 @@
       voteState.votedIds.push(entryId);
       setContestVoteState(voteState);
       renderContestEntries();
+      renderContestBanner();
     }
 
     function openContestGallery(){
       const modal = document.getElementById('contestModal');
       if(modal) modal.style.display = 'flex';
       renderContestEntries();
+      renderContestBanner();
     }
 
     function closeContestGallery(){
@@ -836,6 +848,7 @@ function openPostComposer(){
 
     quickFill('tester01');
     renderFeed();
+    renderContestBanner();
     refreshAdmin();
   </script>
 </body>
