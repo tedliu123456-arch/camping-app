@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.1</title>
+  <title>露營趣 v24.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1130,6 +1130,37 @@
     <div id="playlistDisplay" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
       <h3 id="playlistTitle" style="margin-top:0;"></h3>
       <ul id="playlistSongs" style="padding-left:20px;"></ul>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>✨ 露營星座運勢</h2>
+    <p>今晚的星空等著你！</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;justify-content:center;">
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;cursor:pointer;" onclick="showHoroscope('fire')">
+        <h3>♈ ♌ ♐</h3>
+        <p>🔥 火象星座</p>
+        <p style="font-size:12px;">牡羊/獅子/射手</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;cursor:pointer;" onclick="showHoroscope('earth')">
+        <h3>♉ ♍ ♑</h3>
+        <p>🌍 土象星座</p>
+        <p style="font-size:12px;">金牛/處女/摩羯</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;cursor:pointer;" onclick="showHoroscope('air')">
+        <h3>♊ ♎ ♒</h3>
+        <p>💨 風象星座</p>
+        <p style="font-size:12px;">雙子/天秤/水瓶</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:120px;text-align:center;cursor:pointer;" onclick="showHoroscope('water')">
+        <h3>♋ ♏ ♓</h3>
+        <p>💧 水象星座</p>
+        <p style="font-size:12px;">巨蟹/天蠍/雙魚</p>
+      </div>
+    </div>
+    <div id="horoscopeResult" style="display:none;margin-top:15px;padding:15px;background:rgba(255,255,255,0.15);border-radius:12px;">
+      <h3 id="horoscopeTitle" style="margin-top:0;"></h3>
+      <p id="horoscopeDesc"></p>
     </div>
   </section>
 
@@ -3091,6 +3122,22 @@
       songList.innerHTML = playlist.songs.map(song => `<li>${song}</li>`).join('');
       document.getElementById('playlistDisplay').style.display = 'block';
       document.getElementById('playlistDisplay').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    // 星座運勢功能
+    const horoscopes = {
+      'fire': { title: '🔥 火象星座運勢', desc: '今晚露營運勢極佳！牡羊、獅子、射手座的你，適合進行戶外活動。星空觀測運勢超好，可能會看到難得的流星！建議：帶上相機捕捉美景。' },
+      'earth': { title: '🌍 土象星座運勢', desc: '金牛、處女、摩羯座的朋友，今晚適合靜靜享受露營時光。運勢穩定，適合烤肉和野餐。和朋友聊天會有新收獲！建議：帶上喜歡的書籍。' },
+      'air': { title: '💨 風象星座運勢', desc: '雙子、天秤、水瓶座的你，今晚思维活跃，適合探索新營地！可能會認識新朋友，或獲得靈感。建議：帶上筆記本記錄想法。' },
+      'water': { title: '💧 水象星座運勢', desc: '巨蟹、天蠍、雙魚座的朋友，今晚情感丰富，適合觀星和創作。運勢溫和順利，適合反思和冥想。建議：帶上音樂播放器和 headphones。' }
+    };
+    
+    function showHoroscope(type) {
+      const horo = horoscopes[type];
+      document.getElementById('horoscopeTitle').textContent = horo.title;
+      document.getElementById('horoscopeDesc').textContent = horo.desc;
+      document.getElementById('horoscopeResult').style.display = 'block';
+      document.getElementById('horoscopeResult').scrollIntoView({behavior: 'smooth'});
     }
     
     // 露營天氣指數
