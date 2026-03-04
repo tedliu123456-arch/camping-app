@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v2.5</title>
+  <title>台灣露營平台 MVP v2.6</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -23,11 +23,6 @@
     .kpi{font-weight:800;font-size:24px}
     .list-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
     .top-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .social-nav{position:fixed;top:0;left:0;right:0;z-index:1200;background:#ffffff;border-bottom:1px solid #e5e7eb;padding:10px 12px;display:none;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-    .social-nav-inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-    body.social-nav-on #communitySection{padding-top:74px}
-    .social-nav-inner button{width:100%;background:#fff;color:#1f2937;border:1px solid #d1d5db;padding:10px 6px;border-radius:10px;font-weight:700}
-    .social-nav-inner button.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:inset 0 -3px 0 rgba(255,255,255,.3)}
 
     .file-upload-wrap{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
     .file-upload-input{display:none}
@@ -40,7 +35,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v2.5</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v2.6</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -97,42 +92,6 @@
     <div id="appShell" style="display:none">
     <section id="user" class="tab-content active">
       <div class="card" id="communitySection">
-        <h3 style="margin-top:0">露營圈（IG 風格）</h3>
-        <div class="muted">手機首頁以社交貼文流為主，支援上方固定分類切換。</div>
-          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🏕️</div></div><div class="ig-name">露營區</div></div>
-          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🛒</div></div><div class="ig-name">露營用品</div></div>
-          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🔧</div></div><div class="ig-name">改裝</div></div>
-          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🚐</div></div><div class="ig-name">出租</div></div>
-        </div>
-
-        <div class="social-nav" id="socialNav">
-          <div class="social-nav-inner">
-            <button data-cat="社群媒體" onclick="setSocialCategory('社群媒體')">社群媒體</button>
-            <button data-cat="露營區" onclick="setSocialCategory('露營區')">露營區</button>
-            <button data-cat="露營用品" onclick="setSocialCategory('露營用品')">露營用品</button>
-            <button data-cat="露營車改裝" onclick="setSocialCategory('露營車改裝')">露營車改裝</button>
-            <button data-cat="露營車出租" onclick="setSocialCategory('露營車出租')">露營車出租</button>
-          </div>
-        </div>
-
-        <div id="socialCategoryState" class="muted" style="margin-top:8px">目前分類：社群媒體</div>
-        <div id="campZonePanel" class="card" style="margin-top:10px;display:none;background:#f8fffb">
-          <h4 style="margin:0 0 8px 0">露營區資訊（細節 / 價格 / 地點）</h4>
-          <div id="campZoneList" class="ig-feed"></div>
-        </div>
-        <div id="supplyPanel" class="card" style="margin-top:10px;display:none;background:#fffaf5">
-          <h4 style="margin:0 0 8px 0">露營用品店資訊（地點 / 營業時間 / 電話）</h4>
-          <div id="supplyList" class="ig-feed"></div>
-        </div>
-        <div id="modifyPanel" class="card" style="margin-top:10px;display:none;background:#f5fffb">
-          <h4 style="margin:0 0 8px 0">露營車改裝資訊（地點 / 細節 / 專改車型）</h4>
-          <div id="modifyList" class="ig-feed"></div>
-        </div>
-        <div id="rentalPanel" class="card" style="margin-top:10px;display:none;background:#f5f7ff">
-          <h4 style="margin:0 0 8px 0">露營車出租資訊（取車地點 / 聯絡方式 / 車輛數）</h4>
-          <div id="rentalList" class="ig-feed"></div>
-        </div>
-
         <textarea id="postText" rows="3" placeholder="分享你的露營心得（可顯示個人標籤）" style="margin-top:10px"></textarea>
         <div class="file-upload-wrap">
           <input class="file-upload-input" id="postMedia" type="file" accept="image/*,video/*" onchange="onMediaPicked()" />
@@ -256,11 +215,6 @@
       document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
       document.getElementById(id).classList.add('active');
 
-      const nav = document.getElementById('socialNav');
-      if(nav){
-        nav.style.display = (id === 'user' && state.user.loggedIn) ? 'block' : 'none';
-      }
-
       refreshAdmin();
     }
 
@@ -299,9 +253,6 @@
       document.getElementById('mainTabs').style.display = 'flex';
       document.getElementById('appShell').style.display = 'block';
       document.getElementById('loginStatus').textContent = '';
-      document.getElementById('socialNav').style.display = 'block';
-      document.body.classList.add('social-nav-on');
-      updateSocialNav(state.activeSocialCategory);
 
       switchTab('user');
       renderFeed();
@@ -445,17 +396,8 @@
         </article>
       `).join('');
     }
-
-    function updateSocialNav(cat){
-      const buttons = document.querySelectorAll('#socialNav .social-nav-inner button');
-      buttons.forEach(btn=>btn.classList.toggle('active', btn.dataset.cat===cat));
-    }
-
     function setSocialCategory(cat){
       state.activeSocialCategory = cat;
-      const stateEl = document.getElementById('socialCategoryState');
-      if(stateEl) stateEl.textContent = `目前分類：${cat}`;
-      updateSocialNav(cat);
       renderCampZones();
       renderSupplyStores();
       renderCamperMods();
