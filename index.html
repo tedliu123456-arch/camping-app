@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.0</title>
+  <title>露營趣 v24.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1171,6 +1171,42 @@
     <div style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.2);border-radius:8px;">
       <p id="weatherSummary">📊 今日天氣总体良好，適合露營活動！</p>
       <button onclick="updateWeatherIndex()" style="background:#fff;color:#2b6cb0;">🔄 重新整理指數</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#ed64a6,#d53f8c);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>📸 露營回憶牆</h2>
+    <p>分享你的露營美好回憶！</p>
+    <div id="memoryWall" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;text-align:center;padding:10px;">
+        <div style="font-size:40px;">🏕️</div>
+        <h3 style="font-size:14px;margin:5px 0;">第一次露營</h3>
+        <p style="font-size:12px;color:#666;">2025.01</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;padding:10px;">
+        <div style="font-size:40px;">🔥</div>
+        <h3 style="font-size:14px;margin:5px 0;">營火晚會</h3>
+        <p style="font-size:12px;color:#666;">2025.03</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;padding:10px;">
+        <div style="font-size:40px;">�星空</div>
+        <h3 style="font-size:14px;margin:5px 0;">觀星之夜</h3>
+        <p style="font-size:12px;color:#666;">2025.06</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;text-align:center;padding:10px;">
+        <div style="font-size:40px;">🍳</div>
+        <h3 style="font-size:14px;margin:5px 0;">野外料理</h3>
+        <p style="font-size:12px;color:#666;">2025.08</p>
+      </div>
+    </div>
+    <div style="margin-top:15px;text-align:center;">
+      <button onclick="addMemory()" style="background:#fff;color:#d53f8c;padding:10px 20px;">➕ 新增回憶</button>
+      <button onclick="shuffleMemories()" style="background:rgba(255,255,255,0.3);color:#fff;margin-left:10px;">🔀 隨機排序</button>
+    </div>
+    <div id="memoryInput" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
+      <input type="text" id="memoryTitle" placeholder="回憶標題" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ddd;">
+      <input type="text" id="memoryEmoji" placeholder="表情符號（如 🏕️）" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;border:1px solid #ddd;">
+      <button onclick="saveMemory()" style="background:#d53f8c;color:#fff;padding:10px 20px;">儲存</button>
     </div>
   </section>
 
@@ -3070,6 +3106,48 @@
     function updateWeatherIndex() {
       const summary = weatherSummaries[Math.floor(Math.random() * weatherSummaries.length)];
       document.getElementById('weatherSummary').textContent = summary;
+    }
+    
+    // 露營回憶牆功能
+    let memories = [
+      { emoji: '🏕️', title: '第一次露營', date: '2025.01' },
+      { emoji: '🔥', title: '營火晚會', date: '2025.03' },
+      { emoji: '🌙', title: '觀星之夜', date: '2025.06' },
+      { emoji: '🍳', title: '野外料理', date: '2025.08' }
+    ];
+    
+    function addMemory() {
+      const input = document.getElementById('memoryInput');
+      input.style.display = input.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    function saveMemory() {
+      const title = document.getElementById('memoryTitle').value;
+      const emoji = document.getElementById('memoryEmoji').value || '📸';
+      if (title) {
+        memories.push({ emoji, title, date: '2026.03' });
+        renderMemories();
+        document.getElementById('memoryTitle').value = '';
+        document.getElementById('memoryEmoji').value = '';
+        document.getElementById('memoryInput').style.display = 'none';
+        alert('回憶已新增！');
+      }
+    }
+    
+    function shuffleMemories() {
+      memories = memories.sort(() => Math.random() - 0.5);
+      renderMemories();
+    }
+    
+    function renderMemories() {
+      const wall = document.getElementById('memoryWall');
+      wall.innerHTML = memories.map(m => `
+        <div class="card" style="background:#fff;color:#333;text-align:center;padding:10px;cursor:pointer;" onclick="alert('${m.title} - ${m.date}')">
+          <div style="font-size:40px;">${m.emoji}</div>
+          <h3 style="font-size:14px;margin:5px 0;">${m.title}</h3>
+          <p style="font-size:12px;color:#666;">${m.date}</p>
+        </div>
+      `).join('');
     }
     
     // 露營裝備評測
