@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v5.2</title>
+  <title>台灣露營平台 MVP v5.3</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v5.2</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v5.3</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -92,6 +92,7 @@
             <option value="google">Google</option>
             <option value="guest">遊客模式</option>
           </select>
+          <div id="loginMethodHint" class="muted" style="margin-top:4px">使用第三方登入需輸入帳號與密碼</div>
         </div>
         <div style="flex:1;min-width:200px">
           <label>帳號</label>
@@ -468,6 +469,8 @@
       const accountEl = document.getElementById('loginAccount');
       const passwordEl = document.getElementById('loginPassword');
       const displayNameEl = document.getElementById('displayName');
+      const methodHintEl = document.getElementById('loginMethodHint');
+      const capsHintEl = document.getElementById('capsHint');
       if(!methodEl || !accountEl || !passwordEl || !displayNameEl) return;
 
       const isGuest = methodEl.value === 'guest';
@@ -476,10 +479,18 @@
       accountEl.style.opacity = isGuest ? '0.6' : '1';
       passwordEl.style.opacity = isGuest ? '0.6' : '1';
 
+      if(methodHintEl){
+        methodHintEl.textContent = isGuest
+          ? '遊客模式免帳號密碼，直接輸入顯示名稱即可登入'
+          : '使用第三方登入需輸入帳號與密碼';
+      }
+
       if(isGuest){
         accountEl.value = '';
         passwordEl.value = '';
+        if(capsHintEl) capsHintEl.style.display = 'none';
         if(!displayNameEl.value.trim()) displayNameEl.value = '訪客';
+        displayNameEl.focus();
       }
     }
 
