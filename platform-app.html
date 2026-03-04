@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v3.6</title>
+  <title>台灣露營平台 MVP v3.7</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v3.6</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v3.7</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -251,6 +251,9 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
   <script>
     const state = {
       user: { name:'', method:'guest', isMember:false, votesToday:0, lastVoteDate:'', loggedIn:false },
@@ -305,6 +308,85 @@
       events: [],
       revenue: 0
     };
+
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
+      authDomain: "outdoorcamp.firebaseapp.com",
+      projectId: "outdoorcamp",
+      storageBucket: "outdoorcamp.firebasestorage.app",
+      messagingSenderId: "709693825585",
+      appId: "1:709693825585:web:eced280b0538cdc29bab10",
+      measurementId: "G-L68VBJR8W2"
+    };
+
+    let firebaseDb = null;
+    let firebaseStorage = null;
+
+    async function initFirebaseAndLoad(){
+      try{
+        if (!firebase.apps.length){
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        firebaseDb = firebase.firestore();
+        firebaseStorage = firebase.storage();
+        await loadAppStateFromFirebase();
+      }catch(err){
+        console.warn('Firebase init/load failed:', err);
+      }
+    }
+
+    function serializeState(){
+      return {
+        posts: state.posts,
+        contestEntries: state.contestEntries,
+        camps: state.camps,
+        campZones: state.campZones,
+        supplyStores: state.supplyStores,
+        camperMods: state.camperMods,
+        camperRentals: state.camperRentals,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    async function saveAppStateToFirebase(){
+      if(!firebaseDb) return;
+      try{
+        await firebaseDb.collection('app').doc('state').set(serializeState(), { merge: true });
+      }catch(err){
+        console.warn('Save to Firebase failed:', err);
+      }
+    }
+
+    async function loadAppStateFromFirebase(){
+      if(!firebaseDb) return;
+      try{
+        const doc = await firebaseDb.collection('app').doc('state').get();
+        if(!doc.exists) return;
+        const data = doc.data() || {};
+        if(Array.isArray(data.posts) && data.posts.length) state.posts = data.posts;
+        if(Array.isArray(data.contestEntries) && data.contestEntries.length) state.contestEntries = data.contestEntries;
+        if(Array.isArray(data.camps) && data.camps.length) state.camps = data.camps;
+        if(Array.isArray(data.campZones) && data.campZones.length) state.campZones = data.campZones;
+        if(Array.isArray(data.supplyStores) && data.supplyStores.length) state.supplyStores = data.supplyStores;
+        if(Array.isArray(data.camperMods) && data.camperMods.length) state.camperMods = data.camperMods;
+        if(Array.isArray(data.camperRentals) && data.camperRentals.length) state.camperRentals = data.camperRentals;
+      }catch(err){
+        console.warn('Load from Firebase failed:', err);
+      }
+    }
+
+    async function uploadFileToFirebase(file, folder='uploads'){
+      if(!firebaseStorage || !file) return null;
+      try{
+        const safeName = `${Date.now()}-${file.name}`.replace(/\s+/g,'-');
+        const fileRef = firebaseStorage.ref().child(`${folder}/${safeName}`);
+        await fileRef.put(file);
+        return await fileRef.getDownloadURL();
+      }catch(err){
+        console.warn('Upload to Firebase failed:', err);
+        return null;
+      }
+    }
 
     function switchTab(id){
       document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
@@ -526,7 +608,7 @@
       if(nameEl) nameEl.textContent = file ? `已選擇：${file.name}` : '尚未選擇檔案';
     }
 
-    function addPost(){
+    async function addPost(){
       if(state.user.method === 'guest'){ alert('遊客模式不可評論，請先使用 LINE 或 Google 登入'); return; }
       const text = document.getElementById('postText').value.trim();
       const category = '社群媒體';
@@ -538,7 +620,8 @@
       let mediaUrl = null;
       if(file){
         mediaType = file.type.startsWith('video') ? 'video' : 'image';
-        mediaUrl = URL.createObjectURL(file);
+        mediaUrl = await uploadFileToFirebase(file, state.postTarget === 'contest' ? 'contest' : 'posts');
+        if(!mediaUrl) mediaUrl = URL.createObjectURL(file);
       }
 
       if(state.postTarget === 'contest'){
@@ -575,6 +658,7 @@
       renderFeed();
       renderContestEntries();
       renderContestBanner();
+      await saveAppStateToFirebase();
     }
 
     function likePost(i){
@@ -587,6 +671,7 @@
       post.likedBy.push(me);
       post.likes = (post.likes || 0) + 1;
       renderFeed();
+      saveAppStateToFirebase();
     }
 
     function toggleComments(i){
@@ -608,6 +693,7 @@
       renderFeed();
       const box = document.getElementById(`comments-${i}`);
       if(box) box.style.display = 'block';
+      saveAppStateToFirebase();
     }
 
     function getContestVoteKey(){
@@ -693,6 +779,7 @@
       setContestVoteState(voteState);
       renderContestEntries();
       renderContestBanner();
+      saveAppStateToFirebase();
     }
 
     function openContestGallery(){
@@ -736,8 +823,8 @@ function openPostComposer(){
       if(overlay) overlay.style.display = 'none';
     }
 
-    function addPostAndClose(){
-      addPost();
+    async function addPostAndClose(){
+      await addPost();
       closePostPage();
     }
 
@@ -846,10 +933,15 @@ function openPostComposer(){
       renderAdminMerchants();
     }
 
-    quickFill('tester01');
-    renderFeed();
-    renderContestBanner();
-    refreshAdmin();
+    async function bootstrapApp(){
+      quickFill('tester01');
+      await initFirebaseAndLoad();
+      renderFeed();
+      renderContestBanner();
+      refreshAdmin();
+    }
+
+    bootstrapApp();
   </script>
 </body>
 </html>
