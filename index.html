@@ -100,9 +100,6 @@
         <div style="flex:1;min-width:200px">
           <label>密碼</label>
           <input id="loginPassword" type="password" placeholder="測試密碼：123456" />
-          <label class="muted" style="display:block;margin-top:6px;cursor:pointer;">
-            <input id="showPwdToggle" type="checkbox" style="width:auto;margin-right:6px;vertical-align:middle;" onchange="toggleLoginPassword()" />顯示密碼
-          </label>
         </div>
         <div style="flex:1;min-width:200px">
           <label>顯示名稱</label>
@@ -131,7 +128,7 @@
     <div id="appShell" style="display:none">
     <section id="user" class="tab-content active">
       <div class="card" id="communitySection">
-        <div class="contest-banner">
+        <div class="contest-banner" id="contestBanner">
           <div style="font-weight:700">📸 會員照片比賽</div>
           <div style="font-size:12px;opacity:.92">會員投稿參加，每日票選人氣作品</div>
           <button class="contest-join" onclick="openContestGallery()">📷 參加比賽</button>
@@ -414,22 +411,6 @@
       document.getElementById('displayName').value = preset.displayName;
     }
 
-    function toggleLoginPassword(){
-      const pwd = document.getElementById('loginPassword');
-      const checked = document.getElementById('showPwdToggle').checked;
-      if(pwd) pwd.type = checked ? 'text' : 'password';
-    }
-
-    function bindLoginEnter(){
-      ['loginAccount','loginPassword','displayName'].forEach((id)=>{
-        const el = document.getElementById(id);
-        if(!el) return;
-        el.addEventListener('keydown', (e)=>{
-          if(e.key === 'Enter') login();
-        });
-      });
-    }
-
     function login(){
       const method = document.getElementById('loginMethod').value;
       const account = document.getElementById('loginAccount').value.trim();
@@ -510,6 +491,20 @@
       document.getElementById('bookingLogs').innerHTML = '最新預約：' + state.bookings.slice(-3).map(b=>`${b.date} ${b.camp} / ${b.pkg}`).join(' ｜ ');
     }
 
+    function getMerchantByCategory(cat){
+      const rules = {
+        '露營區': ['露營區','營地','camp'],
+        '露營用品': ['用品','裝備','gear'],
+        '露營車改裝': ['改裝','房車改裝','mod'],
+        '露營車出租': ['出租','租車','露營車','rental']
+      };
+      const keys = rules[cat] || [];
+      return (state.merchants || []).filter(m => {
+        const bag = `${m.name||''} ${m.desc||''} ${m.tags||''} ${m.area||''}`.toLowerCase();
+        return keys.some(k => bag.includes(String(k).toLowerCase()));
+      });
+    }
+
     function renderCampZones(){
       const panel = document.getElementById('campZonePanel');
       const list = document.getElementById('campZoneList');
@@ -519,19 +514,32 @@
         return;
       }
       panel.style.display = 'block';
-      list.innerHTML = state.campZones.map(z => `
-        <article class="ig-post">
-          <div class="ig-post-head">
+      const merchantRows = getMerchantByCategory('露營區');
+      list.innerHTML = [
+        ...state.campZones.map(z => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
             <div>
-              <div class="ig-user">${z.name}</div>
-              <div class="ig-meta">📍 ${z.location}</div>
+              <div class=\"ig-user\">${z.name}</div>
+              <div class=\"ig-meta\">📍 ${z.location}</div>
             </div>
-            <div class="ig-meta">💰 ${z.price}</div>
+            <div class=\"ig-meta\">💰 ${z.price}</div>
           </div>
-          <div class="ig-cover" style="background:linear-gradient(135deg,#2563eb,#1d4ed8)">露營區</div>
-          <div class="ig-caption"><b>細節：</b>${z.detail}<br><b>價格：</b>${z.price}<br><b>Location：</b>${z.location}</div>
-        </article>
-      `).join('');
+          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#2563eb,#1d4ed8)\">露營區</div>
+          <div class=\"ig-caption\"><b>細節：</b>${z.detail}<br><b>價格：</b>${z.price}<br><b>Location：</b>${z.location}</div>
+        </article>`),
+        ...merchantRows.map(m => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
+            <div>
+              <div class=\"ig-user\">${m.name}</div>
+              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
+            </div>
+            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
+          </div>
+          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
+        </article>` )
+      ].join('');
     }
 
     function renderSupplyStores(){
@@ -543,19 +551,32 @@
         return;
       }
       panel.style.display = 'block';
-      list.innerHTML = state.supplyStores.map(st => `
-        <article class="ig-post">
-          <div class="ig-post-head">
+      const merchantRows = getMerchantByCategory('露營用品');
+      list.innerHTML = [
+        ...state.supplyStores.map(st => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
             <div>
-              <div class="ig-user">${st.name}</div>
-              <div class="ig-meta">📍 ${st.location}</div>
+              <div class=\"ig-user\">${st.name}</div>
+              <div class=\"ig-meta\">📍 ${st.location}</div>
             </div>
-            <div class="ig-meta">📞 ${st.phone}</div>
+            <div class=\"ig-meta\">📞 ${st.phone}</div>
           </div>
-          <div class="ig-cover" style="background:linear-gradient(135deg,#f59e0b,#d97706)">露營用品</div>
-          <div class="ig-caption"><b>地點：</b>${st.location}<br><b>營業時間：</b>${st.hours}<br><b>電話：</b>${st.phone}</div>
-        </article>
-      `).join('');
+          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#f59e0b,#d97706)\">露營用品</div>
+          <div class=\"ig-caption\"><b>地點：</b>${st.location}<br><b>營業時間：</b>${st.hours}<br><b>電話：</b>${st.phone}</div>
+        </article>`),
+        ...merchantRows.map(m => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
+            <div>
+              <div class=\"ig-user\">${m.name}</div>
+              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
+            </div>
+            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
+          </div>
+          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
+        </article>` )
+      ].join('');
     }
 
     function renderCamperMods(){
@@ -567,19 +588,32 @@
         return;
       }
       panel.style.display = 'block';
-      list.innerHTML = state.camperMods.map(md => `
-        <article class="ig-post">
-          <div class="ig-post-head">
+      const merchantRows = getMerchantByCategory('露營車改裝');
+      list.innerHTML = [
+        ...state.camperMods.map(md => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
             <div>
-              <div class="ig-user">${md.name}</div>
-              <div class="ig-meta">📍 ${md.location}</div>
+              <div class=\"ig-user\">${md.name}</div>
+              <div class=\"ig-meta\">📍 ${md.location}</div>
             </div>
-            <div class="ig-meta">🔧 改裝專門</div>
+            <div class=\"ig-meta\">🔧 改裝專門</div>
           </div>
-          <div class="ig-cover" style="background:linear-gradient(135deg,#10b981,#047857)">露營車改裝</div>
-          <div class="ig-caption"><b>地點：</b>${md.location}<br><b>細節：</b>${md.detail}<br><b>專改車型：</b>${md.specializes}</div>
-        </article>
-      `).join('');
+          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#10b981,#047857)\">露營車改裝</div>
+          <div class=\"ig-caption\"><b>地點：</b>${md.location}<br><b>細節：</b>${md.detail}<br><b>專改車型：</b>${md.specializes}</div>
+        </article>`),
+        ...merchantRows.map(m => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
+            <div>
+              <div class=\"ig-user\">${m.name}</div>
+              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
+            </div>
+            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
+          </div>
+          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
+        </article>` )
+      ].join('');
     }
 
     function renderCamperRentals(){
@@ -591,19 +625,32 @@
         return;
       }
       panel.style.display = 'block';
-      list.innerHTML = state.camperRentals.map(rt => `
-        <article class="ig-post">
-          <div class="ig-post-head">
+      const merchantRows = getMerchantByCategory('露營車出租');
+      list.innerHTML = [
+        ...state.camperRentals.map(rt => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
             <div>
-              <div class="ig-user">${rt.name}</div>
-              <div class="ig-meta">📍 取車：${rt.pickup}</div>
+              <div class=\"ig-user\">${rt.name}</div>
+              <div class=\"ig-meta\">📍 取車：${rt.pickup}</div>
             </div>
-            <div class="ig-meta">🚐 ${rt.fleet}</div>
+            <div class=\"ig-meta\">🚐 ${rt.fleet}</div>
           </div>
-          <div class="ig-cover" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">露營車出租</div>
-          <div class="ig-caption"><b>取車地點：</b>${rt.pickup}<br><b>聯絡方式：</b>${rt.contact}<br><b>車輛數：</b>${rt.fleet}</div>
-        </article>
-      `).join('');
+          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#8b5cf6,#6d28d9)\">露營車出租</div>
+          <div class=\"ig-caption\"><b>取車地點：</b>${rt.pickup}<br><b>聯絡方式：</b>${rt.contact}<br><b>車輛數：</b>${rt.fleet}</div>
+        </article>`),
+        ...merchantRows.map(m => `
+        <article class=\"ig-post\">
+          <div class=\"ig-post-head\">
+            <div>
+              <div class=\"ig-user\">${m.name}</div>
+              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
+            </div>
+            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
+          </div>
+          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
+        </article>` )
+      ].join('');
     }
     function updateSocialNav(cat){
       const buttons = document.querySelectorAll('#socialNav .social-nav-inner button');
@@ -613,6 +660,8 @@
     function setSocialCategory(cat){
       state.activeSocialCategory = cat;
       updateSocialNav(cat);
+      const banner = document.getElementById('contestBanner');
+      if(banner) banner.style.display = (cat === "社群媒體") ? "block" : "none";
       renderCampZones();
       renderSupplyStores();
       renderCamperMods();
@@ -864,6 +913,8 @@ function openPostComposer(){
 
     function renderFeed(){
       const feed = document.getElementById('feed');
+      const banner = document.getElementById('contestBanner');
+      if(banner) banner.style.display = (state.activeSocialCategory === "社群媒體") ? "block" : "none";
       const rows = state.posts
         .map((p,idx)=>({p,idx}))
         .filter(({p})=>state.activeSocialCategory === '社群媒體' || p.category===state.activeSocialCategory);
@@ -958,7 +1009,6 @@ function openPostComposer(){
 
     async function bootstrapApp(){
       quickFill('tester01');
-      bindLoginEnter();
       await initFirebaseAndLoad();
       renderFeed();
       renderContestBanner();
