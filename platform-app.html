@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v1.5</title>
+  <title>台灣露營平台 MVP v1.6</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -26,12 +26,26 @@
     .social-nav{position:fixed;top:0;left:0;right:0;z-index:1200;background:#ffffff;border-bottom:1px solid #e5e7eb;padding:10px 12px;display:none;box-shadow:0 4px 12px rgba(0,0,0,.08)}
     .social-nav-inner{max-width:1120px;margin:0 auto;display:flex;gap:6px;flex-wrap:wrap}
     body.social-nav-on #communitySection{padding-top:74px}
+    .ig-stories{display:flex;gap:10px;overflow:auto;padding:6px 2px 10px}
+    .ig-story{min-width:72px;text-align:center}
+    .ig-ring{width:58px;height:58px;margin:0 auto 6px;border-radius:50%;padding:2px;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af,#515bd4)}
+    .ig-ring-inner{width:100%;height:100%;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:22px}
+    .ig-name{font-size:11px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ig-feed{display:grid;gap:12px}
+    .ig-post{border:1px solid #e5e7eb;border-radius:14px;background:#fff;overflow:hidden}
+    .ig-post-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px}
+    .ig-user{font-weight:700;font-size:14px}
+    .ig-meta{font-size:12px;color:#6b7280}
+    .ig-cover{height:220px;display:flex;align-items:flex-end;padding:12px;color:#fff;font-weight:700;background:linear-gradient(135deg,#2f855a,#276749)}
+    .ig-actions{display:flex;gap:12px;padding:10px 12px 0;font-size:20px}
+    .ig-likes{padding:6px 12px 0;font-weight:700;font-size:14px}
+    .ig-caption{padding:6px 12px 12px;font-size:14px;line-height:1.5}
   </style>
 </head>
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v1.5</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v1.6</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -88,8 +102,16 @@
     <div id="appShell" style="display:none">
     <section id="user" class="tab-content active">
       <div class="card" id="communitySection">
-        <h3 style="margin-top:0">社交首頁</h3>
-        <div class="muted">手機版首頁以社交貼文為主，點上方分類快速切換。</div>
+        <h3 style="margin-top:0">露營圈（IG 風格）</h3>
+        <div class="muted">手機首頁以社交貼文流為主，支援上方固定分類切換。</div>
+
+        <div class="ig-stories" id="storiesBar">
+          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🏕️</div></div><div class="ig-name">露營區</div></div>
+          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🛒</div></div><div class="ig-name">露營用品</div></div>
+          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🔧</div></div><div class="ig-name">改裝</div></div>
+          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">🚐</div></div><div class="ig-name">出租</div></div>
+          <div class="ig-story"><div class="ig-ring"><div class="ig-ring-inner">📷</div></div><div class="ig-name">社群</div></div>
+        </div>
 
         <div class="social-nav" id="socialNav">
           <div class="social-nav-inner">
@@ -190,7 +212,7 @@
         { id:2,name:'海風灣露營區', area:'花蓮', tags:['海景','親子'] },
         { id:3,name:'雲霧森林營地', area:'台中', tags:['靠山','可進房車'] }
       ],
-      activeSocialCategory: '全部',
+      activeSocialCategory: '社群媒體',
       bookings: [],
       posts: [
         { user:'露營達人小安', category:'露營區', text:'本週花蓮海風灣超美，晚上星星很多！', likes:12, ts:'2026/03/03 20:15' },
@@ -320,18 +342,40 @@
 
     function likePost(i){ state.posts[i].likes++; renderFeed(); }
 
+    function categoryCover(category){
+      const map = {
+        '露營區':'linear-gradient(135deg,#3b82f6,#1d4ed8)',
+        '露營用品':'linear-gradient(135deg,#f59e0b,#d97706)',
+        '露營車改裝':'linear-gradient(135deg,#10b981,#047857)',
+        '露營車出租':'linear-gradient(135deg,#8b5cf6,#6d28d9)',
+        '社群媒體':'linear-gradient(135deg,#ec4899,#be185d)'
+      };
+      return map[category] || 'linear-gradient(135deg,#2f855a,#276749)';
+    }
+
     function renderFeed(){
       const feed = document.getElementById('feed');
       const rows = state.posts
         .map((p,idx)=>({p,idx}))
         .filter(({p})=>state.activeSocialCategory === '社群媒體' || p.category===state.activeSocialCategory);
       if(!rows.length){ feed.innerHTML = '<div class="muted">此分類尚無貼文。</div>'; return; }
+      feed.className = 'ig-feed';
       feed.innerHTML = rows.map(({p,idx})=>`
-        <div class="list-item">
-          <b>${p.user}</b> <span class="pill">${p.category||'未分類'}</span> <span class="muted">${p.ts}</span>
-          <div style="margin-top:6px">${p.text}</div>
-          <button style="margin-top:6px" onclick="likePost(${idx})">👍 ${p.likes}</button>
-        </div>`).join('');
+        <article class="ig-post">
+          <div class="ig-post-head">
+            <div>
+              <div class="ig-user">${p.user}</div>
+              <div class="ig-meta">${p.category||'未分類'} · ${p.ts}</div>
+            </div>
+            <div class="ig-meta">•••</div>
+          </div>
+          <div class="ig-cover" style="background:${categoryCover(p.category)}">${p.category||'社群媒體'}</div>
+          <div class="ig-actions">
+            <span style="cursor:pointer" onclick="likePost(${idx})">❤️</span><span>💬</span><span>📤</span><span style="margin-left:auto">🔖</span>
+          </div>
+          <div class="ig-likes">${p.likes} 個讚</div>
+          <div class="ig-caption"><b>${p.user}</b> ${p.text}</div>
+        </article>`).join('');
     }
 
     function votePhoto(){
