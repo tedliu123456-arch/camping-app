@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.8</title>
+  <title>露營趣 v24.9</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -3619,9 +3619,9 @@
     }
     
     // 載入時恢復勾選狀態
-    window.onload = function() {
+    window.addEventListener('load', function() {
       loadSafetyCheck();
-    };
+    });
     
     // 露營名言佳句
     const quotes = [
@@ -3803,12 +3803,12 @@
     }
     
     // 載入儲存的天氣設定
-    window.onload = function() {
+    window.addEventListener('load', function() {
       const saved = JSON.parse(localStorage.getItem('campingWeatherAlert') || '{}');
       if (saved.rainAlert) document.getElementById('rainAlert').value = saved.rainAlert;
       if (saved.tempAlert) document.getElementById('tempAlert').value = saved.tempAlert;
       if (saved.windNotify) document.getElementById('windNotify').checked = true;
-    };
+    });
     
     // 月相顯示
     function getMoonPhase() {
