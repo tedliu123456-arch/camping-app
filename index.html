@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.5</title>
+  <title>露營趣 v24.6</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1456,6 +1456,38 @@
         <h3>🔥 用火安全</h3>
         <p>使用焚火台請注意通風安全</p>
       </div>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#0d9488,#0f766e);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🎒 露營必備 App 推薦</h2>
+    <p>實用工具讓露營更輕鬆！</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;">
+        <h3>🌤️ 天氣</h3>
+        <p>中央氣象局</p>
+        <p style="font-size:12px;color:#666;">即時天氣查詢</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;">
+        <h3>🗺️ 地圖</h3>
+        <p>Google Maps</p>
+        <p style="font-size:12px;color:#666;">營地導航</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;">
+        <h3>📷 拍照</h3>
+        <p>VSCO / Snapseed</p>
+        <p style="font-size:12px;color:#666;">美照分享</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;">
+        <h3>🔦 離線地圖</h3>
+        <p>Maps.me</p>
+        <p style="font-size:12px;color:#666;">無網路也能用</p>
+      </div>
+    </div>
+    <div style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.2);border-radius:8px;">
+      <h3 style="margin-top:0;">💡 小提示</h3>
+      <p id="appTip">出發前先下載離線地圖和天氣資料！</p>
+      <button onclick="showAppTip()" style="background:#fff;color:#0f766e;">🔄 更多提示</button>
     </div>
   </section>
 
@@ -3251,6 +3283,20 @@
       document.getElementById('starDesc').textContent = info.desc;
       document.getElementById('starInfo').style.display = 'block';
       document.getElementById('starInfo').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    // 露營必備 App 提示
+    const appTips = [
+      '出發前先下載離線地圖和天氣資料！',
+      '建議攜帶行動電源，太陽能充電板也好用',
+      '可以用 APP 查詢當地光害程度，選擇觀星地點',
+      '離線音樂APP讓沒網路也能享受音樂',
+      '攜帶簡單的修圖APP，留住美好回憶'
+    ];
+    
+    function showAppTip() {
+      const tip = appTips[Math.floor(Math.random() * appTips.length)];
+      document.getElementById('appTip').textContent = tip;
     }
     
     // 露營回憶牆功能
