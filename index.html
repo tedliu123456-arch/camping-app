@@ -30,7 +30,7 @@
     <div class="container">
       <h2 style="margin:0">台灣露營平台 MVP v1.2</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
-      <div class="tabs">
+      <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
         <button onclick="switchTab('merchant')">商家端 APP</button>
         <button onclick="switchTab('admin')">後台管理 PC</button>
@@ -39,7 +39,7 @@
   </header>
 
   <main class="container">
-    <section class="card" style="margin-bottom:12px">
+    <section class="card" id="authSection" style="margin-bottom:12px">
       <h3 style="margin-top:0">登入 / 會員</h3>
       <div class="row">
         <div style="flex:1;min-width:200px">
@@ -57,9 +57,6 @@
         <div style="flex:1;min-width:200px">
           <label>密碼</label>
           <input id="loginPassword" type="password" placeholder="測試密碼：123456" />
-          <label class="muted" style="display:block;margin-top:6px;cursor:pointer;">
-            <input id="showPassword" type="checkbox" style="width:auto;margin-right:6px;vertical-align:middle;" onchange="togglePassword()" />顯示密碼
-          </label>
         </div>
         <div style="flex:1;min-width:200px">
           <label>顯示名稱</label>
@@ -85,6 +82,7 @@
       <div id="qrBox" style="margin-top:10px" class="muted"></div>
     </section>
 
+    <div id="appShell" style="display:none">
     <section id="user" class="tab-content active">
       <div class="grid grid2">
         <div class="card">
@@ -145,7 +143,7 @@
           <div id="bookingLogs" class="muted" style="margin-top:8px"></div>
         </div>
 
-        <div class="card">
+        <div class="card" id="communitySection">
           <h3 style="margin-top:0">廣場社交 / 留言 / 按讚</h3>
           <textarea id="postText" rows="3" placeholder="分享你的露營心得（可顯示個人標籤）"></textarea>
           <div class="top-actions" style="margin-top:8px">
@@ -209,11 +207,12 @@
         </div>
       </div>
     </section>
+    </div>
   </main>
 
   <script>
     const state = {
-      user: { name:'', method:'guest', isMember:false, votesToday:0, lastVoteDate:'' },
+      user: { name:'', method:'guest', isMember:false, votesToday:0, lastVoteDate:'', loggedIn:false },
       testAccounts: {
         tester01: { password:'123456', method:'line', displayName:'測試用戶 A' },
         tester02: { password:'123456', method:'google', displayName:'測試用戶 B' },
@@ -225,7 +224,11 @@
         { id:3,name:'雲霧森林營地', area:'台中', tags:['靠山','可進房車'] }
       ],
       bookings: [],
-      posts: [],
+      posts: [
+        { user:'露營達人小安', text:'本週花蓮海風灣超美，晚上星星很多！', likes:12, ts:'2026/03/03 20:15' },
+        { user:'親子露營媽媽', text:'南投溪頭松林營地很適合帶小孩，廁所也乾淨。', likes:9, ts:'2026/03/04 09:22' },
+        { user:'房車玩家Ken', text:'可進房車的營地我最推雲霧森林，路況不錯。', likes:7, ts:'2026/03/04 15:41' }
+      ],
       merchants: [],
       events: [],
       revenue: 0
@@ -244,22 +247,6 @@
       document.getElementById('loginPassword').value = preset.password;
       document.getElementById('loginMethod').value = preset.method;
       document.getElementById('displayName').value = preset.displayName;
-    }
-
-    function togglePassword(){
-      const pwd = document.getElementById('loginPassword');
-      const show = document.getElementById('showPassword').checked;
-      pwd.type = show ? 'text' : 'password';
-    }
-
-    function bindLoginEnter(){
-      ['loginAccount','loginPassword','displayName'].forEach(id=>{
-        const el = document.getElementById(id);
-        if(!el) return;
-        el.addEventListener('keydown', (e)=>{
-          if(e.key === 'Enter') login();
-        });
-      });
     }
 
     function login(){
@@ -281,12 +268,20 @@
         state.user.name = customName || '訪客';
       }
 
-      const text = state.user.method==='guest'
-        ? `目前為遊客模式：${state.user.name}（不可評論）`
-        : `登入成功：${state.user.name}（${state.user.method.toUpperCase()}）`;
-      document.getElementById('loginStatus').textContent = text;
+      state.user.loggedIn = true;
+
+      // 登入後：隱藏登入首頁，顯示所有社群貼文
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('mainTabs').style.display = 'flex';
+      document.getElementById('appShell').style.display = 'block';
+      document.getElementById('loginStatus').textContent = '';
+
+      switchTab('user');
       renderFeed();
       refreshAdmin();
+
+      const social = document.getElementById('communitySection');
+      if(social){ social.scrollIntoView({ behavior:'smooth', block:'start' }); }
     }
 
     function upgradeMember(){
@@ -398,7 +393,6 @@
     }
 
     quickFill('tester01');
-    bindLoginEnter();
     renderCamps();
     renderFeed();
     refreshAdmin();
