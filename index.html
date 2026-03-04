@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v4.0</title>
+  <title>台灣露營平台 MVP v4.1</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v4.0</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v4.1</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -87,7 +87,7 @@
       <div class="row">
         <div style="flex:1;min-width:200px">
           <label>登入方式</label>
-          <select id="loginMethod">
+          <select id="loginMethod" onchange="updateLoginButtonState()">
             <option value="line">LINE</option>
             <option value="google">Google</option>
             <option value="guest">遊客模式</option>
@@ -95,11 +95,11 @@
         </div>
         <div style="flex:1;min-width:200px">
           <label>帳號</label>
-          <input id="loginAccount" placeholder="測試帳號：tester01" />
+          <input id="loginAccount" placeholder="測試帳號：tester01" oninput="updateLoginButtonState()" />
         </div>
         <div style="flex:1;min-width:200px">
           <label>密碼</label>
-          <input id="loginPassword" type="password" placeholder="測試密碼：123456" />
+          <input id="loginPassword" type="password" placeholder="測試密碼：123456" oninput="updateLoginButtonState()" />
           <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;color:#6b7280">
             <input id="showLoginPassword" type="checkbox" onchange="toggleLoginPassword()" style="width:auto" />
             顯示密碼
@@ -107,10 +107,10 @@
         </div>
         <div style="flex:1;min-width:200px">
           <label>顯示名稱</label>
-          <input id="displayName" placeholder="例如：Teddy" />
+          <input id="displayName" placeholder="例如：Teddy" oninput="updateLoginButtonState()" />
         </div>
         <div style="display:flex;align-items:flex-end">
-          <button onclick="login()">登入</button>
+          <button id="loginBtn" onclick="login()">登入</button>
         </div>
       </div>
       <div class="card" style="margin-top:10px;background:#f8fbff">
@@ -413,6 +413,20 @@
       document.getElementById('loginPassword').value = preset.password;
       document.getElementById('loginMethod').value = preset.method;
       document.getElementById('displayName').value = preset.displayName;
+      updateLoginButtonState();
+    }
+
+    function updateLoginButtonState(){
+      const method = document.getElementById('loginMethod')?.value;
+      const account = document.getElementById('loginAccount')?.value.trim() || '';
+      const password = document.getElementById('loginPassword')?.value || '';
+      const btn = document.getElementById('loginBtn');
+      if(!btn) return;
+
+      const canLogin = method === 'guest' ? true : (account.length > 0 && password.length > 0);
+      btn.disabled = !canLogin;
+      btn.style.opacity = canLogin ? '1' : '0.55';
+      btn.title = canLogin ? '' : '請先輸入帳號與密碼';
     }
 
     function toggleLoginPassword(){
@@ -1026,6 +1040,7 @@ function openPostComposer(){
 
     async function bootstrapApp(){
       quickFill('tester01');
+      updateLoginButtonState();
       await initFirebaseAndLoad();
       renderFeed();
       renderContestBanner();
