@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v22.8</title>
+  <title>露營趣 v22.9</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -117,6 +117,24 @@
         </ul>
       </div>
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4299e1,#3182ce);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>💧 飲水追蹤</h2>
+    <p>露營時記得補水！目標：每天 2000ml</p>
+    <div style="display:flex;align-items:center;justify-content:center;gap:20px;margin:20px 0;">
+      <button onclick="addWater(-250)" style="background:#fff;color:#4299e1;font-size:24px;width:50px;height:50px;border-radius:50%;">-</button>
+      <div style="text-align:center;">
+        <div id="waterCount" style="font-size:48px;font-weight:bold;">0</div>
+        <div style="font-size:14px;">ml / 2000ml</div>
+      </div>
+      <button onclick="addWater(250)" style="background:#fff;color:#4299e1;font-size:24px;width:50px;height:50px;border-radius:50%;">+</button>
+    </div>
+    <div style="background:#fff;border-radius:10px;height:20px;margin:15px 0;overflow:hidden;">
+      <div id="waterProgress" style="background:linear-gradient(90deg,#68d391,#38a169);height:100%;width:0%;transition:width 0.3s;"></div>
+    </div>
+    <button onclick="resetWater()" style="background:rgba(255,255,255,0.3);color:#fff;">重置</button>
+    <span id="waterToast" style="margin-left:10px;display:none;color:#68d391;">✅ 已記錄！</span>
   </section>
 
   <section style="background:#fff5f5;border-left:4px solid #e53e3e;padding:20px;border-radius:8px;margin:20px;">
@@ -2539,6 +2557,29 @@
       }
     }
     renderTrips();
+    
+    // 飲水追蹤功能
+    let waterAmount = parseInt(localStorage.getItem('waterAmount') || '0');
+    function updateWaterDisplay() {
+      document.getElementById('waterCount').textContent = waterAmount;
+      const percent = Math.min(100, (waterAmount / 2000) * 100);
+      document.getElementById('waterProgress').style.width = percent + '%';
+    }
+    function addWater(amount) {
+      waterAmount += amount;
+      if (waterAmount < 0) waterAmount = 0;
+      localStorage.setItem('waterAmount', waterAmount);
+      updateWaterDisplay();
+      const toast = document.getElementById('waterToast');
+      toast.style.display = 'inline';
+      setTimeout(() => toast.style.display = 'none', 1500);
+    }
+    function resetWater() {
+      waterAmount = 0;
+      localStorage.setItem('waterAmount', 0);
+      updateWaterDisplay();
+    }
+    updateWaterDisplay();
   </script>
   <script>
     // 露營小知識
