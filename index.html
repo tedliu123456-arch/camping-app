@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.0</title>
+  <title>露營趣 v23.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -748,6 +748,38 @@
         <strong>👨‍🍳 做法：</strong><span id="recipeSteps"></span>
       </div>
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#e53e3e,#c53030);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>⚠️ 露營安全檢查清單</h2>
+    <p>出發前請務必確認以下事項</p>
+    <div id="safetyChecklist" style="margin-top:15px;text-align:left;max-width:500px;margin-left:auto;margin-right:auto;">
+      <div style="background:#fff;color:#333;padding:12px;border-radius:8px;margin:8px 0;display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="safety1" onchange="saveSafetyCheck()">
+        <label for="safety1">📍 告知親友露營地點和時間</label>
+      </div>
+      <div style="background:#fff;color:#333;padding:12px;border-radius:8px;margin:8px 0;display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="safety2" onchange="saveSafetyCheck()">
+        <label for="safety2">🔋 手機充滿電並攜帶行動電源</label>
+      </div>
+      <div style="background:#fff;color:#333;padding:12px;border-radius:8px;margin:8px 0;display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="safety3" onchange="saveSafetyCheck()">
+        <label for="safety3">🧪 攜帶緊急用藥和急救包</label>
+      </div>
+      <div style="background:#fff;color:#333;padding:12px;border-radius:8px;margin:8px 0;display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="safety4" onchange="saveSafetyCheck()">
+        <label for="safety4">🔥 確認營地生火規定</label>
+      </div>
+      <div style="background:#fff;color:#333;padding:12px;border-radius:8px;margin:8px 0;display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="safety5" onchange="saveSafetyCheck()">
+        <label for="safety5">🌤️ 查看天氣預報</label>
+      </div>
+      <div style="background:#fff;color:#333;padding:12px;border-radius:8px;margin:8px 0;display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" id="safety6" onchange="saveSafetyCheck()">
+        <label for="safety6">📋 備份緊急聯絡電話</label>
+      </div>
+    </div>
+    <button onclick="clearSafetyCheck()" style="background:#fff;color:#e53e3e;margin-top:15px;">清除勾選</button>
   </section>
 
   <section style="background:linear-gradient(135deg,#3182ce,#2b6cb0);color:#fff;padding:25px;border-radius:12px;margin:20px;">
@@ -2672,6 +2704,48 @@
       document.getElementById('recipeDetail').style.display = 'block';
       document.getElementById('recipeDetail').scrollIntoView({behavior: 'smooth'});
     }
+    
+    // 露營安全檢查功能
+    function saveSafetyCheck() {
+      const checks = {
+        safety1: document.getElementById('safety1').checked,
+        safety2: document.getElementById('safety2').checked,
+        safety3: document.getElementById('safety3').checked,
+        safety4: document.getElementById('safety4').checked,
+        safety5: document.getElementById('safety5').checked,
+        safety6: document.getElementById('safety6').checked
+      };
+      localStorage.setItem('campingSafetyCheck', JSON.stringify(checks));
+    }
+    
+    function loadSafetyCheck() {
+      const saved = localStorage.getItem('campingSafetyCheck');
+      if (saved) {
+        const checks = JSON.parse(saved);
+        document.getElementById('safety1').checked = checks.safety1 || false;
+        document.getElementById('safety2').checked = checks.safety2 || false;
+        document.getElementById('safety3').checked = checks.safety3 || false;
+        document.getElementById('safety4').checked = checks.safety4 || false;
+        document.getElementById('safety5').checked = checks.safety5 || false;
+        document.getElementById('safety6').checked = checks.safety6 || false;
+      }
+    }
+    
+    function clearSafetyCheck() {
+      document.getElementById('safety1').checked = false;
+      document.getElementById('safety2').checked = false;
+      document.getElementById('safety3').checked = false;
+      document.getElementById('safety4').checked = false;
+      document.getElementById('safety5').checked = false;
+      document.getElementById('safety6').checked = false;
+      localStorage.removeItem('campingSafetyCheck');
+      alert('已清除所有勾選狀態！');
+    }
+    
+    // 載入時恢復勾選狀態
+    window.onload = function() {
+      loadSafetyCheck();
+    };
     
     // 露營名言佳句
     const quotes = [
