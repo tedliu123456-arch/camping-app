@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v2.8</title>
+  <title>台灣露營平台 MVP v2.9</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -43,13 +43,16 @@
     .comment-item{font-size:13px;margin-bottom:6px}
     .comment-input-row{display:flex;gap:6px;margin-top:6px}
     .comment-input-row input{flex:1}
+    .post-page-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1500;display:none;align-items:flex-end;justify-content:center}
+    .post-page-card{width:min(720px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:16px 16px 0 0;padding:16px;box-shadow:0 -10px 30px rgba(0,0,0,.2)}
+    .post-page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 
                       </style>
 </head>
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v2.8</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v2.9</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -115,19 +118,6 @@
             <button data-cat="露營車出租" onclick="setSocialCategory('露營車出租')">露營車出租</button>
           </div>
         </div>
-        <textarea id="postText" rows="3" placeholder="分享你的露營心得（可顯示個人標籤）" style="margin-top:10px"></textarea>
-        <div class="file-upload-wrap">
-          <input class="file-upload-input" id="postMedia" type="file" accept="image/*,video/*" onchange="onMediaPicked()" />
-          <label class="file-upload-btn" for="postMedia">📷 選擇照片 / 影片</label>
-          <span id="mediaFileName" class="file-upload-name">尚未選擇檔案</span>
-        </div>
-        <div class="top-actions" style="margin-top:8px">
-          <span class="pill" style="margin-top:6px">貼文將發佈到：社群媒體</span>
-          <button onclick="addPost()">發佈貼文</button>
-          <button class="gray" onclick="votePhoto()">圖片投票（每日 2 票）</button>
-        </div>
-
-        <div id="voteState" class="muted" style="margin-top:6px"></div>
         <div id="feed" style="margin-top:10px"></div>
       </div>
     </section>
@@ -188,6 +178,31 @@
   </main>
 
   <button id="fabPost" class="fab-post" onclick="openPostComposer()">＋ 貼文</button>
+
+  
+  <div id="postPageOverlay" class="post-page-overlay">
+    <div class="post-page-card">
+      <div class="post-page-head">
+        <h3 style="margin:0">新增貼文</h3>
+        <button class="gray" onclick="closePostPage()">關閉</button>
+      </div>
+      <textarea id="postText" rows="4" placeholder="分享露營心得..." style="margin-top:6px"></textarea>
+      <div class="file-upload-wrap">
+        <input class="file-upload-input" id="postMedia" type="file" accept="image/*,video/*" onchange="onMediaPicked()" />
+        <label class="file-upload-btn" for="postMedia">📷 選擇照片 / 影片</label>
+        <span id="mediaFileName" class="file-upload-name">尚未選擇檔案</span>
+      </div>
+      <div class="top-actions" style="margin-top:10px">
+        <span class="pill" style="margin-top:6px">貼文將發佈到：社群媒體</span>
+        <button onclick="addPostAndClose()">發佈貼文</button>
+      </div>
+      <div style="margin-top:14px;border-top:1px solid #eee;padding-top:12px">
+        <h4 style="margin:0 0 8px 0">圖片投票</h4>
+        <button class="gray" onclick="votePhoto()">圖片投票（每日 2 票）</button>
+        <div id="voteState" class="muted" style="margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const state = {
@@ -525,9 +540,20 @@
 
     function openPostComposer(){
       if(!state.user.loggedIn) return;
-      switchTab('user');
+      const overlay = document.getElementById('postPageOverlay');
+      if(overlay) overlay.style.display = 'flex';
       const el = document.getElementById('postText');
-      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.focus(); }
+      if(el) el.focus();
+    }
+
+    function closePostPage(){
+      const overlay = document.getElementById('postPageOverlay');
+      if(overlay) overlay.style.display = 'none';
+    }
+
+    function addPostAndClose(){
+      addPost();
+      closePostPage();
     }
 
     function categoryCover(category){
