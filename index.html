@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.2</title>
+  <title>露營趣 v23.3</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -863,6 +863,46 @@
     <div style="margin-top:15px;text-align:center;">
       <p style="font-size:14px;opacity:0.8;">📍 最佳觀星地點：高山、草原、海邊遠離光害處</p>
     </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#4299e1,#3182ce);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>⛈️ 露營天氣預警</h2>
+    <p>提前掌握天氣變化，安全露營！</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;min-width:200px;">
+        <h3>🌧️ 降雨預警</h3>
+        <select id="rainAlert" onchange="checkRainAlert()" style="width:100%;padding:8px;border-radius:8px;margin:10px 0;">
+          <option value="">選擇地點...</option>
+          <option value="北部">北部</option>
+          <option value="中部">中部</option>
+          <option value="南部">南部</option>
+          <option value="東部">東部</option>
+        </select>
+        <p id="rainResult" style="font-size:14px;color:#666;"></p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;">
+        <h3>🌡️ 溫度提醒</h3>
+        <select id="tempAlert" onchange="checkTempAlert()" style="width:100%;padding:8px;border-radius:8px;margin:10px 0;">
+          <option value="">選擇地點...</option>
+          <option value="北部">北部</option>
+          <option value="中部">中部</option>
+          <option value="南部">南部</option>
+          <option value="東部">東部</option>
+        </select>
+        <p id="tempResult" style="font-size:14px;color:#666;"></p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:200px;">
+        <h3>💨 風速預警</h3>
+        <p style="font-size:14px;color:#666;">山區風速較大</p>
+        <div style="margin-top:10px;">
+          <label style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="windNotify"> 開啟風速通知
+          </label>
+        </div>
+        <p id="windResult" style="font-size:12px;color:#888;margin-top:10px;"></p>
+      </div>
+    </div>
+    <button onclick="saveWeatherAlert()" style="background:#fff;color:#3182ce;padding:12px 25px;border-radius:25px;font-weight:bold;margin-top:15px;">💾 儲存設定</button>
   </section>
 
   <section id="campsSection">
@@ -2926,6 +2966,47 @@
       document.getElementById('starInfo').style.display = 'block';
       document.getElementById('starInfo').scrollIntoView({behavior: 'smooth'});
     }
+    
+    // 天氣預警功能
+    const weatherData = {
+      '北部': { rain: '60%', temp: '18-24°C', wind: '中等' },
+      '中部': { rain: '40%', temp: '20-26°C', wind: '輕微' },
+      '南部': { rain: '30%', temp: '22-28°C', wind: '輕微' },
+      '東部': { rain: '70%', temp: '19-25°C', wind: '較強' }
+    };
+    
+    function checkRainAlert() {
+      const location = document.getElementById('rainAlert').value;
+      if (location && weatherData[location]) {
+        const rain = weatherData[location].rain;
+        const result = rain >= '50%' ? '⚠️ 降雨機率高，建議攜帶雨具！' : '✅ 降雨機率低，適合戶外活動';
+        document.getElementById('rainResult').textContent = result;
+      }
+    }
+    
+    function checkTempAlert() {
+      const location = document.getElementById('tempAlert').value;
+      if (location && weatherData[location]) {
+        const temp = weatherData[location].temp;
+        document.getElementById('tempResult').textContent = '🌡️ 溫度範圍：' + temp;
+      }
+    }
+    
+    function saveWeatherAlert() {
+      const rainAlert = document.getElementById('rainAlert').value;
+      const tempAlert = document.getElementById('tempAlert').value;
+      const windNotify = document.getElementById('windNotify').checked;
+      localStorage.setItem('campingWeatherAlert', JSON.stringify({ rainAlert, tempAlert, windNotify }));
+      alert('✅ 天氣預警設定已儲存！');
+    }
+    
+    // 載入儲存的天氣設定
+    window.onload = function() {
+      const saved = JSON.parse(localStorage.getItem('campingWeatherAlert') || '{}');
+      if (saved.rainAlert) document.getElementById('rainAlert').value = saved.rainAlert;
+      if (saved.tempAlert) document.getElementById('tempAlert').value = saved.tempAlert;
+      if (saved.windNotify) document.getElementById('windNotify').checked = true;
+    };
     
     // 月相顯示
     function getMoonPhase() {
