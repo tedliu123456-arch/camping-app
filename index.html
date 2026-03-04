@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.1</title>
+  <title>露營趣 v23.2</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -828,6 +828,40 @@
         <button onclick="nextQuiz()" style="background:#38a169;">下一題</button>
       </div>
       <button onclick="startQuiz()" id="startQuizBtn" style="background:#38a169;width:100%;">開始測驗</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🌟 星空觀測指南</h2>
+    <p>抬頭仰望，發現夜空之美！</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;min-width:180px;cursor:pointer;" onclick="showStarInfo(0)">
+        <h3>🌙 月相</h3>
+        <p style="font-size:30px;">🌙</p>
+        <p style="font-size:12px;" id="moonPhase">查看今晚月相</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;cursor:pointer;" onclick="showStarInfo(1)">
+        <h3>⭐ 星星</h3>
+        <p style="font-size:30px;">✨</p>
+        <p style="font-size:12px;">辨識主要星座</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;cursor:pointer;" onclick="showStarInfo(2)">
+        <h3>☄️ 流星</h3>
+        <p style="font-size:30px;">🌠</p>
+        <p style="font-size:12px;">觀測流星雨</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:180px;cursor:pointer;" onclick="showStarInfo(3)">
+        <h3>🔭 觀星</h3>
+        <p style="font-size:30px;">🔭</p>
+        <p style="font-size:12px;">觀星小技巧</p>
+      </div>
+    </div>
+    <div id="starInfo" style="display:none;background:#fff;color:#333;padding:20px;border-radius:12px;margin-top:15px;text-align:left;">
+      <h3 id="starTitle" style="margin-top:0;"></h3>
+      <p id="starContent"></p>
+    </div>
+    <div style="margin-top:15px;text-align:center;">
+      <p style="font-size:14px;opacity:0.8;">📍 最佳觀星地點：高山、草原、海邊遠離光害處</p>
     </div>
   </section>
 
@@ -2864,6 +2898,56 @@
     function nextQuiz() {
       showQuizResult();
     }
+    
+    // 星空觀測功能
+    const starInfos = [
+      {
+        title: '🌙 月相知識',
+        content: '月相會隨時間變化！\n\n🌑 新月：看不見月亮\n🌓 上弦月：右半邊亮\n🌕 滿月：整個月亮最亮\n🌗 下弦月：左半邊亮\n\n露營時滿月光線太亮可能影響觀星，建議選擇新月或上弦月觀星最佳！'
+      },
+      {
+        title: '⭐ 辨識星座',
+        content: '常見星座辨識：\n\n🌟 北極星：找到北斗七星後，延伸七星的勺口兩顆星，約五倍距離處就是北極星\n\n🦁 獅子座：春天最明顯，呈現問號形狀\n\n🔵 獵戶座：冬季最佳辨識，三顆星排成腰帶\n\n🌌 銀河：夏季抬頭可見一條帶狀光帶，那就是銀河！'
+      },
+      {
+        title: '☄️ 流星雨觀測',
+        content: '台灣可觀測的流星雨：\n\n🌠 象限儀座流星雨：1月初\n🌠 天琴座流星雨：4月中\n🌠 寶瓶座流星雨：5月初\n🌠 英仙座流星雨：8月中旬\n🌠 雙子座流星雨：12月中旬\n\n觀測技巧：\n1. 找光害少的地方\n2. 讓眼睛適應黑暗約20分鐘\n3. 躺著看天空最舒適\n4. 帶禦寒衣物和暖暖包'
+      },
+      {
+        title: '🔭 觀星小技巧',
+        content: '成為觀星達人！\n\n📱 APP推薦：Star Walk、 Stellarium\n\n👀 眼睛適應：關掉所有光源，讓眼睛適應黑暗約15-20分鐘\n\n🧥 禦寒：高山夜晚很冷，要帶外套、暖暖包\n\n🔦 紅光手電筒：使用紅光手電筒不會影響暗視覺\n\n📝 記錄：記下看到流星的時間、方向、亮度'
+      }
+    ];
+    
+    function showStarInfo(idx) {
+      const info = starInfos[idx];
+      document.getElementById('starTitle').textContent = info.title;
+      document.getElementById('starContent').textContent = info.content;
+      document.getElementById('starInfo').style.display = 'block';
+      document.getElementById('starInfo').scrollIntoView({behavior: 'smooth'});
+    }
+    
+    // 月相顯示
+    function getMoonPhase() {
+      const now = new Date();
+      let year = now.getFullYear();
+      let month = now.getMonth() + 1;
+      let day = now.getDate();
+      if (month < 3) { year--; month += 12; }
+      ++month;
+      let c = 365.25 * year;
+      let.6 e = 30 * month;
+      let jd = c + e + day - 694039.09;
+      jd /= 29.5305882;
+      let b = parseInt(jd);
+      jd -= b;
+      b = Math.round(jd * 8);
+      if (b >= 8) b = 0;
+      const phases = ['🌑', '🌒', '🌓', '🌔', '🌕', '🌖', '🌗', '🌘'];
+      const names = ['新月', '眉月', '上弦月', '盈凸月', '滿月', '虧凸月', '下弦月', '殘月'];
+      return phases[b] + ' ' + names[b];
+    }
+    document.getElementById('moonPhase').textContent = getMoonPhase();
     
     // 優惠券功能
     function copyCoupon(code) {
