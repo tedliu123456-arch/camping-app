@@ -677,12 +677,12 @@
     }
 
     async function addPost(){
-      if(state.user.method === 'guest'){ alert('遊客模式不可評論，請先使用 LINE 或 Google 登入'); return; }
+      if(state.user.method === 'guest'){ alert('遊客模式不可評論，請先使用 LINE 或 Google 登入'); return false; }
       const text = document.getElementById('postText').value.trim();
       const category = '社群媒體';
       const mediaInput = document.getElementById('postMedia');
       const file = mediaInput && mediaInput.files && mediaInput.files[0] ? mediaInput.files[0] : null;
-      if(!text && !file) return;
+      if(!text && !file) return false;
 
       let mediaType = null;
       let mediaUrl = null;
@@ -695,7 +695,7 @@
       if(state.postTarget === 'contest'){
         if(!file || mediaType !== 'image'){
           alert('會員照片比賽請直接上傳照片後發布。');
-          return;
+          return false;
         }
         state.contestEntries.unshift({
           id: 'c' + Date.now(),
@@ -722,11 +722,13 @@
       if(mediaInput) mediaInput.value = '';
       const nameEl = document.getElementById('mediaFileName');
       if(nameEl) nameEl.textContent = '尚未選擇檔案';
+      const wasContestPost = state.postTarget === 'contest';
       setPostTarget('social');
       renderFeed();
       renderContestEntries();
       renderContestBanner();
       await saveAppStateToFirebase();
+      return wasContestPost ? 'contest' : 'social';
     }
 
     function likePost(i){
@@ -896,8 +898,12 @@ function openPostComposer(){
     }
 
     async function addPostAndClose(){
-      await addPost();
+      const result = await addPost();
+      if(!result) return;
       closePostPage();
+      if(result === 'contest'){
+        openContestGallery();
+      }
     }
 
     function categoryCover(category){

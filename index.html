@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v5.3</title>
+  <title>台灣露營平台 MVP v3.9</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v5.3</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v3.9</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -92,7 +92,6 @@
             <option value="google">Google</option>
             <option value="guest">遊客模式</option>
           </select>
-          <div id="loginMethodHint" class="muted" style="margin-top:4px">使用第三方登入需輸入帳號與密碼</div>
         </div>
         <div style="flex:1;min-width:200px">
           <label>帳號</label>
@@ -100,17 +99,14 @@
         </div>
         <div style="flex:1;min-width:200px">
           <label>密碼</label>
-          <input id="loginPassword" type="password" placeholder="測試密碼：123456" onkeyup="checkCapsLock(event)" />
-          <div id="capsHint" class="muted" style="display:none;color:#b45309;margin-top:4px;">⚠️ 偵測到 Caps Lock 已開啟</div>
+          <input id="loginPassword" type="password" placeholder="測試密碼：123456" />
         </div>
         <div style="flex:1;min-width:200px">
           <label>顯示名稱</label>
           <input id="displayName" placeholder="例如：Teddy" />
         </div>
-        <div style="display:flex;align-items:flex-end;gap:8px">
+        <div style="display:flex;align-items:flex-end">
           <button onclick="login()">登入</button>
-          <button class="gray" onclick="clearLoginForm()">清空</button>
-          <button class="gray" onclick="clearSavedLoginProfile()">清除記住資料</button>
         </div>
       </div>
       <div class="card" style="margin-top:10px;background:#f8fbff">
@@ -119,7 +115,6 @@
           <button class="gray" onclick="quickFill('tester01')">tester01 / 123456（LINE）</button>
           <button class="gray" onclick="quickFill('tester02')">tester02 / 123456（Google）</button>
           <button class="gray" onclick="quickFill('merchant01')">merchant01 / 123456（商家）</button>
-          <button class="gray" onclick="quickGuestLogin()">訪客快速登入</button>
         </div>
       </div>
       <div id="loginStatus" class="muted" style="margin-top:8px">尚未登入</div>
@@ -414,137 +409,10 @@
       document.getElementById('loginPassword').value = preset.password;
       document.getElementById('loginMethod').value = preset.method;
       document.getElementById('displayName').value = preset.displayName;
-      updateLoginMethodUI();
-    }
-
-    function quickGuest(){
-      document.getElementById('loginMethod').value = 'guest';
-      document.getElementById('loginAccount').value = '';
-      document.getElementById('loginPassword').value = '';
-      if(!document.getElementById('displayName').value.trim()){
-        document.getElementById('displayName').value = '訪客';
-      }
-      updateLoginMethodUI();
-    }
-
-    function quickGuestLogin(){
-      quickGuest();
-      login();
-    }
-
-    function clearLoginForm(){
-      document.getElementById('loginAccount').value = '';
-      document.getElementById('loginPassword').value = '';
-      document.getElementById('displayName').value = '';
-      document.getElementById('loginStatus').textContent = '已清空登入欄位';
-      const hint = document.getElementById('capsHint');
-      if(hint) hint.style.display = 'none';
-      document.getElementById('loginAccount').focus();
-    }
-
-    function clearSavedLoginProfile(){
-      localStorage.removeItem('campingLastLoginProfile');
-      localStorage.removeItem('campingPreferredLoginMethod');
-      localStorage.removeItem('campingLastLoginAt');
-      document.getElementById('loginMethod').value = 'line';
-      clearLoginForm();
-      document.getElementById('loginStatus').textContent = '已清除記住的登入資料';
-    }
-
-    function savePreferredLoginMethod(){
-      const methodEl = document.getElementById('loginMethod');
-      if(!methodEl) return;
-      localStorage.setItem('campingPreferredLoginMethod', methodEl.value);
-    }
-
-    function loadPreferredLoginMethod(){
-      const methodEl = document.getElementById('loginMethod');
-      if(!methodEl) return;
-      const saved = localStorage.getItem('campingPreferredLoginMethod');
-      if(saved) methodEl.value = saved;
-    }
-
-    function updateLoginMethodUI(){
-      const methodEl = document.getElementById('loginMethod');
-      const accountEl = document.getElementById('loginAccount');
-      const passwordEl = document.getElementById('loginPassword');
-      const displayNameEl = document.getElementById('displayName');
-      const methodHintEl = document.getElementById('loginMethodHint');
-      const capsHintEl = document.getElementById('capsHint');
-      if(!methodEl || !accountEl || !passwordEl || !displayNameEl) return;
-
-      const isGuest = methodEl.value === 'guest';
-      accountEl.disabled = isGuest;
-      passwordEl.disabled = isGuest;
-      accountEl.style.opacity = isGuest ? '0.6' : '1';
-      passwordEl.style.opacity = isGuest ? '0.6' : '1';
-
-      if(methodHintEl){
-        methodHintEl.textContent = isGuest
-          ? '遊客模式免帳號密碼，直接輸入顯示名稱即可登入'
-          : '使用第三方登入需輸入帳號與密碼';
-      }
-
-      if(isGuest){
-        accountEl.value = '';
-        passwordEl.value = '';
-        if(capsHintEl) capsHintEl.style.display = 'none';
-        if(!displayNameEl.value.trim()) displayNameEl.value = '訪客';
-        displayNameEl.focus();
-      }
-    }
-
-    function saveLoginProfile(account, name){
-      localStorage.setItem('campingLastLoginProfile', JSON.stringify({ account, name }));
-      localStorage.setItem('campingLastLoginAt', new Date().toLocaleString('zh-TW'));
-    }
-
-    function loadLoginProfile(){
-      try {
-        const saved = JSON.parse(localStorage.getItem('campingLastLoginProfile') || '{}');
-        if(saved.account) document.getElementById('loginAccount').value = saved.account;
-        if(saved.name) document.getElementById('displayName').value = saved.name;
-
-        const lastAt = localStorage.getItem('campingLastLoginAt');
-        if(lastAt){
-          document.getElementById('loginStatus').textContent = `上次登入時間：${lastAt}`;
-        }
-      } catch(e) {}
-    }
-
-    function checkCapsLock(e){
-      const hint = document.getElementById('capsHint');
-      if(!hint) return;
-      hint.style.display = e.getModifierState && e.getModifierState('CapsLock') ? 'block' : 'none';
-    }
-
-    function bindLoginEnter(){
-      ['loginAccount','loginPassword','displayName'].forEach((id)=>{
-        const el = document.getElementById(id);
-        if(!el) return;
-        el.addEventListener('keydown', (e)=>{
-          if(e.key === 'Enter') login();
-          if(e.key === 'Escape'){
-            const status = document.getElementById('loginStatus');
-            if(status) status.textContent = '尚未登入';
-            const hint = document.getElementById('capsHint');
-            if(hint) hint.style.display = 'none';
-          }
-        });
-      });
-    }
-
-    function focusLoginAccount(){
-      const authSection = document.getElementById('authSection');
-      const accountEl = document.getElementById('loginAccount');
-      if(authSection && accountEl && authSection.style.display !== 'none'){
-        accountEl.focus();
-      }
     }
 
     function login(){
       const method = document.getElementById('loginMethod').value;
-      savePreferredLoginMethod();
       const account = document.getElementById('loginAccount').value.trim();
       const password = document.getElementById('loginPassword').value;
       const customName = document.getElementById('displayName').value.trim();
@@ -553,11 +421,6 @@
         const preset = state.testAccounts[account];
         if(!preset || preset.password !== password){
           document.getElementById('loginStatus').textContent = '登入失敗：帳號或密碼錯誤（可使用上方測試帳號）';
-          const pwdEl = document.getElementById('loginPassword');
-          if(pwdEl){
-            pwdEl.value = '';
-            pwdEl.focus();
-          }
           return;
         }
         state.user.method = method;
@@ -568,14 +431,12 @@
       }
 
       state.user.loggedIn = true;
-      saveLoginProfile(account, state.user.name);
 
       // 登入後：隱藏登入首頁，顯示所有社群貼文
       document.getElementById('authSection').style.display = 'none';
       document.getElementById('mainTabs').style.display = 'flex';
       document.getElementById('appShell').style.display = 'block';
-      const methodLabel = state.user.method === 'guest' ? '遊客模式' : state.user.method.toUpperCase();
-      document.getElementById('loginStatus').textContent = `登入成功：${state.user.name}（${methodLabel}）`;
+      document.getElementById('loginStatus').textContent = '';
       const nav = document.getElementById('socialNav');
       if(nav) nav.style.display = 'block';
       const fab = document.getElementById('fabPost');
@@ -816,12 +677,12 @@
     }
 
     async function addPost(){
-      if(state.user.method === 'guest'){ alert('遊客模式不可評論，請先使用 LINE 或 Google 登入'); return; }
+      if(state.user.method === 'guest'){ alert('遊客模式不可評論，請先使用 LINE 或 Google 登入'); return false; }
       const text = document.getElementById('postText').value.trim();
       const category = '社群媒體';
       const mediaInput = document.getElementById('postMedia');
       const file = mediaInput && mediaInput.files && mediaInput.files[0] ? mediaInput.files[0] : null;
-      if(!text && !file) return;
+      if(!text && !file) return false;
 
       let mediaType = null;
       let mediaUrl = null;
@@ -834,7 +695,7 @@
       if(state.postTarget === 'contest'){
         if(!file || mediaType !== 'image'){
           alert('會員照片比賽請直接上傳照片後發布。');
-          return;
+          return false;
         }
         state.contestEntries.unshift({
           id: 'c' + Date.now(),
@@ -861,11 +722,13 @@
       if(mediaInput) mediaInput.value = '';
       const nameEl = document.getElementById('mediaFileName');
       if(nameEl) nameEl.textContent = '尚未選擇檔案';
+      const wasContestPost = state.postTarget === 'contest';
       setPostTarget('social');
       renderFeed();
       renderContestEntries();
       renderContestBanner();
       await saveAppStateToFirebase();
+      return wasContestPost ? 'contest' : 'social';
     }
 
     function likePost(i){
@@ -1035,8 +898,12 @@ function openPostComposer(){
     }
 
     async function addPostAndClose(){
-      await addPost();
+      const result = await addPost();
+      if(!result) return;
       closePostPage();
+      if(result === 'contest'){
+        openContestGallery();
+      }
     }
 
     function categoryCover(category){
@@ -1148,18 +1015,6 @@ function openPostComposer(){
 
     async function bootstrapApp(){
       quickFill('tester01');
-      loadPreferredLoginMethod();
-      loadLoginProfile();
-      const methodEl = document.getElementById('loginMethod');
-      if(methodEl){
-        methodEl.addEventListener('change', ()=>{
-          savePreferredLoginMethod();
-          updateLoginMethodUI();
-        });
-      }
-      updateLoginMethodUI();
-      bindLoginEnter();
-      focusLoginAccount();
       await initFirebaseAndLoad();
       renderFeed();
       renderContestBanner();
