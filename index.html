@@ -284,6 +284,29 @@
       document.getElementById('displayName').value = preset.displayName;
     }
 
+    function saveLastLogin(method, account, name){
+      localStorage.setItem('campingLastLogin', JSON.stringify({ method, account, name }));
+    }
+
+    function loadLastLogin(){
+      try {
+        const saved = JSON.parse(localStorage.getItem('campingLastLogin') || '{}');
+        if(saved.method) document.getElementById('loginMethod').value = saved.method;
+        if(saved.account) document.getElementById('loginAccount').value = saved.account;
+        if(saved.name) document.getElementById('displayName').value = saved.name;
+      } catch(e) {}
+    }
+
+    function bindLoginEnter(){
+      ['loginAccount','loginPassword','displayName'].forEach((id)=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter') login();
+        });
+      });
+    }
+
     function login(){
       const method = document.getElementById('loginMethod').value;
       const account = document.getElementById('loginAccount').value.trim();
@@ -304,6 +327,7 @@
       }
 
       state.user.loggedIn = true;
+      saveLastLogin(state.user.method, account, state.user.name);
 
       // 登入後：隱藏登入首頁，顯示所有社群貼文
       document.getElementById('authSection').style.display = 'none';
@@ -602,6 +626,8 @@
     }
 
     quickFill('tester01');
+    loadLastLogin();
+    bindLoginEnter();
     renderFeed();
     refreshAdmin();
   </script>
