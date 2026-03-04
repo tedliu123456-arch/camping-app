@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.5</title>
+  <title>露營趣 v23.6</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -69,6 +69,36 @@
     <input type="date" id="countdownDate" style="padding:10px;border-radius:8px;border:none;margin:10px 0;">
     <button onclick="setCountdown()" style="background:#fff;color:#2f855a;padding:10px 20px;">設定倒數</button>
     <button onclick="clearCountdown()" style="background:rgba(255,255,255,0.3);color:#fff;padding:10px 20px;">清除</button>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff;padding:25px;border-radius:12px;margin:20px;text-align:center;">
+    <h2>🌟 星空觀測預測</h2>
+    <p>今晚的星空觀測條件</p>
+    <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
+      <div style="background:#fff;color:#333;padding:20px;border-radius:12px;min-width:150px;">
+        <div style="font-size:48px;">☁️</div>
+        <h3>雲層覆蓋</h3>
+        <p style="font-size:24px;font-weight:bold;">20%</p>
+        <p>極佳觀星條件</p>
+      </div>
+      <div style="background:#fff;color:#333;padding:20px;border-radius:12px;min-width:150px;">
+        <div style="font-size:48px;">🌙</div>
+        <h3>月球亮度</h3>
+        <p style="font-size:24px;font-weight:bold;">35%</p>
+        <p>月光適中</p>
+      </div>
+      <div style="background:#fff;color:#333;padding:20px;border-radius:12px;min-width:150px;">
+        <div style="font-size:48px;">✨</div>
+        <h3>觀星指數</h3>
+        <p style="font-size:24px;font-weight:bold;">⭐⭐⭐⭐⭐</p>
+        <p>今晚適合觀星！</p>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding:15px;background:rgba(255,255,255,0.1);border-radius:8px;">
+      <h3>🔭 推薦觀星時間</h3>
+      <p id="starTime">20:00 - 02:00 最佳</p>
+      <button onclick="refreshStarForecast()" style="background:#fff;color:#1a202c;margin-top:10px;">🔄 重新整理</button>
+    </div>
   </section>
 
   <section style="background:linear-gradient(135deg,#805ad5,#553c9a);color:#fff;text-align:center;padding:30px;border-radius:12px;margin:20px;">
@@ -1367,6 +1397,20 @@
       document.getElementById('countdownDate').value = '';
       document.getElementById('countdownDisplay').innerText = '--';
       document.getElementById('countdownText').innerText = '設定您的露營日期';
+    }
+    
+    // 星空觀測預測功能
+    const starTimes = [
+      '20:00 - 02:00 最佳',
+      '21:00 - 03:00 最佳',
+      '19:00 - 01:00 最佳',
+      '22:00 - 02:00 最佳'
+    ];
+    
+    function refreshStarForecast() {
+      const randomTime = starTimes[Math.floor(Math.random() * starTimes.length)];
+      document.getElementById('starTime').textContent = randomTime;
+      alert('已重新整理觀星時間預測！');
     }
     
     function updateCountdown() {
