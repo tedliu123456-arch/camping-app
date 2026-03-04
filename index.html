@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v23.6</title>
+  <title>露營趣 v23.7</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1103,6 +1103,42 @@
       <h3 style="margin-top:0;">💡 專業建議</h3>
       <p id="powerTip">點擊按鈕獲取隨機省電技巧</p>
       <button onclick="showPowerTip()" style="background:#fff;color:#2c7a7b;">🔄 獲取技巧</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#e53e3e,#c53030);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>🏆 露營裝備評測</h2>
+    <p>精選好用裝備推薦！</p>
+    <div style="display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;justify-content:center;">
+      <div class="card" style="background:#fff;color:#333;min-width:220px;">
+        <h3>⛺ 帳篷類</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">隧道帳 - 空間大、抗風強</p>
+        <p style="font-size:12px;">金字塔帳 - 搭建快速</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:220px;">
+        <h3>💤 睡袋類</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">羽絨睡袋 - 輕便保暖</p>
+        <p style="font-size:12px;">化纖睡袋 - 濕氣環境適用</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:220px;">
+        <h3>🔥 炊具類</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">鈦合金餐具 - 輕量耐用</p>
+        <p style="font-size:12px;">套裝炊具 - 一鍋多用</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;min-width:220px;">
+        <h3>🔦 照明類</h3>
+        <p>⭐⭐⭐⭐⭐</p>
+        <p style="font-size:12px;">LED 營燈 - 省電亮度足</p>
+        <p style="font-size:12px;">頭燈 - 雙手自由</p>
+      </div>
+    </div>
+    <div style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.2);border-radius:8px;">
+      <h3 style="margin-top:0;">💎 精選評測</h3>
+      <p id="gearReview">點擊按鈕查看精選裝備評測</p>
+      <button onclick="showGearReview()" style="background:#fff;color:#c53030;">🔄 查看評測</button>
     </div>
   </section>
 
@@ -2862,6 +2898,23 @@
     function showPowerTip() {
       const randomTip = powerTips[Math.floor(Math.random() * powerTips.length)];
       document.getElementById('powerTip').textContent = randomTip;
+    }
+    
+    // 露營裝備評測
+    const gearReviews = [
+      '🏆 最佳性價比帳篷：Snow Peak 隧道帳，雖然價格較高但品質出眾',
+      '💤 冬季露營首選：Montbell 羽絨睡袋，溫標可達 -15°C',
+      '🍳 野外料理神器：Jetboil 烹飪套裝，燒水只要 2 分鐘',
+      '🔦 夜間照明推薦：Black Diamond LED 營燈，續航 100 小時',
+      '🎒 輕量化首選：Gregory 背包，透氣舒適減輕負擔',
+      '🔥 炊具新選擇：Snow Peak 鈦合金餐具組，輕量又耐用',
+      '⛺ 新手推薦帳篷：Coleman 自動充氣帳，搭建超簡單',
+      '💧 淨水必備：LifeStraw 濾水瓶，戶外飲水更安心'
+    ];
+    
+    function showGearReview() {
+      const randomReview = gearReviews[Math.floor(Math.random() * gearReviews.length)];
+      document.getElementById('gearReview').textContent = randomReview;
     }
     
     // 露營音樂電台
