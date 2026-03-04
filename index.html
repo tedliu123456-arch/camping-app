@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v1.1</title>
+  <title>台灣露營平台 MVP v1.2</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -28,7 +28,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v1.1</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v1.2</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -57,6 +57,9 @@
         <div style="flex:1;min-width:200px">
           <label>密碼</label>
           <input id="loginPassword" type="password" placeholder="測試密碼：123456" />
+          <label class="muted" style="display:block;margin-top:6px;cursor:pointer;">
+            <input id="showPassword" type="checkbox" style="width:auto;margin-right:6px;vertical-align:middle;" onchange="togglePassword()" />顯示密碼
+          </label>
         </div>
         <div style="flex:1;min-width:200px">
           <label>顯示名稱</label>
@@ -243,6 +246,22 @@
       document.getElementById('displayName').value = preset.displayName;
     }
 
+    function togglePassword(){
+      const pwd = document.getElementById('loginPassword');
+      const show = document.getElementById('showPassword').checked;
+      pwd.type = show ? 'text' : 'password';
+    }
+
+    function bindLoginEnter(){
+      ['loginAccount','loginPassword','displayName'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter') login();
+        });
+      });
+    }
+
     function login(){
       const method = document.getElementById('loginMethod').value;
       const account = document.getElementById('loginAccount').value.trim();
@@ -379,6 +398,7 @@
     }
 
     quickFill('tester01');
+    bindLoginEnter();
     renderCamps();
     renderFeed();
     refreshAdmin();
