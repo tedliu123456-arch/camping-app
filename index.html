@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>露營趣 v24.4</title>
+  <title>露營趣 v24.5</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body { margin:0; font-family:"Noto Sans TC", sans-serif; background:linear-gradient(135deg,#f2f7f5,#e0efe6); scroll-behavior:smooth; }
@@ -1411,6 +1411,33 @@
     <div style="margin-top:15px;padding:15px;background:rgba(255,255,255,0.2);border-radius:8px;text-align:center;">
       <p id="weatherIndexTip" style="margin:0;font-size:16px;">🌟 今日露營指數：良好，適合外出！</p>
       <button onclick="updateWeatherIndex()" style="margin-top:10px;background:#fff;color:#5b21b6;">🔄 更新指數</button>
+    </div>
+  </section>
+
+  <section style="background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff;padding:25px;border-radius:12px;margin:20px;">
+    <h2>✨ 星空觀測指南</h2>
+    <p>夜晚抬頭看，發現夜空的美麗秘密！</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:15px;">
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showStarInfo('moon')">
+        <h3>🌙 月亮</h3>
+        <p>今晚可見峨眉月</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showStarInfo('planet')">
+        <h3>🪐 行星</h3>
+        <p>金星可見</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showStarInfo('constellation')">
+        <h3>⭐ 星座</h3>
+        <p>獵戶座可見</p>
+      </div>
+      <div class="card" style="background:#fff;color:#333;cursor:pointer;" onclick="showStarInfo('meteor')">
+        <h3>☄️ 流星</h3>
+        <p>每小时5-10颗</p>
+      </div>
+    </div>
+    <div id="starInfo" style="display:none;margin-top:15px;padding:15px;background:#fff;color:#333;border-radius:12px;">
+      <h3 id="starTitle" style="margin-top:0;"></h3>
+      <p id="starDesc"></p>
     </div>
   </section>
 
@@ -3208,6 +3235,22 @@
         cards[0].textContent = tip;
       }
       document.getElementById('weatherIndexTip').textContent = tip;
+    }
+    
+    // 星空觀測功能
+    const starInfo = {
+      'moon': { title: '🌙 月亮觀測', desc: '今晚可見峨眉月，建議觀測時間：傍晚6點至晚間10點。使用雙筒望遠鏡可看到月球表面隕石坑。' },
+      'planet': { title: '🪐 行星觀測', desc: '金星在傍晚可見，位於西邊天空。天亮前可觀測木星和土星。' },
+      'constellation': { title: '⭐ 星座辨識', desc: '獵戶座在冬季傍晚最容易辨識，獵戶腰帶的三顆星形成明顯的直線。冬季大三角也很明顯。' },
+      'meteor': { title: '☄️ 流星雨', desc: '今晚預測每小時可見5-10顆流星。建議到光害較少的地方觀測，讓眼睛適應黑暗約20分鐘。' }
+    };
+    
+    function showStarInfo(type) {
+      const info = starInfo[type];
+      document.getElementById('starTitle').textContent = info.title;
+      document.getElementById('starDesc').textContent = info.desc;
+      document.getElementById('starInfo').style.display = 'block';
+      document.getElementById('starInfo').scrollIntoView({behavior: 'smooth'});
     }
     
     // 露營回憶牆功能
