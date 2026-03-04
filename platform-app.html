@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v1.9</title>
+  <title>台灣露營平台 MVP v2.0</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -46,7 +46,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v1.9</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v2.0</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -132,6 +132,10 @@
         <div id="supplyPanel" class="card" style="margin-top:10px;display:none;background:#fffaf5">
           <h4 style="margin:0 0 8px 0">露營用品店資訊（地點 / 營業時間 / 電話）</h4>
           <div id="supplyList" class="ig-feed"></div>
+        </div>
+        <div id="modifyPanel" class="card" style="margin-top:10px;display:none;background:#f5fffb">
+          <h4 style="margin:0 0 8px 0">露營車改裝資訊（地點 / 細節 / 專改車型）</h4>
+          <div id="modifyList" class="ig-feed"></div>
         </div>
 
         <textarea id="postText" rows="3" placeholder="分享你的露營心得（可顯示個人標籤）" style="margin-top:10px"></textarea>
@@ -239,6 +243,11 @@
         { name:'山系露營用品館', location:'台北市中山區松江路88號', hours:'10:00 - 21:00', phone:'02-2345-6789' },
         { name:'野行者戶外裝備', location:'台中市西屯區台灣大道三段168號', hours:'11:00 - 22:00', phone:'04-2452-8899' },
         { name:'海風露營補給站', location:'花蓮縣花蓮市中山路210號', hours:'09:30 - 20:30', phone:'03-833-5566' }
+      ],
+      camperMods: [
+        { name:'VanPro 改裝工坊', location:'新北市三重區重新路五段120號', detail:'客製化內裝、電力系統、可拆式床架整合。', specializes:'Hiace、Transit、Sprinter' },
+        { name:'山海房車改造中心', location:'台中市烏日區中山路二段88號', detail:'露營車保溫、儲水系統、衛浴模組施工。', specializes:'Delica、Caddy、Town Ace' },
+        { name:'南灣露營車改裝', location:'高雄市前鎮區凱旋四路66號', detail:'越野套件、車頂帳、太陽能充電系統升級。', specializes:'Hilux、Ranger、Land Cruiser' }
       ],
       merchants: [],
       events: [],
@@ -396,7 +405,9 @@
       if(stateEl) stateEl.textContent = `目前分類：${cat}`;
       renderCampZones();
       renderSupplyStores();
+      renderCamperMods();
       renderSupplyStores();
+      renderCamperMods();
       renderFeed();
     }
 
@@ -451,13 +462,17 @@
       if(!rows.length){
         renderCampZones();
       renderSupplyStores();
+      renderCamperMods();
         renderSupplyStores();
+      renderCamperMods();
+        renderCamperMods();
         feed.innerHTML = '<div class="muted">此分類尚無貼文。</div>';
         return;
       }
       feed.className = 'ig-feed';
       renderCampZones();
       renderSupplyStores();
+      renderCamperMods();
       feed.innerHTML = rows.map(({p,idx})=>`
         <article class="ig-post">
           <div class="ig-post-head">
