@@ -1,7 +1,16 @@
 {
-  "version": "38.3",
+  "version": "38.4",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.4",
+      "date": "2026-03-06",
+      "changes": [
+        "上方四分類拼圖導覽新增 hover 微動效與陰影層次，操作回饋更清楚（純 UI）",
+        "同步套用 index.html 與 platform-app.html，前後台視覺一致",
+        "介面版本更新為 v38.4"
+      ]
+    },
     {
       "version": "38.3",
       "date": "2026-03-06",
