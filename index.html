@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.8（需求整合版）</title>
+  <title>Camping App v37.9（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -179,6 +179,7 @@
         <button class="btn ghost" onclick="clearLoginName()">清空名稱</button>
         <button class="btn" onclick="openBackendLogin()">商家 / 平台後台登入</button>
       </div>
+      <div id="lastProviderHint" class="muted" style="margin-top:8px"></div>
     </div>
   </div>
 
@@ -970,12 +971,20 @@
       renderMerchantEditor(acc);
     }
 
+    function updateLastProviderHint(){
+      const hintEl = document.getElementById('lastProviderHint');
+      if(!hintEl) return;
+      const p = localStorage.getItem('campingLastLoginProvider');
+      hintEl.textContent = p ? `上次使用：${String(p).toUpperCase()} 登入` : '';
+    }
+
     function openLoginModal(){
       document.getElementById('loginModal').style.display='flex';
       const nameEl = document.getElementById('loginName');
       const lastName = localStorage.getItem('campingLastLoginName') || '';
       if(nameEl && lastName && !nameEl.value) nameEl.value = lastName;
       updateLoginNameCounter();
+      updateLastProviderHint();
       if(nameEl){
         nameEl.focus();
         if(nameEl.value) nameEl.select();
@@ -1005,6 +1014,7 @@
         return;
       }
       localStorage.setItem('campingLastLoginName', name);
+      localStorage.setItem('campingLastLoginProvider', provider);
       const account = `${provider}_${name.replace(/\s+/g,'').toLowerCase()||'member'}`;
       let member = state.memberAccounts.find(m=>m.account===account);
       if(!member){
