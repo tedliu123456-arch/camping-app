@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.4（需求整合版）</title>
+  <title>Camping App v37.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -161,8 +161,8 @@
     <button id="bn-dm" onclick="openDM()">💬 私訊</button>
   </div>
 
-  <div id="loginModal" class="overlay">
-    <div class="sheet">
+  <div id="loginModal" class="overlay" onclick="if(event.target===this) closeLoginModal()">
+    <div class="sheet" onclick="event.stopPropagation()">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
       <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right" aria-live="polite">0/20</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
