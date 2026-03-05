@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v35.2（需求整合版）</title>
+  <title>Camping App v35.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -90,7 +90,9 @@
 
     /* 私訊與發文改為全頁 */
     #postModal.overlay, #dmModal.overlay{align-items:stretch;justify-content:stretch;background:#fff}
+    #storeGalleryModal.overlay{align-items:stretch;justify-content:stretch;background:#fff}
     #postModal .sheet, #dmModal .sheet{width:100vw;max-width:none;max-height:100vh;border-radius:0;padding:12px}
+    #storeGalleryModal .sheet{width:100vw;max-width:none;max-height:100vh;border-radius:0;padding:12px}
 
   </style>
 </head>
@@ -205,7 +207,9 @@
   <div id="storeGalleryModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 id="storeGalleryTitle" style="margin:0">商家照片</h3><button class="btn ghost" onclick="closeStoreGallery()">關閉</button></div>
-      <div id="storeGalleryGrid" class="store-grid"></div>
+      <div id="storeDetailMeta" class="muted" style="margin-bottom:8px"></div>
+      <div id="storeDetailBody" style="line-height:1.7"></div>
+      <div id="storeGalleryGrid" class="store-grid" style="margin-top:10px"></div>
     </div>
   </div>
 
@@ -251,7 +255,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '35.2';
+    const APP_VERSION = '35.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -586,9 +590,9 @@
     function openAnnouncement(id){
       const a = state.announcements.find(x=>x.id===id);
       if(!a) return;
-      // 商家公告：直接跳到店家詳細資料
+      // 商家公告：直接開啟店家完整資料頁
       if(a.storeId){
-        jumpToStore(a.storeId);
+        openStoreDetail(a.storeId);
         return;
       }
       // 平台公告：開啟詳情視窗
@@ -651,8 +655,8 @@
         <div class="muted">露營車種類：${s.vehicleTypes||'未填寫'}</div>
       ` : '';
       const photoStrip = photos.length ? `<div class="store-photos">
-        ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
-        ${photos.length>2?`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
+        ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
+        ${photos.length>2?`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
       </div>` : '';
       return `<div id="store-${s.id}" class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
@@ -666,7 +670,7 @@
         ${modExtra}
         ${rentalExtra}
         <div class="actions">
-          <button class="btn ghost" onclick="openMapTo('${encodeURIComponent(s.address||s.name)}')">地圖</button>
+          <button class="btn ghost" onclick="openStoreDetail('${s.id}')">完整資料</button><button class="btn ghost" onclick="openMapTo('${encodeURIComponent(s.address||s.name)}')">地圖</button>
           <button class="btn ghost" onclick="contactStore('${s.id}')">私訊商家</button>
         </div>
         <div style="margin-top:8px">
@@ -799,11 +803,19 @@
       document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!isMember()?'disabled':''} onclick='sendDM()'>送出</button></div>${!isMember()?'<div class="muted">訪客不可私訊</div>':''}`;
     }
 
-    function openStoreGallery(storeId){
+    function openStoreDetail(storeId){
       currentGalleryStoreId = storeId;
       const st = state.stores.find(x=>x.id===storeId);
       if(!st) return;
-      document.getElementById('storeGalleryTitle').textContent = `${st.name}｜全部照片`;
+      document.getElementById('storeGalleryTitle').textContent = `${st.name}｜完整資料`;
+      document.getElementById('storeDetailMeta').textContent = `${st.address||''}｜營業時間 ${st.hours||'-'}｜聯絡 ${st.contact||'-'}`;
+      document.getElementById('storeDetailBody').innerHTML = `
+        <div><b>店家介紹：</b>${st.description||'未填寫'}</div>
+        ${st.category==='mod' ? `<div><b>專門車型：</b>${st.specialModels||'未填寫'}</div>` : ''}
+        ${st.category==='rental' ? `<div><b>露營車種類：</b>${st.vehicleTypes||'未填寫'}</div>` : ''}
+        ${st.category==='campsite' ? `<div><b>總帳數/分區：</b>${st.tentCount||'-'} / ${st.zones||'-'}<br/><b>海拔/可達車種：</b>${st.elevation||'-'} / ${st.accessibleVehicles||'-'}</div>` : ''}
+        ${st.website ? `<div><b>官網：</b><a href='${st.website}' target='_blank'>${st.website}</a></div>` : ''}
+      `;
       const grid = document.getElementById('storeGalleryGrid');
       const photos = Array.isArray(st.photos) ? st.photos : [];
       grid.innerHTML = photos.map((u,i)=>`<div class='card' style='margin:0;padding:6px'><img src='${u}' alt='${st.name}-${i+1}' style='width:100%;border-radius:10px'/></div>`).join('') || '<div class="muted">尚無照片</div>';
