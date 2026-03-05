@@ -1,7 +1,16 @@
 {
-  "version": "38.0",
+  "version": "38.1",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.1",
+      "date": "2026-03-06",
+      "changes": [
+        "表單輸入元件新增 focus 視覺高亮，鍵盤操作辨識更清楚（純 UI）",
+        "按鈕與分頁補上 focus-visible 外框，提升可用性與無障礙體驗（純 UI）",
+        "介面版本更新為 v38.1"
+      ]
+    },
     {
       "version": "38.0",
       "date": "2026-03-06",
