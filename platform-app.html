@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.2（需求整合版）</title>
+  <title>Camping App v37.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -100,11 +100,11 @@
   <div class="topbar">
     <div class="topbar-inner">
       <div class="brand">🏕️ Go Camping <span id="appVersion" class="muted" style="font-size:12px;margin-left:6px"></span></div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <img id="userAvatar" alt="avatar" style="width:28px;height:28px;border-radius:50%;display:none;object-fit:cover;border:1px solid #e5e7eb"/>
-        <span id="userBadge" class="pill">訪客模式</span>
-        <button id="profileBtn" class="btn ghost" style="display:none" onclick="openProfileModal()">個人資料</button>
-        <button id="loginBtn" class="btn" onclick="openLoginModal()">登入</button>
+      <div style="display:flex;gap:8px;align-items:center;position:relative">
+        <button id="userEntry" class="btn ghost" onclick="handleUserEntry()" style="width:40px;height:40px;border-radius:999px;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:800">訪客</button>
+        <div id="userMenu" class="card" style="display:none;position:absolute;right:0;top:46px;min-width:140px;z-index:1300;padding:6px">
+          <button id="userMenuLogout" class="btn ghost" style="width:100%;text-align:left" onclick="logoutFromUserMenu()">登出</button>
+        </div>
       </div>
     </div>
   </div>
@@ -269,7 +269,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.2';
+    const APP_VERSION = '37.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -590,28 +590,21 @@
     function renderUser(){
       const verEl=document.getElementById('appVersion');
       if(verEl) verEl.textContent = APP_VERSION;
-      const roleLabel = isMember() ? '會員' : (isMerchant() ? '商家' : (state.user.mode==='admin' ? '平台主' : '訪客'));
-      const badge = document.getElementById('userBadge');
-      const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
-      if(isMember()){
-        badge.style.display='inline-block';
-        if(avatarSrc){
-          badge.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block"/>`;
-        }else{
-          badge.innerHTML = `<span title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e5e7eb;font-size:12px">👤</span>`;
-        }
-      }else{
-        // 訪客模式不顯示「訪客」字樣（拿掉登入旁文字）
-        badge.style.display='none';
-        badge.textContent = `${state.user.name}（${roleLabel}）`;
-      }
+      const entry = document.getElementById('userEntry');
       const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
-      document.getElementById('loginBtn').textContent = loggedIn ? '登出' : '登入';
-      document.getElementById('loginBtn').onclick = loggedIn ? logout : openLoginModal;
-      const pfBtn=document.getElementById('profileBtn');
-      if(pfBtn) pfBtn.style.display = isMember() ? 'inline-block' : 'none';
-      const av=document.getElementById('userAvatar');
-      if(av){ av.style.display = 'none'; av.src = ''; }
+      const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
+      if(entry){
+        if(isMember() && avatarSrc){
+          entry.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+        }else if(state.user.mode==='guest'){
+          entry.textContent = '訪客';
+        }else{
+          entry.textContent = '👤';
+          entry.title = state.user.name || '';
+        }
+      }
+      const menuLogout = document.getElementById('userMenuLogout');
+      if(menuLogout) menuLogout.style.display = loggedIn ? 'block' : 'none';
     }
 
     function renderAnnouncements(){
@@ -920,6 +913,19 @@
       nameEl.value = (nameEl.value || '').trim().slice(0,20);
       updateLoginNameCounter();
     }
+
+    function closeUserMenu(){ const m=document.getElementById('userMenu'); if(m) m.style.display='none'; }
+    function handleUserEntry(){
+      const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
+      if(!loggedIn){
+        openLoginModal();
+        return;
+      }
+      const m=document.getElementById('userMenu');
+      if(!m) return;
+      m.style.display = m.style.display==='block' ? 'none' : 'block';
+    }
+    function logoutFromUserMenu(){ closeUserMenu(); logout(); }
 
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
     function closeBackendLogin(){ document.getElementById('backendLoginModal').style.display='none'; }
@@ -1413,6 +1419,12 @@
       renderAll();
       bindLoginModalKeys();
       document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
+      document.addEventListener('click', (e)=>{
+        const m=document.getElementById('userMenu');
+        const b=document.getElementById('userEntry');
+        if(!m||!b) return;
+        if(m.style.display==='block' && !m.contains(e.target) && !b.contains(e.target)) closeUserMenu();
+      });
     }
     boot();
   </script>
