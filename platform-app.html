@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v34.4（需求整合版）</title>
+  <title>Camping App v34.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -21,7 +21,7 @@
     .btn.ghost{background:#fff;color:#111827;border:1px solid #d1d5db}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
-    .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
+    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
     .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
     .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:10px 6px;border-radius:10px;cursor:pointer;font-weight:700}
     .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
@@ -241,11 +241,10 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '34.4';
+    const APP_VERSION = '34.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
-      {key:'campsite',label:'營地'},
       {key:'mod',label:'露營車改裝'},
       {key:'gear',label:'露營用品'},
       {key:'rental',label:'露營車出租'},
