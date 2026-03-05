@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.5（需求整合版）</title>
+  <title>Camping App v37.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -23,16 +23,16 @@
     .btn.danger{background:var(--danger)}
     .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
     .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
-    .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:9px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+    .tab{border:1.5px solid #d1d5db;background:#fff;color:#111827;padding:9px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 4px 12px rgba(15,23,42,.10)}
     .tab.active{background:#93c5fd;border-color:#60a5fa;color:#0f172a;transform:translateY(-2px);z-index:2}
     .section{display:none}.section.active{display:block}
 
     .tab .tab-ico{font-size:14px;line-height:1}
     .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap}
-    .tab-social{border-radius:18px 8px 8px 18px;background:#dbeafe;border-color:#93c5fd;color:#1e3a8a}
-    .tab-mod{margin-left:-1px;border-radius:10px;background:#dcfce7;border-color:#86efac;color:#166534}
-    .tab-gear{margin-left:-1px;border-radius:10px;background:#fef3c7;border-color:#fcd34d;color:#92400e}
-    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+    .tab-social{border-radius:18px 8px 8px 18px;background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;clip-path:polygon(0 0,84% 0,100% 28%,100% 72%,84% 100%,0 100%)}
+    .tab-mod{margin-left:-1px;border-radius:10px;background:#dcfce7;border-color:#86efac;color:#166534;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
+    .tab-gear{margin-left:-1px;border-radius:10px;background:#fef3c7;border-color:#fcd34d;color:#92400e;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
+    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;background:#fee2e2;border-color:#fca5a5;color:#991b1b;clip-path:polygon(0 28%,12% 0,100% 0,100% 100%,12% 100%,0 72%,8% 50%)}
 
     .marquee{overflow:hidden;white-space:nowrap;position:relative}
     .marquee-track{display:inline-flex;gap:10px;min-width:max-content;animation:marqueeMove 18s linear infinite}
@@ -277,7 +277,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.5';
+    const APP_VERSION = '37.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體',icon:'📷'},
