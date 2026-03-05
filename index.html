@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.6（需求整合版）</title>
+  <title>Camping App v37.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -21,19 +21,11 @@
     .btn.ghost{background:#fff;color:#111827;border:1px solid #d1d5db}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
-    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
+    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
     .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
-    .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:9px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;position:relative;min-height:56px;transition:.2s ease;box-shadow:0 2px 8px rgba(15,23,42,.06)}
-    .tab.active{background:var(--pri);border-color:var(--pri);color:#fff;transform:translateY(-2px);z-index:2}
+    .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:10px 6px;border-radius:10px;cursor:pointer;font-weight:700}
+    .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
     .section{display:none}.section.active{display:block}
-
-    .tab .tab-ico{font-size:14px;line-height:1}
-    .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap}
-    .tab-social{border-radius:18px 8px 8px 18px;clip-path:polygon(0 0,88% 0,100% 22%,100% 78%,88% 100%,0 100%,0 0)}
-    .tab-mod{margin-left:-1px;border-radius:10px;clip-path:polygon(0 0,86% 0,100% 22%,100% 78%,86% 100%,0 100%,8% 50%)}
-    .tab-gear{margin-left:-1px;border-radius:10px;clip-path:polygon(0 22%,14% 0,100% 0,100% 100%,14% 100%,0 78%,8% 50%)}
-    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;clip-path:polygon(0 22%,12% 0,100% 0,100% 100%,12% 100%,0 78%,8% 50%)}
-
 
     .marquee{overflow:hidden;white-space:nowrap;position:relative}
     .marquee-track{display:inline-flex;gap:10px;min-width:max-content;animation:marqueeMove 18s linear infinite}
@@ -90,7 +82,7 @@
       .tabs{display:flex;overflow:auto;white-space:nowrap;gap:8px;grid-template-columns:none;top:49px;padding:8px 0}
       .sticky-marquee{top:102px}
       .contest-banner{margin-top:138px}
-      .tab{min-width:122px;flex:0 0 auto}
+      .tab{min-width:104px;flex:0 0 auto}
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
       .container{padding-bottom:96px}
@@ -108,11 +100,11 @@
   <div class="topbar">
     <div class="topbar-inner">
       <div class="brand">🏕️ Go Camping <span id="appVersion" class="muted" style="font-size:12px;margin-left:6px"></span></div>
-      <div style="display:flex;gap:8px;align-items:center;position:relative">
-        <button id="avatarEntry" class="btn ghost" onclick="toggleAvatarMenu()" style="width:34px;height:34px;border-radius:999px;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden">👤</button>
-        <div id="avatarMenu" class="card" style="display:none;position:absolute;right:0;top:40px;min-width:160px;z-index:1200;padding:6px">
-          <button id="menuLogout" class="btn ghost" style="width:100%;text-align:left" onclick="logoutFromMenu()">登出</button>
-        </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <img id="userAvatar" alt="avatar" style="width:28px;height:28px;border-radius:50%;display:none;object-fit:cover;border:1px solid #e5e7eb"/>
+        <span id="userBadge" class="pill">訪客模式</span>
+        <button id="profileBtn" class="btn ghost" style="display:none" onclick="openProfileModal()">個人資料</button>
+        <button id="loginBtn" class="btn" onclick="openLoginModal()">登入</button>
       </div>
     </div>
   </div>
@@ -277,13 +269,13 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.5';
+    const APP_VERSION = '37.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
-      {key:'social',label:'社群媒體',icon:'📷'},
-      {key:'mod',label:'露營車改裝',icon:'🚐'},
-      {key:'gear',label:'露營用品',icon:'⛺'},
-      {key:'rental',label:'露營車出租',icon:'🚌'},
+      {key:'social',label:'社群媒體'},
+      {key:'mod',label:'露營車改裝'},
+      {key:'gear',label:'露營用品'},
+      {key:'rental',label:'露營車出租'},
     ];
 
     let db=null, storage=null;
@@ -587,7 +579,7 @@
 
     function renderTabs(){
       const el = document.getElementById('tabs');
-      el.innerHTML = tabs.map(t=>`<button class="tab tab-${t.key} ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')"><span class='tab-ico'>${t.icon||''}</span><span class='tab-txt'>${t.label}</span></button>`).join('');
+      el.innerHTML = tabs.map(t=>`<button class="tab ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')">${t.label}</button>`).join('');
       document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
       document.getElementById('sec-'+state.activeTab).classList.add('active');
       document.getElementById('contestBanner').style.display = state.activeTab==='social' ? 'block' : 'none';
@@ -598,22 +590,25 @@
     function renderUser(){
       const verEl=document.getElementById('appVersion');
       if(verEl) verEl.textContent = APP_VERSION;
-      const avatarBtn = document.getElementById('avatarEntry');
+      const roleLabel = isMember() ? '會員' : (isMerchant() ? '商家' : (state.user.mode==='admin' ? '平台主' : '訪客'));
+      const badge = document.getElementById('userBadge');
       const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
-      if(avatarBtn){
-        if(isMember() && avatarSrc){
-          avatarBtn.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+      if(isMember()){
+        if(avatarSrc){
+          badge.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block"/>`;
         }else{
-          avatarBtn.textContent = (state.user.mode==='guest') ? '訪' : '👤';
-          avatarBtn.title = state.user.name || '訪客';
+          badge.innerHTML = `<span title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e5e7eb;font-size:12px">👤</span>`;
         }
+      }else{
+        badge.textContent = `${state.user.name}（${roleLabel}）`;
       }
       const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
-      const menu = document.getElementById('avatarMenu');
-      if(menu){
-        const lo=document.getElementById('menuLogout');
-        if(lo) lo.style.display = loggedIn ? 'block' : 'none';
-      }
+      document.getElementById('loginBtn').textContent = loggedIn ? '登出' : '登入';
+      document.getElementById('loginBtn').onclick = loggedIn ? logout : openLoginModal;
+      const pfBtn=document.getElementById('profileBtn');
+      if(pfBtn) pfBtn.style.display = isMember() ? 'inline-block' : 'none';
+      const av=document.getElementById('userAvatar');
+      if(av){ av.style.display = 'none'; av.src = ''; }
     }
 
     function renderAnnouncements(){
@@ -911,7 +906,6 @@
     function clearLoginName(){
       const nameEl = document.getElementById('loginName');
       if(!nameEl) return;
-      localStorage.removeItem('campingLastLoginName');
       nameEl.value = '';
       updateLoginNameCounter();
       nameEl.focus();
@@ -923,19 +917,6 @@
       nameEl.value = (nameEl.value || '').trim().slice(0,20);
       updateLoginNameCounter();
     }
-
-    function closeAvatarMenu(){ const m=document.getElementById('avatarMenu'); if(m) m.style.display='none'; }
-    function toggleAvatarMenu(){
-      const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
-      if(!loggedIn){
-        openLoginModal();
-        return;
-      }
-      const m=document.getElementById('avatarMenu');
-      if(!m) return;
-      m.style.display = m.style.display==='block' ? 'none' : 'block';
-    }
-    function logoutFromMenu(){ closeAvatarMenu(); logout(); }
 
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
     function closeBackendLogin(){ document.getElementById('backendLoginModal').style.display='none'; }
@@ -1429,14 +1410,6 @@
       renderAll();
       bindLoginModalKeys();
       document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
-      document.addEventListener('click', (e)=>{
-        const menu=document.getElementById('avatarMenu');
-        const btn=document.getElementById('avatarEntry');
-        if(!menu || !btn) return;
-        if(menu.style.display==='block' && !menu.contains(e.target) && !btn.contains(e.target)){
-          closeAvatarMenu();
-        }
-      });
     }
     boot();
   </script>
