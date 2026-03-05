@@ -508,12 +508,22 @@
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
       state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider};
-      closeLoginModal(); renderUser();
+      closeLoginModal();
+      renderAll();
     }
-    function enterGuestMode(){ state.user={id:'guest',name:'訪客',mode:'guest',provider:null}; closeLoginModal(); renderUser(); }
+    function enterGuestMode(){
+      state.user={id:'guest',name:'訪客',mode:'guest',provider:null};
+      closeLoginModal();
+      renderAll();
+    }
     function logout(){ enterGuestMode(); }
 
     function openPostModal(mode){
+      if(!isMember()){
+        alert('請先登入會員，才能發佈貼文或投稿比賽');
+        openLoginModal();
+        return;
+      }
       postMode=mode;
       document.getElementById('postTitle').textContent = mode==='contest'?'投稿':'新增貼文';
       document.getElementById('postTargetBadge').textContent = mode==='contest'?'投稿到：會員照片比賽':'發佈到：社群媒體';
