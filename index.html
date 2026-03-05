@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v4.7</title>
+  <title>台灣露營平台 MVP v4.8</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -75,7 +75,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v4.7</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v4.8</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -440,6 +440,8 @@
       const passwordEl = document.getElementById('loginPassword');
       const displayNameEl = document.getElementById('displayName');
       const hintEl = document.getElementById('loginMethodHint');
+      const showEl = document.getElementById('showLoginPassword');
+      const capsHintEl = document.getElementById('capsHint');
       if(!methodEl || !accountEl || !passwordEl || !displayNameEl) return;
 
       const isGuest = methodEl.value === 'guest';
@@ -447,6 +449,12 @@
       passwordEl.disabled = isGuest;
       accountEl.style.opacity = isGuest ? '0.6' : '1';
       passwordEl.style.opacity = isGuest ? '0.6' : '1';
+
+      if(showEl){
+        showEl.disabled = isGuest;
+        if(isGuest) showEl.checked = false;
+      }
+      passwordEl.type = (showEl && showEl.checked) ? 'text' : 'password';
 
       if(hintEl){
         hintEl.textContent = isGuest
@@ -456,6 +464,7 @@
       if(isGuest){
         accountEl.value = '';
         passwordEl.value = '';
+        if(capsHintEl) capsHintEl.style.display = 'none';
         if(!displayNameEl.value.trim()) displayNameEl.value = '訪客';
         displayNameEl.focus();
       }else if(!accountEl.value.trim()){
