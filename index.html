@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.5（需求整合版）</title>
+  <title>Camping App v1.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -141,7 +141,7 @@
   <div id="loginModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
-      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" /><div id="loginNameCounter" class="muted" style="text-align:right">0/20</div></div>
+      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right">0/20</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="memberLogin('google')">Google 登入</button>
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
@@ -676,6 +676,13 @@
       nameEl.focus();
     }
 
+    function normalizeLoginName(){
+      const nameEl = document.getElementById('loginName');
+      if(!nameEl) return;
+      nameEl.value = (nameEl.value || '').trim().slice(0,20);
+      updateLoginNameCounter();
+    }
+
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
     function closeBackendLogin(){ document.getElementById('backendLoginModal').style.display='none'; }
     function openBackendWorkspace(title){ document.getElementById('backendTitle').textContent=title; document.getElementById('backendWorkspace').style.display='flex'; }
@@ -721,6 +728,7 @@
       });
     }
     function memberLogin(provider){
+      normalizeLoginName();
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
@@ -729,6 +737,7 @@
       renderAll();
     }
     function enterGuestMode(){
+      normalizeLoginName();
       const rawName=(document.getElementById('loginName').value||'訪客').trim();
       const name=(rawName || '訪客').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
