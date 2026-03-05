@@ -1,7 +1,16 @@
 {
-  "version": "34.7",
+  "version": "34.8",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "34.8",
+      "date": "2026-03-05",
+      "changes": [
+        "底部中間 Go Camping 按鈕改為圓形樣式",
+        "Go Camping 圓形按鈕置中並抬升，手機辨識度更高",
+        "左右保留貼文與私訊按鈕佈局"
+      ]
+    },
     {
       "version": "34.7",
       "date": "2026-03-05",

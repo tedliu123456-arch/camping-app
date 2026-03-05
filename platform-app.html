@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v34.7（需求整合版）</title>
+  <title>Camping App v34.8（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -62,10 +62,10 @@
 
     .dm-fab{position:fixed;right:16px;bottom:16px;z-index:1200;background:#0ea5e9}
     .post-fab{position:fixed;right:16px;bottom:62px;z-index:1200}
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:#fff;border-top:1px solid #d1d5db;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:#fff;border-top:1px solid #d1d5db;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));align-items:end}
     .bottom-nav button{width:100%;padding:10px 8px;border:1px solid #d1d5db;background:#fff;border-radius:10px;font-weight:700;color:#111827}
     .bottom-nav button.active{background:#2563eb;color:#fff;border-color:#2563eb}
-    .bottom-nav .bn-go{font-size:16px;font-weight:900;padding:12px 8px}
+    .bottom-nav .bn-go{width:76px;height:76px;margin:0 auto;transform:translateY(-14px);border-radius:50%;font-size:12px;line-height:1.2;font-weight:900;padding:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#2563eb;color:#fff;border:0;box-shadow:0 8px 20px rgba(37,99,235,.35)}
     .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:14px;z-index:3000;display:none;box-shadow:0 8px 20px rgba(0,0,0,.22)}
     .upload-progress{margin-top:8px;display:none}
     .upload-track{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
@@ -151,7 +151,7 @@
 
   <div id="bottomNav" class="bottom-nav">
     <button id="bn-post" onclick="openPostModal('social')">➕ 貼文</button>
-    <button id="bn-campsite" class="bn-go" onclick="goCampsite()">🏕️ Go Camping</button>
+    <button id="bn-campsite" class="bn-go" onclick="goCampsite()">🏕️<span>Go Camping</span></button>
     <button id="bn-dm" onclick="openDM()">💬 私訊</button>
   </div>
 
@@ -250,7 +250,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '34.7';
+    const APP_VERSION = '34.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
