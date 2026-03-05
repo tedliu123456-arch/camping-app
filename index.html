@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v34.5（需求整合版）</title>
+  <title>Camping App v34.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -192,6 +192,14 @@
     </div>
   </div>
 
+  <div id="announcementModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 id="announcementTitle" style="margin:0">活動資訊</h3><button class="btn ghost" onclick="closeAnnouncementModal()">關閉</button></div>
+      <div id="announcementMeta" class="muted"></div>
+      <div id="announcementDetail" style="margin-top:8px;line-height:1.6"></div>
+    </div>
+  </div>
+
   <div id="storeGalleryModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 id="storeGalleryTitle" style="margin:0">商家照片</h3><button class="btn ghost" onclick="closeStoreGallery()">關閉</button></div>
@@ -241,7 +249,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '34.5';
+    const APP_VERSION = '34.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -254,14 +262,15 @@
     let postMode='social';
     let currentDMStore=null;
     let currentGalleryStoreId=null;
+    let currentMerchantAccount=null;
 
     const state = {
       activeTab:'social',
       user:{id:'guest',name:'訪客',mode:'guest',provider:null},
       announcements:[
-        {id:'a0',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF'},
-        {id:'a1',text:'本週會員照片比賽開放投稿！'},
-        {id:'a2',text:'清明連假營地推薦已更新。'}
+        {id:'a0',title:'🔥 限時 20 折優惠中！',detail:'指定商家會員方案現在 20% OFF，詳情請私訊商家。',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
+        {id:'a1',title:'本週會員照片比賽開放投稿！',detail:'歡迎會員投稿照片參賽，每日每位會員2票。',text:'本週會員照片比賽開放投稿！',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
+        {id:'a2',title:'清明連假營地推薦已更新。',detail:'已更新熱門營地與假期資訊，歡迎查看營地頁。',text:'清明連假營地推薦已更新。',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()}
       ],
       posts:[],
       contestEntries:[],
@@ -432,6 +441,18 @@
       }catch(e){ console.warn('firebase init fallback', e); }
     }
 
+    function normalizeAnnouncements(){
+      state.announcements = (state.announcements||[]).map(a=>({
+        id:a.id||uid(),
+        title:a.title||a.text||'活動資訊',
+        detail:a.detail||a.text||'',
+        text:a.text||a.title||'',
+        merchantId:a.merchantId||'system',
+        merchantName:a.merchantName||'平台公告',
+        createdAt:a.createdAt||new Date().toISOString()
+      }));
+    }
+
     async function loadState(){
       defaultSeed();
       if(!db){ ensureTestData(); return; }
@@ -446,6 +467,7 @@
           state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
           state.dmThreads = d.dmThreads || state.dmThreads;
         }
+        normalizeAnnouncements();
         if(ensureTestData()){ await saveState(); }
       }catch(e){ console.warn('load fail',e); }
     }
@@ -532,9 +554,19 @@
 
     function renderAnnouncements(){
       const m = document.getElementById('announceMarquee');
-      const items = state.announcements.map(a=>`<div class="marquee-item">${a.text}</div>`).join('');
+      const items = state.announcements.map(a=>`<button class="marquee-item" onclick="openAnnouncement('${a.id}')">${a.title || a.text}</button>`).join('');
       m.innerHTML = `<div class="marquee-track">${items}${items}</div>`;
     }
+
+    function openAnnouncement(id){
+      const a = state.announcements.find(x=>x.id===id);
+      if(!a) return;
+      document.getElementById('announcementTitle').textContent = a.title || '活動資訊';
+      document.getElementById('announcementMeta').textContent = `${a.merchantName || '平台公告'}｜${new Date(a.createdAt||Date.now()).toLocaleString()}`;
+      document.getElementById('announcementDetail').textContent = a.detail || a.text || '';
+      document.getElementById('announcementModal').style.display='flex';
+    }
+    function closeAnnouncementModal(){ document.getElementById('announcementModal').style.display='none'; }
 
     function rankedContest(){ return [...state.contestEntries].sort((a,b)=> (b.voteCount||0)-(a.voteCount||0)); }
 
@@ -676,6 +708,11 @@
         ${store.category==='rental' ? `<div class='field'><label>露營車種類</label><input id='me-rental-types' value='${store.vehicleTypes||''}' placeholder='例如：4人露營車 / 6人露營車' /></div>` : ''}
         <div class='field'><label>官網</label><input id='me-web' value='${store.website||''}' /></div>
         <button class='btn ok' onclick="saveMerchantStore('${store.id}')">儲存修改</button>
+        <hr/>
+        <div style='font-weight:700'>活動跑馬燈（商家每月最多 2 則）</div>
+        <div class='field'><label>活動標題（跑馬燈顯示）</label><input id='ma-title' maxlength='40' placeholder='例如：春季露營優惠' /></div>
+        <div class='field'><label>活動詳情（點入顯示）</label><textarea id='ma-detail' rows='3' placeholder='輸入活動詳細內容'></textarea></div>
+        <button class='btn' onclick='addMerchantAnnouncement()'>新增跑馬燈活動</button>
       `;
     }
 
@@ -782,6 +819,7 @@
       if(id==='admin' && pw===ADMIN_PASSWORD){
         closeBackendLogin();
         openBackendWorkspace('平台主後台（PC）');
+        currentMerchantAccount=null;
         renderAdminPanel();
         return;
       }
@@ -790,6 +828,7 @@
       const acc=state.merchantAccounts.find(a=>a.merchantId===id && a.password===pw && a.enabled);
       if(!acc) return alert('帳號或密碼錯誤');
       closeBackendLogin();
+      currentMerchantAccount=acc;
       openBackendWorkspace('商家後台');
       renderMerchantEditor(acc);
     }
@@ -974,6 +1013,35 @@
       openThread(t.id); saveState();
     }
 
+
+    function addMerchantAnnouncement(){
+      if(!currentMerchantAccount) return alert('請先登入商家後台');
+      const store = state.stores.find(s=>s.id===currentMerchantAccount.storeId);
+      if(!store) return alert('找不到商家資料');
+      const title = (document.getElementById('ma-title')?.value || '').trim();
+      const detail = (document.getElementById('ma-detail')?.value || '').trim();
+      if(!title || !detail) return alert('請填寫活動標題與詳情');
+
+      const now = new Date();
+      const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+      const used = state.announcements.filter(a=>a.merchantId===currentMerchantAccount.merchantId && (a.createdAt||'').slice(0,7)===ym).length;
+      if(used >= 2) return alert('本月已達 2 則上限');
+
+      state.announcements.unshift({
+        id: uid(),
+        title,
+        detail,
+        text: title,
+        merchantId: currentMerchantAccount.merchantId,
+        merchantName: store.name,
+        createdAt: new Date().toISOString()
+      });
+      document.getElementById('ma-title').value='';
+      document.getElementById('ma-detail').value='';
+      renderAnnouncements();
+      saveState();
+      showToast('活動跑馬燈新增成功 ✅');
+    }
 
     function saveMerchantStore(storeId){
       const s=state.stores.find(x=>x.id===storeId); if(!s) return;
