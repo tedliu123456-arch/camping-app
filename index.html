@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v5.5</title>
+  <title>台灣露營平台 MVP v5.6</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -76,7 +76,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v5.5</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v5.6</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -466,6 +466,7 @@
           ? '遊客模式免帳號密碼，輸入顯示名稱即可登入'
           : '使用第三方登入需輸入帳號與密碼';
       }
+      setLoginStatus(isGuest ? '目前為訪客模式，免輸入帳密' : '目前為第三方登入模式，請輸入帳密', 'idle');
       if(isGuest){
         accountEl.value = '';
         passwordEl.value = '';
