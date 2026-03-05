@@ -1,7 +1,16 @@
 {
-  "version": "38.6",
+  "version": "38.7",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.7",
+      "date": "2026-03-06",
+      "changes": [
+        "商家照片縮圖新增 hover 浮起與陰影回饋，圖庫互動更直覺（純 UI）",
+        "同步套用 index.html 與 platform-app.html，商家區視覺一致",
+        "介面版本更新為 v38.7"
+      ]
+    },
     {
       "version": "38.6",
       "date": "2026-03-06",
