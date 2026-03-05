@@ -171,10 +171,7 @@
   <div id="backendLoginModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">後台登入</h3><button class="btn ghost" onclick="closeBackendLogin()">關閉</button></div>
-      <div class="field"><label>角色</label>
-        <select id="backendRole"><option value="merchant">商家後台</option><option value="admin">平台主後台</option></select>
-      </div>
-      <div class="field"><label>ID</label><input id="backendId" placeholder="輸入 ID" /></div>
+      <div class="field"><label>ID</label><input id="backendId" placeholder="輸入 ID（商家或 admin）" /></div>
       <div class="field"><label>密碼</label><input id="backendPwd" type="password" placeholder="輸入密碼" /></div>
       <button class="btn" onclick="backendLogin()">登入後台</button>
     </div>
@@ -473,8 +470,7 @@
     function renderMerchantEditor(account){
       const store = state.stores.find(s=>s.id===account.storeId);
       if(!store) return;
-      const el = document.getElementById('merchantEditor');
-      el.style.display='block';
+      const el = document.getElementById('backendContent');
       el.innerHTML = `
         <div class='muted'>編輯店鋪：${store.name}</div>
         <div class='field'><label>描述</label><textarea id='me-desc'>${store.description||''}</textarea></div>
@@ -487,8 +483,7 @@
     }
 
     function renderAdminPanel(){
-      const el=document.getElementById('adminPanel');
-      el.style.display='block';
+      const el=document.getElementById('backendContent');
       el.innerHTML = `
         <div class='field'><label>活動公告（新增一條）</label><input id='ad-ann' placeholder='輸入公告文字' /></div>
         <button class='btn' onclick='addAnnouncement()'>新增公告</button>
@@ -539,6 +534,27 @@
     function closeBackendLogin(){ document.getElementById('backendLoginModal').style.display='none'; }
     function openBackendWorkspace(title){ document.getElementById('backendTitle').textContent=title; document.getElementById('backendWorkspace').style.display='flex'; }
     function closeBackendWorkspace(){ document.getElementById('backendWorkspace').style.display='none'; }
+
+    function backendLogin(){
+      const id=(document.getElementById('backendId').value||'').trim();
+      const pw=(document.getElementById('backendPwd').value||'').trim();
+      if(!id||!pw) return alert('請輸入 ID 與密碼');
+
+      // 平台主帳號：admin + 後台密碼
+      if(id==='admin' && pw===ADMIN_PASSWORD){
+        closeBackendLogin();
+        openBackendWorkspace('平台主後台（PC）');
+        renderAdminPanel();
+        return;
+      }
+
+      // 其餘視為商家帳號
+      const acc=state.merchantAccounts.find(a=>a.merchantId===id && a.password===pw && a.enabled);
+      if(!acc) return alert('帳號或密碼錯誤');
+      closeBackendLogin();
+      openBackendWorkspace('商家後台');
+      renderMerchantEditor(acc);
+    }
 
     function openLoginModal(){
       document.getElementById('loginModal').style.display='flex';
