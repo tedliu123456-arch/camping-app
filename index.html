@@ -22,6 +22,7 @@
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
     .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;position:sticky;top:49px;z-index:999;background:var(--bg);padding:10px 0}
+    .sticky-marquee{position:sticky;top:108px;z-index:998}
     .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:10px 6px;border-radius:10px;cursor:pointer;font-weight:700}
     .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
     .section{display:none}.section.active{display:block}
@@ -64,6 +65,7 @@
     @media (max-width: 768px){
       .container{padding:8px}
       .tabs{display:flex;overflow:auto;white-space:nowrap;gap:8px;grid-template-columns:none;top:49px;padding:8px 0}
+      .sticky-marquee{top:102px}
       .tab{min-width:104px;flex:0 0 auto}
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
@@ -90,7 +92,7 @@
     <div class="tabs" id="tabs"></div>
 
     <section id="sec-social" class="section active">
-      <div class="card">
+      <div class="card sticky-marquee">
         <div style="font-weight:800;margin-bottom:6px">📣 活動跑馬燈</div>
         <div id="announceMarquee" class="marquee"></div>
       </div>
