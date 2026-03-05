@@ -60,6 +60,7 @@
     .upload-progress{margin-top:8px;display:none}
     .upload-track{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
     .upload-fill{height:100%;width:0%;background:linear-gradient(90deg,#2563eb,#0ea5e9);transition:width .2s ease}
+    .dm-thread-active{background:#2563eb !important;color:#fff !important;border-color:#2563eb !important}
 
     .admin-wrap{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:980px){.admin-wrap{grid-template-columns:1fr 1fr}}
@@ -217,7 +218,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '33.5';
+    const APP_VERSION = '33.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -643,7 +644,7 @@
 
     function renderDM(){
       const box=document.getElementById('dmThreads');
-      const lines=state.dmThreads.map(t=>`<button class='btn ghost' style='margin:4px 4px 0 0' onclick="openThread('${t.id}')">${t.storeName}</button>`).join('');
+      const lines=state.dmThreads.map(t=>`<button class='${t.id===currentDMStore?'btn dm-thread-active':'btn ghost'}' style='margin:4px 4px 0 0' onclick="openThread('${t.id}')">${t.storeName}</button>`).join('');
       box.innerHTML = lines || '尚無對話，請到商家卡片按「私訊商家」。';
       document.getElementById('dmComposer').style.display='none';
     }
@@ -651,6 +652,7 @@
     function openThread(id){
       const t=state.dmThreads.find(x=>x.id===id); if(!t) return;
       currentDMStore=id;
+      renderDM();
       const html=(t.messages||[]).map(m=>`<div class='muted'><b>${m.fromName}</b>：${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
       document.getElementById('dmComposer').style.display='block';
       document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!isMember()?'disabled':''} onclick='sendDM()'>送出</button></div>${!isMember()?'<div class="muted">訪客不可私訊</div>':''}`;
