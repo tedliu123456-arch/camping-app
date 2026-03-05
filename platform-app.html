@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v34.2（需求整合版）</title>
+  <title>Camping App v34.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -27,10 +27,12 @@
     .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
     .section{display:none}.section.active{display:block}
 
-    .marquee{display:flex;gap:10px;overflow:auto;white-space:nowrap}
+    .marquee{overflow:hidden;white-space:nowrap;position:relative}
+    .marquee-track{display:inline-flex;gap:10px;min-width:max-content;animation:marqueeMove 18s linear infinite}
     .marquee-item{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 10px;border-radius:999px;font-size:13px}
+    @keyframes marqueeMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative;margin-top:78px}
+    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative;margin-top:120px}
     .contest-row{display:flex;gap:8px;overflow:auto;padding-top:8px}
     .contest-card{position:relative;min-width:120px;height:84px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,.5)}
     .contest-card img{width:100%;height:100%;object-fit:cover}
@@ -77,7 +79,7 @@
       .container{padding:8px}
       .tabs{display:flex;overflow:auto;white-space:nowrap;gap:8px;grid-template-columns:none;top:49px;padding:8px 0}
       .sticky-marquee{top:102px}
-      .contest-banner{margin-top:92px}
+      .contest-banner{margin-top:138px}
       .tab{min-width:104px;flex:0 0 auto}
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
@@ -239,7 +241,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '34.2';
+    const APP_VERSION = '34.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -258,6 +260,7 @@
       activeTab:'social',
       user:{id:'guest',name:'訪客',mode:'guest',provider:null},
       announcements:[
+        {id:'a0',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF'},
         {id:'a1',text:'本週會員照片比賽開放投稿！'},
         {id:'a2',text:'清明連假營地推薦已更新。'}
       ],
@@ -530,7 +533,8 @@
 
     function renderAnnouncements(){
       const m = document.getElementById('announceMarquee');
-      m.innerHTML = state.announcements.map(a=>`<div class="marquee-item">${a.text}</div>`).join('');
+      const items = state.announcements.map(a=>`<div class="marquee-item">${a.text}</div>`).join('');
+      m.innerHTML = `<div class="marquee-track">${items}${items}</div>`;
     }
 
     function rankedContest(){ return [...state.contestEntries].sort((a,b)=> (b.voteCount||0)-(a.voteCount||0)); }
