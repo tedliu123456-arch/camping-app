@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v36.3（需求整合版）</title>
+  <title>Camping App v36.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -101,6 +101,7 @@
     <div class="topbar-inner">
       <div class="brand">🏕️ Camping Community <span id="appVersion" class="muted" style="font-size:12px;margin-left:6px"></span></div>
       <div style="display:flex;gap:8px;align-items:center">
+        <img id="userAvatar" alt="avatar" style="width:28px;height:28px;border-radius:50%;display:none;object-fit:cover;border:1px solid #e5e7eb"/>
         <span id="userBadge" class="pill">訪客模式</span>
         <button id="profileBtn" class="btn ghost" style="display:none" onclick="openProfileModal()">個人資料</button>
         <button id="loginBtn" class="btn" onclick="openLoginModal()">登入</button>
@@ -178,6 +179,7 @@
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">個人資料編輯</h3><button class="btn ghost" onclick="closeProfileModal()">關閉</button></div>
       <div class="field"><label>暱稱</label><input id="pf-name" maxlength="20" /></div>
+      <div class="field"><label>頭像設定</label><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><img id="pf-avatar-preview" alt="avatar" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb;background:#f3f4f6"/><input id="pf-avatar-file" type="file" accept="image/*" onchange="onProfileAvatarSelected()" /><button class="btn ghost" type="button" onclick="clearProfileAvatar()">清除頭像</button></div></div>
       <div class="field"><label>性別</label><select id="pf-gender"><option value="">未設定</option><option>男</option><option>女</option><option>其他</option></select></div>
       <div class="field"><label>喜歡露營方式</label><input id="pf-style" placeholder="例如：車宿、搭帳、親子露營" /><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn ghost" type="button" onclick="addProfileStyleTag('車宿')">車宿</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('搭帳')">搭帳</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('親子露營')">親子露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('野營')">野營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('機車露營')">機車露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('單人露營')">單人露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('溯溪')">溯溪</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('其他')">其他</button></div></div>
       <div class="field"><label>露營次數</label><div style="display:flex;gap:6px;align-items:center"><button class="btn ghost" type="button" onclick="adjustProfileCount(-1)">－</button><input id="pf-count" type="number" inputmode="numeric" min="0" step="1" placeholder="例如：12" oninput="sanitizeProfileCount()" /><button class="btn ghost" type="button" onclick="adjustProfileCount(1)">＋</button></div><div class="muted">僅能輸入數字</div></div>
@@ -267,7 +269,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '36.3';
+    const APP_VERSION = '36.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -284,7 +286,7 @@
 
     const state = {
       activeTab:'social',
-      user:{id:'guest',name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:''}},
+      user:{id:'guest',name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:''}},
       announcements:[
         {id:'a0',title:'🔥 限時 20 折優惠中！',detail:'指定商家會員方案現在 20% OFF，詳情請私訊商家。',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
         {id:'a1',title:'本週會員照片比賽開放投稿！',detail:'歡迎會員投稿照片參賽，每日每位會員2票。',text:'本週會員照片比賽開放投稿！',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
@@ -594,6 +596,9 @@
       document.getElementById('loginBtn').onclick = loggedIn ? logout : openLoginModal;
       const pfBtn=document.getElementById('profileBtn');
       if(pfBtn) pfBtn.style.display = isMember() ? 'inline-block' : 'none';
+      const av=document.getElementById('userAvatar');
+      const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
+      if(av){ av.style.display = avatarSrc ? 'inline-block' : 'none'; av.src = avatarSrc || ''; }
     }
 
     function renderAnnouncements(){
@@ -912,7 +917,7 @@
       if(id==='admin' && pw===ADMIN_PASSWORD){
         closeBackendLogin();
         currentMerchantAccount=null;
-        state.user={id:'admin',name:'平台主',mode:'admin',provider:'admin',profile:state.user.profile||{gender:'',style:'',count:''}};
+        state.user={id:'admin',name:'平台主',mode:'admin',provider:'admin',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
         renderAll();
         openBackendWorkspace('平台主後台（PC）');
         renderAdminPanel();
@@ -925,7 +930,7 @@
       closeBackendLogin();
       currentMerchantAccount=acc;
       const st = state.stores.find(x=>x.id===acc.storeId);
-      state.user={id:`store:${acc.storeId}`,name:(st?.name||'商家'),mode:'merchant',provider:'merchant',profile:state.user.profile||{gender:'',style:'',count:''}};
+      state.user={id:`store:${acc.storeId}`,name:(st?.name||'商家'),mode:'merchant',provider:'merchant',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
       renderAll();
       openBackendWorkspace('商家後台');
       renderMerchantEditor(acc);
@@ -954,7 +959,7 @@
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
-      const oldProfile = state.user.profile || {gender:'',style:'',count:''};
+      const oldProfile = state.user.profile || {gender:'',style:'',count:'',avatar:''};
       state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider,profile:oldProfile};
       const account = `${provider}_${name.replace(/\s+/g,'').toLowerCase()||'member'}`;
       if(!state.memberAccounts.find(m=>m.account===account)){
@@ -969,7 +974,7 @@
       const rawName=(document.getElementById('loginName').value||'訪客').trim();
       const name=(rawName || '訪客').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
-      const oldProfile = state.user.profile || {gender:'',style:'',count:''};
+      const oldProfile = state.user.profile || {gender:'',style:'',count:'',avatar:''};
       state.user={id:'guest',name,mode:'guest',provider:null,profile:oldProfile};
       closeLoginModal();
       renderAll();
@@ -986,6 +991,8 @@
       document.getElementById('pf-gender').value = p.gender || '';
       document.getElementById('pf-style').value = p.style || '';
       document.getElementById('pf-count').value = p.count || '';
+      window.__profileAvatarData = p.avatar || '';
+      renderProfileAvatarPreview(window.__profileAvatarData);
       document.getElementById('profileModal').style.display='flex';
     }
     function closeProfileModal(){ document.getElementById('profileModal').style.display='none'; }
@@ -1012,13 +1019,39 @@
       el.value = String(Math.max(0, n + delta));
     }
 
+    function renderProfileAvatarPreview(src){
+      const img = document.getElementById('pf-avatar-preview');
+      if(!img) return;
+      img.src = src || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="54%" font-size="22" text-anchor="middle" fill="%239ca3af">👤</text></svg>';
+    }
+
+    function onProfileAvatarSelected(){
+      const input = document.getElementById('pf-avatar-file');
+      const file = input && input.files ? input.files[0] : null;
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        window.__profileAvatarData = String(reader.result||'');
+        renderProfileAvatarPreview(window.__profileAvatarData);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearProfileAvatar(){
+      window.__profileAvatarData = '';
+      const input = document.getElementById('pf-avatar-file');
+      if(input) input.value = '';
+      renderProfileAvatarPreview('');
+    }
+
     function saveProfile(){
       if(!isMember()) return;
       state.user.name = (document.getElementById('pf-name').value||state.user.name).trim().slice(0,20) || state.user.name;
       state.user.profile = {
         gender: (document.getElementById('pf-gender').value||'').trim(),
         style: (document.getElementById('pf-style').value||'').trim(),
-        count: String((document.getElementById('pf-count').value||'').trim()).replace(/[^0-9]/g,'')
+        count: String((document.getElementById('pf-count').value||'').trim()).replace(/[^0-9]/g,''),
+        avatar: window.__profileAvatarData || (state.user.profile && state.user.profile.avatar) || ''
       };
       closeProfileModal();
       renderUser();
