@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v34.3（需求整合版）</title>
+  <title>Camping App v34.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -241,7 +241,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '34.3';
+    const APP_VERSION = '34.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -707,13 +707,23 @@
 
     function renderDM(){
       const box=document.getElementById('dmThreads');
-      const lines=state.dmThreads.map(t=>`<button class='${t.id===currentDMStore?'btn dm-thread-active':'btn ghost'}' style='margin:4px 4px 0 0' onclick="openThread('${t.id}')">${t.storeName}</button>`).join('');
+      if(!isMember()){
+        box.innerHTML = '請先登入會員後查看私訊。';
+        document.getElementById('dmComposer').style.display='none';
+        return;
+      }
+      const mine = state.dmThreads.filter(t=>{
+        if(Array.isArray(t.participantIds)) return t.participantIds.includes(state.user.id);
+        return (t.messages||[]).some(m=>m.fromId===state.user.id);
+      });
+      const lines=mine.map(t=>`<button class='${t.id===currentDMStore?'btn dm-thread-active':'btn ghost'}' style='margin:4px 4px 0 0' onclick="openThread('${t.id}')">${t.storeName}</button>`).join('');
       box.innerHTML = lines || '尚無對話，請到商家卡片按「私訊商家」。';
       document.getElementById('dmComposer').style.display='none';
     }
 
     function openThread(id){
       const t=state.dmThreads.find(x=>x.id===id); if(!t) return;
+      if(isMember() && Array.isArray(t.participantIds) && !t.participantIds.includes(state.user.id)) return;
       currentDMStore=id;
       renderDM();
       renderBottomNav();
@@ -936,12 +946,26 @@
     function contactStore(storeId){
       if(!isMember()) return alert('請先登入會員再私訊');
       const s=state.stores.find(x=>x.id===storeId); if(!s) return;
-      let t=state.dmThreads.find(x=>x.storeId===storeId);
-      if(!t){ t={id:uid(),storeId,storeName:s.name,messages:[]}; state.dmThreads.push(t); }
+      let t=state.dmThreads.find(x=>x.storeId===storeId && Array.isArray(x.participantIds) && x.participantIds.includes(state.user.id));
+      if(!t){
+        t={id:uid(),storeId,storeName:s.name,messages:[],participantIds:[state.user.id,`store:${storeId}`]};
+        state.dmThreads.push(t);
+      } else if(!Array.isArray(t.participantIds)) {
+        t.participantIds=[state.user.id,`store:${storeId}`];
+      }
       openDM(); openThread(t.id);
     }
 
-    function openDM(){ document.getElementById('dmModal').style.display='flex'; renderDM(); showToast('已進入私訊頁'); }
+    function openDM(){
+      if(!isMember()){
+        alert('請先登入會員才能查看私訊');
+        openLoginModal();
+        return;
+      }
+      document.getElementById('dmModal').style.display='flex';
+      renderDM();
+      showToast('已進入私訊頁');
+    }
     function closeDM(){ document.getElementById('dmModal').style.display='none'; }
     function sendDM(){
       if(!isMember()) return;
