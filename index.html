@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v34.0（需求整合版）</title>
+  <title>Camping App v34.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -230,7 +230,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '34.0';
+    const APP_VERSION = '34.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -305,7 +305,7 @@
         {id:uid(),category:'campsite',name:'海風營地',address:'花蓮縣壽豐鄉',hours:'08:00-22:00',contact:'03-1234567',website:'',isMember:true,ownerMerchantId:'m001',description:'靠海、夜景、親子友善',features:['親子','靠海','夜景'],tentCount:60,zones:'A區/B區',elevation:'120m',accessibleVehicles:'轎車/SUV/露營車'},
         {id:uid(),category:'gear',name:'野行裝備店',address:'台中市西屯區',hours:'10:00-21:00',contact:'04-7654321',website:'',isMember:true,ownerMerchantId:'m002',description:'露營用品齊全'},
         {id:uid(),category:'mod',name:'VanPro 改裝',address:'新北市三重區',hours:'09:00-18:00',contact:'02-77778888',website:'',isMember:true,ownerMerchantId:'m003',description:'露營車改裝與客製',specialModels:'Hiace / Transit / Sprinter'},
-        {id:uid(),category:'rental',name:'GoCamp 租車',address:'台北市南港區',hours:'09:00-20:00',contact:'02-66667777',website:'',isMember:true,ownerMerchantId:'m004',description:'露營車出租'}
+        {id:uid(),category:'rental',name:'GoCamp 租車',address:'台北市南港區',hours:'09:00-20:00',contact:'02-66667777',website:'',isMember:true,ownerMerchantId:'m004',description:'露營車出租',vehicleTypes:'4人露營車 / 6人露營車 / 箱型露營車'}
       ];
       state.merchantAccounts = [
         {merchantId:'m001',password:'123456',storeId:state.stores[0].id,enabled:true},
@@ -348,6 +348,7 @@
             ownerMerchantId:'',
             description:c.desc,
             specialModels: cat==='mod' ? 'Hiace / Transit / Sprinter' : undefined,
+            vehicleTypes: cat==='rental' ? '4人露營車 / 6人露營車 / 箱型露營車' : undefined,
             features: cat==='campsite' ? ['親子','靠山','夜景'] : undefined,
             tentCount: cat==='campsite' ? (20+i) : undefined,
             zones: cat==='campsite' ? 'A區/B區' : undefined,
@@ -571,6 +572,9 @@
       const modExtra = s.category==='mod' ? `
         <div class="muted">專門車型：${s.specialModels||'未填寫'}</div>
       ` : '';
+      const rentalExtra = s.category==='rental' ? `
+        <div class="muted">露營車種類：${s.vehicleTypes||'未填寫'}</div>
+      ` : '';
       const photoStrip = photos.length ? `<div class="store-photos">
         ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
         ${photos.length>2?`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
@@ -585,6 +589,7 @@
         ${feat}
         ${campsiteExtra}
         ${modExtra}
+        ${rentalExtra}
         <div class="actions">
           <button class="btn ghost" onclick="openMapTo('${encodeURIComponent(s.address||s.name)}')">地圖</button>
           <button class="btn ghost" onclick="contactStore('${s.id}')">私訊商家</button>
@@ -656,6 +661,7 @@
         <div class='field'><label>營業時間</label><input id='me-hours' value='${store.hours||''}' /></div>
         <div class='field'><label>聯絡方式</label><input id='me-contact' value='${store.contact||''}' /></div>
         ${store.category==='mod' ? `<div class='field'><label>專門車型</label><input id='me-models' value='${store.specialModels||''}' placeholder='例如：Hiace / Transit / Sprinter' /></div>` : ''}
+        ${store.category==='rental' ? `<div class='field'><label>露營車種類</label><input id='me-rental-types' value='${store.vehicleTypes||''}' placeholder='例如：4人露營車 / 6人露營車' /></div>` : ''}
         <div class='field'><label>官網</label><input id='me-web' value='${store.website||''}' /></div>
         <button class='btn ok' onclick="saveMerchantStore('${store.id}')">儲存修改</button>
       `;
@@ -674,6 +680,7 @@
         <div class='field'><label>營業時間</label><input id='ad-hours' /></div>
         <div class='field'><label>聯絡方式</label><input id='ad-contact' /></div>
         <div class='field'><label>專門車型（改裝用）</label><input id='ad-models' placeholder='例如：Hiace / Transit / Sprinter' /></div>
+        <div class='field'><label>露營車種類（出租用）</label><input id='ad-rental-types' placeholder='例如：4人露營車 / 6人露營車' /></div>
         <div class='field'><label>描述</label><textarea id='ad-desc'></textarea></div>
         <button class='btn ok' onclick='addStoreByAdmin()'>新增商家</button>
         <hr/>
@@ -939,6 +946,8 @@
       s.contact=document.getElementById('me-contact').value.trim();
       const modelsEl=document.getElementById('me-models');
       if(modelsEl) s.specialModels=modelsEl.value.trim();
+      const rentalTypesEl=document.getElementById('me-rental-types');
+      if(rentalTypesEl) s.vehicleTypes=rentalTypesEl.value.trim();
       s.website=document.getElementById('me-web').value.trim();
       saveState();
       renderStoreTabs();
@@ -961,6 +970,7 @@
         hours:document.getElementById('ad-hours').value.trim(),
         contact:document.getElementById('ad-contact').value.trim(),
         specialModels: cat==='mod' ? document.getElementById('ad-models').value.trim() : undefined,
+        vehicleTypes: cat==='rental' ? document.getElementById('ad-rental-types').value.trim() : undefined,
         description:document.getElementById('ad-desc').value.trim(),
         isMember:false
       };
