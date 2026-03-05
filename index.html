@@ -57,6 +57,9 @@
     .dm-fab{position:fixed;right:16px;bottom:16px;z-index:1200;background:#0ea5e9}
     .post-fab{position:fixed;right:16px;bottom:62px;z-index:1200}
     .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:14px;z-index:3000;display:none;box-shadow:0 8px 20px rgba(0,0,0,.22)}
+    .upload-progress{margin-top:8px;display:none}
+    .upload-track{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+    .upload-fill{height:100%;width:0%;background:linear-gradient(90deg,#2563eb,#0ea5e9);transition:width .2s ease}
 
     .admin-wrap{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:980px){.admin-wrap{grid-template-columns:1fr 1fr}}
@@ -154,6 +157,10 @@
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
+      <div id="uploadProgress" class="upload-progress">
+        <div class="muted" id="uploadProgressText">上傳中 0%</div>
+        <div class="upload-track"><div id="uploadFill" class="upload-fill"></div></div>
+      </div>
       <button id="postSubmitBtn" class="btn" onclick="submitPost()">發佈</button>
     </div>
   </div>
@@ -209,7 +216,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '33.1';
+    const APP_VERSION = '33.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -255,6 +262,25 @@
       t.style.display='block';
       clearTimeout(window.__toastTimer);
       window.__toastTimer=setTimeout(()=>{ t.style.display='none'; },1800);
+    }
+    function setUploadProgress(percent){
+      const box=document.getElementById('uploadProgress');
+      const fill=document.getElementById('uploadFill');
+      const txt=document.getElementById('uploadProgressText');
+      if(!box||!fill||!txt) return;
+      box.style.display='block';
+      const p=Math.max(0,Math.min(100,percent||0));
+      fill.style.width=`${p}%`;
+      txt.textContent=`上傳中 ${p}%`;
+    }
+    function resetUploadProgress(){
+      const box=document.getElementById('uploadProgress');
+      const fill=document.getElementById('uploadFill');
+      const txt=document.getElementById('uploadProgressText');
+      if(!box||!fill||!txt) return;
+      box.style.display='none';
+      fill.style.width='0%';
+      txt.textContent='上傳中 0%';
     }
     function isMember(){ return state.user.mode === 'member'; }
 
@@ -321,7 +347,7 @@
       }catch(e){ console.warn('save fail',e); }
     }
 
-    async function uploadFile(file, folder){
+    async function uploadFile(file, folder, onProgress){
       if(!file) return null;
 
       // 備援：直接使用本地 object URL，避免長時間卡在上傳中
@@ -331,6 +357,7 @@
       };
 
       if(!storage){
+        if(onProgress) onProgress(100);
         return localFallback();
       }
 
@@ -341,6 +368,13 @@
         // 上傳逾時保護：12 秒內沒完成就走備援，避免 UI 無限卡住
         const timeoutMs = 12000;
         const putTask = ref.put(file);
+        putTask.on('state_changed', snap => {
+          if(!onProgress) return;
+          const total = snap.totalBytes || 1;
+          const percent = Math.min(99, Math.floor((snap.bytesTransferred / total) * 100));
+          onProgress(percent);
+        });
+
         await Promise.race([
           putTask,
           new Promise((_, reject)=>setTimeout(()=>reject(new Error('upload-timeout')), timeoutMs))
@@ -351,9 +385,11 @@
           new Promise((_, reject)=>setTimeout(()=>reject(new Error('url-timeout')), timeoutMs))
         ]);
 
+        if(onProgress) onProgress(100);
         return url || localFallback();
       }catch(e){
         console.warn('upload fallback',e);
+        if(onProgress) onProgress(100);
         return localFallback();
       }
     }
@@ -631,7 +667,7 @@
       document.getElementById('postModal').style.display='flex';
       showToast(mode==='contest'?'已進入投稿頁':'已進入發文頁');
     }
-    function closePostModal(){ document.getElementById('postModal').style.display='none'; }
+    function closePostModal(){ document.getElementById('postModal').style.display='none'; resetUploadProgress(); }
 
     async function submitPost(){
       if(!isMember()){ alert('請先登入會員'); return; }
@@ -652,7 +688,8 @@
 
       try{
         if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='上傳中...'; }
-        const url = file ? await uploadFile(file, postMode==='contest'?'contest':'posts') : null;
+        if(file) setUploadProgress(0); else resetUploadProgress();
+        const url = file ? await uploadFile(file, postMode==='contest'?'contest':'posts', setUploadProgress) : null;
         if(file && !url){
           alert('檔案上傳失敗，請重試');
           return;
@@ -680,6 +717,7 @@
         alert('發布失敗，請稍後再試');
       }finally{
         if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent=oldLabel || '發佈'; }
+        resetUploadProgress();
       }
     }
 
