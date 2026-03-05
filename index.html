@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v4.8</title>
+  <title>台灣露營平台 MVP v4.9</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -75,7 +75,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v4.8</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v4.9</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -100,11 +100,11 @@
         </div>
         <div style="flex:1;min-width:200px">
           <label>帳號</label>
-          <input id="loginAccount" placeholder="測試帳號：tester01" />
+          <input id="loginAccount" placeholder="測試帳號：tester01" oninput="updateLoginButtonState()" />
         </div>
         <div style="flex:1;min-width:200px">
           <label>密碼</label>
-          <input id="loginPassword" type="password" placeholder="測試密碼：123456" onkeyup="checkCapsLock(event)" />
+          <input id="loginPassword" type="password" placeholder="測試密碼：123456" onkeyup="checkCapsLock(event)" oninput="updateLoginButtonState()" />
           <div id="capsHint" class="muted" style="display:none;color:#b45309;margin-top:4px;">⚠️ 偵測到 Caps Lock 已開啟</div>
           <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;color:#6b7280">
             <input id="showLoginPassword" type="checkbox" onchange="toggleLoginPassword()" style="width:auto" />
@@ -113,10 +113,10 @@
         </div>
         <div style="flex:1;min-width:200px">
           <label>顯示名稱</label>
-          <input id="displayName" placeholder="例如：Teddy" />
+          <input id="displayName" placeholder="例如：Teddy" oninput="updateLoginButtonState()" />
         </div>
         <div style="display:flex;align-items:flex-end;gap:8px">
-          <button onclick="login()">登入</button>
+          <button id="loginBtn" onclick="login()">登入</button>
           <button class="gray" onclick="clearLoginForm()">清空</button>
         </div>
       </div>
@@ -422,6 +422,7 @@
       document.getElementById('loginMethod').value = preset.method;
       document.getElementById('displayName').value = preset.displayName;
       updateLoginMethodState();
+      updateLoginButtonState();
     }
 
     function quickGuest(){
@@ -432,6 +433,7 @@
         document.getElementById('displayName').value = '訪客';
       }
       updateLoginMethodState();
+      updateLoginButtonState();
     }
 
     function updateLoginMethodState(){
@@ -470,6 +472,7 @@
       }else if(!accountEl.value.trim()){
         accountEl.focus();
       }
+      updateLoginButtonState();
     }
 
     function clearLoginForm(){
@@ -479,6 +482,7 @@
       setLoginStatus('已清空登入欄位', 'idle');
       const hint = document.getElementById('capsHint');
       if(hint) hint.style.display = 'none';
+      updateLoginButtonState();
       focusLoginAccount();
     }
 
@@ -490,6 +494,19 @@
           if(e.key === 'Enter') login();
         });
       });
+    }
+
+    function updateLoginButtonState(){
+      const method = document.getElementById('loginMethod')?.value;
+      const account = document.getElementById('loginAccount')?.value.trim() || '';
+      const password = document.getElementById('loginPassword')?.value || '';
+      const btn = document.getElementById('loginBtn');
+      if(!btn) return;
+
+      const canLogin = method === 'guest' ? true : (account.length > 0 && password.length > 0);
+      btn.disabled = !canLogin;
+      btn.style.opacity = canLogin ? '1' : '0.55';
+      btn.title = canLogin ? '' : '請先輸入帳號與密碼';
     }
 
     function focusLoginAccount(){
