@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v3.9</title>
+  <title>台灣露營平台 MVP v4.0</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v3.9</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v4.0</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -208,7 +208,7 @@
   <div id="postPageOverlay" class="post-page-overlay">
     <div class="post-page-card">
       <div class="post-page-head">
-        <h3 style="margin:0">新增貼文</h3>
+        <h3 id="postPageTitle" style="margin:0">新增貼文</h3>
         <button class="gray" onclick="closePostPage()">關閉</button>
       </div>
       <div class="post-page-hero">
@@ -224,10 +224,10 @@
         </div>
         <div class="top-actions" style="margin-top:10px">
           <span id="postTargetLabel" class="pill" style="margin-top:6px">貼文將發佈到：社群媒體</span>
-          <button class="post-primary-btn" onclick="addPostAndClose()">發佈貼文</button>
+          <button id="postSubmitBtn" class="post-primary-btn" onclick="addPostAndClose()">發佈貼文</button>
         </div>
       </div>
-      <div style="margin-top:14px;border-top:1px solid #eee;padding-top:12px">
+      <div id="voteArea" style="margin-top:14px;border-top:1px solid #eee;padding-top:12px">
         <h4 style="margin:0 0 8px 0">圖片投票</h4>
         <button class="gray" onclick="votePhoto()">圖片投票（每日 2 票）</button>
         <div id="voteState" class="muted" style="margin-top:6px"></div>
@@ -682,7 +682,7 @@
       const category = '社群媒體';
       const mediaInput = document.getElementById('postMedia');
       const file = mediaInput && mediaInput.files && mediaInput.files[0] ? mediaInput.files[0] : null;
-      if(!text && !file) return false;
+      if(!text && !file){ alert(state.postTarget === "contest" ? "請先選擇照片再投稿" : "請輸入內容或選擇檔案再發佈"); return false; }
 
       let mediaType = null;
       let mediaUrl = null;
@@ -869,11 +869,23 @@
       state.postTarget = target;
       const label = document.getElementById('postTargetLabel');
       const textArea = document.getElementById('postText');
+      const title = document.getElementById('postPageTitle');
+      const submitBtn = document.getElementById('postSubmitBtn');
+      const voteArea = document.getElementById('voteArea');
       if(label){
-        label.textContent = target === 'contest' ? '投稿目標：會員照片比賽（可不填註解）' : '貼文將發佈到：社群媒體';
+        label.textContent = target === 'contest' ? '投稿目標：會員照片比賽' : '貼文將發佈到：社群媒體';
+      }
+      if(title){
+        title.textContent = target === 'contest' ? '投稿' : '新增貼文';
+      }
+      if(submitBtn){
+        submitBtn.textContent = target === 'contest' ? '投稿' : '發佈貼文';
       }
       if(textArea){
-        textArea.placeholder = target === 'contest' ? '可直接上傳照片後發布（註解可省略）' : '分享露營心得...';
+        textArea.placeholder = target === 'contest' ? '可直接上傳照片後投稿（文字可省略）' : '分享露營心得...';
+      }
+      if(voteArea){
+        voteArea.style.display = target === 'contest' ? 'none' : 'block';
       }
     }
 
