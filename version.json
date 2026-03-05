@@ -1,7 +1,16 @@
 {
-  "version": "38.1",
+  "version": "38.2",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.2",
+      "date": "2026-03-06",
+      "changes": [
+        "修正版本顯示與版本檔不同步問題，首頁與平台頁改為一致顯示 v38.2",
+        "同步更新 index.html 與 platform-app.html 的 APP_VERSION 常數，避免發布後版本混淆",
+        "介面版本更新為 v38.2"
+      ]
+    },
     {
       "version": "38.1",
       "date": "2026-03-06",
