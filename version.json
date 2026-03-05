@@ -1,7 +1,16 @@
 {
-  "version": "34.9",
+  "version": "35.0",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "35.0",
+      "date": "2026-03-05",
+      "changes": [
+        "Go Camping 半圓按鈕位置下移（避免過高）",
+        "Go Camping 按鈕改為沙色主題",
+        "同步調整邊框與陰影為沙色系"
+      ]
+    },
     {
       "version": "34.9",
       "date": "2026-03-05",
