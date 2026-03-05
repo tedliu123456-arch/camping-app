@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v35.5（需求整合版）</title>
+  <title>Camping App v35.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -100,8 +100,9 @@
   <div class="topbar">
     <div class="topbar-inner">
       <div class="brand">🏕️ Camping Community <span id="appVersion" class="muted" style="font-size:12px;margin-left:6px"></span></div>
-      <div>
+      <div style="display:flex;gap:8px;align-items:center">
         <span id="userBadge" class="pill">訪客模式</span>
+        <button id="profileBtn" class="btn ghost" style="display:none" onclick="openProfileModal()">個人資料</button>
         <button id="loginBtn" class="btn" onclick="openLoginModal()">登入</button>
       </div>
     </div>
@@ -170,6 +171,17 @@
         <button class="btn ghost" onclick="clearLoginName()">清空名稱</button>
         <button class="btn" onclick="openBackendLogin()">商家 / 平台後台登入</button>
       </div>
+    </div>
+  </div>
+
+  <div id="profileModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 style="margin:0">個人資料編輯</h3><button class="btn ghost" onclick="closeProfileModal()">關閉</button></div>
+      <div class="field"><label>暱稱</label><input id="pf-name" maxlength="20" /></div>
+      <div class="field"><label>性別</label><select id="pf-gender"><option value="">未設定</option><option>男</option><option>女</option><option>其他</option></select></div>
+      <div class="field"><label>喜歡露營方式</label><input id="pf-style" placeholder="例如：車宿、搭帳、親子露營" /></div>
+      <div class="field"><label>露營次數</label><input id="pf-count" placeholder="例如：12 次" /></div>
+      <button class="btn" onclick="saveProfile()">儲存個人資料</button>
     </div>
   </div>
 
@@ -255,7 +267,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '35.5';
+    const APP_VERSION = '35.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -272,7 +284,7 @@
 
     const state = {
       activeTab:'social',
-      user:{id:'guest',name:'訪客',mode:'guest',provider:null},
+      user:{id:'guest',name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:''}},
       announcements:[
         {id:'a0',title:'🔥 限時 20 折優惠中！',detail:'指定商家會員方案現在 20% OFF，詳情請私訊商家。',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
         {id:'a1',title:'本週會員照片比賽開放投稿！',detail:'歡迎會員投稿照片參賽，每日每位會員2票。',text:'本週會員照片比賽開放投稿！',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
@@ -566,6 +578,8 @@
       document.getElementById('userBadge').textContent = isMember() ? `${state.user.name}（會員）` : '訪客模式';
       document.getElementById('loginBtn').textContent = isMember() ? '登出' : '登入';
       document.getElementById('loginBtn').onclick = isMember() ? logout : openLoginModal;
+      const pfBtn=document.getElementById('profileBtn');
+      if(pfBtn) pfBtn.style.display = isMember() ? 'inline-block' : 'none';
     }
 
     function renderAnnouncements(){
@@ -908,7 +922,8 @@
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
-      state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider};
+      const oldProfile = state.user.profile || {gender:'',style:'',count:''};
+      state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider,profile:oldProfile};
       closeLoginModal();
       renderAll();
     }
@@ -917,11 +932,36 @@
       const rawName=(document.getElementById('loginName').value||'訪客').trim();
       const name=(rawName || '訪客').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
-      state.user={id:'guest',name,mode:'guest',provider:null};
+      const oldProfile = state.user.profile || {gender:'',style:'',count:''};
+      state.user={id:'guest',name,mode:'guest',provider:null,profile:oldProfile};
       closeLoginModal();
       renderAll();
     }
     function logout(){ enterGuestMode(); }
+
+    function openProfileModal(){
+      if(!isMember()) return;
+      const p = state.user.profile || {};
+      document.getElementById('pf-name').value = state.user.name || '';
+      document.getElementById('pf-gender').value = p.gender || '';
+      document.getElementById('pf-style').value = p.style || '';
+      document.getElementById('pf-count').value = p.count || '';
+      document.getElementById('profileModal').style.display='flex';
+    }
+    function closeProfileModal(){ document.getElementById('profileModal').style.display='none'; }
+    function saveProfile(){
+      if(!isMember()) return;
+      state.user.name = (document.getElementById('pf-name').value||state.user.name).trim().slice(0,20) || state.user.name;
+      state.user.profile = {
+        gender: (document.getElementById('pf-gender').value||'').trim(),
+        style: (document.getElementById('pf-style').value||'').trim(),
+        count: (document.getElementById('pf-count').value||'').trim()
+      };
+      closeProfileModal();
+      renderUser();
+      showToast('個人資料已儲存 ✅');
+      saveState();
+    }
 
     function openPostModal(mode){
       if(!isMember()){
