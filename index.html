@@ -170,7 +170,7 @@
   <div id="loginModal" class="overlay" onclick="if(event.target===this) closeLoginModal()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
-      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right" aria-live="polite">0/20</div></div>
+      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" minlength="2" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right" aria-live="polite">0/20</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="memberLogin('google')">Google 登入</button>
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
@@ -998,6 +998,12 @@
       normalizeLoginName();
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
+      if(name.length < 2){
+        alert('暱稱至少需要 2 個字');
+        const nameEl = document.getElementById('loginName');
+        if(nameEl) nameEl.focus();
+        return;
+      }
       localStorage.setItem('campingLastLoginName', name);
       const account = `${provider}_${name.replace(/\s+/g,'').toLowerCase()||'member'}`;
       let member = state.memberAccounts.find(m=>m.account===account);
