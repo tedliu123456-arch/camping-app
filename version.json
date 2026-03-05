@@ -1,7 +1,16 @@
 {
-  "version": "35.6",
+  "version": "35.7",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "35.7",
+      "date": "2026-03-05",
+      "changes": [
+        "資料匯出新增會員帳號清單（memberAccounts）",
+        "資料匯出新增平台管理者帳號資訊（adminAccount）",
+        "會員登入時自動建立測試帳號（預設密碼 123456）以便後台匯出檢視"
+      ]
+    },
     {
       "version": "35.6",
       "date": "2026-03-05",

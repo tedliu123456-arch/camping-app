@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v35.6（需求整合版）</title>
+  <title>Camping App v35.7（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -267,7 +267,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '35.6';
+    const APP_VERSION = '35.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -294,6 +294,11 @@
       contestEntries:[],
       stores:[],
       merchantAccounts:[],
+      memberAccounts:[
+        {account:'user001',password:'123456',name:'測試會員A'},
+        {account:'user002',password:'123456',name:'測試會員B'}
+      ],
+      adminAccount:{account:'admin',password:ADMIN_PASSWORD},
       dmThreads:[]
     };
 
@@ -493,6 +498,8 @@
           state.contestEntries = d.contestEntries || state.contestEntries;
           state.stores = d.stores || state.stores;
           state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
+          state.memberAccounts = d.memberAccounts || state.memberAccounts;
+          state.adminAccount = d.adminAccount || state.adminAccount;
           state.dmThreads = d.dmThreads || state.dmThreads;
         }
         normalizeAnnouncements();
@@ -509,6 +516,8 @@
           contestEntries:state.contestEntries,
           stores:state.stores,
           merchantAccounts:state.merchantAccounts,
+          memberAccounts:state.memberAccounts,
+          adminAccount:state.adminAccount,
           dmThreads:state.dmThreads,
           updatedAt:new Date().toISOString()
         }, {merge:true});
@@ -924,8 +933,13 @@
       localStorage.setItem('campingLastLoginName', name);
       const oldProfile = state.user.profile || {gender:'',style:'',count:''};
       state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider,profile:oldProfile};
+      const account = `${provider}_${name.replace(/\s+/g,'').toLowerCase()||'member'}`;
+      if(!state.memberAccounts.find(m=>m.account===account)){
+        state.memberAccounts.push({account,password:'123456',name});
+      }
       closeLoginModal();
       renderAll();
+      saveState();
     }
     function enterGuestMode(){
       normalizeLoginName();
@@ -1198,6 +1212,8 @@
         contestEntries: state.contestEntries,
         stores: state.stores,
         merchantAccounts: state.merchantAccounts,
+        memberAccounts: state.memberAccounts,
+        adminAccount: state.adminAccount,
         dmThreads: state.dmThreads
       };
       const text = JSON.stringify(payload, null, 2);
