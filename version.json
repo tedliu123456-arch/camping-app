@@ -1,7 +1,16 @@
 {
-  "version": "38.5",
+  "version": "38.6",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.6",
+      "date": "2026-03-06",
+      "changes": [
+        "活動跑馬燈膠囊按鈕新增 hover 浮起與陰影回饋，點擊感更明確（純 UI）",
+        "同步套用 index.html 與 platform-app.html，頁面互動一致",
+        "介面版本更新為 v38.6"
+      ]
+    },
     {
       "version": "38.5",
       "date": "2026-03-06",
