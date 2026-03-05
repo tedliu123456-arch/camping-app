@@ -976,7 +976,10 @@
       const lastName = localStorage.getItem('campingLastLoginName') || '';
       if(nameEl && lastName && !nameEl.value) nameEl.value = lastName;
       updateLoginNameCounter();
-      if(nameEl) nameEl.focus();
+      if(nameEl){
+        nameEl.focus();
+        if(nameEl.value) nameEl.select();
+      }
     }
     function closeLoginModal(){
       normalizeLoginName();
