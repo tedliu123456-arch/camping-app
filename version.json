@@ -1,7 +1,14 @@
 {
-  "version": "37.6",
+  "version": "37.6.1",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "37.6.1",
+      "date": "2026-03-06",
+      "changes": [
+        "強制觸發 GitHub Pages 重新部署（修正版本可見性）"
+      ]
+    },
     {
       "version": "37.6",
       "date": "2026-03-06",
