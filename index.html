@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.4（需求整合版）</title>
+  <title>Camping App v1.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -146,6 +146,7 @@
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
         <button class="btn" onclick="memberLogin('facebook')">Facebook 登入</button>
         <button class="btn ghost" onclick="enterGuestMode()">訪客模式（免登入）</button>
+        <button class="btn ghost" onclick="clearLoginName()">清空名稱</button>
         <button class="btn" onclick="openBackendLogin()">商家 / 平台後台登入</button>
       </div>
     </div>
@@ -663,6 +664,14 @@
       const cEl = document.getElementById('loginNameCounter');
       if(!nameEl || !cEl) return;
       cEl.textContent = `${(nameEl.value || '').length}/20`;
+    }
+
+    function clearLoginName(){
+      const nameEl = document.getElementById('loginName');
+      if(!nameEl) return;
+      nameEl.value = '';
+      updateLoginNameCounter();
+      nameEl.focus();
     }
 
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
