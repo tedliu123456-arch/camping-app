@@ -1,7 +1,16 @@
 {
-  "version": "30.3",
+  "version": "30.4",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "30.4",
+      "date": "2026-03-05",
+      "changes": [
+        "登入密碼欄位新增「顯示密碼」切換，降低輸入錯誤率",
+        "新增 toggleLoginPassword()，可即時切換密碼遮罩/明文顯示",
+        "介面版本更新為 v4.3"
+      ]
+    },
     {
       "version": "30.3",
       "date": "2026-03-05",
