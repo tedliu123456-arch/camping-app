@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v35.1（需求整合版）</title>
+  <title>Camping App v35.2（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -45,6 +45,7 @@
 
     .store-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
     .store-title{font-weight:800}
+    .store-focus{outline:3px solid #2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
     .store-photos{display:flex;gap:8px;margin-top:8px}
     .store-photo{position:relative;width:calc(50% - 4px);height:100px;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid #d1d5db;background:#f3f4f6}
     .store-photo img{width:100%;height:100%;object-fit:cover}
@@ -250,7 +251,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '35.1';
+    const APP_VERSION = '35.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -443,15 +444,25 @@
     }
 
     function normalizeAnnouncements(){
-      state.announcements = (state.announcements||[]).map(a=>({
-        id:a.id||uid(),
-        title:a.title||a.text||'活動資訊',
-        detail:a.detail||a.text||'',
-        text:a.text||a.title||'',
-        merchantId:a.merchantId||'system',
-        merchantName:a.merchantName||'平台公告',
-        createdAt:a.createdAt||new Date().toISOString()
-      }));
+      state.announcements = (state.announcements||[]).map(a=>{
+        let storeId = a.storeId || null;
+        let storeCategory = a.storeCategory || null;
+        if(!storeId && a.merchantId && a.merchantId !== 'system'){
+          const st = (state.stores||[]).find(s=>s.ownerMerchantId===a.merchantId);
+          if(st){ storeId = st.id; storeCategory = st.category; }
+        }
+        return {
+          id:a.id||uid(),
+          title:a.title||a.text||'活動資訊',
+          detail:a.detail||a.text||'',
+          text:a.text||a.title||'',
+          merchantId:a.merchantId||'system',
+          merchantName:a.merchantName||'平台公告',
+          storeId,
+          storeCategory,
+          createdAt:a.createdAt||new Date().toISOString()
+        };
+      });
     }
 
     async function loadState(){
@@ -555,13 +566,32 @@
 
     function renderAnnouncements(){
       const m = document.getElementById('announceMarquee');
-      const items = state.announcements.map(a=>`<button class="marquee-item" onclick="openAnnouncement('${a.id}')">${a.title || a.text}</button>`).join('');
+      const items = state.announcements.map(a=>`<button class="marquee-item" onclick="openAnnouncement('${a.id}')">${a.merchantName && a.merchantName!=='平台公告' ? '['+a.merchantName+'] ' : ''}${a.title || a.text}</button>`).join('');
       m.innerHTML = `<div class="marquee-track">${items}${items}</div>`;
+    }
+
+    function jumpToStore(storeId){
+      const st = state.stores.find(x=>x.id===storeId);
+      if(!st) return;
+      setTab(st.category);
+      setTimeout(()=>{
+        const el = document.getElementById(`store-${storeId}`);
+        if(!el) return;
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        el.classList.add('store-focus');
+        setTimeout(()=>el.classList.remove('store-focus'), 1800);
+      }, 80);
     }
 
     function openAnnouncement(id){
       const a = state.announcements.find(x=>x.id===id);
       if(!a) return;
+      // 商家公告：直接跳到店家詳細資料
+      if(a.storeId){
+        jumpToStore(a.storeId);
+        return;
+      }
+      // 平台公告：開啟詳情視窗
       document.getElementById('announcementTitle').textContent = a.title || '活動資訊';
       document.getElementById('announcementMeta').textContent = `${a.merchantName || '平台公告'}｜${new Date(a.createdAt||Date.now()).toLocaleString()}`;
       document.getElementById('announcementDetail').textContent = a.detail || a.text || '';
@@ -624,7 +654,7 @@
         ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
         ${photos.length>2?`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
       </div>` : '';
-      return `<div class="card" style="margin:0">
+      return `<div id="store-${s.id}" class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
         <div class="muted">${s.address||''}</div>
         <div class="muted">營業時間：${s.hours||'-'}｜聯絡：${s.contact||'-'}</div>
@@ -1035,6 +1065,8 @@
         text: title,
         merchantId: currentMerchantAccount.merchantId,
         merchantName: store.name,
+        storeId: store.id,
+        storeCategory: store.category,
         createdAt: new Date().toISOString()
       });
       document.getElementById('ma-title').value='';
