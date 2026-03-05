@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v4.3</title>
+  <title>台灣露營平台 MVP v4.4</title>
   <style>
     :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
     *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
@@ -71,7 +71,7 @@
 <body>
   <header>
     <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v4.3</h2>
+      <h2 style="margin:0">台灣露營平台 MVP v4.4</h2>
       <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
       <div class="tabs" id="mainTabs" style="display:none">
         <button onclick="switchTab('user')">使用者端 APP</button>
@@ -87,11 +87,12 @@
       <div class="row">
         <div style="flex:1;min-width:200px">
           <label>登入方式</label>
-          <select id="loginMethod">
+          <select id="loginMethod" onchange="updateLoginMethodState()">
             <option value="line">LINE</option>
             <option value="google">Google</option>
             <option value="guest">遊客模式</option>
           </select>
+          <div id="loginMethodHint" class="muted" style="margin-top:4px">使用第三方登入需輸入帳號與密碼</div>
         </div>
         <div style="flex:1;min-width:200px">
           <label>帳號</label>
@@ -415,6 +416,7 @@
       document.getElementById('loginPassword').value = preset.password;
       document.getElementById('loginMethod').value = preset.method;
       document.getElementById('displayName').value = preset.displayName;
+      updateLoginMethodState();
     }
 
     function quickGuest(){
@@ -423,6 +425,31 @@
       document.getElementById('loginPassword').value = '';
       if(!document.getElementById('displayName').value.trim()){
         document.getElementById('displayName').value = '訪客';
+      }
+      updateLoginMethodState();
+    }
+
+    function updateLoginMethodState(){
+      const methodEl = document.getElementById('loginMethod');
+      const accountEl = document.getElementById('loginAccount');
+      const passwordEl = document.getElementById('loginPassword');
+      const hintEl = document.getElementById('loginMethodHint');
+      if(!methodEl || !accountEl || !passwordEl) return;
+
+      const isGuest = methodEl.value === 'guest';
+      accountEl.disabled = isGuest;
+      passwordEl.disabled = isGuest;
+      accountEl.style.opacity = isGuest ? '0.6' : '1';
+      passwordEl.style.opacity = isGuest ? '0.6' : '1';
+
+      if(hintEl){
+        hintEl.textContent = isGuest
+          ? '遊客模式免帳號密碼，輸入顯示名稱即可登入'
+          : '使用第三方登入需輸入帳號與密碼';
+      }
+      if(isGuest){
+        accountEl.value = '';
+        passwordEl.value = '';
       }
     }
 
@@ -1081,6 +1108,7 @@ function openPostComposer(){
 
     async function bootstrapApp(){
       quickFill('tester01');
+      updateLoginMethodState();
       bindLoginEnter();
       focusLoginAccount();
       await initFirebaseAndLoad();
