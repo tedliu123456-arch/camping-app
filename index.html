@@ -979,7 +979,10 @@
       updateLoginNameCounter();
       if(nameEl) nameEl.focus();
     }
-    function closeLoginModal(){ document.getElementById('loginModal').style.display='none'; }
+    function closeLoginModal(){
+      normalizeLoginName();
+      document.getElementById('loginModal').style.display='none';
+    }
 
     function bindLoginModalKeys(){
       const nameEl = document.getElementById('loginName');
