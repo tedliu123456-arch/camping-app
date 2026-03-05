@@ -1,7 +1,14 @@
 {
-  "version": "37.2",
+  "version": "37.3",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "37.3",
+      "date": "2026-03-05",
+      "changes": [
+        "訪客模式時右上圓形入口改顯示『訪』字樣"
+      ]
+    },
     {
       "version": "37.2",
       "date": "2026-03-05",
