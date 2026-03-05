@@ -100,11 +100,13 @@
   <div class="topbar">
     <div class="topbar-inner">
       <div class="brand">🏕️ Go Camping <span id="appVersion" class="muted" style="font-size:12px;margin-left:6px"></span></div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <img id="userAvatar" alt="avatar" style="width:28px;height:28px;border-radius:50%;display:none;object-fit:cover;border:1px solid #e5e7eb"/>
-        <span id="userBadge" class="pill">訪客模式</span>
-        <button id="profileBtn" class="btn ghost" style="display:none" onclick="openProfileModal()">個人資料</button>
-        <button id="loginBtn" class="btn" onclick="openLoginModal()">登入</button>
+      <div style="display:flex;gap:8px;align-items:center;position:relative">
+        <button id="avatarEntry" class="btn ghost" onclick="toggleAvatarMenu()" style="width:34px;height:34px;border-radius:999px;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden">👤</button>
+        <div id="avatarMenu" class="card" style="display:none;position:absolute;right:0;top:40px;min-width:160px;z-index:1200;padding:6px">
+          <button id="menuProfile" class="btn ghost" style="width:100%;margin-bottom:6px;text-align:left" onclick="openProfileFromMenu()">個人資料</button>
+          <button id="menuBackend" class="btn ghost" style="width:100%;margin-bottom:6px;text-align:left" onclick="openBackendFromMenu()">商家 / 平台後台</button>
+          <button id="menuLogout" class="btn ghost" style="width:100%;text-align:left" onclick="logoutFromMenu()">登出</button>
+        </div>
       </div>
     </div>
   </div>
@@ -269,7 +271,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.1';
+    const APP_VERSION = '37.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -590,25 +592,24 @@
     function renderUser(){
       const verEl=document.getElementById('appVersion');
       if(verEl) verEl.textContent = APP_VERSION;
-      const roleLabel = isMember() ? '會員' : (isMerchant() ? '商家' : (state.user.mode==='admin' ? '平台主' : '訪客'));
-      const badge = document.getElementById('userBadge');
+      const avatarBtn = document.getElementById('avatarEntry');
       const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
-      if(isMember()){
-        if(avatarSrc){
-          badge.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block"/>`;
+      if(avatarBtn){
+        if(isMember() && avatarSrc){
+          avatarBtn.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
         }else{
-          badge.innerHTML = `<span title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e5e7eb;font-size:12px">👤</span>`;
+          avatarBtn.textContent = '👤';
+          avatarBtn.title = state.user.name || '訪客';
         }
-      }else{
-        badge.textContent = `${state.user.name}（${roleLabel}）`;
       }
       const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
-      document.getElementById('loginBtn').textContent = loggedIn ? '登出' : '登入';
-      document.getElementById('loginBtn').onclick = loggedIn ? logout : openLoginModal;
-      const pfBtn=document.getElementById('profileBtn');
-      if(pfBtn) pfBtn.style.display = isMember() ? 'inline-block' : 'none';
-      const av=document.getElementById('userAvatar');
-      if(av){ av.style.display = 'none'; av.src = ''; }
+      const menu = document.getElementById('avatarMenu');
+      if(menu){
+        const pf=document.getElementById('menuProfile');
+        const lo=document.getElementById('menuLogout');
+        if(pf) pf.style.display = isMember() ? 'block' : 'none';
+        if(lo) lo.style.display = loggedIn ? 'block' : 'none';
+      }
     }
 
     function renderAnnouncements(){
@@ -917,6 +918,21 @@
       nameEl.value = (nameEl.value || '').trim().slice(0,20);
       updateLoginNameCounter();
     }
+
+    function closeAvatarMenu(){ const m=document.getElementById('avatarMenu'); if(m) m.style.display='none'; }
+    function toggleAvatarMenu(){
+      const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
+      if(!loggedIn){
+        openLoginModal();
+        return;
+      }
+      const m=document.getElementById('avatarMenu');
+      if(!m) return;
+      m.style.display = m.style.display==='block' ? 'none' : 'block';
+    }
+    function openProfileFromMenu(){ closeAvatarMenu(); openProfileModal(); }
+    function openBackendFromMenu(){ closeAvatarMenu(); openBackendLogin(); }
+    function logoutFromMenu(){ closeAvatarMenu(); logout(); }
 
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
     function closeBackendLogin(){ document.getElementById('backendLoginModal').style.display='none'; }
@@ -1410,6 +1426,14 @@
       renderAll();
       bindLoginModalKeys();
       document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
+      document.addEventListener('click', (e)=>{
+        const menu=document.getElementById('avatarMenu');
+        const btn=document.getElementById('avatarEntry');
+        if(!menu || !btn) return;
+        if(menu.style.display==='block' && !menu.contains(e.target) && !btn.contains(e.target)){
+          closeAvatarMenu();
+        }
+      });
     }
     boot();
   </script>
