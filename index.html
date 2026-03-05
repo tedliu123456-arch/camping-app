@@ -64,7 +64,7 @@
 <body>
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="brand">🏕️ Camping Community</div>
+      <div class="brand">🏕️ Camping Community <span id="appVersion" class="muted" style="font-size:12px;margin-left:6px"></span></div>
       <div>
         <span id="userBadge" class="pill">訪客模式</span>
         <button id="loginBtn" class="btn" onclick="openLoginModal()">登入</button>
@@ -197,6 +197,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
+    const APP_VERSION = 'v32.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -332,6 +333,8 @@
     function setTab(k){ state.activeTab=k; renderTabs(); renderAll(); }
 
     function renderUser(){
+      const verEl=document.getElementById('appVersion');
+      if(verEl) verEl.textContent = APP_VERSION;
       document.getElementById('userBadge').textContent = isMember() ? `${state.user.name}（會員）` : '訪客模式';
       document.getElementById('loginBtn').textContent = isMember() ? '登出' : '登入';
       document.getElementById('loginBtn').onclick = isMember() ? logout : openLoginModal;

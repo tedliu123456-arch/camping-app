@@ -1,7 +1,16 @@
 {
-  "version": "32.6",
+  "version": "32.7",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "32.7",
+      "date": "2026-03-05",
+      "changes": [
+        "頂部 Camping Community 後方新增版本顯示",
+        "頁面標題版本更新為 v32.7",
+        "版本資訊統一由 APP_VERSION 呈現"
+      ]
+    },
     {
       "version": "32.6",
       "date": "2026-03-05",
