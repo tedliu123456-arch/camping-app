@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.3（需求整合版）</title>
+  <title>Camping App v37.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -103,8 +103,6 @@
       <div style="display:flex;gap:8px;align-items:center;position:relative">
         <button id="avatarEntry" class="btn ghost" onclick="toggleAvatarMenu()" style="width:34px;height:34px;border-radius:999px;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden">👤</button>
         <div id="avatarMenu" class="card" style="display:none;position:absolute;right:0;top:40px;min-width:160px;z-index:1200;padding:6px">
-          <button id="menuProfile" class="btn ghost" style="width:100%;margin-bottom:6px;text-align:left" onclick="openProfileFromMenu()">個人資料</button>
-          <button id="menuBackend" class="btn ghost" style="width:100%;margin-bottom:6px;text-align:left" onclick="openBackendFromMenu()">商家 / 平台後台</button>
           <button id="menuLogout" class="btn ghost" style="width:100%;text-align:left" onclick="logoutFromMenu()">登出</button>
         </div>
       </div>
@@ -271,7 +269,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.3';
+    const APP_VERSION = '37.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -605,9 +603,7 @@
       const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
       const menu = document.getElementById('avatarMenu');
       if(menu){
-        const pf=document.getElementById('menuProfile');
         const lo=document.getElementById('menuLogout');
-        if(pf) pf.style.display = isMember() ? 'block' : 'none';
         if(lo) lo.style.display = loggedIn ? 'block' : 'none';
       }
     }
@@ -930,8 +926,6 @@
       if(!m) return;
       m.style.display = m.style.display==='block' ? 'none' : 'block';
     }
-    function openProfileFromMenu(){ closeAvatarMenu(); openProfileModal(); }
-    function openBackendFromMenu(){ closeAvatarMenu(); openBackendLogin(); }
     function logoutFromMenu(){ closeAvatarMenu(); logout(); }
 
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
