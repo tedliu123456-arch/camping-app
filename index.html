@@ -21,11 +21,18 @@
     .btn.ghost{background:#fff;color:#111827;border:1px solid #d1d5db}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
-    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
+    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
     .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
-    .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:10px 6px;border-radius:10px;cursor:pointer;font-weight:700}
-    .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
+    .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:9px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+    .tab.active{background:#93c5fd;border-color:#60a5fa;color:#0f172a;transform:translateY(-2px);z-index:2}
     .section{display:none}.section.active{display:block}
+
+    .tab .tab-ico{font-size:14px;line-height:1}
+    .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap}
+    .tab-social{border-radius:18px 8px 8px 18px;background:#dbeafe;border-color:#93c5fd;color:#1e3a8a}
+    .tab-mod{margin-left:-1px;border-radius:10px;background:#dcfce7;border-color:#86efac;color:#166534}
+    .tab-gear{margin-left:-1px;border-radius:10px;background:#fef3c7;border-color:#fcd34d;color:#92400e}
+    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;background:#fee2e2;border-color:#fca5a5;color:#991b1b}
 
     .marquee{overflow:hidden;white-space:nowrap;position:relative}
     .marquee-track{display:inline-flex;gap:10px;min-width:max-content;animation:marqueeMove 18s linear infinite}
@@ -82,7 +89,7 @@
       .tabs{display:flex;overflow:auto;white-space:nowrap;gap:8px;grid-template-columns:none;top:49px;padding:8px 0}
       .sticky-marquee{top:102px}
       .contest-banner{margin-top:138px}
-      .tab{min-width:104px;flex:0 0 auto}
+      .tab{min-width:122px;flex:0 0 auto}
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
       .container{padding-bottom:96px}
@@ -270,13 +277,13 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.4';
+    const APP_VERSION = '37.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
-      {key:'social',label:'社群媒體'},
-      {key:'mod',label:'露營車改裝'},
-      {key:'gear',label:'露營用品'},
-      {key:'rental',label:'露營車出租'},
+      {key:'social',label:'社群媒體',icon:'📷'},
+      {key:'mod',label:'露營車改裝',icon:'🚐'},
+      {key:'gear',label:'露營用品',icon:'⛺'},
+      {key:'rental',label:'露營車出租',icon:'🚌'},
     ];
 
     let db=null, storage=null;
@@ -580,7 +587,7 @@
 
     function renderTabs(){
       const el = document.getElementById('tabs');
-      el.innerHTML = tabs.map(t=>`<button class="tab ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')">${t.label}</button>`).join('');
+      el.innerHTML = tabs.map(t=>`<button class="tab tab-${t.key} ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')"><span class='tab-ico'>${t.icon||''}</span><span class='tab-txt'>${t.label}</span></button>`).join('');
       document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
       document.getElementById('sec-'+state.activeTab).classList.add('active');
       document.getElementById('contestBanner').style.display = state.activeTab==='social' ? 'block' : 'none';
