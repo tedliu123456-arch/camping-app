@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v35.9（需求整合版）</title>
+  <title>Camping App v36.0（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -267,7 +267,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '35.9';
+    const APP_VERSION = '36.0';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -776,6 +776,19 @@
         <div class='field'><label>活動標題（跑馬燈顯示）</label><input id='ma-title' maxlength='40' placeholder='例如：春季露營優惠' /></div>
         <div class='field'><label>活動詳情（點入顯示）</label><textarea id='ma-detail' rows='3' placeholder='輸入活動詳細內容'></textarea></div>
         <button class='btn' onclick='addMerchantAnnouncement()'>新增跑馬燈活動</button>
+        <hr/>
+        <div style='font-weight:700'>評論管理（上架模式）</div>
+        ${(store.comments||[]).length ? (store.comments||[]).map((c,idx)=>`
+          <div class='card' style='margin:8px 0;padding:8px'>
+            <div><b>${c.userName||'使用者'}</b>：${c.text||''}</div>
+            <div class='muted'>${new Date(c.createdAt||Date.now()).toLocaleString()}</div>
+            ${Array.isArray(c.replies)&&c.replies.length ? `<div style='margin:6px 0 0 12px'>${c.replies.map(r=>`<div class='muted'><b>${r.userName}</b>：${r.text}</div>`).join('')}</div>` : ''}
+            <div style='display:flex;gap:6px;margin-top:6px'>
+              <input id='mr-${idx}' placeholder='回覆這則評論' />
+              <button class='btn ghost' onclick="merchantReplyFromBackend('${store.id}',${idx})">回覆</button>
+            </div>
+          </div>
+        `).join('') : `<div class='muted'>尚無評論</div>`}
       `;
     }
 
@@ -1084,6 +1097,24 @@
       if(!i) return;
       i.value = `@${targetName} `;
       i.focus();
+    }
+
+    function merchantReplyFromBackend(storeId, commentIndex){
+      if(!(isMerchant() && currentMerchantAccount && currentMerchantAccount.storeId===storeId)) return alert('僅可回覆自己商家評論');
+      const input = document.getElementById(`mr-${commentIndex}`);
+      const text = (input?.value||'').trim();
+      if(!text) return;
+      const store = state.stores.find(s=>s.id===storeId);
+      if(!store) return;
+      store.comments = store.comments || [];
+      const c = store.comments[commentIndex];
+      if(!c) return;
+      c.replies = c.replies || [];
+      c.replies.push({userId:state.user.id,userName:state.user.name,text,createdAt:new Date().toISOString()});
+      saveState();
+      renderStoreTabs();
+      renderMerchantEditor(currentMerchantAccount);
+      showToast('已回覆評論 ✅');
     }
 
     function commentStore(id){
