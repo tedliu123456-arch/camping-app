@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1（需求整合版）</title>
+  <title>Camping App v1.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -139,7 +139,7 @@
   <div id="loginModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
-      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" /></div>
+      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" /></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="memberLogin('google')">Google 登入</button>
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
@@ -498,10 +498,15 @@
     function openMapTo(q){ window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank'); }
     function openGoogleMapSearch(){ const q=encodeURIComponent(document.getElementById('campSearch').value||'台灣 營地'); openMapTo(q); }
 
-    function openLoginModal(){ document.getElementById('loginModal').style.display='flex'; }
+    function openLoginModal(){
+      document.getElementById('loginModal').style.display='flex';
+      const nameEl = document.getElementById('loginName');
+      if(nameEl) nameEl.focus();
+    }
     function closeLoginModal(){ document.getElementById('loginModal').style.display='none'; }
     function memberLogin(provider){
-      const name=(document.getElementById('loginName').value||'會員').trim();
+      const rawName=(document.getElementById('loginName').value||'會員').trim();
+      const name=(rawName || '會員').slice(0,20);
       state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider};
       closeLoginModal(); renderUser();
     }
