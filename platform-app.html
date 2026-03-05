@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.5（需求整合版）</title>
+  <title>Camping App v1.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -43,6 +43,10 @@
 
     .store-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
     .store-title{font-weight:800}
+    .store-photos{display:flex;gap:8px;margin-top:8px}
+    .store-photo{position:relative;width:calc(50% - 4px);height:100px;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid #d1d5db;background:#f3f4f6}
+    .store-photo img{width:100%;height:100%;object-fit:cover}
+    .store-more{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);color:#fff;font-weight:800}
     .field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
     input,select,textarea{width:100%;padding:9px;border:1px solid #d1d5db;border-radius:10px}
 
@@ -141,7 +145,7 @@
   <div id="loginModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
-      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" /><div id="loginNameCounter" class="muted" style="text-align:right">0/20</div></div>
+      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right">0/20</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="memberLogin('google')">Google 登入</button>
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
@@ -173,6 +177,13 @@
       <div id="voteHint" class="muted"></div>
       <div id="contestEntries" class="contest-grid" style="margin-top:10px"></div>
       <div style="margin-top:10px"><button class="btn" onclick="openPostModal('contest')">📷 我要投稿</button></div>
+    </div>
+  </div>
+
+  <div id="storeGalleryModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 id="storeGalleryTitle" style="margin:0">商家照片</h3><button class="btn ghost" onclick="closeStoreGallery()">關閉</button></div>
+      <div id="storeGalleryGrid" class="store-grid"></div>
     </div>
   </div>
 
@@ -218,7 +229,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '33.7';
+    const APP_VERSION = '33.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -231,6 +242,7 @@
     let db=null, storage=null;
     let postMode='social';
     let currentDMStore=null;
+    let currentGalleryStoreId=null;
 
     const state = {
       activeTab:'social',
@@ -339,8 +351,25 @@
             zones: cat==='campsite' ? 'A區/B區' : undefined,
             elevation: cat==='campsite' ? `${100+i*5}m` : undefined,
             accessibleVehicles: cat==='campsite' ? '轎車/SUV/露營車' : undefined,
+            photos: [
+              `https://picsum.photos/seed/${cat}${i}a/900/600`,
+              `https://picsum.photos/seed/${cat}${i}b/900/600`,
+              `https://picsum.photos/seed/${cat}${i}c/900/600`
+            ],
             comments: []
           });
+          changed = true;
+        }
+      });
+
+      // 補齊商家展示照片
+      (state.stores||[]).forEach((st,idx)=>{
+        if(!Array.isArray(st.photos) || st.photos.length===0){
+          st.photos = [
+            `https://picsum.photos/seed/${st.category}-${idx+1}-1/900/600`,
+            `https://picsum.photos/seed/${st.category}-${idx+1}-2/900/600`,
+            `https://picsum.photos/seed/${st.category}-${idx+1}-3/900/600`
+          ];
           changed = true;
         }
       });
@@ -531,17 +560,23 @@
 
     function storeCard(s){
       const comments = s.comments || [];
+      const photos = Array.isArray(s.photos) ? s.photos : [];
       const feat = s.features?.length ? `<div class="muted">特色：${s.features.join('、')}</div>` : '';
       const campsiteExtra = s.category==='campsite' ? `
         <div class="muted">總帳數：${s.tentCount||'-'} / 分區：${s.zones||'-'}</div>
         <div class="muted">海拔：${s.elevation||'-'} / 可達車種：${s.accessibleVehicles||'-'}</div>
       ` : '';
+      const photoStrip = photos.length ? `<div class="store-photos">
+        ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
+        ${photos.length>2?`<div class='store-photo' onclick="openStoreGallery('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
+      </div>` : '';
       return `<div class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
         <div class="muted">${s.address||''}</div>
         <div class="muted">營業時間：${s.hours||'-'}｜聯絡：${s.contact||'-'}</div>
         ${s.website ? `<div><a href="${s.website}" target="_blank">官網連結</a></div>` : ''}
         <div style="margin-top:6px">${s.description||''}</div>
+        ${photoStrip}
         ${feat}
         ${campsiteExtra}
         <div class="actions">
@@ -658,6 +693,18 @@
       document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!isMember()?'disabled':''} onclick='sendDM()'>送出</button></div>${!isMember()?'<div class="muted">訪客不可私訊</div>':''}`;
     }
 
+    function openStoreGallery(storeId){
+      currentGalleryStoreId = storeId;
+      const st = state.stores.find(x=>x.id===storeId);
+      if(!st) return;
+      document.getElementById('storeGalleryTitle').textContent = `${st.name}｜全部照片`;
+      const grid = document.getElementById('storeGalleryGrid');
+      const photos = Array.isArray(st.photos) ? st.photos : [];
+      grid.innerHTML = photos.map((u,i)=>`<div class='card' style='margin:0;padding:6px'><img src='${u}' alt='${st.name}-${i+1}' style='width:100%;border-radius:10px'/></div>`).join('') || '<div class="muted">尚無照片</div>';
+      document.getElementById('storeGalleryModal').style.display='flex';
+    }
+    function closeStoreGallery(){ document.getElementById('storeGalleryModal').style.display='none'; }
+
     function openMapTo(q){ window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank'); }
     function openGoogleMapSearch(){ const q=encodeURIComponent(document.getElementById('campSearch').value||'台灣 營地'); openMapTo(q); }
 
@@ -674,6 +721,13 @@
       nameEl.value = '';
       updateLoginNameCounter();
       nameEl.focus();
+    }
+
+    function normalizeLoginName(){
+      const nameEl = document.getElementById('loginName');
+      if(!nameEl) return;
+      nameEl.value = (nameEl.value || '').trim().slice(0,20);
+      updateLoginNameCounter();
     }
 
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
@@ -721,6 +775,7 @@
       });
     }
     function memberLogin(provider){
+      normalizeLoginName();
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
@@ -729,6 +784,7 @@
       renderAll();
     }
     function enterGuestMode(){
+      normalizeLoginName();
       const rawName=(document.getElementById('loginName').value||'訪客').trim();
       const name=(rawName || '訪客').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
