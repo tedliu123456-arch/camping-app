@@ -1,7 +1,14 @@
 {
-  "version": "37.1",
-  "lastUpdated": "2026-03-05",
+  "version": "37.2",
+  "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "37.2",
+      "date": "2026-03-06",
+      "changes": [
+        "移除登入旁的訪客字樣（訪客模式不顯示 badge）"
+      ]
+    },
     {
       "version": "37.1",
       "date": "2026-03-05",

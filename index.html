@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.1（需求整合版）</title>
+  <title>Camping App v37.2（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -269,7 +269,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.1';
+    const APP_VERSION = '37.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -594,12 +594,15 @@
       const badge = document.getElementById('userBadge');
       const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
       if(isMember()){
+        badge.style.display='inline-block';
         if(avatarSrc){
           badge.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block"/>`;
         }else{
           badge.innerHTML = `<span title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e5e7eb;font-size:12px">👤</span>`;
         }
       }else{
+        // 訪客模式不顯示「訪客」字樣（拿掉登入旁文字）
+        badge.style.display='none';
         badge.textContent = `${state.user.name}（${roleLabel}）`;
       }
       const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
