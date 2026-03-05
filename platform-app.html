@@ -45,7 +45,8 @@
     .contest-card img{width:100%;height:100%;object-fit:cover}
     .contest-vote{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);padding:2px 6px;border-radius:999px;font-size:12px}
 
-    .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff}
+    .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
+    .feed-item:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,23,42,.10);border-color:#d7dee8}
     .feed-media{width:100%;max-height:340px;object-fit:cover;border-radius:10px;margin-top:8px;background:#000}
     .actions{display:flex;gap:8px;margin-top:8px}
     .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px}
@@ -278,7 +279,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '38.4';
+    const APP_VERSION = '38.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},

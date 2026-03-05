@@ -1,7 +1,16 @@
 {
-  "version": "38.4",
+  "version": "38.5",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.5",
+      "date": "2026-03-06",
+      "changes": [
+        "社群貼文卡片新增 hover 浮起與陰影層次，閱讀區塊更有層次（純 UI）",
+        "同步套用 index.html 與 platform-app.html，視覺回饋一致",
+        "介面版本更新為 v38.5"
+      ]
+    },
     {
       "version": "38.4",
       "date": "2026-03-06",
