@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v36.7（需求整合版）</title>
+  <title>Camping App v36.8（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -269,7 +269,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '36.7';
+    const APP_VERSION = '36.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -593,10 +593,12 @@
       const roleLabel = isMember() ? '會員' : (isMerchant() ? '商家' : (state.user.mode==='admin' ? '平台主' : '訪客'));
       const badge = document.getElementById('userBadge');
       const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
-      if(isMember() && avatarSrc){
-        badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px"><img src="${avatarSrc}" style="width:20px;height:20px;border-radius:50%;object-fit:cover"/>${state.user.name}</span>`;
-      }else if(isMember()){
-        badge.textContent = `${state.user.name}`;
+      if(isMember()){
+        if(avatarSrc){
+          badge.innerHTML = `<img src="${avatarSrc}" title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block"/>`;
+        }else{
+          badge.innerHTML = `<span title="${state.user.name}" style="width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e5e7eb;font-size:12px">👤</span>`;
+        }
       }else{
         badge.textContent = `${state.user.name}（${roleLabel}）`;
       }
