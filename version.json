@@ -1,7 +1,16 @@
 {
-  "version": "38.2",
+  "version": "38.3",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.3",
+      "date": "2026-03-06",
+      "changes": [
+        "底部導覽按鈕新增 hover 微動效與陰影回饋，點擊前辨識更直覺（純 UI）",
+        "同步套用到 index.html 與 platform-app.html，兩版操作手感一致",
+        "介面版本更新為 v38.3"
+      ]
+    },
     {
       "version": "38.2",
       "date": "2026-03-06",
