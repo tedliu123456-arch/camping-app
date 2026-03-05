@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v1.1（需求整合版）</title>
+  <title>Camping App v1.2（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -504,6 +504,15 @@
       if(nameEl) nameEl.focus();
     }
     function closeLoginModal(){ document.getElementById('loginModal').style.display='none'; }
+
+    function bindLoginModalKeys(){
+      const nameEl = document.getElementById('loginName');
+      if(!nameEl) return;
+      nameEl.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter') memberLogin('google');
+        if(e.key === 'Escape') closeLoginModal();
+      });
+    }
     function memberLogin(provider){
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
@@ -690,6 +699,7 @@
       await initFirebase();
       await loadState();
       renderAll();
+      bindLoginModalKeys();
       document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
     }
     boot();
