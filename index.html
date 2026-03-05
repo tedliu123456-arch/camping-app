@@ -82,7 +82,10 @@
       </div>
 
       <div id="contestBanner" class="card contest-banner">
-        <div style="font-weight:800">📸 會員照片比賽（社群首頁限定）</div>
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+          <div style="font-weight:800">📸 會員照片比賽（社群首頁限定）</div>
+          <button class="btn" onclick="openPostModal('contest')">📷 我要投稿</button>
+        </div>
         <div class="muted" style="color:#dbeafe">每位會員每日 2 票，不可重複投同一作品；12:10 刷新</div>
         <div id="contestBannerList" class="contest-row"></div>
       </div>
