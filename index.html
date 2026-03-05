@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v36.5（需求整合版）</title>
+  <title>Camping App v36.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -269,7 +269,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '36.5';
+    const APP_VERSION = '36.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -591,15 +591,20 @@
       const verEl=document.getElementById('appVersion');
       if(verEl) verEl.textContent = APP_VERSION;
       const roleLabel = isMember() ? '會員' : (isMerchant() ? '商家' : (state.user.mode==='admin' ? '平台主' : '訪客'));
-      document.getElementById('userBadge').textContent = `${state.user.name}（${roleLabel}）`;
+      const badge = document.getElementById('userBadge');
+      const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
+      if(isMember() && avatarSrc){
+        badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px"><img src="${avatarSrc}" style="width:18px;height:18px;border-radius:50%;object-fit:cover"/>${state.user.name}（${roleLabel}）</span>`;
+      }else{
+        badge.textContent = `${state.user.name}（${roleLabel}）`;
+      }
       const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
       document.getElementById('loginBtn').textContent = loggedIn ? '登出' : '登入';
       document.getElementById('loginBtn').onclick = loggedIn ? logout : openLoginModal;
       const pfBtn=document.getElementById('profileBtn');
       if(pfBtn) pfBtn.style.display = isMember() ? 'inline-block' : 'none';
       const av=document.getElementById('userAvatar');
-      const avatarSrc = state.user.profile && state.user.profile.avatar ? state.user.profile.avatar : '';
-      if(av){ av.style.display = avatarSrc ? 'inline-block' : 'none'; av.src = avatarSrc || ''; }
+      if(av){ av.style.display = 'none'; av.src = ''; }
     }
 
     function renderAnnouncements(){
