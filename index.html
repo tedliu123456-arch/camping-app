@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.0（需求整合版）</title>
+  <title>Camping App v37.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -163,7 +163,7 @@
   <div id="loginModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
-      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right">0/20</div></div>
+      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right" aria-live="polite">0/20</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="memberLogin('google')">Google 登入</button>
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
@@ -269,7 +269,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.0';
+    const APP_VERSION = '37.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -286,7 +286,7 @@
 
     const state = {
       activeTab:'social',
-      user:{id:'guest',name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:''}},
+      user:{id:'guest',accountKey:null,name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:''}},
       announcements:[
         {id:'a0',title:'🔥 限時 20 折優惠中！',detail:'指定商家會員方案現在 20% OFF，詳情請私訊商家。',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
         {id:'a1',title:'本週會員照片比賽開放投稿！',detail:'歡迎會員投稿照片參賽，每日每位會員2票。',text:'本週會員照片比賽開放投稿！',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
@@ -897,7 +897,10 @@
       const nameEl = document.getElementById('loginName');
       const cEl = document.getElementById('loginNameCounter');
       if(!nameEl || !cEl) return;
-      cEl.textContent = `${(nameEl.value || '').length}/20`;
+      const len = (nameEl.value || '').length;
+      cEl.textContent = `${len}/20`;
+      cEl.style.color = len >= 18 ? '#b45309' : '#6b7280';
+      cEl.style.fontWeight = len >= 18 ? '700' : '400';
     }
 
     function clearLoginName(){
@@ -929,7 +932,7 @@
       if(id==='admin' && pw===ADMIN_PASSWORD){
         closeBackendLogin();
         currentMerchantAccount=null;
-        state.user={id:'admin',name:'平台主',mode:'admin',provider:'admin',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
+        state.user={id:'admin',accountKey:null,name:'平台主',mode:'admin',provider:'admin',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
         renderAll();
         openBackendWorkspace('平台主後台（PC）');
         renderAdminPanel();
@@ -942,7 +945,7 @@
       closeBackendLogin();
       currentMerchantAccount=acc;
       const st = state.stores.find(x=>x.id===acc.storeId);
-      state.user={id:`store:${acc.storeId}`,name:(st?.name||'商家'),mode:'merchant',provider:'merchant',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
+      state.user={id:`store:${acc.storeId}`,accountKey:null,name:(st?.name||'商家'),mode:'merchant',provider:'merchant',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
       renderAll();
       openBackendWorkspace('商家後台');
       renderMerchantEditor(acc);
@@ -971,12 +974,15 @@
       const rawName=(document.getElementById('loginName').value||'會員').trim();
       const name=(rawName || '會員').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
-      const oldProfile = state.user.profile || {gender:'',style:'',count:'',avatar:''};
-      state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider,profile:oldProfile};
       const account = `${provider}_${name.replace(/\s+/g,'').toLowerCase()||'member'}`;
-      if(!state.memberAccounts.find(m=>m.account===account)){
-        state.memberAccounts.push({account,password:'123456',name});
+      let member = state.memberAccounts.find(m=>m.account===account);
+      if(!member){
+        member = {account,password:'123456',name,profile:{gender:'',style:'',count:'',avatar:''}};
+        state.memberAccounts.push(member);
       }
+      member.name = name;
+      if(!member.profile) member.profile = {gender:'',style:'',count:'',avatar:''};
+      state.user={id:`member:${account}`,accountKey:account,name,mode:'member',provider,profile:{...member.profile}};
       closeLoginModal();
       renderAll();
       saveState();
@@ -986,16 +992,12 @@
       const rawName=(document.getElementById('loginName').value||'訪客').trim();
       const name=(rawName || '訪客').slice(0,20);
       localStorage.setItem('campingLastLoginName', name);
-      const oldProfile = state.user.profile || {gender:'',style:'',count:'',avatar:''};
-      state.user={id:'guest',name,mode:'guest',provider:null,profile:oldProfile};
+      state.user={id:'guest',accountKey:null,name,mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:''}};
       closeLoginModal();
       renderAll();
     }
     function logout(){
       currentMerchantAccount=null;
-      if(state.user && state.user.profile){
-        state.user.profile.avatar='';
-      }
       enterGuestMode();
     }
 
@@ -1068,6 +1070,13 @@
         count: String((document.getElementById('pf-count').value||'').trim()).replace(/[^0-9]/g,''),
         avatar: window.__profileAvatarData || (state.user.profile && state.user.profile.avatar) || ''
       };
+      if(isMember() && state.user.accountKey){
+        const member = state.memberAccounts.find(m=>m.account===state.user.accountKey);
+        if(member){
+          member.name = state.user.name;
+          member.profile = {...state.user.profile};
+        }
+      }
       closeProfileModal();
       renderUser();
       showToast('個人資料已儲存 ✅');
