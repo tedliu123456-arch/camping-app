@@ -59,6 +59,20 @@
 
     .admin-wrap{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:980px){.admin-wrap{grid-template-columns:1fr 1fr}}
+
+    /* 手機優先優化 */
+    @media (max-width: 768px){
+      .container{padding:8px}
+      .tabs{display:flex;overflow:auto;white-space:nowrap;gap:8px;grid-template-columns:none;top:49px;padding:8px 0}
+      .tab{min-width:104px;flex:0 0 auto}
+      .card{padding:10px;border-radius:12px}
+      .topbar-inner{padding:9px 10px}
+    }
+
+    /* 私訊與發文改為全頁 */
+    #postModal.overlay, #dmModal.overlay{align-items:stretch;justify-content:stretch;background:#fff}
+    #postModal .sheet, #dmModal .sheet{width:100vw;max-width:none;max-height:100vh;border-radius:0;padding:12px}
+
   </style>
 </head>
 <body>
@@ -155,7 +169,7 @@
 
   <div id="postModal" class="overlay">
     <div class="sheet">
-      <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">關閉</button></div>
+      <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
@@ -176,7 +190,7 @@
 
   <div id="dmModal" class="overlay">
     <div class="sheet">
-      <div class="sheet-head"><h3 style="margin:0">私訊對話窗</h3><button class="btn ghost" onclick="closeDM()">關閉</button></div>
+      <div class="sheet-head"><h3 style="margin:0">私訊</h3><button class="btn ghost" onclick="closeDM()">返回</button></div>
       <div id="dmThreads" class="muted">尚無對話，請到商家卡片按「私訊商家」。</div>
       <div id="dmComposer" style="display:none;margin-top:10px"></div>
     </div>
@@ -197,7 +211,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = 'v32.7';
+    const APP_VERSION = 'v32.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -569,6 +583,7 @@
       document.getElementById('postTargetBadge').textContent = mode==='contest'?'投稿到：會員照片比賽':'發佈到：社群媒體';
       document.getElementById('postText').placeholder = mode==='contest'?'可直接上傳照片投稿（文字可省略）':'分享露營心得...';
       document.getElementById('postModal').style.display='flex';
+      showToast(mode==='contest'?'已進入投稿頁':'已進入發文頁');
     }
     function closePostModal(){ document.getElementById('postModal').style.display='none'; }
 
@@ -651,7 +666,7 @@
       openDM(); openThread(t.id);
     }
 
-    function openDM(){ document.getElementById('dmModal').style.display='flex'; renderDM(); }
+    function openDM(){ document.getElementById('dmModal').style.display='flex'; renderDM(); showToast('已進入私訊頁'); }
     function closeDM(){ document.getElementById('dmModal').style.display='none'; }
     function sendDM(){
       if(!isMember()) return;
