@@ -11,18 +11,18 @@
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
-    .container{max-width:1120px;margin:0 auto;padding:12px}
+    .container{max-width:1120px;margin:0 auto;padding:12px;padding-top:180px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
     .muted{color:var(--muted);font-size:13px}
-    .topbar{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid var(--line)}
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:1002;background:#fff;border-bottom:1px solid var(--line)}
     .topbar-inner{max-width:1120px;margin:0 auto;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
     .brand{font-weight:900;color:#0f172a}
     .btn{border:0;background:var(--pri);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
     .btn.ghost{background:#fff;color:#111827;border:1px solid #d1d5db}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
-    .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;position:sticky;top:49px;z-index:999;background:var(--bg);padding:10px 0}
-    .sticky-marquee{position:sticky;top:108px;z-index:998}
+    .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
+    .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
     .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:10px 6px;border-radius:10px;cursor:pointer;font-weight:700}
     .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
     .section{display:none}.section.active{display:block}
@@ -218,7 +218,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '33.6';
+    const APP_VERSION = '33.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
