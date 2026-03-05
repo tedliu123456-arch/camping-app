@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.6.1（需求整合版）</title>
+  <title>Camping App v37.7（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -27,7 +27,6 @@
     .tab.active{background:#93c5fd;border-color:#60a5fa;color:#0f172a;transform:translateY(-2px);z-index:2}
     .section{display:none}.section.active{display:block}
 
-    .tab .tab-ico{font-size:14px;line-height:1}
     .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap}
     .tab-social{border-radius:18px 8px 8px 18px;background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;clip-path:polygon(0 0,84% 0,100% 28%,100% 72%,84% 100%,0 100%)}
     .tab-mod{margin-left:-1px;border-radius:10px;background:#dcfce7;border-color:#86efac;color:#166534;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
@@ -277,13 +276,13 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.6.1';
+    const APP_VERSION = '37.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
-      {key:'social',label:'社群媒體',icon:'📷'},
-      {key:'mod',label:'露營車改裝',icon:'🚐'},
-      {key:'gear',label:'露營用品',icon:'⛺'},
-      {key:'rental',label:'露營車出租',icon:'🚌'},
+      {key:'social',label:'社群媒體'},
+      {key:'mod',label:'露營車改裝'},
+      {key:'gear',label:'露營用品'},
+      {key:'rental',label:'露營車出租'},
     ];
 
     let db=null, storage=null;
@@ -587,7 +586,7 @@
 
     function renderTabs(){
       const el = document.getElementById('tabs');
-      el.innerHTML = tabs.map(t=>`<button class="tab tab-${t.key} ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')"><span class='tab-ico'>${t.icon||''}</span><span class='tab-txt'>${t.label}</span></button>`).join('');
+      el.innerHTML = tabs.map(t=>`<button class="tab tab-${t.key} ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')"><span class='tab-txt'>${t.label}</span></button>`).join('');
       document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
       document.getElementById('sec-'+state.activeTab).classList.add('active');
       document.getElementById('contestBanner').style.display = state.activeTab==='social' ? 'block' : 'none';
@@ -979,7 +978,10 @@
       updateLoginNameCounter();
       if(nameEl) nameEl.focus();
     }
-    function closeLoginModal(){ document.getElementById('loginModal').style.display='none'; }
+    function closeLoginModal(){
+      normalizeLoginName();
+      document.getElementById('loginModal').style.display='none';
+    }
 
     function bindLoginModalKeys(){
       const nameEl = document.getElementById('loginName');
