@@ -216,7 +216,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '33.4';
+    const APP_VERSION = '33.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -307,6 +307,78 @@
       ];
     }
 
+    function ensureTestData(){
+      let changed = false;
+      const cfg = {
+        campsite: {prefix:'營地', area:'南投縣', desc:'親子、夜景、可車宿', hours:'08:00-22:00'},
+        mod: {prefix:'改裝廠', area:'新北市', desc:'露營車改裝與客製', hours:'09:00-18:00'},
+        gear: {prefix:'用品店', area:'台中市', desc:'露營用品與裝備', hours:'10:00-21:00'},
+        rental: {prefix:'租車商家', area:'台北市', desc:'露營車出租', hours:'09:00-20:00'}
+      };
+
+      Object.keys(cfg).forEach(cat=>{
+        const nowCount = state.stores.filter(s=>s.category===cat).length;
+        for(let i=nowCount+1;i<=10;i++){
+          const c = cfg[cat];
+          const id = uid();
+          state.stores.push({
+            id,
+            category:cat,
+            name:`${c.prefix}${i}`,
+            address:`${c.area} 測試路 ${i} 號`,
+            hours:c.hours,
+            contact:`09${String(10000000+i).slice(0,8)}`,
+            website:'',
+            isMember:true,
+            ownerMerchantId:'',
+            description:c.desc,
+            features: cat==='campsite' ? ['親子','靠山','夜景'] : undefined,
+            tentCount: cat==='campsite' ? (20+i) : undefined,
+            zones: cat==='campsite' ? 'A區/B區' : undefined,
+            elevation: cat==='campsite' ? `${100+i*5}m` : undefined,
+            accessibleVehicles: cat==='campsite' ? '轎車/SUV/露營車' : undefined,
+            comments: []
+          });
+          changed = true;
+        }
+      });
+
+      // 為會員商家補足帳號
+      const usedIds = new Set((state.merchantAccounts||[]).map(a=>a.merchantId));
+      let seq = 1001;
+      (state.stores||[]).forEach(st=>{
+        if(!st.isMember) return;
+        const linked = (state.merchantAccounts||[]).find(a=>a.storeId===st.id);
+        if(linked) return;
+        while(usedIds.has(`m${seq}`)) seq++;
+        const mid = `m${seq}`;
+        usedIds.add(mid);
+        st.ownerMerchantId = mid;
+        state.merchantAccounts.push({merchantId:mid,password:'123456',storeId:st.id,enabled:true});
+        seq++;
+        changed = true;
+      });
+
+      // 社群首頁測試照片貼文補滿 10 則
+      const photoPosts = (state.posts||[]).filter(p=>p.mediaType==='image');
+      for(let i=photoPosts.length+1;i<=10;i++){
+        state.posts.unshift({
+          id:uid(),
+          authorId:'seed',
+          authorName:`測試會員${i}`,
+          text:`測試照片貼文 #${i}`,
+          mediaType:'image',
+          mediaUrl:`https://picsum.photos/seed/social${i}/1000/700`,
+          likes:[],
+          comments:[],
+          createdAt:new Date().toISOString()
+        });
+        changed = true;
+      }
+
+      return changed;
+    }
+
     async function initFirebase(){
       try{
         firebase.initializeApp(FIREBASE_CONFIG);
@@ -317,7 +389,7 @@
 
     async function loadState(){
       defaultSeed();
-      if(!db) return;
+      if(!db){ ensureTestData(); return; }
       try{
         const doc = await db.collection('apps').doc(APP_DOC).get();
         if(doc.exists){
@@ -329,6 +401,7 @@
           state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
           state.dmThreads = d.dmThreads || state.dmThreads;
         }
+        if(ensureTestData()){ await saveState(); }
       }catch(e){ console.warn('load fail',e); }
     }
 
