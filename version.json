@@ -1,7 +1,16 @@
 {
-  "version": "34.6",
+  "version": "34.7",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "34.7",
+      "date": "2026-03-05",
+      "changes": [
+        "底部導航將『營地』移至中間",
+        "中間按鈕改名為『Go Camping』",
+        "中間 Go Camping 按鈕放大並加粗以提升辨識度"
+      ]
+    },
     {
       "version": "34.6",
       "date": "2026-03-05",
