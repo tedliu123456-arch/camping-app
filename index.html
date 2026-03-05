@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v35.7（需求整合版）</title>
+  <title>Camping App v35.8（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -267,7 +267,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '35.7';
+    const APP_VERSION = '35.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -341,6 +341,9 @@
       txt.textContent='上傳中 0%';
     }
     function isMember(){ return state.user.mode === 'member'; }
+    function isMerchant(){ return state.user.mode === 'merchant'; }
+    function canMessage(){ return isMember() || isMerchant(); }
+    function canComment(){ return isMember() || isMerchant(); }
 
     function defaultSeed(){
       if(state.stores.length) return;
@@ -584,9 +587,11 @@
     function renderUser(){
       const verEl=document.getElementById('appVersion');
       if(verEl) verEl.textContent = APP_VERSION;
-      document.getElementById('userBadge').textContent = isMember() ? `${state.user.name}（會員）` : '訪客模式';
-      document.getElementById('loginBtn').textContent = isMember() ? '登出' : '登入';
-      document.getElementById('loginBtn').onclick = isMember() ? logout : openLoginModal;
+      const roleLabel = isMember() ? '會員' : (isMerchant() ? '商家' : (state.user.mode==='admin' ? '平台主' : '訪客'));
+      document.getElementById('userBadge').textContent = `${state.user.name}（${roleLabel}）`;
+      const loggedIn = isMember() || isMerchant() || state.user.mode==='admin';
+      document.getElementById('loginBtn').textContent = loggedIn ? '登出' : '登入';
+      document.getElementById('loginBtn').onclick = loggedIn ? logout : openLoginModal;
       const pfBtn=document.getElementById('profileBtn');
       if(pfBtn) pfBtn.style.display = isMember() ? 'inline-block' : 'none';
     }
@@ -655,9 +660,9 @@
             ${(p.comments||[]).map(c=>`<div class='muted' style='margin-bottom:4px'><b>${c.userName}</b>：${c.text}</div>`).join('') || '<div class="muted">尚無評論</div>'}
             <div style="display:flex;gap:6px;margin-top:6px">
               <input id="pci-${p.id}" placeholder="輸入評論" />
-              <button class="btn" ${!isMember()?'disabled':''} onclick="commentPost('${p.id}')">送出</button>
+              <button class="btn" ${!canComment()?'disabled':''} onclick="commentPost('${p.id}')">送出</button>
             </div>
-            ${!isMember()?'<div class="muted">訪客不可評論</div>':''}
+            ${!canComment()?'<div class="muted">訪客不可評論</div>':''}
           </div>
         </div>`;
       }).join('');
@@ -701,9 +706,9 @@
           ${(comments).slice(-3).map(c=>`<div class='muted'><b>${c.userName}</b>：${c.text}</div>`).join('') || '<div class="muted">尚無評論</div>'}
           <div style="display:flex;gap:6px;margin-top:6px">
             <input id="sc-${s.id}" placeholder="會員可評論" />
-            <button class="btn" ${!isMember()?'disabled':''} onclick="commentStore('${s.id}')">送出</button>
+            <button class="btn" ${!canComment()?'disabled':''} onclick="commentStore('${s.id}')">送出</button>
           </div>
-          ${!isMember()?'<div class="muted">訪客不可評論</div>':''}
+          ${!canComment()?'<div class="muted">訪客不可評論</div>':''}
         </div>
       </div>`;
     }
@@ -804,8 +809,8 @@
 
     function renderDM(){
       const box=document.getElementById('dmThreads');
-      if(!isMember()){
-        box.innerHTML = '請先登入會員後查看私訊。';
+      if(!canMessage()){
+        box.innerHTML = '請先登入後查看私訊。';
         document.getElementById('dmComposer').style.display='none';
         return;
       }
@@ -820,13 +825,13 @@
 
     function openThread(id){
       const t=state.dmThreads.find(x=>x.id===id); if(!t) return;
-      if(isMember() && Array.isArray(t.participantIds) && !t.participantIds.includes(state.user.id)) return;
+      if(canMessage() && Array.isArray(t.participantIds) && !t.participantIds.includes(state.user.id)) return;
       currentDMStore=id;
       renderDM();
       renderBottomNav();
       const html=(t.messages||[]).map(m=>`<div class='muted'><b>${m.fromName}</b>：${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
       document.getElementById('dmComposer').style.display='block';
-      document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!isMember()?'disabled':''} onclick='sendDM()'>送出</button></div>${!isMember()?'<div class="muted">訪客不可私訊</div>':''}`;
+      document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
     }
 
     function openStoreDetail(storeId){
@@ -893,8 +898,10 @@
       // 平台主帳號：admin + 後台密碼
       if(id==='admin' && pw===ADMIN_PASSWORD){
         closeBackendLogin();
-        openBackendWorkspace('平台主後台（PC）');
         currentMerchantAccount=null;
+        state.user={id:'admin',name:'平台主',mode:'admin',provider:'admin',profile:state.user.profile||{gender:'',style:'',count:''}};
+        renderAll();
+        openBackendWorkspace('平台主後台（PC）');
         renderAdminPanel();
         return;
       }
@@ -904,6 +911,9 @@
       if(!acc) return alert('帳號或密碼錯誤');
       closeBackendLogin();
       currentMerchantAccount=acc;
+      const st = state.stores.find(x=>x.id===acc.storeId);
+      state.user={id:`store:${acc.storeId}`,name:(st?.name||'商家'),mode:'merchant',provider:'merchant',profile:state.user.profile||{gender:'',style:'',count:''}};
+      renderAll();
       openBackendWorkspace('商家後台');
       renderMerchantEditor(acc);
     }
@@ -951,7 +961,10 @@
       closeLoginModal();
       renderAll();
     }
-    function logout(){ enterGuestMode(); }
+    function logout(){
+      currentMerchantAccount=null;
+      enterGuestMode();
+    }
 
     function openProfileModal(){
       if(!isMember()) return;
@@ -1058,7 +1071,7 @@
     }
 
     function commentPost(id){
-      if(!isMember()) return alert('訪客不可評論');
+      if(!canComment()) return alert('訪客不可評論');
       const i=document.getElementById('pci-'+id); const txt=(i.value||'').trim(); if(!txt) return;
       const p=state.posts.find(x=>x.id===id); if(!p) return;
       p.comments.push({userId:state.user.id,userName:state.user.name,text:txt,createdAt:new Date().toISOString()});
@@ -1066,9 +1079,12 @@
     }
 
     function commentStore(id){
-      if(!isMember()) return alert('訪客不可評論');
+      if(!canComment()) return alert('訪客不可評論');
       const i=document.getElementById('sc-'+id); const txt=(i.value||'').trim(); if(!txt) return;
       const s=state.stores.find(x=>x.id===id); if(!s) return;
+      if(isMerchant() && currentMerchantAccount && currentMerchantAccount.storeId !== id){
+        return alert('商家模式僅可回覆自己商家的訊息');
+      }
       s.comments=s.comments||[]; s.comments.push({userId:state.user.id,userName:state.user.name,text:txt,createdAt:new Date().toISOString()});
       i.value=''; renderStoreTabs(); saveState();
     }
@@ -1101,8 +1117,8 @@
     }
 
     function openDM(){
-      if(!isMember()){
-        alert('請先登入會員才能查看私訊');
+      if(!canMessage()){
+        alert('請先登入才能查看私訊');
         openLoginModal();
         return;
       }
@@ -1112,9 +1128,10 @@
     }
     function closeDM(){ document.getElementById('dmModal').style.display='none'; }
     function sendDM(){
-      if(!isMember()) return;
+      if(!canMessage()) return;
       const txt=(document.getElementById('dmInput').value||'').trim(); if(!txt) return;
       const t=state.dmThreads.find(x=>x.id===currentDMStore); if(!t) return;
+      if(Array.isArray(t.participantIds) && !t.participantIds.includes(state.user.id)) return;
       t.messages.push({fromId:state.user.id,fromName:state.user.name,text:txt,createdAt:new Date().toISOString()});
       openThread(t.id); saveState();
     }
