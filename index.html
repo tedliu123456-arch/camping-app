@@ -207,7 +207,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = 'v32.9';
+    const APP_VERSION = '33.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -236,6 +236,16 @@
     };
 
     function uid(){ return 'id'+Date.now()+Math.random().toString(36).slice(2,7); }
+    function detectMediaType(file){
+      if(!file) return null;
+      const t=(file.type||'').toLowerCase();
+      if(t.startsWith('image/')) return 'image';
+      if(t.startsWith('video/')) return 'video';
+      const n=(file.name||'').toLowerCase();
+      if(/\.(jpg|jpeg|png|gif|webp|heic|heif)$/.test(n)) return 'image';
+      if(/\.(mp4|mov|webm|m4v|avi)$/.test(n)) return 'video';
+      return null;
+    }
     function showToast(msg){
       const t=document.getElementById('toast');
       if(!t) return;
@@ -610,29 +620,51 @@
     async function submitPost(){
       if(!isMember()){ alert('請先登入會員'); return; }
       const text=(document.getElementById('postText').value||'').trim();
-      const file=document.getElementById('postFile').files[0] || null;
+      const fileInput=document.getElementById('postFile');
+      const file=fileInput && fileInput.files ? (fileInput.files[0] || null) : null;
+      const submitBtn=document.getElementById('postSubmitBtn');
+      const oldLabel=submitBtn ? submitBtn.textContent : '';
+
       if(postMode==='contest' && !file){ alert('請先選擇照片再投稿'); return; }
       if(!text && !file){ alert('請輸入內容或選擇檔案'); return; }
-      const type=file ? (file.type.startsWith('video')?'video':'image') : null;
-      if(postMode==='contest' && type!=='image'){ alert('照片比賽僅接受圖片'); return; }
-      const url = file ? await uploadFile(file, postMode==='contest'?'contest':'posts') : null;
 
-      if(postMode==='contest'){
-        state.contestEntries.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,imageUrl:url,voteCount:0,createdAt:new Date().toISOString()});
-        await saveState();
-        renderContestBanner();
-        closePostModal();
-        openContestModal();
-        showToast('投稿成功 ✅');
-      }else{
-        state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
-        await saveState();
-        renderFeed();
-        closePostModal();
-        showToast('貼文發佈成功 ✅');
+      const type = detectMediaType(file);
+      if(postMode==='contest' && type!=='image'){
+        alert('照片比賽僅接受圖片檔（jpg/png/heic 等）');
+        return;
       }
-      document.getElementById('postText').value='';
-      document.getElementById('postFile').value='';
+
+      try{
+        if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='上傳中...'; }
+        const url = file ? await uploadFile(file, postMode==='contest'?'contest':'posts') : null;
+        if(file && !url){
+          alert('檔案上傳失敗，請重試');
+          return;
+        }
+
+        if(postMode==='contest'){
+          state.contestEntries.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,imageUrl:url,voteCount:0,createdAt:new Date().toISOString()});
+          await saveState();
+          renderContestBanner();
+          closePostModal();
+          openContestModal();
+          showToast('投稿成功 ✅');
+        }else{
+          state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
+          await saveState();
+          renderFeed();
+          closePostModal();
+          showToast('貼文發佈成功 ✅');
+        }
+
+        document.getElementById('postText').value='';
+        if(fileInput) fileInput.value='';
+      }catch(err){
+        console.error(err);
+        alert('發布失敗，請稍後再試');
+      }finally{
+        if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent=oldLabel || '發佈'; }
+      }
     }
 
     function likePost(id){
