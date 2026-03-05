@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v37.3（需求整合版）</title>
+  <title>Camping App v37.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -103,6 +103,7 @@
       <div style="display:flex;gap:8px;align-items:center;position:relative">
         <button id="userEntry" class="btn ghost" onclick="handleUserEntry()" style="width:40px;height:40px;border-radius:999px;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden;font-weight:800">訪客</button>
         <div id="userMenu" class="card" style="display:none;position:absolute;right:0;top:46px;min-width:140px;z-index:1300;padding:6px">
+          <button id="userMenuProfile" class="btn ghost" style="width:100%;text-align:left;margin-bottom:6px" onclick="openProfileFromUserMenu()">個人資料</button>
           <button id="userMenuLogout" class="btn ghost" style="width:100%;text-align:left" onclick="logoutFromUserMenu()">登出</button>
         </div>
       </div>
@@ -269,7 +270,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '37.3';
+    const APP_VERSION = '37.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -603,7 +604,9 @@
           entry.title = state.user.name || '';
         }
       }
+      const menuProfile = document.getElementById('userMenuProfile');
       const menuLogout = document.getElementById('userMenuLogout');
+      if(menuProfile) menuProfile.style.display = isMember() ? 'block' : 'none';
       if(menuLogout) menuLogout.style.display = loggedIn ? 'block' : 'none';
     }
 
@@ -925,6 +928,7 @@
       if(!m) return;
       m.style.display = m.style.display==='block' ? 'none' : 'block';
     }
+    function openProfileFromUserMenu(){ closeUserMenu(); openProfileModal(); }
     function logoutFromUserMenu(){ closeUserMenu(); logout(); }
 
     function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
