@@ -55,6 +55,7 @@
 
     .dm-fab{position:fixed;right:16px;bottom:16px;z-index:1200;background:#0ea5e9}
     .post-fab{position:fixed;right:16px;bottom:62px;z-index:1200}
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:14px;z-index:3000;display:none;box-shadow:0 8px 20px rgba(0,0,0,.22)}
 
     .admin-wrap{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:980px){.admin-wrap{grid-template-columns:1fr 1fr}}
@@ -168,6 +169,8 @@
     </div>
   </div>
 
+  <div id="toast" class="toast"></div>
+
   <div id="dmModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">私訊對話窗</h3><button class="btn ghost" onclick="closeDM()">關閉</button></div>
@@ -219,6 +222,14 @@
     };
 
     function uid(){ return 'id'+Date.now()+Math.random().toString(36).slice(2,7); }
+    function showToast(msg){
+      const t=document.getElementById('toast');
+      if(!t) return;
+      t.textContent=msg;
+      t.style.display='block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer=setTimeout(()=>{ t.style.display='none'; },1800);
+    }
     function isMember(){ return state.user.mode === 'member'; }
 
     function defaultSeed(){
@@ -557,11 +568,13 @@
         renderContestBanner();
         closePostModal();
         openContestModal();
+        showToast('投稿成功 ✅');
       }else{
         state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
         await saveState();
         renderFeed();
         closePostModal();
+        showToast('貼文發佈成功 ✅');
       }
       document.getElementById('postText').value='';
       document.getElementById('postFile').value='';
