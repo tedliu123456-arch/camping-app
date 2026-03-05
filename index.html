@@ -1,266 +1,178 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台灣露營平台 MVP v6.1</title>
+  <title>Camping App v1（需求整合版）</title>
   <style>
-    :root{--bg:#f6faf8;--card:#fff;--pri:#1f8f5f;--txt:#1f2937;--muted:#6b7280;--line:#e5e7eb}
-    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:var(--bg);color:var(--txt)}
-    header{padding:16px;background:linear-gradient(120deg,#1f8f5f,#2176ff);color:#fff}
-    .container{max-width:1120px;margin:0 auto;padding:16px}
-    .row{display:flex;gap:12px;flex-wrap:wrap}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
-    button{border:0;background:var(--pri);color:#fff;padding:9px 14px;border-radius:10px;cursor:pointer}
-    button:disabled{cursor:not-allowed;filter:grayscale(.15)}
-    button.gray{background:#6b7280} button.blue{background:#2563eb} button.orange{background:#ea580c}
-    input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .tab-content{display:none}.tab-content.active{display:block}
-    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#e6f7ef;color:#0f7f51;font-size:12px;margin-right:6px;margin-top:6px}
-    .grid{display:grid;gap:12px}.grid2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+    :root{
+      --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
+      --pri:#2563eb;--ok:#16a34a;--danger:#dc2626;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+    .container{max-width:1120px;margin:0 auto;padding:12px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
     .muted{color:var(--muted);font-size:13px}
-    .status-msg{margin-top:8px;padding:8px 10px;border-radius:10px;font-size:13px;border:1px solid transparent}
-    .status-msg.idle{color:#6b7280;background:#f3f4f6;border-color:#e5e7eb}
-    .status-msg.ok{color:#065f46;background:#ecfdf5;border-color:#a7f3d0}
-    .status-msg.err{color:#991b1b;background:#fef2f2;border-color:#fecaca}
-    .map{height:230px;border-radius:12px;border:1px dashed #7fbba2;background:linear-gradient(180deg,#e8fff4,#f4fbff);padding:10px;position:relative}
-    .dot{position:absolute;width:14px;height:14px;border-radius:50%;background:#ef4444;cursor:pointer;box-shadow:0 0 0 4px rgba(239,68,68,.16)}
-    .kpi{font-weight:800;font-size:24px}
-    .list-item{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fff}
-    .top-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .social-nav{position:fixed;top:0;left:0;right:0;z-index:1200;background:#ffffff;border-bottom:1px solid #e5e7eb;padding:10px 12px;display:none;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-    .social-nav-inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-    .social-nav-inner button{width:100%;background:#fff;color:#1f2937;border:1px solid #d1d5db;padding:10px 6px;border-radius:10px;font-weight:700}
-    .social-nav-inner button.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:inset 0 -3px 0 rgba(255,255,255,.3)}
-    body.social-nav-on #communitySection{padding-top:74px}
+    .topbar{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid var(--line)}
+    .topbar-inner{max-width:1120px;margin:0 auto;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+    .brand{font-weight:900;color:#0f172a}
+    .btn{border:0;background:var(--pri);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn.ghost{background:#fff;color:#111827;border:1px solid #d1d5db}
+    .btn.ok{background:var(--ok)}
+    .btn.danger{background:var(--danger)}
+    .tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;position:sticky;top:49px;z-index:999;background:var(--bg);padding:10px 0}
+    .tab{border:1px solid #d1d5db;background:#fff;color:#111827;padding:10px 6px;border-radius:10px;cursor:pointer;font-weight:700}
+    .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
+    .section{display:none}.section.active{display:block}
 
-    .file-upload-wrap{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
-    .file-upload-input{display:none}
-    .file-upload-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:9px 12px;cursor:pointer;font-weight:700;color:#1f2937}
-    .file-upload-btn:hover{border-color:#2563eb;color:#2563eb}
-    .file-upload-name{font-size:13px;color:#6b7280}
+    .marquee{display:flex;gap:10px;overflow:auto;white-space:nowrap}
+    .marquee-item{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 10px;border-radius:999px;font-size:13px}
 
-    .fab-post{position:fixed;right:18px;bottom:18px;z-index:1300;border-radius:999px;padding:12px 16px;background:#2563eb;color:#fff;border:none;box-shadow:0 8px 20px rgba(37,99,235,.35);font-weight:700;display:none}
-    .post-actions{display:flex;gap:10px;align-items:center;margin-top:8px}
-    .action-btn{border:1px solid #e5e7eb;background:#fff;color:#111827;padding:6px 10px;border-radius:999px;cursor:pointer}
-    .action-btn.liked{color:#dc2626;border-color:#fecaca;background:#fff5f5}
-    .comments-wrap{margin-top:8px;padding:8px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb}
-    .comment-item{font-size:13px;margin-bottom:6px}
-    .comment-input-row{display:flex;gap:6px;margin-top:6px}
-    .comment-input-row input{flex:1}
+    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative}
+    .contest-row{display:flex;gap:8px;overflow:auto;padding-top:8px}
+    .contest-card{position:relative;min-width:120px;height:84px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,.5)}
+    .contest-card img{width:100%;height:100%;object-fit:cover}
+    .contest-vote{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);padding:2px 6px;border-radius:999px;font-size:12px}
 
-    .contest-banner{position:relative;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px 12px;margin-bottom:10px;overflow:hidden}
-    .contest-marquee{display:flex;gap:10px;overflow:auto;padding-top:6px}
-    .contest-photo{width:86px;height:64px;border-radius:8px;object-fit:cover;border:2px solid rgba(255,255,255,.7);flex:0 0 auto}
-    .contest-join{position:absolute;right:10px;top:8px;background:#fff;color:#1d4ed8;border:none;border-radius:999px;padding:6px 10px;font-weight:700;cursor:pointer}
-    .post-page-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1500;display:none;align-items:flex-end;justify-content:center}
-    .post-page-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:20px 20px 0 0;padding:18px;box-shadow:0 -10px 30px rgba(0,0,0,.2)}
-    .post-page-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .post-page-hero{background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border-radius:14px;padding:12px 14px;margin-bottom:12px}
-    .post-card-section{background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px}
-    .post-primary-btn{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
-    .post-primary-btn:hover{opacity:.94}
-    .contest-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1510;display:none;align-items:flex-end;justify-content:center}
-    .contest-modal-card{width:min(860px,98vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:16px;animation:slideUp .25s ease-out}
-    .contest-round-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:10px}
-    .contest-round-item{text-align:center}
-    .contest-round-img{width:100%;height:auto;border-radius:12px;object-fit:cover;border:0;box-shadow:0 6px 16px rgba(37,99,235,.18)}
-    .contest-vote-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
-    .contest-vote-btn{background:#2563eb;color:#fff;border:none;border-radius:999px;padding:6px 10px;cursor:pointer;font-weight:700}
-    .contest-vote-btn:disabled{background:#9ca3af;cursor:not-allowed}
+    .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff}
+    .feed-media{width:100%;max-height:340px;object-fit:cover;border-radius:10px;margin-top:8px;background:#000}
+    .actions{display:flex;gap:8px;margin-top:8px}
+    .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px}
 
-    @keyframes slideUp{from{transform:translateY(24px);opacity:.4}to{transform:translateY(0);opacity:1}}
+    .store-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .store-title{font-weight:800}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+    input,select,textarea{width:100%;padding:9px;border:1px solid #d1d5db;border-radius:10px}
 
-                      </style>
+    .overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:2000}
+    .sheet{width:min(820px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:14px}
+    .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+
+    .contest-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .contest-entry img{width:100%;height:auto;border-radius:12px}
+    .contest-entry-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+
+    .dm-fab{position:fixed;right:16px;bottom:16px;z-index:1200;background:#0ea5e9}
+    .post-fab{position:fixed;right:16px;bottom:62px;z-index:1200}
+
+    .admin-wrap{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:980px){.admin-wrap{grid-template-columns:1fr 1fr}}
+  </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <h2 style="margin:0">台灣露營平台 MVP v6.1</h2>
-      <div class="muted" style="color:#e7f8ff">使用者端 / 商家端 / 後台端（同一頁切換）</div>
-      <div class="tabs" id="mainTabs" style="display:none">
-        <button onclick="switchTab('user')">使用者端 APP</button>
-        <button onclick="switchTab('merchant')">商家端 APP</button>
-        <button onclick="switchTab('admin')">後台管理 PC</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="card" id="authSection" style="margin-bottom:12px">
-      <h3 style="margin-top:0">登入 / 會員</h3>
-      <div class="row">
-        <div style="flex:1;min-width:200px">
-          <label>登入方式</label>
-          <select id="loginMethod" onchange="updateLoginMethodState()">
-            <option value="line">LINE</option>
-            <option value="google">Google</option>
-            <option value="guest">遊客模式</option>
-          </select>
-          <div id="loginMethodHint" class="muted" style="margin-top:4px">使用第三方登入需輸入帳號與密碼</div>
-        </div>
-        <div style="flex:1;min-width:200px">
-          <label>帳號</label>
-          <input id="loginAccount" placeholder="測試帳號：tester01" oninput="updateLoginButtonState()" autocomplete="username" autocapitalize="off" spellcheck="false" aria-label="登入帳號" />
-        </div>
-        <div style="flex:1;min-width:200px">
-          <label>密碼</label>
-          <input id="loginPassword" type="password" placeholder="測試密碼：123456" onkeyup="checkCapsLock(event)" oninput="updateLoginButtonState()" autocomplete="current-password" spellcheck="false" aria-label="登入密碼" />
-          <div id="capsHint" class="muted" style="display:none;color:#b45309;margin-top:4px;">⚠️ 偵測到 Caps Lock 已開啟</div>
-          <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:13px;color:#6b7280">
-            <input id="showLoginPassword" type="checkbox" onchange="toggleLoginPassword()" style="width:auto" aria-label="顯示密碼切換" aria-pressed="false" />
-            顯示密碼
-          </label>
-        </div>
-        <div style="flex:1;min-width:200px">
-          <label>顯示名稱</label>
-          <input id="displayName" placeholder="例如：Teddy" oninput="updateLoginButtonState()" autocomplete="nickname" aria-label="顯示名稱" />
-        </div>
-        <div style="display:flex;align-items:flex-end;gap:8px">
-          <button id="loginBtn" onclick="login()">登入</button>
-          <button class="gray" onclick="clearLoginForm()">清空</button>
-        </div>
-      </div>
-      <div class="card" style="margin-top:10px;background:#f8fbff">
-        <b>測試帳號（已預設）</b>
-        <div class="top-actions" style="margin-top:8px">
-          <button class="gray" onclick="quickFill('tester01')">tester01 / 123456（LINE）</button>
-          <button class="gray" onclick="quickFill('tester02')">tester02 / 123456（Google）</button>
-          <button class="gray" onclick="quickFill('merchant01')">merchant01 / 123456（商家）</button>
-          <button class="gray" onclick="quickGuest()">訪客模式（免帳密）</button>
-        </div>
-      </div>
-      <div id="loginStatus" class="status-msg idle" role="status" aria-live="polite">[--:--] 尚未登入</div>
-      <div style="margin-top:8px">
-        <span class="pill" id="memberBadge">一般會員</span>
-        <button class="orange" onclick="upgradeMember()">升級平台會員（取得折扣 QR）</button>
-      </div>
-      <div id="qrBox" style="margin-top:10px" class="muted"></div>
-    </section>
-
-    <div id="appShell" style="display:none">
-    <section id="user" class="tab-content active">
-      <div class="card" id="communitySection">
-        <div class="contest-banner" id="contestBanner">
-          <div style="font-weight:700">📸 會員照片比賽</div>
-          <div style="font-size:12px;opacity:.92">會員投稿參加，每日票選人氣作品</div>
-          <button class="contest-join" onclick="openContestGallery()">📷 參加比賽</button>
-          <div class="contest-marquee" id="contestBannerList"></div>
-        </div>
-        <div class="social-nav" id="socialNav">
-          <div class="social-nav-inner">
-            <button data-cat="社群媒體" onclick="setSocialCategory('社群媒體')">社群媒體</button>
-            <button data-cat="露營區" onclick="setSocialCategory('露營區')">露營區</button>
-            <button data-cat="露營用品" onclick="setSocialCategory('露營用品')">露營用品</button>
-            <button data-cat="露營車改裝" onclick="setSocialCategory('露營車改裝')">露營車改裝</button>
-            <button data-cat="露營車出租" onclick="setSocialCategory('露營車出租')">露營車出租</button>
-          </div>
-        </div>
-        <div id="feed" style="margin-top:10px"></div>
-      </div>
-    </section>
-
-
-    <section id="merchant" class="tab-content">
-      <div class="grid grid2">
-        <div class="card">
-          <h3 style="margin-top:0">商家資訊上傳</h3>
-          <input id="mName" placeholder="商家名稱" />
-          <textarea id="mDesc" rows="3" placeholder="商家介紹（露營地 / 房車改裝 / 用品 / 租車）" style="margin-top:8px"></textarea>
-          <div class="row" style="margin-top:8px">
-            <div style="flex:1"><input id="mArea" placeholder="地區（台中/南投/花蓮）" /></div>
-            <div style="flex:1"><input id="mTags" placeholder="標籤（逗號分隔）」 /></div>
-          </div>
-          <button style="margin-top:8px" onclick="publishMerchant()">發布商家資訊</button>
-          <div id="merchantOut" class="muted" style="margin-top:8px"></div>
-        </div>
-
-        <div class="card">
-          <h3 style="margin-top:0">活動發布 + 跑馬燈</h3>
-          <input id="eventTitle" placeholder="活動名稱（例：春季露營節）」 />
-          <textarea id="eventDesc" rows="2" placeholder="活動內容" style="margin-top:8px"></textarea>
-          <button style="margin-top:8px" onclick="publishEvent()">發布活動</button>
-          <div id="eventList" style="margin-top:8px"></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:12px">
-        <h3 style="margin-top:0">商家會員方案（曝光套餐）</h3>
-        <div class="row">
-          <div class="card" style="flex:1;min-width:220px"><b>半年方案</b><div>NT$100</div><button onclick="buyPlan('半年',100)">購買</button></div>
-          <div class="card" style="flex:1;min-width:220px"><b>一年方案</b><div>NT$200</div><button onclick="buyPlan('一年',200)">購買</button></div>
-        </div>
-        <div id="planLog" class="muted" style="margin-top:8px"></div>
-      </div>
-    </section>
-
-    <section id="admin" class="tab-content">
-      <div class="grid grid2">
-        <div class="card">
-          <h3 style="margin-top:0">平台收益總覽</h3>
-          <div class="kpi" id="kpiRevenue">NT$0</div>
-          <div class="muted">來自商家曝光套餐</div>
-          <hr style="border:none;border-top:1px solid #eee;margin:12px 0" />
-          <div>商家數：<b id="kpiMerchants">0</b></div>
-          <div>活動數：<b id="kpiEvents">0</b></div>
-          <div>會員數：<b id="kpiMembers">0</b></div>
-        </div>
-
-        <div class="card">
-          <h3 style="margin-top:0">管理清單</h3>
-          <div id="adminMerchants"></div>
-        </div>
-      </div>
-    </section>
-    </div>
-  </main>
-
-  <button id="fabPost" class="fab-post" onclick="openPostComposer()">＋ 貼文</button>
-
-  
-  <div id="postPageOverlay" class="post-page-overlay">
-    <div class="post-page-card">
-      <div class="post-page-head">
-        <h3 id="postPageTitle" style="margin:0">新增貼文</h3>
-        <button class="gray" onclick="closePostPage()">關閉</button>
-      </div>
-      <div class="post-page-hero">
-        <div style="font-weight:800">📷 會員投稿中心</div>
-        <div style="font-size:13px;opacity:.95">上傳你的精彩照片或影片，分享你的露營心得</div>
-      </div>
-      <div class="post-card-section">
-        <textarea id="postText" rows="4" placeholder="分享露營心得..." style="margin-top:4px"></textarea>
-        <div class="file-upload-wrap">
-          <input class="file-upload-input" id="postMedia" type="file" accept="image/*,video/*" onchange="onMediaPicked()" />
-          <label class="file-upload-btn" for="postMedia">📷 選擇照片 / 影片</label>
-          <span id="mediaFileName" class="file-upload-name">尚未選擇檔案</span>
-        </div>
-        <div class="top-actions" style="margin-top:10px">
-          <span id="postTargetLabel" class="pill" style="margin-top:6px">貼文將發佈到：社群媒體</span>
-          <button id="postSubmitBtn" class="post-primary-btn" onclick="addPostAndClose()">發佈貼文</button>
-        </div>
-      </div>
-      <div id="voteArea" style="margin-top:14px;border-top:1px solid #eee;padding-top:12px">
-        <h4 style="margin:0 0 8px 0">圖片投票</h4>
-        <button class="gray" onclick="votePhoto()">圖片投票（每日 2 票）</button>
-        <div id="voteState" class="muted" style="margin-top:6px"></div>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">🏕️ Camping Community</div>
+      <div>
+        <span id="userBadge" class="pill">訪客模式</span>
+        <button id="loginBtn" class="btn" onclick="openLoginModal()">登入</button>
       </div>
     </div>
   </div>
 
-  
-  <div id="contestModal" class="contest-modal">
-    <div class="contest-modal-card">
-      <div class="post-page-head">
-        <h3 style="margin:0">會員照片比賽（原圖展示）</h3>
-        <button class="gray" onclick="closeContestGallery()">關閉</button>
+  <div class="container">
+    <div class="tabs" id="tabs"></div>
+
+    <section id="sec-social" class="section active">
+      <div class="card">
+        <div style="font-weight:800;margin-bottom:6px">📣 活動跑馬燈</div>
+        <div id="announceMarquee" class="marquee"></div>
       </div>
-      <div class="muted">點右下「＋貼文」即可投稿參賽</div>
-      <div class="contest-round-grid" id="contestEntriesList"></div>
-      <div id="contestVoteHint" class="muted" style="margin-top:8px"></div>
-      <div class="top-actions" style="margin-top:12px">
-        <button onclick="openContestPostComposer()">📷 我要投稿</button>
+
+      <div id="contestBanner" class="card contest-banner">
+        <div style="font-weight:800">📸 會員照片比賽（社群首頁限定）</div>
+        <div class="muted" style="color:#dbeafe">每位會員每日 2 票，不可重複投同一作品；12:10 刷新</div>
+        <div id="contestBannerList" class="contest-row"></div>
       </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:800">社群貼文</div>
+          <button class="btn" onclick="openPostModal('social')">＋ 發文</button>
+        </div>
+        <div id="feedList" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <section id="sec-campsite" class="section">
+      <div class="card">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div style="font-weight:800">營地搜尋（591 風格）</div>
+          <input id="campSearch" placeholder="輸入地區/關鍵字（例：靠海、親子、夜景）" style="max-width:320px" />
+          <button class="btn ghost" onclick="openGoogleMapSearch()">Google Maps 搜尋</button>
+        </div>
+      </div>
+      <div id="campsiteList" class="store-grid"></div>
+    </section>
+
+    <section id="sec-mod" class="section"><div id="modList" class="store-grid"></div></section>
+    <section id="sec-gear" class="section"><div id="gearList" class="store-grid"></div></section>
+    <section id="sec-rental" class="section"><div id="rentalList" class="store-grid"></div></section>
+
+    <section class="card">
+      <div style="font-weight:800;margin-bottom:8px">管理入口（MVP）</div>
+      <div class="admin-wrap">
+        <div class="card" style="margin:0">
+          <div style="font-weight:800">商家後台 App 端</div>
+          <div class="muted">商家付費開通後可編輯自己店鋪</div>
+          <div class="field"><label>商家 ID</label><input id="merchantIdInput" placeholder="merchant001" /></div>
+          <div class="field"><label>密碼</label><input id="merchantPwdInput" type="password" placeholder="******" /></div>
+          <button class="btn" onclick="merchantLogin()">商家登入</button>
+          <div id="merchantEditor" style="display:none;margin-top:10px"></div>
+        </div>
+
+        <div class="card" style="margin:0">
+          <div style="font-weight:800">平台主後台（PC）</div>
+          <div class="muted">最高權限：新增商家、活動、開通商家會員</div>
+          <div class="field"><label>後台密碼</label><input id="adminPass" type="password" placeholder="輸入後台密碼" /></div>
+          <button class="btn" onclick="adminLogin()">登入後台</button>
+          <div id="adminPanel" style="display:none;margin-top:10px"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <button class="btn dm-fab" onclick="openDM()">💬 私訊</button>
+  <button class="btn post-fab" onclick="openPostModal('social')">＋ 貼文</button>
+
+  <div id="loginModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
+      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" /></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="memberLogin('google')">Google 登入</button>
+        <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
+        <button class="btn" onclick="memberLogin('facebook')">Facebook 登入</button>
+        <button class="btn ghost" onclick="enterGuestMode()">訪客模式（免登入）</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="postModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">關閉</button></div>
+      <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
+      <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
+      <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
+      <button id="postSubmitBtn" class="btn" onclick="submitPost()">發佈</button>
+    </div>
+  </div>
+
+  <div id="contestModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 style="margin:0">會員照片比賽</h3><button class="btn ghost" onclick="closeContestModal()">關閉</button></div>
+      <div id="voteHint" class="muted"></div>
+      <div id="contestEntries" class="contest-grid" style="margin-top:10px"></div>
+      <div style="margin-top:10px"><button class="btn" onclick="openPostModal('contest')">📷 我要投稿</button></div>
+    </div>
+  </div>
+
+  <div id="dmModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 style="margin:0">私訊對話窗</h3><button class="btn ghost" onclick="closeDM()">關閉</button></div>
+      <div id="dmThreads" class="muted">尚無對話，請到商家卡片按「私訊商家」。</div>
+      <div id="dmComposer" style="display:none;margin-top:10px"></div>
     </div>
   </div>
 
@@ -268,60 +180,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
   <script>
-    const state = {
-      user: { name:'', method:'guest', isMember:false, votesToday:0, lastVoteDate:'', loggedIn:false },
-      testAccounts: {
-        tester01: { password:'123456', method:'line', displayName:'測試用戶 A' },
-        tester02: { password:'123456', method:'google', displayName:'測試用戶 B' },
-        merchant01: { password:'123456', method:'google', displayName:'測試商家' }
-      },
-      camps: [
-        { id:1,name:'溪頭松林營地', area:'南投', tags:['可進房車','靠山','親子'] },
-        { id:2,name:'海風灣露營區', area:'花蓮', tags:['海景','親子'] },
-        { id:3,name:'雲霧森林營地', area:'台中', tags:['靠山','可進房車'] }
-      ],
-      activeSocialCategory: '社群媒體',
-      postTarget: 'social',
-      bookings: [],
-      posts: [
-        { user:'露營達人小安', category:'露營區', text:'本週花蓮海風灣超美，晚上星星很多！', likes:12, ts:'2026/03/03 20:15' },
-        { user:'親子露營媽媽', category:'社群媒體', text:'南投溪頭松林營地很適合帶小孩，廁所也乾淨。', likes:9, ts:'2026/03/04 09:22' },
-        { user:'房車玩家Ken', category:'露營車改裝', text:'可進房車的營地我最推雲霧森林，路況不錯。', likes:7, ts:'2026/03/04 15:41' },
-        { user:'裝備控阿哲', category:'露營用品', text:'新入手快拆天幕，10分鐘內搭好超方便。', likes:5, ts:'2026/03/04 17:05' },
-        { user:'租車玩家Mia', category:'露營車出租', text:'這週租到四人露營車，內裝很新，推薦！', likes:4, ts:'2026/03/04 18:10' }
-      ],
-      campZones: [
-        { name:'溪頭松林營地', price:'NT$1,200 / 晚', location:'南投縣鹿谷鄉', detail:'森林系營地，適合親子與新手，衛浴完整。' },
-        { name:'海風灣露營區', price:'NT$1,800 / 晚', location:'花蓮縣壽豐鄉', detail:'海景第一排，可看日出，提供電源與淋浴。' },
-        { name:'雲霧森林營地', price:'NT$1,500 / 晚', location:'台中市和平區', detail:'高海拔涼爽環境，適合房車，夜景超好。' }
-      ],
-      supplyStores: [
-        { name:'山系露營用品館', location:'台北市中山區松江路88號', hours:'10:00 - 21:00', phone:'02-2345-6789' },
-        { name:'野行者戶外裝備', location:'台中市西屯區台灣大道三段168號', hours:'11:00 - 22:00', phone:'04-2452-8899' },
-        { name:'海風露營補給站', location:'花蓮縣花蓮市中山路210號', hours:'09:30 - 20:30', phone:'03-833-5566' }
-      ],
-      camperMods: [
-        { name:'VanPro 改裝工坊', location:'新北市三重區重新路五段120號', detail:'客製化內裝、電力系統、可拆式床架整合。', specializes:'Hiace、Transit、Sprinter' },
-        { name:'山海房車改造中心', location:'台中市烏日區中山路二段88號', detail:'露營車保溫、儲水系統、衛浴模組施工。', specializes:'Delica、Caddy、Town Ace' },
-        { name:'南灣露營車改裝', location:'高雄市前鎮區凱旋四路66號', detail:'越野套件、車頂帳、太陽能充電系統升級。', specializes:'Hilux、Ranger、Land Cruiser' }
-      ],
-      camperRentals: [
-        { name:'GoCamp 車隊台北站', pickup:'台北市南港區重陽路120號', contact:'02-2788-1122', fleet:'12 台' },
-        { name:'野趣租車台中站', pickup:'台中市北屯區松竹路二段66號', contact:'04-2233-7788', fleet:'8 台' },
-        { name:'海線露營車高雄站', pickup:'高雄市左營區博愛三路88號', contact:'07-556-9900', fleet:'10 台' }
-      ],
-      contestEntries: [
-        { id:'c1', user:'會員 A', image:'https://picsum.photos/seed/camp1/1080/720', votes:12 },
-        { id:'c2', user:'會員 B', image:'https://picsum.photos/seed/camp2/1080/720', votes:8 },
-        { id:'c3', user:'會員 C', image:'https://picsum.photos/seed/camp3/1080/720', votes:15 },
-        { id:'c4', user:'會員 D', image:'https://picsum.photos/seed/camp4/1080/720', votes:6 },
-        { id:'c5', user:'會員 E', image:'https://picsum.photos/seed/camp5/1080/720', votes:10 }
-      ],
-      merchants: [],
-      events: [],
-      revenue: 0
-    };
-
     const FIREBASE_CONFIG = {
       apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
       authDomain: "outdoorcamp.firebaseapp.com",
@@ -332,874 +190,494 @@
       measurementId: "G-L68VBJR8W2"
     };
 
-    let firebaseDb = null;
-    let firebaseStorage = null;
+    const APP_DOC = 'camping-main-v1';
+    const ADMIN_PASSWORD = 'admin123';
+    const tabs = [
+      {key:'social',label:'社群媒體'},
+      {key:'campsite',label:'營地'},
+      {key:'mod',label:'露營車改裝'},
+      {key:'gear',label:'露營用品'},
+      {key:'rental',label:'露營車出租'},
+    ];
 
-    async function initFirebaseAndLoad(){
+    let db=null, storage=null;
+    let postMode='social';
+    let currentDMStore=null;
+
+    const state = {
+      activeTab:'social',
+      user:{id:'guest',name:'訪客',mode:'guest',provider:null},
+      announcements:[
+        {id:'a1',text:'本週會員照片比賽開放投稿！'},
+        {id:'a2',text:'清明連假營地推薦已更新。'}
+      ],
+      posts:[],
+      contestEntries:[],
+      stores:[],
+      merchantAccounts:[],
+      dmThreads:[]
+    };
+
+    function uid(){ return 'id'+Date.now()+Math.random().toString(36).slice(2,7); }
+    function isMember(){ return state.user.mode === 'member'; }
+
+    function defaultSeed(){
+      if(state.stores.length) return;
+      state.stores = [
+        {id:uid(),category:'campsite',name:'海風營地',address:'花蓮縣壽豐鄉',hours:'08:00-22:00',contact:'03-1234567',website:'',isMember:true,ownerMerchantId:'m001',description:'靠海、夜景、親子友善',features:['親子','靠海','夜景'],tentCount:60,zones:'A區/B區',elevation:'120m',accessibleVehicles:'轎車/SUV/露營車'},
+        {id:uid(),category:'gear',name:'野行裝備店',address:'台中市西屯區',hours:'10:00-21:00',contact:'04-7654321',website:'',isMember:true,ownerMerchantId:'m002',description:'露營用品齊全'},
+        {id:uid(),category:'mod',name:'VanPro 改裝',address:'新北市三重區',hours:'09:00-18:00',contact:'02-77778888',website:'',isMember:true,ownerMerchantId:'m003',description:'露營車改裝與客製'},
+        {id:uid(),category:'rental',name:'GoCamp 租車',address:'台北市南港區',hours:'09:00-20:00',contact:'02-66667777',website:'',isMember:true,ownerMerchantId:'m004',description:'露營車出租'}
+      ];
+      state.merchantAccounts = [
+        {merchantId:'m001',password:'123456',storeId:state.stores[0].id,enabled:true},
+        {merchantId:'m002',password:'123456',storeId:state.stores[1].id,enabled:true},
+        {merchantId:'m003',password:'123456',storeId:state.stores[2].id,enabled:true},
+        {merchantId:'m004',password:'123456',storeId:state.stores[3].id,enabled:true},
+      ];
+      state.posts = [
+        {id:uid(),authorId:'sys',authorName:'露營小編',text:'歡迎來到社群首頁，分享你的露營照片吧！',mediaType:null,mediaUrl:null,likes:[],comments:[],createdAt:new Date().toISOString()},
+      ];
+      state.contestEntries = [
+        {id:uid(),authorId:'sys',authorName:'會員A',imageUrl:'https://picsum.photos/seed/c1/1000/700',voteCount:12,createdAt:new Date().toISOString()},
+        {id:uid(),authorId:'sys',authorName:'會員B',imageUrl:'https://picsum.photos/seed/c2/1000/700',voteCount:7,createdAt:new Date().toISOString()}
+      ];
+    }
+
+    async function initFirebase(){
       try{
-        if (!firebase.apps.length){
-          firebase.initializeApp(FIREBASE_CONFIG);
+        firebase.initializeApp(FIREBASE_CONFIG);
+        db = firebase.firestore();
+        storage = firebase.storage();
+      }catch(e){ console.warn('firebase init fallback', e); }
+    }
+
+    async function loadState(){
+      defaultSeed();
+      if(!db) return;
+      try{
+        const doc = await db.collection('apps').doc(APP_DOC).get();
+        if(doc.exists){
+          const d = doc.data() || {};
+          state.announcements = d.announcements || state.announcements;
+          state.posts = d.posts || state.posts;
+          state.contestEntries = d.contestEntries || state.contestEntries;
+          state.stores = d.stores || state.stores;
+          state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
+          state.dmThreads = d.dmThreads || state.dmThreads;
         }
-        firebaseDb = firebase.firestore();
-        firebaseStorage = firebase.storage();
-        await loadAppStateFromFirebase();
-      }catch(err){
-        console.warn('Firebase init/load failed:', err);
-      }
+      }catch(e){ console.warn('load fail',e); }
     }
 
-    function serializeState(){
-      return {
-        posts: state.posts,
-        contestEntries: state.contestEntries,
-        camps: state.camps,
-        campZones: state.campZones,
-        supplyStores: state.supplyStores,
-        camperMods: state.camperMods,
-        camperRentals: state.camperRentals,
-        updatedAt: new Date().toISOString()
-      };
-    }
-
-    async function saveAppStateToFirebase(){
-      if(!firebaseDb) return;
+    async function saveState(){
+      if(!db) return;
       try{
-        await firebaseDb.collection('app').doc('state').set(serializeState(), { merge: true });
-      }catch(err){
-        console.warn('Save to Firebase failed:', err);
-      }
+        await db.collection('apps').doc(APP_DOC).set({
+          announcements:state.announcements,
+          posts:state.posts,
+          contestEntries:state.contestEntries,
+          stores:state.stores,
+          merchantAccounts:state.merchantAccounts,
+          dmThreads:state.dmThreads,
+          updatedAt:new Date().toISOString()
+        }, {merge:true});
+      }catch(e){ console.warn('save fail',e); }
     }
 
-    async function loadAppStateFromFirebase(){
-      if(!firebaseDb) return;
-      try{
-        const doc = await firebaseDb.collection('app').doc('state').get();
-        if(!doc.exists) return;
-        const data = doc.data() || {};
-        if(Array.isArray(data.posts) && data.posts.length) state.posts = data.posts;
-        if(Array.isArray(data.contestEntries) && data.contestEntries.length) state.contestEntries = data.contestEntries;
-        if(Array.isArray(data.camps) && data.camps.length) state.camps = data.camps;
-        if(Array.isArray(data.campZones) && data.campZones.length) state.campZones = data.campZones;
-        if(Array.isArray(data.supplyStores) && data.supplyStores.length) state.supplyStores = data.supplyStores;
-        if(Array.isArray(data.camperMods) && data.camperMods.length) state.camperMods = data.camperMods;
-        if(Array.isArray(data.camperRentals) && data.camperRentals.length) state.camperRentals = data.camperRentals;
-      }catch(err){
-        console.warn('Load from Firebase failed:', err);
-      }
-    }
-
-    async function uploadFileToFirebase(file, folder='uploads'){
-      if(!firebaseStorage || !file) return null;
-      try{
-        const safeName = `${Date.now()}-${file.name}`.replace(/\s+/g,'-');
-        const fileRef = firebaseStorage.ref().child(`${folder}/${safeName}`);
-        await fileRef.put(file);
-        return await fileRef.getDownloadURL();
-      }catch(err){
-        console.warn('Upload to Firebase failed:', err);
-        return null;
-      }
-    }
-
-    function switchTab(id){
-      document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-
-      const nav = document.getElementById('socialNav');
-      if(nav){
-        nav.style.display = (id === 'user' && state.user.loggedIn) ? 'block' : 'none';
-      }
-      const fab = document.getElementById('fabPost');
-      if(fab){ fab.style.display = (id === 'user' && state.user.loggedIn) ? 'inline-flex' : 'none'; }
-
-      refreshAdmin();
-    }
-
-    function quickFill(account){
-      const preset = state.testAccounts[account];
-      if(!preset) return;
-      document.getElementById('loginAccount').value = account;
-      document.getElementById('loginPassword').value = preset.password;
-      document.getElementById('loginMethod').value = preset.method;
-      document.getElementById('displayName').value = preset.displayName;
-      updateLoginMethodState();
-      updateLoginButtonState();
-      setLoginStatus(`已帶入測試帳號：${account}`, 'idle');
-    }
-
-    function quickGuest(){
-      document.getElementById('loginMethod').value = 'guest';
-      document.getElementById('loginAccount').value = '';
-      document.getElementById('loginPassword').value = '';
-      if(!document.getElementById('displayName').value.trim()){
-        document.getElementById('displayName').value = '訪客';
-      }
-      updateLoginMethodState();
-      updateLoginButtonState();
-      setLoginStatus('已切換為訪客模式，可直接登入', 'idle');
-    }
-
-    function updateLoginMethodState(){
-      const methodEl = document.getElementById('loginMethod');
-      const accountEl = document.getElementById('loginAccount');
-      const passwordEl = document.getElementById('loginPassword');
-      const displayNameEl = document.getElementById('displayName');
-      const hintEl = document.getElementById('loginMethodHint');
-      const showEl = document.getElementById('showLoginPassword');
-      const capsHintEl = document.getElementById('capsHint');
-      if(!methodEl || !accountEl || !passwordEl || !displayNameEl) return;
-
-      const isGuest = methodEl.value === 'guest';
-      accountEl.disabled = isGuest;
-      passwordEl.disabled = isGuest;
-      accountEl.style.opacity = isGuest ? '0.6' : '1';
-      passwordEl.style.opacity = isGuest ? '0.6' : '1';
-
-      if(showEl){
-        showEl.disabled = isGuest;
-        if(isGuest) showEl.checked = false;
-        showEl.setAttribute('aria-pressed', showEl.checked ? 'true' : 'false');
-      }
-      passwordEl.type = (showEl && showEl.checked) ? 'text' : 'password';
-
-      if(hintEl){
-        hintEl.textContent = isGuest
-          ? '遊客模式免帳號密碼，輸入顯示名稱即可登入'
-          : '使用第三方登入需輸入帳號與密碼';
-      }
-      setLoginStatus(isGuest ? '目前為訪客模式，免輸入帳密' : '目前為第三方登入模式，請輸入帳密', 'idle');
-      if(isGuest){
-        accountEl.value = '';
-        passwordEl.value = '';
-        if(capsHintEl) capsHintEl.style.display = 'none';
-        if(!displayNameEl.value.trim()) displayNameEl.value = '訪客';
-        displayNameEl.focus();
-      }else if(!accountEl.value.trim()){
-        accountEl.focus();
-      }
-      updateLoginButtonState();
-    }
-
-    function clearLoginForm(){
-      document.getElementById('loginAccount').value = '';
-      document.getElementById('loginPassword').value = '';
-      document.getElementById('displayName').value = '';
-      const showEl = document.getElementById('showLoginPassword');
-      if(showEl){
-        showEl.checked = false;
-        showEl.setAttribute('aria-pressed', 'false');
-      }
-      const pwdEl = document.getElementById('loginPassword');
-      if(pwdEl) pwdEl.type = 'password';
-      setLoginStatus('已清空登入欄位', 'idle');
-      const hint = document.getElementById('capsHint');
-      if(hint) hint.style.display = 'none';
-      updateLoginButtonState();
-      focusLoginAccount();
-    }
-
-    function bindLoginEnter(){
-      ['loginAccount','loginPassword','displayName'].forEach((id)=>{
-        const el = document.getElementById(id);
-        if(!el) return;
-        el.addEventListener('keydown', (e)=>{
-          if(e.key === 'Enter') login();
-          if(e.key === 'Escape'){
-            setLoginStatus('尚未登入', 'idle');
-            const hint = document.getElementById('capsHint');
-            if(hint) hint.style.display = 'none';
-          }
-        });
-      });
-    }
-
-    function updateLoginButtonState(){
-      const method = document.getElementById('loginMethod')?.value;
-      const account = document.getElementById('loginAccount')?.value.trim() || '';
-      const password = document.getElementById('loginPassword')?.value || '';
-      const btn = document.getElementById('loginBtn');
-      if(!btn) return;
-
-      const canLogin = method === 'guest' ? true : (account.length > 0 && password.length > 0);
-      btn.disabled = !canLogin;
-      btn.style.opacity = canLogin ? '1' : '0.55';
-      btn.style.cursor = canLogin ? 'pointer' : 'not-allowed';
-      btn.title = canLogin ? '' : '請先輸入帳號與密碼';
-    }
-
-    function focusLoginAccount(){
-      const authSection = document.getElementById('authSection');
-      const accountEl = document.getElementById('loginAccount');
-      if(authSection && accountEl && authSection.style.display !== 'none'){
-        accountEl.focus();
-      }
-    }
-
-    function toggleLoginPassword(){
-      const pwdEl = document.getElementById('loginPassword');
-      const showEl = document.getElementById('showLoginPassword');
-      if(!pwdEl || !showEl) return;
-      pwdEl.type = showEl.checked ? 'text' : 'password';
-      showEl.setAttribute('aria-pressed', showEl.checked ? 'true' : 'false');
-    }
-
-    function checkCapsLock(e){
-      const hint = document.getElementById('capsHint');
-      if(!hint) return;
-      hint.style.display = e.getModifierState && e.getModifierState('CapsLock') ? 'block' : 'none';
-    }
-
-    function setLoginStatus(message, type='idle'){
-      const el = document.getElementById('loginStatus');
-      if(!el) return;
-      const time = new Date().toLocaleTimeString('zh-TW', { hour:'2-digit', minute:'2-digit' });
-      el.textContent = `[${time}] ${message}`;
-      el.className = `status-msg ${type}`;
-    }
-
-    function login(){
-      const method = document.getElementById('loginMethod').value;
-      const account = document.getElementById('loginAccount').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const customName = document.getElementById('displayName').value.trim();
-
-      if(method !== 'guest'){
-        const preset = state.testAccounts[account];
-        if(!preset || preset.password !== password){
-          setLoginStatus('登入失敗：帳號或密碼錯誤（可使用上方測試帳號）', 'err');
-          const pwdEl = document.getElementById('loginPassword');
-          if(pwdEl){
-            pwdEl.value = '';
-            pwdEl.focus();
-          }
-          return;
-        }
-        state.user.method = method;
-        state.user.name = customName || preset.displayName;
-      }else{
-        state.user.method = 'guest';
-        state.user.name = customName || '訪客';
-      }
-
-      state.user.loggedIn = true;
-      const pwdEl = document.getElementById('loginPassword');
-      const showEl = document.getElementById('showLoginPassword');
-      if(pwdEl){
-        pwdEl.value = '';
-        pwdEl.type = 'password';
-      }
-      if(showEl){
-        showEl.checked = false;
-        showEl.setAttribute('aria-pressed', 'false');
-      }
-
-      // 登入後：隱藏登入首頁，顯示所有社群貼文
-      document.getElementById('authSection').style.display = 'none';
-      document.getElementById('mainTabs').style.display = 'flex';
-      document.getElementById('appShell').style.display = 'block';
-      const methodLabel = method === 'guest' ? '遊客模式' : method.toUpperCase();
-      setLoginStatus(`登入成功：${state.user.name}（${methodLabel}）`, 'ok');
-      const nav = document.getElementById('socialNav');
-      if(nav) nav.style.display = 'block';
-      const fab = document.getElementById('fabPost');
-      if(fab) fab.style.display = 'inline-flex';
-      document.body.classList.add('social-nav-on');
-      updateSocialNav(state.activeSocialCategory);
-
-      switchTab('user');
-      renderFeed();
-      refreshAdmin();
-
-      const social = document.getElementById('communitySection');
-      if(social){ social.scrollIntoView({ behavior:'smooth', block:'start' }); }
-    }
-
-    function upgradeMember(){
-      state.user.isMember = true;
-      document.getElementById('memberBadge').textContent = '平台會員（享折扣）';
-      document.getElementById('qrBox').innerHTML = '會員 QR：<b>MEMBER-' + (state.user.name || 'USER') + '-TW</b>';
-      refreshAdmin();
-    }
-
-    function renderCamps(){
-      const kwEl = document.getElementById('kw');
-      const tagEl = document.getElementById('filterTag');
-      if(!kwEl || !tagEl) return;
-      const kw = kwEl.value.trim();
-      const tag = tagEl.value;
-      const list = state.camps.filter(c=>{
-        const hitKw = !kw || c.area.includes(kw) || c.name.includes(kw);
-        const hitTag = !tag || c.tags.includes(tag);
-        return hitKw && hitTag;
-      });
-      const el = document.getElementById('campList');
-      if(!list.length){ el.innerHTML = '<div class="muted">查無資料</div>'; return; }
-      el.innerHTML = list.map(c=>`<div class="list-item"><b>${c.name}</b>｜${c.area}<br>${c.tags.map(t=>`<span class='pill'>${t}</span>`).join('')}</div>`).join('');
-      document.getElementById('bookingCamp').innerHTML = list.map(c=>`<option>${c.name}</option>`).join('');
-    }
-
-    function pickCamp(id){
-      const camp = state.camps.find(c=>c.id===id);
-      document.getElementById('mapTip').textContent = `已選擇：${camp.name}，可直接到下方預約。`;
-      document.getElementById('bookingCamp').value = camp.name;
-    }
-
-    function createBooking(){
-      const camp = document.getElementById('bookingCamp').value;
-      const date = document.getElementById('bookingDate').value;
-      const pkg = document.getElementById('bookingPkg').value;
-      if(!camp || !date){ alert('請選擇營地與日期'); return; }
-      state.bookings.push({ camp,date,pkg,user:state.user.name||'訪客' });
-      document.getElementById('bookingLogs').innerHTML = '最新預約：' + state.bookings.slice(-3).map(b=>`${b.date} ${b.camp} / ${b.pkg}`).join(' ｜ ');
-    }
-
-    function getMerchantByCategory(cat){
-      const rules = {
-        '露營區': ['露營區','營地','camp'],
-        '露營用品': ['用品','裝備','gear'],
-        '露營車改裝': ['改裝','房車改裝','mod'],
-        '露營車出租': ['出租','租車','露營車','rental']
-      };
-      const keys = rules[cat] || [];
-      return (state.merchants || []).filter(m => {
-        const bag = `${m.name||''} ${m.desc||''} ${m.tags||''} ${m.area||''}`.toLowerCase();
-        return keys.some(k => bag.includes(String(k).toLowerCase()));
-      });
-    }
-
-    function renderCampZones(){
-      const panel = document.getElementById('campZonePanel');
-      const list = document.getElementById('campZoneList');
-      if(!panel || !list) return;
-      if(state.activeSocialCategory !== '露營區'){
-        panel.style.display = 'none';
-        return;
-      }
-      panel.style.display = 'block';
-      const merchantRows = getMerchantByCategory('露營區');
-      list.innerHTML = [
-        ...state.campZones.map(z => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${z.name}</div>
-              <div class=\"ig-meta\">📍 ${z.location}</div>
-            </div>
-            <div class=\"ig-meta\">💰 ${z.price}</div>
-          </div>
-          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#2563eb,#1d4ed8)\">露營區</div>
-          <div class=\"ig-caption\"><b>細節：</b>${z.detail}<br><b>價格：</b>${z.price}<br><b>Location：</b>${z.location}</div>
-        </article>`),
-        ...merchantRows.map(m => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${m.name}</div>
-              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
-            </div>
-            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
-          </div>
-          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
-        </article>` )
-      ].join('');
-    }
-
-    function renderSupplyStores(){
-      const panel = document.getElementById('supplyPanel');
-      const list = document.getElementById('supplyList');
-      if(!panel || !list) return;
-      if(state.activeSocialCategory !== '露營用品'){
-        panel.style.display = 'none';
-        return;
-      }
-      panel.style.display = 'block';
-      const merchantRows = getMerchantByCategory('露營用品');
-      list.innerHTML = [
-        ...state.supplyStores.map(st => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${st.name}</div>
-              <div class=\"ig-meta\">📍 ${st.location}</div>
-            </div>
-            <div class=\"ig-meta\">📞 ${st.phone}</div>
-          </div>
-          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#f59e0b,#d97706)\">露營用品</div>
-          <div class=\"ig-caption\"><b>地點：</b>${st.location}<br><b>營業時間：</b>${st.hours}<br><b>電話：</b>${st.phone}</div>
-        </article>`),
-        ...merchantRows.map(m => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${m.name}</div>
-              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
-            </div>
-            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
-          </div>
-          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
-        </article>` )
-      ].join('');
-    }
-
-    function renderCamperMods(){
-      const panel = document.getElementById('modifyPanel');
-      const list = document.getElementById('modifyList');
-      if(!panel || !list) return;
-      if(state.activeSocialCategory !== '露營車改裝'){
-        panel.style.display = 'none';
-        return;
-      }
-      panel.style.display = 'block';
-      const merchantRows = getMerchantByCategory('露營車改裝');
-      list.innerHTML = [
-        ...state.camperMods.map(md => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${md.name}</div>
-              <div class=\"ig-meta\">📍 ${md.location}</div>
-            </div>
-            <div class=\"ig-meta\">🔧 改裝專門</div>
-          </div>
-          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#10b981,#047857)\">露營車改裝</div>
-          <div class=\"ig-caption\"><b>地點：</b>${md.location}<br><b>細節：</b>${md.detail}<br><b>專改車型：</b>${md.specializes}</div>
-        </article>`),
-        ...merchantRows.map(m => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${m.name}</div>
-              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
-            </div>
-            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
-          </div>
-          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
-        </article>` )
-      ].join('');
-    }
-
-    function renderCamperRentals(){
-      const panel = document.getElementById('rentalPanel');
-      const list = document.getElementById('rentalList');
-      if(!panel || !list) return;
-      if(state.activeSocialCategory !== '露營車出租'){
-        panel.style.display = 'none';
-        return;
-      }
-      panel.style.display = 'block';
-      const merchantRows = getMerchantByCategory('露營車出租');
-      list.innerHTML = [
-        ...state.camperRentals.map(rt => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${rt.name}</div>
-              <div class=\"ig-meta\">📍 取車：${rt.pickup}</div>
-            </div>
-            <div class=\"ig-meta\">🚐 ${rt.fleet}</div>
-          </div>
-          <div class=\"ig-cover\" style=\"background:linear-gradient(135deg,#8b5cf6,#6d28d9)\">露營車出租</div>
-          <div class=\"ig-caption\"><b>取車地點：</b>${rt.pickup}<br><b>聯絡方式：</b>${rt.contact}<br><b>車輛數：</b>${rt.fleet}</div>
-        </article>`),
-        ...merchantRows.map(m => `
-        <article class=\"ig-post\">
-          <div class=\"ig-post-head\">
-            <div>
-              <div class=\"ig-user\">${m.name}</div>
-              <div class=\"ig-meta\">📍 ${m.area||'未填地區'}</div>
-            </div>
-            <div class=\"ig-meta\">🧩 商家投稿/後台新增</div>
-          </div>
-          <div class=\"ig-caption\"><b>資訊：</b>${m.desc||'無描述'}<br><b>標籤：</b>${m.tags||'無'}</div>
-        </article>` )
-      ].join('');
-    }
-    function updateSocialNav(cat){
-      const buttons = document.querySelectorAll('#socialNav .social-nav-inner button');
-      buttons.forEach(btn=>btn.classList.toggle('active', btn.dataset.cat===cat));
-    }
-
-    function setSocialCategory(cat){
-      state.activeSocialCategory = cat;
-      updateSocialNav(cat);
-      const banner = document.getElementById('contestBanner');
-      if(banner) banner.style.display = (cat === "社群媒體") ? "block" : "none";
-      renderCampZones();
-      renderSupplyStores();
-      renderCamperMods();
-      renderCamperRentals();
-      renderFeed();
-    }
-
-    function onMediaPicked(){
-      const input = document.getElementById('postMedia');
-      const nameEl = document.getElementById('mediaFileName');
-      const file = input && input.files && input.files[0] ? input.files[0] : null;
-      if(nameEl) nameEl.textContent = file ? `已選擇：${file.name}` : '尚未選擇檔案';
-    }
-
-    async function addPost(){
-      if(state.user.method === 'guest'){ alert('遊客模式不可評論，請先使用 LINE 或 Google 登入'); return false; }
-      const text = document.getElementById('postText').value.trim();
-      const category = '社群媒體';
-      const mediaInput = document.getElementById('postMedia');
-      const file = mediaInput && mediaInput.files && mediaInput.files[0] ? mediaInput.files[0] : null;
-      if(!text && !file){ alert(state.postTarget === "contest" ? "請先選擇照片再投稿" : "請輸入內容或選擇檔案再發佈"); return false; }
-
-      let mediaType = null;
-      let mediaUrl = null;
-      if(file){
-        mediaType = file.type.startsWith('video') ? 'video' : 'image';
-        mediaUrl = await uploadFileToFirebase(file, state.postTarget === 'contest' ? 'contest' : 'posts');
-        if(!mediaUrl) mediaUrl = URL.createObjectURL(file);
-      }
-
-      if(state.postTarget === 'contest'){
-        if(!file || mediaType !== 'image'){
-          alert('會員照片比賽請直接上傳照片後發布。');
-          return false;
-        }
-        state.contestEntries.unshift({
-          id: 'c' + Date.now(),
-          user: state.user.name || '匿名會員',
-          image: mediaUrl,
-          votes: 0,
-          caption: text || ''
-        });
-      }else{
-        state.posts.unshift({
-          user:state.user.name || '匿名',
-          category,
-          text: text || '分享了新內容',
-          likes:0,
-          likedBy:[],
-          comments:[],
-          ts:new Date().toLocaleString(),
-          mediaType,
-          mediaUrl
+    async function uploadFile(file, folder){
+      if(!file) return null;
+      if(!storage){
+        return await new Promise(res=>{
+          const r = new FileReader();
+          r.onload = ()=>res(r.result);
+          r.readAsDataURL(file);
         });
       }
-
-      document.getElementById('postText').value = '';
-      if(mediaInput) mediaInput.value = '';
-      const nameEl = document.getElementById('mediaFileName');
-      if(nameEl) nameEl.textContent = '尚未選擇檔案';
-      const wasContestPost = state.postTarget === 'contest';
-      setPostTarget('social');
-      renderFeed();
-      renderContestEntries();
-      renderContestBanner();
-      await saveAppStateToFirebase();
-      return wasContestPost ? 'contest' : 'social';
-    }
-
-    function likePost(i){
-      if(state.user.method === 'guest'){ alert('請先登入後再按愛心'); return; }
-      const post = state.posts[i];
-      if(!post) return;
-      const me = state.user.name || '匿名';
-      post.likedBy = post.likedBy || [];
-      if(post.likedBy.includes(me)) return;
-      post.likedBy.push(me);
-      post.likes = (post.likes || 0) + 1;
-      renderFeed();
-      saveAppStateToFirebase();
-    }
-
-    function toggleComments(i){
-      const box = document.getElementById(`comments-${i}`);
-      if(!box) return;
-      box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function addComment(i){
-      if(state.user.method === 'guest'){ alert('請先登入後再留言'); return; }
-      const input = document.getElementById(`commentInput-${i}`);
-      if(!input) return;
-      const text = input.value.trim();
-      if(!text) return;
-      const post = state.posts[i];
-      post.comments = post.comments || [];
-      post.comments.push({ user: state.user.name || '匿名', text, ts: new Date().toLocaleTimeString() });
-      input.value = '';
-      renderFeed();
-      const box = document.getElementById(`comments-${i}`);
-      if(box) box.style.display = 'block';
-      saveAppStateToFirebase();
-    }
-
-    function getContestVoteKey(){
-      const now = new Date();
-      // 每天 00:10 後才切換到新的一日 key（符合需求：每天12點10刷新）
-      if(now.getHours() === 0 && now.getMinutes() < 10){
-        now.setDate(now.getDate() - 1);
+      try{
+        const ref = storage.ref().child(`${folder}/${Date.now()}-${file.name.replace(/\s+/g,'-')}`);
+        await ref.put(file);
+        return await ref.getDownloadURL();
+      }catch(e){
+        console.warn('upload fallback',e);
+        return await new Promise(res=>{
+          const r = new FileReader();
+          r.onload = ()=>res(r.result);
+          r.readAsDataURL(file);
+        });
       }
-      const y = now.getFullYear();
-      const m = String(now.getMonth()+1).padStart(2,'0');
-      const d = String(now.getDate()).padStart(2,'0');
-      return `contest-vote-${y}${m}${d}`;
     }
 
-    function getContestVoteState(){
-      const key = getContestVoteKey();
-      const raw = localStorage.getItem(key);
-      if(!raw) return { count:0, votedIds:[] };
-      try { return JSON.parse(raw); } catch { return { count:0, votedIds:[] }; }
+    function renderTabs(){
+      const el = document.getElementById('tabs');
+      el.innerHTML = tabs.map(t=>`<button class="tab ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')">${t.label}</button>`).join('');
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      document.getElementById('sec-'+state.activeTab).classList.add('active');
+      document.getElementById('contestBanner').style.display = state.activeTab==='social' ? 'block' : 'none';
     }
 
-    function setContestVoteState(stateObj){
-      localStorage.setItem(getContestVoteKey(), JSON.stringify(stateObj));
+    function setTab(k){ state.activeTab=k; renderTabs(); renderAll(); }
+
+    function renderUser(){
+      document.getElementById('userBadge').textContent = isMember() ? `${state.user.name}（會員）` : '訪客模式';
+      document.getElementById('loginBtn').textContent = isMember() ? '登出' : '登入';
+      document.getElementById('loginBtn').onclick = isMember() ? logout : openLoginModal;
     }
 
-    function getRankedContestEntries(){
-      return [...state.contestEntries].sort((a,b)=> (b.votes||0) - (a.votes||0));
+    function renderAnnouncements(){
+      const m = document.getElementById('announceMarquee');
+      m.innerHTML = state.announcements.map(a=>`<div class="marquee-item">${a.text}</div>`).join('');
     }
+
+    function rankedContest(){ return [...state.contestEntries].sort((a,b)=> (b.voteCount||0)-(a.voteCount||0)); }
 
     function renderContestBanner(){
-      const box = document.getElementById('contestBannerList');
-      if(!box) return;
-      const ranked = getRankedContestEntries().slice(0,5);
-      if(!ranked.length){
-        box.innerHTML = '<div class="muted" style="color:#e5edff">暫無作品</div>';
-        return;
-      }
-      box.innerHTML = ranked.map((e,idx)=>`<img class="contest-photo" src="${e.image}" alt="${e.user}" title="#${idx+1} ${e.user}｜${e.votes}票" onclick="openContestGallery()" />`).join('');
-    }
-
-    function renderContestEntries(){
-      const box = document.getElementById('contestEntriesList');
-      const hint = document.getElementById('contestVoteHint');
-      if(!box) return;
-      const voteState = getContestVoteState();
-      const remaining = Math.max(0, 2 - (voteState.count || 0));
-      if(hint) hint.textContent = `今日剩餘票數：${remaining}（每人每天 2 票，不可重複）`;
-      box.innerHTML = getRankedContestEntries().map(e => {
-        const voted = (voteState.votedIds || []).includes(e.id);
-        const disabled = voted || (voteState.count || 0) >= 2;
-        return `
-          <div class="contest-round-item">
-            <img class="contest-round-img" src="${e.image}" alt="${e.user}" />
-            <div class="contest-vote-row">
-              <div>
-                <div><b>${e.user}</b></div>
-                <div class="muted">得票數：${e.votes}</div>
-                ${e.caption ? `<div class="muted">${e.caption}</div>` : ''}
-              </div>
-              <button class="contest-vote-btn" ${disabled ? 'disabled' : ''} onclick="voteContest('${e.id}')">${voted ? '已投票' : '投票'}</button>
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    function voteContest(entryId){
-      if(state.user.method === 'guest'){ alert('請先登入會員再投票'); return; }
-      const voteState = getContestVoteState();
-      voteState.count = voteState.count || 0;
-      voteState.votedIds = voteState.votedIds || [];
-      if(voteState.votedIds.includes(entryId)){
-        alert('同一作品不可重複投票');
-        return;
-      }
-      if(voteState.count >= 2){
-        alert('今日票數已用完（每天最多 2 票）');
-        return;
-      }
-      const item = state.contestEntries.find(x => x.id === entryId);
-      if(item) item.votes += 1;
-      voteState.count += 1;
-      voteState.votedIds.push(entryId);
-      setContestVoteState(voteState);
-      renderContestEntries();
-      renderContestBanner();
-      saveAppStateToFirebase();
-    }
-
-    function openContestGallery(){
-      const modal = document.getElementById('contestModal');
-      if(modal) modal.style.display = 'flex';
-      renderContestEntries();
-      renderContestBanner();
-    }
-
-    function closeContestGallery(){
-      const modal = document.getElementById('contestModal');
-      if(modal) modal.style.display = 'none';
-    }
-
-    
-    function setPostTarget(target){
-      state.postTarget = target;
-      const label = document.getElementById('postTargetLabel');
-      const textArea = document.getElementById('postText');
-      const title = document.getElementById('postPageTitle');
-      const submitBtn = document.getElementById('postSubmitBtn');
-      const voteArea = document.getElementById('voteArea');
-      if(label){
-        label.textContent = target === 'contest' ? '投稿目標：會員照片比賽' : '貼文將發佈到：社群媒體';
-      }
-      if(title){
-        title.textContent = target === 'contest' ? '投稿' : '新增貼文';
-      }
-      if(submitBtn){
-        submitBtn.textContent = target === 'contest' ? '投稿' : '發佈貼文';
-      }
-      if(textArea){
-        textArea.placeholder = target === 'contest' ? '可直接上傳照片後投稿（文字可省略）' : '分享露營心得...';
-      }
-      if(voteArea){
-        voteArea.style.display = target === 'contest' ? 'none' : 'block';
-      }
-    }
-
-    function openContestPostComposer(){
-      closeContestGallery();
-      setPostTarget('contest');
-      openPostComposer();
-    }
-
-function openPostComposer(){
-      if(!state.user.loggedIn) return;
-      if(state.postTarget !== "contest") setPostTarget("social");
-      const overlay = document.getElementById('postPageOverlay');
-      if(overlay) overlay.style.display = 'flex';
-      const el = document.getElementById('postText');
-      if(el) el.focus();
-    }
-
-    function closePostPage(){
-      const overlay = document.getElementById('postPageOverlay');
-      if(overlay) overlay.style.display = 'none';
-    }
-
-    async function addPostAndClose(){
-      const result = await addPost();
-      if(!result) return;
-      closePostPage();
-      if(result === 'contest'){
-        openContestGallery();
-      }
-    }
-
-    function categoryCover(category){
-      const map = {
-        '露營區':'linear-gradient(135deg,#3b82f6,#1d4ed8)',
-        '露營用品':'linear-gradient(135deg,#f59e0b,#d97706)',
-        '露營車改裝':'linear-gradient(135deg,#10b981,#047857)',
-        '露營車出租':'linear-gradient(135deg,#8b5cf6,#6d28d9)',
-        '社群媒體':'linear-gradient(135deg,#ec4899,#be185d)'
-      };
-      return map[category] || 'linear-gradient(135deg,#2f855a,#276749)';
+      const list = document.getElementById('contestBannerList');
+      list.innerHTML = rankedContest().slice(0,8).map(e=>`
+        <div class="contest-card" onclick="openContestModal()">
+          <img src="${e.imageUrl}" alt="contest" />
+          <div class="contest-vote">❤️ ${e.voteCount||0}</div>
+        </div>`).join('');
     }
 
     function renderFeed(){
-      const feed = document.getElementById('feed');
-      const banner = document.getElementById('contestBanner');
-      if(banner) banner.style.display = (state.activeSocialCategory === "社群媒體") ? "block" : "none";
-      const rows = state.posts
-        .map((p,idx)=>({p,idx}))
-        .filter(({p})=>state.activeSocialCategory === '社群媒體' || p.category===state.activeSocialCategory);
-      renderCampZones();
-      renderSupplyStores();
-      renderCamperMods();
-      renderCamperRentals();
-      if(!rows.length){
-        feed.className = '';
-        feed.innerHTML = '<div class="muted">此分類尚無貼文。</div>';
-        return;
-      }
-
-      feed.className = '';
-      feed.innerHTML = rows.map(({p,idx})=>{
-        const me = state.user.name || '匿名';
-        const liked = (p.likedBy || []).includes(me);
-        const comments = p.comments || [];
-        return `
-        <div class="list-item">
-          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-            <b>${p.user}</b>
-            <span class="muted">${p.category||'社群媒體'} · ${p.ts}</span>
+      const el = document.getElementById('feedList');
+      el.innerHTML = state.posts.map(p=>{
+        const liked = (p.likes||[]).includes(state.user.id);
+        const likeDisabled = !isMember() || liked;
+        return `<div class="feed-item">
+          <div style="display:flex;justify-content:space-between"><b>${p.authorName}</b><span class="muted">${new Date(p.createdAt).toLocaleString()}</span></div>
+          <div style="margin-top:8px">${p.text||''}</div>
+          ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
+          ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
+          <div class="actions">
+            <button class="btn ghost" ${likeDisabled?'disabled':''} onclick="likePost('${p.id}')">❤️ ${(p.likes||[]).length}</button>
+            <button class="btn ghost" onclick="togglePostComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
           </div>
-          ${p.mediaType === 'image' ? `<img src="${p.mediaUrl}" alt="post-media" style="width:100%;max-height:320px;object-fit:cover;border-radius:8px;margin-top:8px" />` : ''}
-          ${p.mediaType === 'video' ? `<video src="${p.mediaUrl}" controls playsinline style="width:100%;max-height:320px;border-radius:8px;margin-top:8px"></video>` : ''}
-          <div style="margin-top:8px">${p.text}</div>
-          <div class="post-actions">
-            <button class="action-btn ${liked ? 'liked' : ''}" onclick="likePost(${idx})">❤️ ${p.likes || 0}</button>
-            <button class="action-btn" onclick="toggleComments(${idx})">💬 ${comments.length}</button>
-          </div>
-          <div id="comments-${idx}" class="comments-wrap" style="display:none">
-            ${comments.length ? comments.map(c=>`<div class='comment-item'><b>${c.user}</b>：${c.text} <span class='muted'>${c.ts}</span></div>`).join('') : '<div class="muted">還沒有留言</div>'}
-            <div class="comment-input-row">
-              <input id="commentInput-${idx}" placeholder="寫下留言..." />
-              <button onclick="addComment(${idx})">送出</button>
+          <div id="pc-${p.id}" style="display:none;margin-top:8px">
+            ${(p.comments||[]).map(c=>`<div class='muted' style='margin-bottom:4px'><b>${c.userName}</b>：${c.text}</div>`).join('') || '<div class="muted">尚無評論</div>'}
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <input id="pci-${p.id}" placeholder="輸入評論" />
+              <button class="btn" ${!isMember()?'disabled':''} onclick="commentPost('${p.id}')">送出</button>
             </div>
+            ${!isMember()?'<div class="muted">訪客不可評論</div>':''}
           </div>
         </div>`;
       }).join('');
     }
 
-    function votePhoto(){
-      const today = new Date().toISOString().slice(0,10);
-      if(state.user.lastVoteDate !== today){ state.user.votesToday = 0; state.user.lastVoteDate = today; }
-      if(state.user.votesToday >= 2){ document.getElementById('voteState').textContent = '今日票數已用完（每日 2 票）'; return; }
-      state.user.votesToday++;
-      document.getElementById('voteState').textContent = `投票成功，今日剩餘 ${2 - state.user.votesToday} 票`;
+    function storeCard(s){
+      const comments = s.comments || [];
+      const feat = s.features?.length ? `<div class="muted">特色：${s.features.join('、')}</div>` : '';
+      const campsiteExtra = s.category==='campsite' ? `
+        <div class="muted">總帳數：${s.tentCount||'-'} / 分區：${s.zones||'-'}</div>
+        <div class="muted">海拔：${s.elevation||'-'} / 可達車種：${s.accessibleVehicles||'-'}</div>
+      ` : '';
+      return `<div class="card" style="margin:0">
+        <div class="store-title">${s.name}</div>
+        <div class="muted">${s.address||''}</div>
+        <div class="muted">營業時間：${s.hours||'-'}｜聯絡：${s.contact||'-'}</div>
+        ${s.website ? `<div><a href="${s.website}" target="_blank">官網連結</a></div>` : ''}
+        <div style="margin-top:6px">${s.description||''}</div>
+        ${feat}
+        ${campsiteExtra}
+        <div class="actions">
+          <button class="btn ghost" onclick="openMapTo('${encodeURIComponent(s.address||s.name)}')">地圖</button>
+          <button class="btn ghost" onclick="contactStore('${s.id}')">私訊商家</button>
+        </div>
+        <div style="margin-top:8px">
+          <div class="muted">評論 ${comments.length}</div>
+          ${(comments).slice(-3).map(c=>`<div class='muted'><b>${c.userName}</b>：${c.text}</div>`).join('') || '<div class="muted">尚無評論</div>'}
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <input id="sc-${s.id}" placeholder="會員可評論" />
+            <button class="btn" ${!isMember()?'disabled':''} onclick="commentStore('${s.id}')">送出</button>
+          </div>
+          ${!isMember()?'<div class="muted">訪客不可評論</div>':''}
+        </div>
+      </div>`;
     }
 
-    function publishMerchant(){
-      const m = {
-        name:document.getElementById('mName').value.trim(),
-        desc:document.getElementById('mDesc').value.trim(),
-        area:document.getElementById('mArea').value.trim(),
-        tags:document.getElementById('mTags').value.trim()
+    function renderStoreTabs(){
+      const camps = state.stores.filter(s=>s.category==='campsite').filter(s=>{
+        const kw=(document.getElementById('campSearch')?.value||'').trim().toLowerCase();
+        if(!kw) return true;
+        const bag = `${s.name} ${s.address} ${s.description} ${(s.features||[]).join(' ')}`.toLowerCase();
+        return bag.includes(kw);
+      });
+      document.getElementById('campsiteList').innerHTML = camps.map(storeCard).join('');
+      document.getElementById('modList').innerHTML = state.stores.filter(s=>s.category==='mod').map(storeCard).join('');
+      document.getElementById('gearList').innerHTML = state.stores.filter(s=>s.category==='gear').map(storeCard).join('');
+      document.getElementById('rentalList').innerHTML = state.stores.filter(s=>s.category==='rental').map(storeCard).join('');
+    }
+
+    function getVoteKey(){
+      const now = new Date();
+      // 12:10 刷新，00:00~12:09 算前一日配額
+      if(now.getHours() < 12 || (now.getHours()===12 && now.getMinutes()<10)) now.setDate(now.getDate()-1);
+      const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0'),d=String(now.getDate()).padStart(2,'0');
+      return `vote-${state.user.id}-${y}${m}${d}`;
+    }
+
+    function voteState(){
+      const raw=localStorage.getItem(getVoteKey());
+      try{return raw?JSON.parse(raw):{count:0,voted:[]};}catch{return {count:0,voted:[]};}
+    }
+
+    function setVoteState(v){ localStorage.setItem(getVoteKey(),JSON.stringify(v)); }
+
+    function renderContestModal(){
+      const v = voteState();
+      document.getElementById('voteHint').textContent = `今日剩餘票數：${Math.max(0,2-(v.count||0))}（會員每天2票，不可重複）`;
+      document.getElementById('contestEntries').innerHTML = rankedContest().map(e=>{
+        const voted=(v.voted||[]).includes(e.id);
+        const disabled = !isMember() || voted || (v.count||0)>=2;
+        return `<div class='contest-entry card' style='margin:0'>
+          <img src='${e.imageUrl}' />
+          <div class='contest-entry-row'>
+            <div><b>${e.authorName}</b><div class='muted'>票數：${e.voteCount||0}</div></div>
+            <button class='btn' ${disabled?'disabled':''} onclick="voteContest('${e.id}')">${voted?'已投票':'投票'}</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderMerchantEditor(account){
+      const store = state.stores.find(s=>s.id===account.storeId);
+      if(!store) return;
+      const el = document.getElementById('merchantEditor');
+      el.style.display='block';
+      el.innerHTML = `
+        <div class='muted'>編輯店鋪：${store.name}</div>
+        <div class='field'><label>描述</label><textarea id='me-desc'>${store.description||''}</textarea></div>
+        <div class='field'><label>地址</label><input id='me-addr' value='${store.address||''}' /></div>
+        <div class='field'><label>營業時間</label><input id='me-hours' value='${store.hours||''}' /></div>
+        <div class='field'><label>聯絡方式</label><input id='me-contact' value='${store.contact||''}' /></div>
+        <div class='field'><label>官網</label><input id='me-web' value='${store.website||''}' /></div>
+        <button class='btn ok' onclick="saveMerchantStore('${store.id}')">儲存修改</button>
+      `;
+    }
+
+    function renderAdminPanel(){
+      const el=document.getElementById('adminPanel');
+      el.style.display='block';
+      el.innerHTML = `
+        <div class='field'><label>活動公告（新增一條）</label><input id='ad-ann' placeholder='輸入公告文字' /></div>
+        <button class='btn' onclick='addAnnouncement()'>新增公告</button>
+        <hr/>
+        <div style='font-weight:700'>新增商家資料</div>
+        <div class='field'><label>類別</label><select id='ad-cat'><option value='campsite'>營地</option><option value='gear'>露營用品</option><option value='mod'>露營車改裝</option><option value='rental'>露營車出租</option></select></div>
+        <div class='field'><label>店名</label><input id='ad-name' /></div>
+        <div class='field'><label>地址</label><input id='ad-addr' /></div>
+        <div class='field'><label>營業時間</label><input id='ad-hours' /></div>
+        <div class='field'><label>聯絡方式</label><input id='ad-contact' /></div>
+        <div class='field'><label>描述</label><textarea id='ad-desc'></textarea></div>
+        <button class='btn ok' onclick='addStoreByAdmin()'>新增商家</button>
+        <hr/>
+        <div style='font-weight:700'>開通商家會員帳號</div>
+        <div class='field'><label>商家 ID</label><input id='ad-mid' placeholder='m1001' /></div>
+        <div class='field'><label>密碼</label><input id='ad-mpw' placeholder='123456' /></div>
+        <div class='field'><label>綁定店鋪 ID</label><input id='ad-sid' placeholder='storeId' /></div>
+        <button class='btn' onclick='createMerchantAccount()'>開通帳號</button>
+      `;
+    }
+
+    function renderDM(){
+      const box=document.getElementById('dmThreads');
+      const lines=state.dmThreads.map(t=>`<button class='btn ghost' style='margin:4px 4px 0 0' onclick="openThread('${t.id}')">${t.storeName}</button>`).join('');
+      box.innerHTML = lines || '尚無對話，請到商家卡片按「私訊商家」。';
+      document.getElementById('dmComposer').style.display='none';
+    }
+
+    function openThread(id){
+      const t=state.dmThreads.find(x=>x.id===id); if(!t) return;
+      currentDMStore=id;
+      const html=(t.messages||[]).map(m=>`<div class='muted'><b>${m.fromName}</b>：${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
+      document.getElementById('dmComposer').style.display='block';
+      document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!isMember()?'disabled':''} onclick='sendDM()'>送出</button></div>${!isMember()?'<div class="muted">訪客不可私訊</div>':''}`;
+    }
+
+    function openMapTo(q){ window.open(`https://www.google.com/maps/search/?api=1&query=${q}`,'_blank'); }
+    function openGoogleMapSearch(){ const q=encodeURIComponent(document.getElementById('campSearch').value||'台灣 營地'); openMapTo(q); }
+
+    function openLoginModal(){ document.getElementById('loginModal').style.display='flex'; }
+    function closeLoginModal(){ document.getElementById('loginModal').style.display='none'; }
+    function memberLogin(provider){
+      const name=(document.getElementById('loginName').value||'會員').trim();
+      state.user={id:`${provider}-${Date.now()}`,name,mode:'member',provider};
+      closeLoginModal(); renderUser();
+    }
+    function enterGuestMode(){ state.user={id:'guest',name:'訪客',mode:'guest',provider:null}; closeLoginModal(); renderUser(); }
+    function logout(){ enterGuestMode(); }
+
+    function openPostModal(mode){
+      postMode=mode;
+      document.getElementById('postTitle').textContent = mode==='contest'?'投稿':'新增貼文';
+      document.getElementById('postTargetBadge').textContent = mode==='contest'?'投稿到：會員照片比賽':'發佈到：社群媒體';
+      document.getElementById('postText').placeholder = mode==='contest'?'可直接上傳照片投稿（文字可省略）':'分享露營心得...';
+      document.getElementById('postModal').style.display='flex';
+    }
+    function closePostModal(){ document.getElementById('postModal').style.display='none'; }
+
+    async function submitPost(){
+      if(!isMember()){ alert('請先登入會員'); return; }
+      const text=(document.getElementById('postText').value||'').trim();
+      const file=document.getElementById('postFile').files[0] || null;
+      if(postMode==='contest' && !file){ alert('請先選擇照片再投稿'); return; }
+      if(!text && !file){ alert('請輸入內容或選擇檔案'); return; }
+      const type=file ? (file.type.startsWith('video')?'video':'image') : null;
+      if(postMode==='contest' && type!=='image'){ alert('照片比賽僅接受圖片'); return; }
+      const url = file ? await uploadFile(file, postMode==='contest'?'contest':'posts') : null;
+
+      if(postMode==='contest'){
+        state.contestEntries.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,imageUrl:url,voteCount:0,createdAt:new Date().toISOString()});
+        await saveState();
+        renderContestBanner();
+        closePostModal();
+        openContestModal();
+      }else{
+        state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
+        await saveState();
+        renderFeed();
+        closePostModal();
+      }
+      document.getElementById('postText').value='';
+      document.getElementById('postFile').value='';
+    }
+
+    function likePost(id){
+      if(!isMember()) return alert('訪客不可按愛心');
+      const p=state.posts.find(x=>x.id===id); if(!p) return;
+      if((p.likes||[]).includes(state.user.id)) return;
+      p.likes.push(state.user.id);
+      renderFeed(); saveState();
+    }
+
+    function togglePostComments(id){
+      const el=document.getElementById('pc-'+id); if(!el) return;
+      el.style.display = el.style.display==='none'?'block':'none';
+    }
+
+    function commentPost(id){
+      if(!isMember()) return alert('訪客不可評論');
+      const i=document.getElementById('pci-'+id); const txt=(i.value||'').trim(); if(!txt) return;
+      const p=state.posts.find(x=>x.id===id); if(!p) return;
+      p.comments.push({userId:state.user.id,userName:state.user.name,text:txt,createdAt:new Date().toISOString()});
+      i.value=''; renderFeed(); saveState();
+    }
+
+    function commentStore(id){
+      if(!isMember()) return alert('訪客不可評論');
+      const i=document.getElementById('sc-'+id); const txt=(i.value||'').trim(); if(!txt) return;
+      const s=state.stores.find(x=>x.id===id); if(!s) return;
+      s.comments=s.comments||[]; s.comments.push({userId:state.user.id,userName:state.user.name,text:txt,createdAt:new Date().toISOString()});
+      i.value=''; renderStoreTabs(); saveState();
+    }
+
+    function openContestModal(){ document.getElementById('contestModal').style.display='flex'; renderContestModal(); }
+    function closeContestModal(){ document.getElementById('contestModal').style.display='none'; }
+
+    function voteContest(entryId){
+      if(!isMember()) return alert('訪客不可投票');
+      const v=voteState(); v.count=v.count||0; v.voted=v.voted||[];
+      if(v.voted.includes(entryId)) return alert('不可重複投同一作品');
+      if(v.count>=2) return alert('今日票數已用完（每天2票）');
+      const e=state.contestEntries.find(x=>x.id===entryId); if(!e) return;
+      e.voteCount=(e.voteCount||0)+1;
+      v.count+=1; v.voted.push(entryId); setVoteState(v);
+      renderContestModal(); renderContestBanner(); saveState();
+    }
+
+    function contactStore(storeId){
+      if(!isMember()) return alert('請先登入會員再私訊');
+      const s=state.stores.find(x=>x.id===storeId); if(!s) return;
+      let t=state.dmThreads.find(x=>x.storeId===storeId);
+      if(!t){ t={id:uid(),storeId,storeName:s.name,messages:[]}; state.dmThreads.push(t); }
+      openDM(); openThread(t.id);
+    }
+
+    function openDM(){ document.getElementById('dmModal').style.display='flex'; renderDM(); }
+    function closeDM(){ document.getElementById('dmModal').style.display='none'; }
+    function sendDM(){
+      if(!isMember()) return;
+      const txt=(document.getElementById('dmInput').value||'').trim(); if(!txt) return;
+      const t=state.dmThreads.find(x=>x.id===currentDMStore); if(!t) return;
+      t.messages.push({fromId:state.user.id,fromName:state.user.name,text:txt,createdAt:new Date().toISOString()});
+      openThread(t.id); saveState();
+    }
+
+    function merchantLogin(){
+      const id=document.getElementById('merchantIdInput').value.trim();
+      const pw=document.getElementById('merchantPwdInput').value;
+      const acc=state.merchantAccounts.find(a=>a.merchantId===id && a.password===pw && a.enabled);
+      if(!acc) return alert('商家帳密錯誤');
+      renderMerchantEditor(acc);
+    }
+
+    function saveMerchantStore(storeId){
+      const s=state.stores.find(x=>x.id===storeId); if(!s) return;
+      s.description=document.getElementById('me-desc').value;
+      s.address=document.getElementById('me-addr').value;
+      s.hours=document.getElementById('me-hours').value;
+      s.contact=document.getElementById('me-contact').value;
+      s.website=document.getElementById('me-web').value;
+      saveState(); renderStoreTabs(); alert('已儲存');
+    }
+
+    function adminLogin(){
+      const p=document.getElementById('adminPass').value;
+      if(p!==ADMIN_PASSWORD) return alert('後台密碼錯誤');
+      renderAdminPanel();
+    }
+
+    function addAnnouncement(){
+      const t=document.getElementById('ad-ann').value.trim(); if(!t) return;
+      state.announcements.unshift({id:uid(),text:t});
+      document.getElementById('ad-ann').value=''; renderAnnouncements(); saveState();
+    }
+
+    function addStoreByAdmin(){
+      const s={
+        id:uid(),
+        category:document.getElementById('ad-cat').value,
+        name:document.getElementById('ad-name').value.trim(),
+        address:document.getElementById('ad-addr').value.trim(),
+        hours:document.getElementById('ad-hours').value.trim(),
+        contact:document.getElementById('ad-contact').value.trim(),
+        description:document.getElementById('ad-desc').value.trim(),
+        isMember:false
       };
-      if(!m.name){ alert('請填商家名稱'); return; }
-      state.merchants.unshift(m);
-      document.getElementById('merchantOut').textContent = `已發布：${m.name}（${m.area || '未填地區'}）`;
-      renderAdminMerchants();
+      if(!s.name) return alert('請輸入店名');
+      state.stores.unshift(s);
+      renderStoreTabs(); saveState(); alert('已新增商家');
     }
 
-    function publishEvent(){
-      const title = document.getElementById('eventTitle').value.trim();
-      const desc = document.getElementById('eventDesc').value.trim();
-      if(!title) return;
-      state.events.unshift({title,desc});
-      document.getElementById('eventList').innerHTML = state.events.map(e=>`<div class='list-item'><b>${e.title}</b><div class='muted'>${e.desc||''}</div></div>`).join('');
-      renderAdminMerchants();
+    function createMerchantAccount(){
+      const merchantId=document.getElementById('ad-mid').value.trim();
+      const password=document.getElementById('ad-mpw').value.trim();
+      const storeId=document.getElementById('ad-sid').value.trim();
+      if(!merchantId||!password||!storeId) return alert('請填完整');
+      const store=state.stores.find(s=>s.id===storeId); if(!store) return alert('找不到店鋪ID');
+      state.merchantAccounts.push({merchantId,password,storeId,enabled:true});
+      store.isMember=true; store.ownerMerchantId=merchantId;
+      saveState(); alert('已開通商家會員帳號');
     }
 
-    function buyPlan(name,price){
-      state.revenue += price;
-      document.getElementById('planLog').textContent = `已購買 ${name}方案，入帳 NT$${price}`;
-      refreshAdmin();
-    }
-
-    function renderAdminMerchants(){
-      const box = document.getElementById('adminMerchants');
-      if(!state.merchants.length){ box.innerHTML = '<div class="muted">目前尚無商家資料</div>'; return; }
-      box.innerHTML = state.merchants.map((m,idx)=>`<div class='list-item'><b>${idx+1}. ${m.name}</b><div>${m.area||'未填地區'}｜${m.tags||'無標籤'}</div><div class='muted'>${m.desc||''}</div></div>`).join('');
-    }
-
-    function refreshAdmin(){
-      document.getElementById('kpiRevenue').textContent = `NT$${state.revenue}`;
-      document.getElementById('kpiMerchants').textContent = state.merchants.length;
-      document.getElementById('kpiEvents').textContent = state.events.length;
-      document.getElementById('kpiMembers').textContent = state.user.isMember ? 1 : 0;
-      renderAdminMerchants();
-    }
-
-    async function bootstrapApp(){
-      quickFill('tester01');
-      updateLoginMethodState();
-      setLoginStatus('尚未登入', 'idle');
-      bindLoginEnter();
-      focusLoginAccount();
-      await initFirebaseAndLoad();
-      renderFeed();
+    function renderAll(){
+      renderUser();
+      renderTabs();
+      renderAnnouncements();
       renderContestBanner();
-      refreshAdmin();
+      renderFeed();
+      renderStoreTabs();
+      renderDM();
     }
 
-    bootstrapApp();
+    async function boot(){
+      await initFirebase();
+      await loadState();
+      renderAll();
+      document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
+    }
+    boot();
   </script>
 </body>
 </html>
