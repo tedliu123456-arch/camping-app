@@ -127,28 +127,6 @@
     <section id="sec-mod" class="section"><div id="modList" class="store-grid"></div></section>
     <section id="sec-gear" class="section"><div id="gearList" class="store-grid"></div></section>
     <section id="sec-rental" class="section"><div id="rentalList" class="store-grid"></div></section>
-
-    <section class="card">
-      <div style="font-weight:800;margin-bottom:8px">管理入口（MVP）</div>
-      <div class="admin-wrap">
-        <div class="card" style="margin:0">
-          <div style="font-weight:800">商家後台 App 端</div>
-          <div class="muted">商家付費開通後可編輯自己店鋪</div>
-          <div class="field"><label>商家 ID</label><input id="merchantIdInput" placeholder="merchant001" /></div>
-          <div class="field"><label>密碼</label><input id="merchantPwdInput" type="password" placeholder="******" /></div>
-          <button class="btn" onclick="merchantLogin()">商家登入</button>
-          <div id="merchantEditor" style="display:none;margin-top:10px"></div>
-        </div>
-
-        <div class="card" style="margin:0">
-          <div style="font-weight:800">平台主後台（PC）</div>
-          <div class="muted">最高權限：新增商家、活動、開通商家會員</div>
-          <div class="field"><label>後台密碼</label><input id="adminPass" type="password" placeholder="輸入後台密碼" /></div>
-          <button class="btn" onclick="adminLogin()">登入後台</button>
-          <div id="adminPanel" style="display:none;margin-top:10px"></div>
-        </div>
-      </div>
-    </section>
   </div>
 
   <button class="btn dm-fab" onclick="openDM()">💬 私訊</button>
@@ -163,6 +141,7 @@
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
         <button class="btn" onclick="memberLogin('facebook')">Facebook 登入</button>
         <button class="btn ghost" onclick="enterGuestMode()">訪客模式（免登入）</button>
+        <button class="btn" onclick="openBackendLogin()">商家 / 平台後台登入</button>
       </div>
     </div>
   </div>
@@ -188,6 +167,26 @@
 
   <div id="toast" class="toast"></div>
 
+
+  <div id="backendLoginModal" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 style="margin:0">後台登入</h3><button class="btn ghost" onclick="closeBackendLogin()">關閉</button></div>
+      <div class="field"><label>角色</label>
+        <select id="backendRole"><option value="merchant">商家後台</option><option value="admin">平台主後台</option></select>
+      </div>
+      <div class="field"><label>ID</label><input id="backendId" placeholder="輸入 ID" /></div>
+      <div class="field"><label>密碼</label><input id="backendPwd" type="password" placeholder="輸入密碼" /></div>
+      <button class="btn" onclick="backendLogin()">登入後台</button>
+    </div>
+  </div>
+
+  <div id="backendWorkspace" class="overlay">
+    <div class="sheet">
+      <div class="sheet-head"><h3 id="backendTitle" style="margin:0">後台</h3><button class="btn ghost" onclick="closeBackendWorkspace()">關閉</button></div>
+      <div id="backendContent"></div>
+    </div>
+  </div>
+
   <div id="dmModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">私訊</h3><button class="btn ghost" onclick="closeDM()">返回</button></div>
@@ -211,7 +210,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = 'v32.8';
+    const APP_VERSION = 'v32.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -536,6 +535,11 @@
       cEl.textContent = `${(nameEl.value || '').length}/20`;
     }
 
+    function openBackendLogin(){ document.getElementById('backendLoginModal').style.display='flex'; }
+    function closeBackendLogin(){ document.getElementById('backendLoginModal').style.display='none'; }
+    function openBackendWorkspace(title){ document.getElementById('backendTitle').textContent=title; document.getElementById('backendWorkspace').style.display='flex'; }
+    function closeBackendWorkspace(){ document.getElementById('backendWorkspace').style.display='none'; }
+
     function openLoginModal(){
       document.getElementById('loginModal').style.display='flex';
       const nameEl = document.getElementById('loginName');
@@ -676,29 +680,6 @@
       openThread(t.id); saveState();
     }
 
-    function merchantLogin(){
-      const id=document.getElementById('merchantIdInput').value.trim();
-      const pw=document.getElementById('merchantPwdInput').value;
-      const acc=state.merchantAccounts.find(a=>a.merchantId===id && a.password===pw && a.enabled);
-      if(!acc) return alert('商家帳密錯誤');
-      renderMerchantEditor(acc);
-    }
-
-    function saveMerchantStore(storeId){
-      const s=state.stores.find(x=>x.id===storeId); if(!s) return;
-      s.description=document.getElementById('me-desc').value;
-      s.address=document.getElementById('me-addr').value;
-      s.hours=document.getElementById('me-hours').value;
-      s.contact=document.getElementById('me-contact').value;
-      s.website=document.getElementById('me-web').value;
-      saveState(); renderStoreTabs(); alert('已儲存');
-    }
-
-    function adminLogin(){
-      const p=document.getElementById('adminPass').value;
-      if(p!==ADMIN_PASSWORD) return alert('後台密碼錯誤');
-      renderAdminPanel();
-    }
 
     function addAnnouncement(){
       const t=document.getElementById('ad-ann').value.trim(); if(!t) return;
