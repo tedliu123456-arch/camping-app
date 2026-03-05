@@ -1,7 +1,16 @@
 {
-  "version": "31.2",
+  "version": "31.3",
   "lastUpdated": "2026-03-05",
   "changelog": [
+    {
+      "version": "31.3",
+      "date": "2026-03-05",
+      "changes": [
+        "登入狀態訊息新增時間戳（HH:MM），方便追蹤操作時間",
+        "setLoginStatus() 統一改為顯示「[時間] 訊息」格式",
+        "介面版本更新為 v5.2"
+      ]
+    },
     {
       "version": "31.2",
       "date": "2026-03-05",
