@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v35.8（需求整合版）</title>
+  <title>Camping App v35.9（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -267,7 +267,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '35.8';
+    const APP_VERSION = '35.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -703,7 +703,7 @@
         </div>
         <div style="margin-top:8px">
           <div class="muted">評論 ${comments.length}</div>
-          ${(comments).slice(-3).map(c=>`<div class='muted'><b>${c.userName}</b>：${c.text}</div>`).join('') || '<div class="muted">尚無評論</div>'}
+          ${(comments).slice(-3).map((c,idx)=>`<div class='muted' style='margin-bottom:4px'><b>${c.userName}</b>：${c.text}${isMerchant() && currentMerchantAccount && currentMerchantAccount.storeId===s.id ? ` <button class="btn ghost" style="padding:2px 6px;font-size:12px" onclick="replyStoreComment('${s.id}','${c.userName}')">回覆</button>` : ''}${Array.isArray(c.replies)&&c.replies.length ? `<div style="margin:4px 0 0 14px">${c.replies.map(r=>`<div class='muted'><b>${r.userName}</b>：${r.text}</div>`).join('')}</div>` : ''}</div>`).join('') || '<div class="muted">尚無評論</div>'}
           <div style="display:flex;gap:6px;margin-top:6px">
             <input id="sc-${s.id}" placeholder="會員可評論" />
             <button class="btn" ${!canComment()?'disabled':''} onclick="commentStore('${s.id}')">送出</button>
@@ -1078,6 +1078,14 @@
       i.value=''; renderFeed(); saveState();
     }
 
+    function replyStoreComment(storeId, targetName){
+      if(!(isMerchant() && currentMerchantAccount && currentMerchantAccount.storeId===storeId)) return;
+      const i=document.getElementById('sc-'+storeId);
+      if(!i) return;
+      i.value = `@${targetName} `;
+      i.focus();
+    }
+
     function commentStore(id){
       if(!canComment()) return alert('訪客不可評論');
       const i=document.getElementById('sc-'+id); const txt=(i.value||'').trim(); if(!txt) return;
@@ -1085,7 +1093,22 @@
       if(isMerchant() && currentMerchantAccount && currentMerchantAccount.storeId !== id){
         return alert('商家模式僅可回覆自己商家的訊息');
       }
-      s.comments=s.comments||[]; s.comments.push({userId:state.user.id,userName:state.user.name,text:txt,createdAt:new Date().toISOString()});
+      s.comments=s.comments||[];
+      if(isMerchant() && currentMerchantAccount && currentMerchantAccount.storeId===id && txt.startsWith('@')){
+        const m = txt.match(/^@(\S+)\s+(.*)$/);
+        if(m){
+          const targetName = m[1];
+          const body = (m[2]||'').trim();
+          const target = [...s.comments].reverse().find(c=>c.userName===targetName);
+          if(target && body){
+            target.replies = target.replies || [];
+            target.replies.push({userId:state.user.id,userName:state.user.name,text:body,createdAt:new Date().toISOString()});
+            i.value=''; renderStoreTabs(); saveState();
+            return;
+          }
+        }
+      }
+      s.comments.push({userId:state.user.id,userName:state.user.name,text:txt,createdAt:new Date().toISOString()});
       i.value=''; renderStoreTabs(); saveState();
     }
 
