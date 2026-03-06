@@ -1,7 +1,16 @@
 {
-  "version": "40.5",
+  "version": "40.6",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "40.6",
+      "date": "2026-03-06",
+      "changes": [
+        "上方導覽文字（tab-txt）微調字距，分類標籤辨識更清晰（純 UI）",
+        "同步套用 index.html 與 platform-app.html，導覽樣式一致",
+        "介面版本更新為 v40.6"
+      ]
+    },
     {
       "version": "40.5",
       "date": "2026-03-06",
