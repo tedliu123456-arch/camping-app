@@ -75,7 +75,7 @@
 
     .overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:2000}
     .sheet{width:min(820px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:14px;box-shadow:0 -18px 42px rgba(15,23,42,.28)}
-    .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eef2f7}
 
     .contest-grid{display:grid;grid-template-columns:1fr;gap:12px}
     .contest-entry img{width:100%;height:auto;border-radius:12px}
@@ -292,7 +292,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '40.0';
+    const APP_VERSION = '40.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
