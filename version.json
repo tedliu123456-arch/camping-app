@@ -1,7 +1,15 @@
 {
-  "version": "40.8",
+  "version": "40.8.1",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "40.8.1",
+      "date": "2026-03-06",
+      "changes": [
+        "修正 LINE 登入錯誤提示字串造成的 JavaScript 語法錯誤",
+        "恢復頁面可點擊與互動（修復全站按鈕失效）"
+      ]
+    },
     {
       "version": "40.8",
       "date": "2026-03-06",

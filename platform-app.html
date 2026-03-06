@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v40.8（需求整合版）</title>
+  <title>Camping App v40.8.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -306,7 +306,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '40.8';
+    const APP_VERSION = '40.8.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1106,8 +1106,7 @@
         showToast('LINE 登入成功 ✅');
       }catch(err){
         console.warn('line oauth login failed', err);
-        alert('LINE 登入失敗，先用測試登入。
-請確認 Firebase 已建立 OIDC provider: oidc.line');
+        alert('LINE 登入失敗，先用測試登入。\n請確認 Firebase 已建立 OIDC provider: oidc.line');
         memberLogin('line');
       }
     }
