@@ -187,7 +187,7 @@
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
       <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" minlength="2" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right" aria-live="polite">0/20</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" onclick="memberLogin('google')">Google 登入</button>
+        <button class="btn" onclick="googleAuthLogin()">Google 登入</button>
         <button class="btn" onclick="memberLogin('line')">LINE 登入</button>
         <button class="btn" onclick="memberLogin('facebook')">Facebook 登入</button>
         <button class="btn ghost" onclick="enterGuestMode()">訪客模式（免登入）</button>
@@ -280,19 +280,33 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script>
-    const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
-      authDomain: "outdoorcamp.firebaseapp.com",
-      projectId: "outdoorcamp",
-      storageBucket: "outdoorcamp.firebasestorage.app",
-      messagingSenderId: "709693825585",
-      appId: "1:709693825585:web:eced280b0538cdc29bab10",
-      measurementId: "G-L68VBJR8W2"
+    const FIREBASE_CONFIGS = {
+      dev: {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: "",
+        measurementId: ""
+      },
+      prod: {
+        apiKey: "AIzaSyBrCmKeoIKhNfUBmfxrMSPQnf9CDXP3QEM",
+        authDomain: "outdoorcamp.firebaseapp.com",
+        projectId: "outdoorcamp",
+        storageBucket: "outdoorcamp.firebasestorage.app",
+        messagingSenderId: "709693825585",
+        appId: "1:709693825585:web:eced280b0538cdc29bab10",
+        measurementId: "G-L68VBJR8W2"
+      }
     };
+    const APP_ENV = (new URLSearchParams(location.search).get('env') || localStorage.getItem('campingEnv') || 'prod');
+    localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '40.1';
+    const APP_VERSION = '38.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -301,7 +315,7 @@
       {key:'rental',label:'露營車出租'},
     ];
 
-    let db=null, storage=null;
+    let db=null, storage=null, auth=null;
     let postMode='social';
     let currentDMStore=null;
     let currentGalleryStoreId=null;
@@ -487,9 +501,18 @@
 
     async function initFirebase(){
       try{
-        firebase.initializeApp(FIREBASE_CONFIG);
-        db = firebase.firestore();
-        storage = firebase.storage();
+        const cfg = FIREBASE_CONFIGS[APP_ENV] || FIREBASE_CONFIGS.prod;
+        if(!cfg || !cfg.apiKey || !cfg.projectId){
+          console.warn('firebase config missing for env', APP_ENV);
+          return;
+        }
+        const appName = `camping-${APP_ENV}`;
+        let app;
+        try{ app = firebase.app(appName); }
+        catch{ app = firebase.initializeApp(cfg, appName); }
+        db = app.firestore();
+        storage = app.storage();
+        auth = app.auth();
       }catch(e){ console.warn('firebase init fallback', e); }
     }
 
@@ -1018,6 +1041,41 @@
         if(e.key === 'Escape') closeLoginModal();
       });
     }
+    async function googleAuthLogin(){
+      if(!auth || !firebase.auth){
+        showToast('Google OAuth 尚未設定，先用測試登入');
+        return memberLogin('google');
+      }
+      try{
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({prompt:'select_account'});
+        const result = await auth.signInWithPopup(provider);
+        const u = result.user;
+        const name = (u?.displayName || u?.email || '會員').slice(0,20);
+        const uidKey = (u?.uid || name).toLowerCase().replace(/[^a-z0-9_]/g,'');
+        const account = `google_${uidKey}`;
+
+        let member = state.memberAccounts.find(m=>m.account===account);
+        if(!member){
+          member = {account,password:'oauth-google',name,profile:{gender:'',style:'',count:'',avatar:''}};
+          state.memberAccounts.push(member);
+        }
+        member.name = name;
+        if(!member.profile) member.profile = {gender:'',style:'',count:'',avatar:''};
+        if(u?.photoURL && !member.profile.avatar) member.profile.avatar = u.photoURL;
+
+        state.user={id:`member:${account}`,accountKey:account,name,mode:'member',provider:'google',profile:{...member.profile}};
+        closeLoginModal();
+        renderAll();
+        saveState();
+        showToast('Google 登入成功 ✅');
+      }catch(err){
+        console.warn('google oauth login failed', err);
+        alert('Google 登入失敗，先用測試登入。');
+        memberLogin('google');
+      }
+    }
+
     function memberLogin(provider){
       normalizeLoginName();
       const rawName=(document.getElementById('loginName').value||'會員').trim();

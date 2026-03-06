@@ -1,7 +1,16 @@
 {
-  "version": "40.1",
+  "version": "38.8",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.8",
+      "date": "2026-03-06",
+      "changes": [
+        "MVP 實作啟動：新增 Firebase dev/prod 雙環境設定框架",
+        "Google 登入改接 Firebase OAuth（可用配置自動啟用）",
+        "新增 GCP MVP 設定文件與 firebase-env 範本"
+      ]
+    },
     {
       "version": "40.1",
       "date": "2026-03-06",

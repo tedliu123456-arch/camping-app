@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "apiKey": "",
+    "authDomain": "",
+    "projectId": "",
+    "storageBucket": "",
+    "messagingSenderId": "",
+    "appId": "",
+    "measurementId": ""
+  },
+  "prod": {
+    "apiKey": "",
+    "authDomain": "",
+    "projectId": "",
+    "storageBucket": "",
+    "messagingSenderId": "",
+    "appId": "",
+    "measurementId": ""
+  }
+}
