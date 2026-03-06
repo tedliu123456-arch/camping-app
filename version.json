@@ -1,7 +1,16 @@
 {
-  "version": "39.3",
+  "version": "39.4",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "39.4",
+      "date": "2026-03-06",
+      "changes": [
+        "頂部導覽列新增輕微 hover 底色過渡，頁首互動更柔和（純 UI）",
+        "同步套用 index.html 與 platform-app.html，頂部視覺一致",
+        "介面版本更新為 v39.4"
+      ]
+    },
     {
       "version": "39.3",
       "date": "2026-03-06",
