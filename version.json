@@ -1,7 +1,16 @@
 {
-  "version": "38.8",
+  "version": "40.2",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "40.2",
+      "date": "2026-03-06",
+      "changes": [
+        "表單欄位區塊增加細微上下內距，輸入區視覺更舒適（純 UI）",
+        "同步修正 index.html 與 platform-app.html 的 APP_VERSION 為 v40.2，避免版本顯示落後",
+        "介面版本更新為 v40.2"
+      ]
+    },
     {
       "version": "38.8",
       "date": "2026-03-06",
