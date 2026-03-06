@@ -1,7 +1,16 @@
 {
-  "version": "41.0",
+  "version": "41.1",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "41.1",
+      "date": "2026-03-06",
+      "changes": [
+        "卡片新增按壓回饋（active 微位移），觸控操作更有手感（純 UI）",
+        "同步套用 index.html 與 platform-app.html，卡片互動一致",
+        "介面版本更新為 v41.1"
+      ]
+    },
     {
       "version": "41.0",
       "date": "2026-03-06",
