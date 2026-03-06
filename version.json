@@ -1,7 +1,16 @@
 {
-  "version": "39.7",
+  "version": "39.8",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "39.8",
+      "date": "2026-03-06",
+      "changes": [
+        "次要說明文字（muted）行高微調，段落閱讀更舒適（純 UI）",
+        "同步套用 index.html 與 platform-app.html，文字節奏一致",
+        "介面版本更新為 v39.8"
+      ]
+    },
     {
       "version": "39.7",
       "date": "2026-03-06",
