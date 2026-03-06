@@ -1,7 +1,16 @@
 {
-  "version": "40.8.1",
+  "version": "40.9",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "40.9",
+      "date": "2026-03-06",
+      "changes": [
+        "比賽列表（contest-grid）卡片間距由 12px 調整為 14px，閱讀節奏更舒適（純 UI）",
+        "同步修正 index.html 與 platform-app.html 的 APP_VERSION 為 v40.9，避免版本標示混亂",
+        "介面版本更新為 v40.9"
+      ]
+    },
     {
       "version": "40.8.1",
       "date": "2026-03-06",
