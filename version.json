@@ -1,7 +1,16 @@
 {
-  "version": "40.7",
+  "version": "40.8",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "40.8",
+      "date": "2026-03-06",
+      "changes": [
+        "LINE 登入按鈕改接 Firebase OIDC 流程（oidc.line）",
+        "新增 lineAuthLogin()，成功後建立/綁定會員資料與頭像",
+        "版本顯示一致化（title / APP_VERSION 同步）"
+      ]
+    },
     {
       "version": "40.7",
       "date": "2026-03-06",
