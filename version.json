@@ -1,7 +1,16 @@
 {
-  "version": "41.7",
+  "version": "41.8",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "41.8",
+      "date": "2026-03-06",
+      "changes": [
+        "頂部品牌字距再微調（0.25px），標題視覺更穩定（純 UI）",
+        "同步套用 index.html 與 platform-app.html，品牌字樣一致",
+        "介面版本更新為 v41.8"
+      ]
+    },
     {
       "version": "41.7",
       "date": "2026-03-06",
