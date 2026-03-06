@@ -54,7 +54,8 @@
     .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px}
 
     .store-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-    .store-title{font-weight:800}
+    .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease}
+    .card:hover .store-title{color:#1d4ed8}
     .store-focus{outline:3px solid #2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
     .store-photos{display:flex;gap:8px;margin-top:8px}
     .store-photo{position:relative;width:calc(50% - 4px);height:100px;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid #d1d5db;background:#f3f4f6;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
@@ -282,7 +283,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '38.8';
+    const APP_VERSION = '38.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
