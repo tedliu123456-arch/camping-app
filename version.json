@@ -1,7 +1,16 @@
 {
-  "version": "38.7",
+  "version": "38.8",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.8",
+      "date": "2026-03-06",
+      "changes": [
+        "次要操作按鈕（ghost）新增 hover 背景與邊框/陰影回饋，點擊前狀態更清楚（純 UI）",
+        "同步套用 index.html 與 platform-app.html，互動手感一致",
+        "介面版本更新為 v38.8"
+      ]
+    },
     {
       "version": "38.7",
       "date": "2026-03-06",

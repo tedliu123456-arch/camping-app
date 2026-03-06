@@ -21,6 +21,7 @@
     .btn{border:0;background:var(--pri);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease}
     .btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(37,99,235,.22)}
     .btn.ghost{background:#fff;color:#111827;border:1px solid #d1d5db}
+    .btn.ghost:hover{background:#f8fafc;border-color:#94a3b8;box-shadow:0 6px 12px rgba(15,23,42,.10)}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
     .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
@@ -286,7 +287,7 @@
     };
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '38.7';
+    const APP_VERSION = '38.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
