@@ -1,7 +1,16 @@
 {
-  "version": "42.4",
+  "version": "42.5",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "42.5",
+      "date": "2026-03-07",
+      "changes": [
+        "商家標題 hover 新增 1px 微位移，焦點導引更自然（純 UI）",
+        "同步套用 index.html 與 platform-app.html，商家卡片標題互動一致",
+        "介面版本更新為 v42.5"
+      ]
+    },
     {
       "version": "42.4",
       "date": "2026-03-07",
