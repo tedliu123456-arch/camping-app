@@ -1,7 +1,16 @@
 {
-  "version": "39.6",
+  "version": "39.7",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "39.7",
+      "date": "2026-03-06",
+      "changes": [
+        "提示訊息 Toast 新增細邊框與字距微調，閱讀辨識更清楚（純 UI）",
+        "同步套用 index.html 與 platform-app.html，提示樣式一致",
+        "介面版本更新為 v39.7"
+      ]
+    },
     {
       "version": "39.6",
       "date": "2026-03-06",
