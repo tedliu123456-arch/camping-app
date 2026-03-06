@@ -1,7 +1,16 @@
 {
-  "version": "40.6",
+  "version": "40.7",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "40.7",
+      "date": "2026-03-06",
+      "changes": [
+        "比賽作品橫向列間距由 8px 調整為 10px，縮圖排列更舒適（純 UI）",
+        "同步套用 index.html 與 platform-app.html，版面間距一致",
+        "介面版本更新為 v40.7"
+      ]
+    },
     {
       "version": "40.6",
       "date": "2026-03-06",
