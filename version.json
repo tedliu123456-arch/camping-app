@@ -1,7 +1,16 @@
 {
-  "version": "42.1",
+  "version": "42.2",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "42.2",
+      "date": "2026-03-07",
+      "changes": [
+        "比賽 Banner 新增柔和陰影，重點區塊更突出（純 UI）",
+        "同步套用 index.html 與 platform-app.html，Banner 視覺一致",
+        "介面版本更新為 v42.2"
+      ]
+    },
     {
       "version": "42.1",
       "date": "2026-03-07",

@@ -46,7 +46,7 @@
     .marquee-item:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(55,48,163,.18);background:#e3e9ff}
     @keyframes marqueeMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative;margin-top:120px}
+    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative;margin-top:120px;box-shadow:0 10px 22px rgba(37,99,235,.20)}
     .contest-row{display:flex;gap:10px;overflow:auto;padding-top:8px}
     .contest-card{position:relative;min-width:120px;height:84px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,.5);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
     .contest-card:hover{transform:translateY(-2px);box-shadow:0 10px 18px rgba(15,23,42,.22);border-color:rgba(255,255,255,.9)}
@@ -307,7 +307,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '42.1';
+    const APP_VERSION = '42.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
