@@ -1,7 +1,16 @@
 {
-  "version": "41.2",
+  "version": "41.3",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "41.3",
+      "date": "2026-03-06",
+      "changes": [
+        "活動跑馬燈容器新增圓角，膠囊內容區邊緣更俐落（純 UI）",
+        "同步套用 index.html 與 platform-app.html，跑馬燈外觀一致",
+        "介面版本更新為 v41.3"
+      ]
+    },
     {
       "version": "41.2",
       "date": "2026-03-06",
