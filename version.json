@@ -1,7 +1,16 @@
 {
-  "version": "41.3",
+  "version": "41.4",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "41.4",
+      "date": "2026-03-06",
+      "changes": [
+        "比賽作品卡底部操作列上邊距由 8px 調整為 10px，資訊與按鈕分區更清楚（純 UI）",
+        "同步套用 index.html 與 platform-app.html，版面節奏一致",
+        "介面版本更新為 v41.4"
+      ]
+    },
     {
       "version": "41.3",
       "date": "2026-03-06",
