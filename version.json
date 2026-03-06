@@ -1,7 +1,16 @@
 {
-  "version": "41.1",
+  "version": "41.2",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "41.2",
+      "date": "2026-03-06",
+      "changes": [
+        "底部導航列加入輕微色彩飽和濾鏡，固定欄視覺更乾淨穩定（純 UI）",
+        "同步套用 index.html 與 platform-app.html，底部導覽風格一致",
+        "介面版本更新為 v41.2"
+      ]
+    },
     {
       "version": "41.1",
       "date": "2026-03-06",
