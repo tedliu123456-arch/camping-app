@@ -1,7 +1,16 @@
 {
-  "version": "42.6",
+  "version": "42.7",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "42.7",
+      "date": "2026-03-07",
+      "changes": [
+        "上方分類目前頁（active tab）新增細緻內高光，卡片立體感更自然（純 UI）",
+        "同步套用 index.html 與 platform-app.html，導覽高亮樣式一致",
+        "介面版本更新為 v42.7"
+      ]
+    },
     {
       "version": "42.6",
       "date": "2026-03-07",
