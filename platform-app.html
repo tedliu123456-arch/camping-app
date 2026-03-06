@@ -60,7 +60,7 @@
     .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px;transition:background-color .14s ease,color .14s ease}
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
 
-    .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start}
     .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease}
     .card:hover .store-title{color:#1d4ed8}
     .store-focus{outline:3px solid #2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
@@ -307,7 +307,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '42.3';
+    const APP_VERSION = '42.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
