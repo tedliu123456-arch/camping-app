@@ -1,7 +1,15 @@
 {
-  "version": "40.3",
+  "version": "38.9",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "38.9",
+      "date": "2026-03-06",
+      "changes": [
+        "已接入 Firebase prod 專案設定（prod-cb0ca）",
+        "GCP MVP 雙環境 dev/prod Firebase Web Config 已齊備"
+      ]
+    },
     {
       "version": "40.3",
       "date": "2026-03-06",
