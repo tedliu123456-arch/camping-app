@@ -1,7 +1,16 @@
 {
-  "version": "41.6",
+  "version": "41.7",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "41.7",
+      "date": "2026-03-06",
+      "changes": [
+        "貼文操作按鈕列新增垂直置中對齊，圖示與文字混合時排列更整齊（純 UI）",
+        "同步套用 index.html 與 platform-app.html，操作列樣式一致",
+        "介面版本更新為 v41.7"
+      ]
+    },
     {
       "version": "41.6",
       "date": "2026-03-06",
