@@ -1,7 +1,16 @@
 {
-  "version": "40.2",
+  "version": "40.3",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "40.3",
+      "date": "2026-03-06",
+      "changes": [
+        "商家卡片網格間距由 10px 調整為 12px，卡片呼吸感更好（純 UI）",
+        "同步套用 index.html 與 platform-app.html，列表版面一致",
+        "介面版本更新為 v40.3"
+      ]
+    },
     {
       "version": "40.2",
       "date": "2026-03-06",
