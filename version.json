@@ -1,7 +1,16 @@
 {
-  "version": "41.5",
+  "version": "41.6",
   "lastUpdated": "2026-03-06",
   "changelog": [
+    {
+      "version": "41.6",
+      "date": "2026-03-06",
+      "changes": [
+        "頂部固定列新增極淡陰影，與內容區分層更清晰（純 UI）",
+        "同步套用 index.html 與 platform-app.html，頁首樣式一致",
+        "介面版本更新為 v41.6"
+      ]
+    },
     {
       "version": "41.5",
       "date": "2026-03-06",
