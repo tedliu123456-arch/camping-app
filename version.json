@@ -1,7 +1,16 @@
 {
-  "version": "45.6",
+  "version": "45.7",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "45.7",
+      "date": "2026-03-07",
+      "changes": [
+        "貼文媒體框新增極淡內高光，圖片/影片區塊邊界更乾淨（純 UI）",
+        "同步套用 index.html 與 platform-app.html，媒體框樣式一致",
+        "介面版本更新為 v45.7"
+      ]
+    },
     {
       "version": "45.6",
       "date": "2026-03-07",
