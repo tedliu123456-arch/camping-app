@@ -1,7 +1,16 @@
 {
-  "version": "46.2",
+  "version": "46.3",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "46.3",
+      "date": "2026-03-08",
+      "changes": [
+        "比賽作品卡片內部欄位間距由 10px 微調至 11px，資訊排版更舒適（純 UI）",
+        "同步套用 index.html 與 platform-app.html，比賽卡片樣式一致",
+        "介面版本更新為 v46.3"
+      ]
+    },
     {
       "version": "46.2",
       "date": "2026-03-08",
