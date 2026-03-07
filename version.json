@@ -1,7 +1,16 @@
 {
-  "version": "43.5",
+  "version": "43.6",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "43.6",
+      "date": "2026-03-07",
+      "changes": [
+        "貼文資訊列（post-meta）項目間距由 8px 微調至 9px，閱讀節奏更舒適（純 UI）",
+        "同步套用 index.html 與 platform-app.html，資訊列樣式一致",
+        "介面版本更新為 v43.6"
+      ]
+    },
     {
       "version": "43.5",
       "date": "2026-03-07",
