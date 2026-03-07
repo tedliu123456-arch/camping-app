@@ -1,7 +1,16 @@
 {
-  "version": "45.7",
+  "version": "45.8",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "45.8",
+      "date": "2026-03-07",
+      "changes": [
+        "頂部列底部陰影透明度由 0.05 微調至 0.06，頁首分層更清晰（純 UI）",
+        "同步套用 index.html 與 platform-app.html，頂欄樣式一致",
+        "介面版本更新為 v45.8"
+      ]
+    },
     {
       "version": "45.7",
       "date": "2026-03-07",
