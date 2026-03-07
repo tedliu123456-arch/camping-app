@@ -1,7 +1,16 @@
 {
-  "version": "45.4",
+  "version": "45.5",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "45.5",
+      "date": "2026-03-07",
+      "changes": [
+        "底部導覽按鈕 hover 陰影透明度微調（0.12→0.13），互動回饋更清楚（純 UI）",
+        "同步套用 index.html 與 platform-app.html，底部導覽互動樣式一致",
+        "介面版本更新為 v45.5"
+      ]
+    },
     {
       "version": "45.4",
       "date": "2026-03-07",
