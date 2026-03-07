@@ -1,7 +1,16 @@
 {
-  "version": "45.3",
+  "version": "45.4",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "45.4",
+      "date": "2026-03-07",
+      "changes": [
+        "次要說明文字（muted）行高由 1.5 微調至 1.55，段落閱讀更舒適（純 UI）",
+        "同步套用 index.html 與 platform-app.html，說明文字樣式一致",
+        "介面版本更新為 v45.4"
+      ]
+    },
     {
       "version": "45.3",
       "date": "2026-03-07",
