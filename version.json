@@ -1,7 +1,16 @@
 {
-  "version": "43.4",
+  "version": "43.5",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "43.5",
+      "date": "2026-03-07",
+      "changes": [
+        "貼文分類標籤（chip）新增細緻字距，短字標籤辨識更穩定（純 UI）",
+        "同步套用 index.html 與 platform-app.html，標籤文字樣式一致",
+        "介面版本更新為 v43.5"
+      ]
+    },
     {
       "version": "43.4",
       "date": "2026-03-07",
