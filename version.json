@@ -1,7 +1,16 @@
 {
-  "version": "43.2",
+  "version": "43.3",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "43.3",
+      "date": "2026-03-07",
+      "changes": [
+        "商家縮圖「+更多」覆蓋文字字距微調（0.2px→0.25px），提示可讀性更好（純 UI）",
+        "同步套用 index.html 與 platform-app.html，覆蓋層文字樣式一致",
+        "介面版本更新為 v43.3"
+      ]
+    },
     {
       "version": "43.2",
       "date": "2026-03-07",
