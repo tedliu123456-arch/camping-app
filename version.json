@@ -1,7 +1,16 @@
 {
-  "version": "44.7",
+  "version": "44.8",
   "lastUpdated": "2026-03-07",
   "changelog": [
+    {
+      "version": "44.8",
+      "date": "2026-03-07",
+      "changes": [
+        "貼文操作列（post-actions）項目間距由 8px 微調至 9px，按鈕排列更舒適（純 UI）",
+        "同步套用 index.html 與 platform-app.html，操作列樣式一致",
+        "介面版本更新為 v44.8"
+      ]
+    },
     {
       "version": "44.7",
       "date": "2026-03-07",
