@@ -3,41 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw 控制室（卡通辦公室）</title>
+  <title>OpenClaw RPG 控制室</title>
   <style>
-    :root{--line:#dbe5ff;--txt:#1f2a44;--muted:#617099;--busy:#3b82f6}
+    :root{--line:#dbe5ff;--txt:#1f2a44;--muted:#617099}
     *{box-sizing:border-box}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#eef5ff,#f9fcff);color:var(--txt)}
-    .top{position:sticky;top:0;z-index:9;background:#ffffffd9;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .top{position:sticky;top:0;z-index:10;background:#ffffffdd;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .top h1{margin:0;font-size:18px}
     .pill{padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
     .btn{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:10px;cursor:pointer}
-    .layout{padding:14px;max-width:1200px;margin:0 auto}
-    .stage-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
-    .stage{min-width:980px;transform-origin:top left;padding:18px;background:linear-gradient(180deg,#f7fbff,#eef4ff)}
+    .wrap{max-width:1220px;margin:0 auto;padding:14px}
 
-    .room{position:relative;height:620px;border:1px solid #d7e3ff;border-radius:18px;background:linear-gradient(180deg,#dfeeff 0%,#ecf5ff 55%,#d9e7f7 56%,#d9e7f7 100%);overflow:hidden}
-    .window{position:absolute;left:24px;top:24px;width:190px;height:120px;border:6px solid #bcd2f5;border-radius:12px;background:linear-gradient(180deg,#90c8ff,#d7efff)}
-    .shelf{position:absolute;right:24px;top:34px;width:240px;height:14px;background:#9db7df;border-radius:7px}
-    .plant{position:absolute;right:48px;top:50px;width:64px;height:84px;background:#8dd39f;border-radius:40px 40px 20px 20px}
+    .map-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
+    .map{position:relative;min-width:980px;height:640px;background:linear-gradient(180deg,#f4f9ff,#ecf3ff)}
 
-    .desk{position:absolute;left:120px;top:280px;width:740px;height:250px;background:#e8d5bc;border-radius:16px;border:3px solid #c8ae91}
-    .screen{position:absolute;left:330px;top:150px;width:260px;height:160px;background:#1e2b45;border:8px solid #334971;border-radius:12px;cursor:pointer}
-    .screen::after{content:'LIVE';position:absolute;right:10px;top:8px;color:#8bffb2;font-size:11px;font-weight:700}
-    .keyboard{position:absolute;left:350px;top:330px;width:220px;height:34px;background:#f7fbff;border:2px solid #c8d7ef;border-radius:8px;cursor:pointer}
-    .mug{position:absolute;left:620px;top:320px;width:44px;height:46px;background:#ffd3a6;border:2px solid #e9a86d;border-radius:8px 8px 16px 16px;cursor:pointer}
-    .mug::after{content:'';position:absolute;right:-12px;top:10px;width:12px;height:18px;border:3px solid #e9a86d;border-left:none;border-radius:0 8px 8px 0}
-    .note{position:absolute;left:190px;top:312px;width:74px;height:60px;background:#fff7a8;border:1px solid #e7dc73;border-radius:6px;cursor:pointer}
-    .calendar{position:absolute;right:140px;top:180px;width:120px;height:120px;background:#fff;border:2px solid #cddaf2;border-radius:10px;cursor:pointer}
+    .room{position:absolute;border:3px solid #b7cdf5;border-radius:18px;background:#ffffff;box-shadow:0 8px 18px #dfeaff;cursor:pointer}
+    .room h3{margin:0;font-size:14px;padding:10px 12px;border-bottom:1px solid #e5eeff;background:#f7fbff;border-radius:14px 14px 0 0}
+    .room .mini{padding:10px 12px;font-size:12px;color:var(--muted)}
+    .room.active{border-color:#5b8cff;box-shadow:0 0 0 4px #dfe9ff,0 8px 18px #dfeaff}
 
-    .lobster{position:absolute;left:120px;top:130px;width:150px;height:150px;border-radius:26px;background:#e8f0ff;display:flex;align-items:center;justify-content:center;font-size:76px;border:3px solid #cfddff;cursor:pointer}
-    .lobster.cool{background:#e0f2fe}.lobster.coder{background:#ede9fe}.lobster.boss{background:#fee2e2}.lobster.cute{background:#dcfce7}
+    #room-idle{left:40px;top:40px;width:280px;height:220px}
+    #room-work{left:360px;top:40px;width:280px;height:220px}
+    #room-search{left:680px;top:40px;width:260px;height:220px}
+    #room-code{left:200px;top:300px;width:300px;height:230px}
+    #room-schedule{left:560px;top:300px;width:320px;height:230px}
 
-    .hint{position:absolute;font-size:12px;color:#334155;background:#ffffffc9;border:1px solid #d7e4fb;border-radius:999px;padding:3px 8px}
-    .h-screen{left:404px;top:132px}.h-lob{left:124px;top:112px}.h-note{left:182px;top:292px}.h-cal{right:132px;top:160px}
+    .lobster{position:absolute;left:120px;top:140px;width:72px;height:72px;border-radius:22px;background:#ffe5ec;border:3px solid #ffb3c6;display:flex;align-items:center;justify-content:center;font-size:40px;z-index:8;transition:left .8s ease, top .8s ease}
+    .lobster.walking{animation:hop .28s linear infinite}
+    .lobster .face{transform:translateY(-1px)}
 
-    .hot{transition:.18s ease}
-    .hot:hover{transform:translateY(-2px) scale(1.02)}
+    @keyframes hop{
+      0%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+      100%{transform:translateY(0)}
+    }
+
+    .legend{position:absolute;right:14px;bottom:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--muted)}
 
     dialog{border:none;border-radius:14px;max-width:560px;width:min(92vw,560px);padding:0}
     dialog::backdrop{background:#0008}
@@ -48,47 +49,46 @@
 </head>
 <body>
   <div class="top">
-    <h1>🦞 OpenClaw 控制室</h1>
-    <span class="pill" id="nowStatus">狀態：待機</span>
-    <span class="pill" id="lastSync">最後同步：-</span>
-    <span class="pill" id="live">Live: connecting...</span>
-    <button class="btn" onclick="zoom(-0.1)">－</button>
-    <button class="btn" onclick="zoom(0.1)">＋</button>
-    <label class="pill" style="display:flex;gap:6px;align-items:center">龍蝦風格
-      <select id="lobsterStyle" class="btn" style="padding:4px 8px" onchange="setLobsterStyle(this.value)">
-        <option value="brain">經典</option>
-        <option value="cool">墨鏡</option>
-        <option value="coder">工程師</option>
-        <option value="boss">老闆</option>
-        <option value="cute">可愛</option>
-      </select>
-    </label>
-    <button class="btn" onclick="fit()">適中大小</button>
+    <h1>🦞 OpenClaw RPG 控制室</h1>
+    <span class="pill" id="statePill">目前：待機室</span>
+    <span class="pill" id="syncPill">同步：-</span>
+    <button class="btn" onclick="toggleAuto()" id="autoBtn">開啟自動巡房</button>
+    <button class="btn" onclick="go('idle')">去待機室</button>
+    <button class="btn" onclick="go('work')">去工作室</button>
+    <button class="btn" onclick="go('search')">去搜尋室</button>
+    <button class="btn" onclick="go('code')">去開發室</button>
+    <button class="btn" onclick="go('schedule')">去排程室</button>
   </div>
 
-  <div class="layout">
-    <div class="stage-wrap">
-      <div id="stage" class="stage">
-        <div class="room">
-          <div class="window"></div>
-          <div class="shelf"></div>
-          <div class="plant"></div>
-
-          <div id="lobster" class="lobster hot" onclick="showDetail('目前狀態', currentDesc)">🦞</div>
-          <div class="hint h-lob">點龍蝦看狀態</div>
-
-          <div class="desk"></div>
-          <div class="screen hot" onclick="showDetail('目前任務', taskText)"></div>
-          <div class="hint h-screen">點螢幕看任務</div>
-
-          <div class="keyboard hot" onclick="showDetail('寫 Code 狀態', codeText)"></div>
-          <div class="mug hot" onclick="showDetail('工作節奏', '目前屬於連續迭代模式：小改版 → 測試 → 立即部署。')"></div>
-          <div class="note hot" onclick="showDetail('待辦事項', todoText)"></div>
-          <div class="hint h-note">點便條看待辦</div>
-
-          <div class="calendar hot" onclick="showDetail('已安排事項', scheduleText)"></div>
-          <div class="hint h-cal">點月曆看安排</div>
+  <div class="wrap">
+    <div class="map-wrap">
+      <div class="map" id="map">
+        <div class="room" id="room-idle" onclick="go('idle')">
+          <h3>待機室</h3>
+          <div class="mini">休息、監看、等待新任務</div>
         </div>
+        <div class="room" id="room-work" onclick="go('work')">
+          <h3>工作室</h3>
+          <div class="mini">處理你交辦的即時任務</div>
+        </div>
+        <div class="room" id="room-search" onclick="go('search')">
+          <h3>搜尋室</h3>
+          <div class="mini">查資料、驗證設定、找原因</div>
+        </div>
+        <div class="room" id="room-code" onclick="go('code')">
+          <h3>開發室</h3>
+          <div class="mini">寫 code、修 bug、測試與部署</div>
+        </div>
+        <div class="room" id="room-schedule" onclick="go('schedule')">
+          <h3>排程室</h3>
+          <div class="mini">整理待辦、規劃下一步、版本節點</div>
+        </div>
+
+        <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">
+          <span class="face">🦞</span>
+        </div>
+
+        <div class="legend">點房間讓龍蝦走過去（小跳步）</div>
       </div>
     </div>
   </div>
@@ -102,79 +102,57 @@
   </dialog>
 
   <script>
-    const lobsterMap = {
-      brain:{emoji:'🦞',cls:''},
-      cool:{emoji:'🦞🕶️',cls:'cool'},
-      coder:{emoji:'🦞💻',cls:'coder'},
-      boss:{emoji:'🦞👑',cls:'boss'},
-      cute:{emoji:'🦞✨',cls:'cute'}
+    const roomMeta = {
+      idle:{name:'待機室', x:130, y:150, detail:'目前在待機，正在監看訊息與新任務，隨時可切換處理。'},
+      work:{name:'工作室', x:450, y:150, detail:'目前在處理進行中的需求，會以小步快跑方式更新。'},
+      search:{name:'搜尋室', x:760, y:150, detail:'正在查找資料、比對設定、確認外部依賴是否正常。'},
+      code:{name:'開發室', x:320, y:410, detail:'正在寫程式、修正錯誤、測試流程並準備部署。'},
+      schedule:{name:'排程室', x:690, y:410, detail:'正在整理待辦、安排里程碑、確認優先順序。'}
     };
-    let lobsterStyle = localStorage.getItem('controlRoomLobsterStyle') || 'brain';
 
-    const statusPool = [
-      {label:'待機',desc:'目前沒有阻塞任務，正在監看更新。',dot:'⚪'},
-      {label:'工作中',desc:'正在處理改版與部署，進度持續同步。',dot:'🔵'},
-      {label:'搜尋資料',desc:'正在查找外部設定與資料來源。',dot:'🟡'},
-      {label:'寫程式',desc:'正在修改程式碼與測試流程。',dot:'🟣'}
-    ];
+    let currentRoom = 'idle';
+    let autoTimer = null;
 
-    let currentDesc = '目前沒有阻塞任務，正在監看更新。';
-    const taskText = '目前進行中的主線：\n1) Camping App 穩定版收尾\n2) 私訊介面優化\n3) 官網內容維護';
-    const codeText = '正在進行小步快跑改版：改 UI → 本地檢查 → commit → push。';
-    const todoText = '待辦：\n- Web 穩定版最終回歸\n- 監控頁接真實狀態\n- 代管規則整理';
-    const scheduleText = '已安排：\n- 每小時巡檢（UI/UX + bug）\n- 異常時即時回報';
-
-    let scale=1;
-    function apply(){ document.getElementById('stage').style.transform=`scale(${scale})`; }
-    function zoom(d){ scale=Math.max(0.7,Math.min(1.8,scale+d)); apply(); }
-    function fit(){ scale=1; apply(); }
-
-    function applyLobsterStyle(){
-      const av=document.getElementById('lobster');
-      const pick=lobsterMap[lobsterStyle] || lobsterMap.brain;
-      av.textContent = pick.emoji;
-      av.className = `lobster hot ${pick.cls||''}`;
-      const sel=document.getElementById('lobsterStyle');
-      if(sel) sel.value = lobsterStyle;
-    }
-    function setLobsterStyle(v){
-      lobsterStyle=v;
-      localStorage.setItem('controlRoomLobsterStyle', v);
-      applyLobsterStyle();
+    function markRoom(){
+      document.querySelectorAll('.room').forEach(el=>el.classList.remove('active'));
+      document.getElementById('room-'+currentRoom).classList.add('active');
+      document.getElementById('statePill').textContent = `目前：${roomMeta[currentRoom].name}`;
+      document.getElementById('syncPill').textContent = `同步：${new Date().toLocaleTimeString()}`;
     }
 
-    function showDetail(t,b){
-      dTitle.textContent=t;
-      dBody.textContent=b;
+    function go(key){
+      const lob=document.getElementById('lobster');
+      const r=roomMeta[key]; if(!r) return;
+      currentRoom=key;
+      lob.classList.add('walking');
+      lob.style.left = `${r.x}px`;
+      lob.style.top = `${r.y}px`;
+      markRoom();
+      setTimeout(()=>lob.classList.remove('walking'), 900);
+    }
+
+    function showDetail(key){
+      const r=roomMeta[key] || roomMeta.idle;
+      dTitle.textContent = `${r.name}｜目前狀態`;
+      dBody.textContent = r.detail;
       detail.showModal();
     }
 
-    async function pollLive(){
-      const live=document.getElementById('live');
-      try{
-        const r=await fetch('http://127.0.0.1:18789/health',{cache:'no-store'});
-        if(!r.ok) throw new Error('health not ok');
-        live.textContent='Live: connected';
-        live.style.borderColor='#86efac';
-      }catch(e){
-        live.textContent='Live: demo mode';
-        live.style.borderColor='#fcd34d';
+    function toggleAuto(){
+      const btn=document.getElementById('autoBtn');
+      if(autoTimer){
+        clearInterval(autoTimer); autoTimer=null; btn.textContent='開啟自動巡房';
+        return;
       }
-      document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
+      const order=['idle','work','search','code','schedule'];
+      autoTimer=setInterval(()=>{
+        const idx=(order.indexOf(currentRoom)+1)%order.length;
+        go(order[idx]);
+      }, 4000);
+      btn.textContent='停止自動巡房';
     }
 
-    function tickStatus(){
-      const s=statusPool[Math.floor(Math.random()*statusPool.length)];
-      currentDesc = s.desc;
-      document.getElementById('nowStatus').textContent=`${s.dot} 狀態：${s.label}`;
-      document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
-    }
-
-    applyLobsterStyle();
-    tickStatus();
-    pollLive();
-    setInterval(tickStatus, 10000);
-    setInterval(pollLive, 15000);
+    markRoom();
   </script>
 </body>
 </html>
