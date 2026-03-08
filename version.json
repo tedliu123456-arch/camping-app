@@ -1,7 +1,16 @@
 {
-  "version": "46.7",
-  "lastUpdated": "2026-03-07",
+  "version": "46.8",
+  "lastUpdated": "2026-03-08",
   "changelog": [
+    {
+      "version": "46.8",
+      "date": "2026-03-08",
+      "changes": [
+        "上方分類文字字距由 0.3px 微調至 0.35px，標籤辨識更清晰（純 UI）",
+        "同步套用 index.html 與 platform-app.html，導覽文字樣式一致",
+        "介面版本更新為 v46.8"
+      ]
+    },
     {
       "version": "46.7",
       "date": "2026-03-08",
