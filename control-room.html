@@ -19,6 +19,10 @@
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
     .agent{display:flex;gap:14px;align-items:center}
     .avatar{width:90px;height:90px;border-radius:20px;background:#e8f0ff;display:flex;align-items:center;justify-content:center;font-size:52px}
+    .avatar.cool{background:#e0f2fe}
+    .avatar.coder{background:#ede9fe}
+    .avatar.boss{background:#fee2e2}
+    .avatar.cute{background:#dcfce7}
     .status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
     .status-idle{background:#94a3b8}.status-work{background:var(--busy)}.status-search{background:var(--warn)}.status-code{background:#8b5cf6}
     .task-list,.log-list{margin:8px 0 0;padding:0;list-style:none}
@@ -41,6 +45,7 @@
     <span class="pill" id="live">Live: connecting...</span>
     <button class="btn" onclick="zoom(-0.1)">－</button>
     <button class="btn" onclick="zoom(0.1)">＋</button>
+    <label class="pill" style="display:flex;gap:6px;align-items:center">龍蝦風格<select id="lobsterStyle" class="btn" style="padding:4px 8px" onchange="setLobsterStyle(this.value)"><option value="brain">經典</option><option value="cool">墨鏡</option><option value="coder">工程師</option><option value="boss">老闆</option><option value="cute">可愛</option></select></label>
     <button class="btn" onclick="fit()">適中大小</button>
   </div>
 
@@ -88,6 +93,15 @@
   </dialog>
 
   <script>
+    const lobsterMap = {
+      brain:{emoji:'🦞',cls:''},
+      cool:{emoji:'🦞🕶️',cls:'cool'},
+      coder:{emoji:'🦞💻',cls:'coder'},
+      boss:{emoji:'🦞👑',cls:'boss'},
+      cute:{emoji:'🦞✨',cls:'cute'}
+    };
+    let lobsterStyle = localStorage.getItem('controlRoomLobsterStyle') || 'brain';
+
     const statusPool = [
       {key:'idle',label:'待機',desc:'目前沒有阻塞任務，正在監看更新。',avatar:'😌',dot:'status-idle'},
       {key:'work',label:'工作中',desc:'正在處理你交辦的改版與部署。',avatar:'💻',dot:'status-work'},
@@ -129,6 +143,21 @@
     function zoom(d){ scale=Math.max(0.7,Math.min(1.6,scale+d)); apply(); }
     function fit(){ scale=1; apply(); }
 
+    function applyLobsterStyle(){
+      const av=document.getElementById('avatar');
+      const pick=lobsterMap[lobsterStyle] || lobsterMap.brain;
+      av.textContent = pick.emoji;
+      av.className = `avatar ${pick.cls||''}`;
+      const sel=document.getElementById('lobsterStyle');
+      if(sel) sel.value = lobsterStyle;
+    }
+
+    function setLobsterStyle(v){
+      lobsterStyle=v;
+      localStorage.setItem('controlRoomLobsterStyle', v);
+      applyLobsterStyle();
+    }
+
     function showDetail(t,b){
       dTitle.textContent=t; dBody.textContent=b; detail.showModal();
     }
@@ -144,7 +173,7 @@
         document.getElementById('risk').textContent='低';
         // health ok 時顯示工作中
         document.getElementById('nowStatus').textContent='狀態：工作中';
-        document.getElementById('avatar').textContent='💻';
+        applyLobsterStyle();
         document.getElementById('modeLine').innerHTML="<span class='status-dot status-work'></span>目前狀態：工作中";
         document.getElementById('modeDesc').textContent='已連線 OpenClaw Gateway，正在同步執行狀態。';
       }catch(e){
@@ -158,12 +187,13 @@
       const s=statusPool[Math.floor(Math.random()*statusPool.length)];
       if(document.getElementById('live').textContent.includes('connected')) return;
       document.getElementById('nowStatus').textContent=`狀態：${s.label}`;
-      document.getElementById('avatar').textContent=s.avatar;
+      applyLobsterStyle();
       document.getElementById('modeLine').innerHTML=`<span class='status-dot ${s.dot}'></span>目前狀態：${s.label}`;
       document.getElementById('modeDesc').textContent=s.desc;
       document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
     }
 
+    applyLobsterStyle();
     pollLive();
     setInterval(pollLive,15000);
     setInterval(tickDemo,10000);
