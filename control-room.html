@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw 控制室（卡通版）</title>
+  <title>OpenClaw 控制室（卡通辦公室）</title>
   <style>
-    :root{--bg:#f2f7ff;--card:#fff;--line:#dbe5ff;--txt:#1f2a44;--muted:#617099;--ok:#22c55e;--warn:#f59e0b;--busy:#3b82f6}
+    :root{--line:#dbe5ff;--txt:#1f2a44;--muted:#617099;--busy:#3b82f6}
     *{box-sizing:border-box}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#eef5ff,#f9fcff);color:var(--txt)}
     .top{position:sticky;top:0;z-index:9;background:#ffffffd9;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -14,71 +14,80 @@
     .btn{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:10px;cursor:pointer}
     .layout{padding:14px;max-width:1200px;margin:0 auto}
     .stage-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
-    .stage{min-width:980px;transform-origin:top left;padding:16px;background:repeating-linear-gradient(45deg,#f7fbff,#f7fbff 16px,#f2f8ff 16px,#f2f8ff 32px)}
-    .office{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
-    .agent{display:flex;gap:14px;align-items:center}
-    .avatar{width:90px;height:90px;border-radius:20px;background:#e8f0ff;display:flex;align-items:center;justify-content:center;font-size:52px}
-    .avatar.cool{background:#e0f2fe}
-    .avatar.coder{background:#ede9fe}
-    .avatar.boss{background:#fee2e2}
-    .avatar.cute{background:#dcfce7}
-    .status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-    .status-idle{background:#94a3b8}.status-work{background:var(--busy)}.status-search{background:var(--warn)}.status-code{background:#8b5cf6}
-    .task-list,.log-list{margin:8px 0 0;padding:0;list-style:none}
-    .task-item,.log-item{border:1px solid #e8eeff;background:#f8fbff;border-radius:10px;padding:9px 10px;margin-bottom:7px;cursor:pointer}
-    .task-item b{display:block}
-    .muted{color:var(--muted);font-size:13px}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stage{min-width:980px;transform-origin:top left;padding:18px;background:linear-gradient(180deg,#f7fbff,#eef4ff)}
+
+    .room{position:relative;height:620px;border:1px solid #d7e3ff;border-radius:18px;background:linear-gradient(180deg,#dfeeff 0%,#ecf5ff 55%,#d9e7f7 56%,#d9e7f7 100%);overflow:hidden}
+    .window{position:absolute;left:24px;top:24px;width:190px;height:120px;border:6px solid #bcd2f5;border-radius:12px;background:linear-gradient(180deg,#90c8ff,#d7efff)}
+    .shelf{position:absolute;right:24px;top:34px;width:240px;height:14px;background:#9db7df;border-radius:7px}
+    .plant{position:absolute;right:48px;top:50px;width:64px;height:84px;background:#8dd39f;border-radius:40px 40px 20px 20px}
+
+    .desk{position:absolute;left:120px;top:280px;width:740px;height:250px;background:#e8d5bc;border-radius:16px;border:3px solid #c8ae91}
+    .screen{position:absolute;left:330px;top:150px;width:260px;height:160px;background:#1e2b45;border:8px solid #334971;border-radius:12px;cursor:pointer}
+    .screen::after{content:'LIVE';position:absolute;right:10px;top:8px;color:#8bffb2;font-size:11px;font-weight:700}
+    .keyboard{position:absolute;left:350px;top:330px;width:220px;height:34px;background:#f7fbff;border:2px solid #c8d7ef;border-radius:8px;cursor:pointer}
+    .mug{position:absolute;left:620px;top:320px;width:44px;height:46px;background:#ffd3a6;border:2px solid #e9a86d;border-radius:8px 8px 16px 16px;cursor:pointer}
+    .mug::after{content:'';position:absolute;right:-12px;top:10px;width:12px;height:18px;border:3px solid #e9a86d;border-left:none;border-radius:0 8px 8px 0}
+    .note{position:absolute;left:190px;top:312px;width:74px;height:60px;background:#fff7a8;border:1px solid #e7dc73;border-radius:6px;cursor:pointer}
+    .calendar{position:absolute;right:140px;top:180px;width:120px;height:120px;background:#fff;border:2px solid #cddaf2;border-radius:10px;cursor:pointer}
+
+    .lobster{position:absolute;left:120px;top:130px;width:150px;height:150px;border-radius:26px;background:#e8f0ff;display:flex;align-items:center;justify-content:center;font-size:76px;border:3px solid #cfddff;cursor:pointer}
+    .lobster.cool{background:#e0f2fe}.lobster.coder{background:#ede9fe}.lobster.boss{background:#fee2e2}.lobster.cute{background:#dcfce7}
+
+    .hint{position:absolute;font-size:12px;color:#334155;background:#ffffffc9;border:1px solid #d7e4fb;border-radius:999px;padding:3px 8px}
+    .h-screen{left:404px;top:132px}.h-lob{left:124px;top:112px}.h-note{left:182px;top:292px}.h-cal{right:132px;top:160px}
+
+    .hot{transition:.18s ease}
+    .hot:hover{transform:translateY(-2px) scale(1.02)}
+
     dialog{border:none;border-radius:14px;max-width:560px;width:min(92vw,560px);padding:0}
     dialog::backdrop{background:#0008}
     .modal{padding:14px}
     .modal h3{margin:0 0 6px}
-    @media (max-width:900px){.office{grid-template-columns:1fr}.stage{min-width:760px}}
+    .muted{color:var(--muted);font-size:13px;line-height:1.6}
   </style>
 </head>
 <body>
   <div class="top">
     <h1>🦞 OpenClaw 控制室</h1>
-    <span class="pill" id="nowStatus">待機中</span>
+    <span class="pill" id="nowStatus">狀態：待機</span>
     <span class="pill" id="lastSync">最後同步：-</span>
     <span class="pill" id="live">Live: connecting...</span>
     <button class="btn" onclick="zoom(-0.1)">－</button>
     <button class="btn" onclick="zoom(0.1)">＋</button>
-    <label class="pill" style="display:flex;gap:6px;align-items:center">龍蝦風格<select id="lobsterStyle" class="btn" style="padding:4px 8px" onchange="setLobsterStyle(this.value)"><option value="brain">經典</option><option value="cool">墨鏡</option><option value="coder">工程師</option><option value="boss">老闆</option><option value="cute">可愛</option></select></label>
+    <label class="pill" style="display:flex;gap:6px;align-items:center">龍蝦風格
+      <select id="lobsterStyle" class="btn" style="padding:4px 8px" onchange="setLobsterStyle(this.value)">
+        <option value="brain">經典</option>
+        <option value="cool">墨鏡</option>
+        <option value="coder">工程師</option>
+        <option value="boss">老闆</option>
+        <option value="cute">可愛</option>
+      </select>
+    </label>
     <button class="btn" onclick="fit()">適中大小</button>
   </div>
 
   <div class="layout">
     <div class="stage-wrap">
       <div id="stage" class="stage">
-        <div class="office">
-          <section class="card">
-            <div class="agent">
-              <div class="avatar" id="avatar">🧠</div>
-              <div>
-                <div id="modeLine"><span class="status-dot status-idle"></span>目前狀態：待機</div>
-                <div class="muted" id="modeDesc">目前沒有阻塞任務，正在監看更新。</div>
-              </div>
-            </div>
-            <h3>目前在做什麼</h3>
-            <ul class="task-list" id="taskList"></ul>
-          </section>
+        <div class="room">
+          <div class="window"></div>
+          <div class="shelf"></div>
+          <div class="plant"></div>
 
-          <section class="card">
-            <h3>快速面板</h3>
-            <div class="grid2">
-              <div class="card" style="padding:10px"><div class="muted">模型</div><b id="model">gpt-5.3-codex</b></div>
-              <div class="card" style="padding:10px"><div class="muted">執行佇列</div><b id="queue">0</b></div>
-              <div class="card" style="padding:10px"><div class="muted">最近版本</div><b id="appVer">v47.0</b></div>
-              <div class="card" style="padding:10px"><div class="muted">風險</div><b id="risk">低</b></div>
-            </div>
-          </section>
+          <div id="lobster" class="lobster hot" onclick="showDetail('目前狀態', currentDesc)">🦞</div>
+          <div class="hint h-lob">點龍蝦看狀態</div>
 
-          <section class="card" style="grid-column:1/-1">
-            <h3>動作紀錄</h3>
-            <ul class="log-list" id="logs"></ul>
-          </section>
+          <div class="desk"></div>
+          <div class="screen hot" onclick="showDetail('目前任務', taskText)"></div>
+          <div class="hint h-screen">點螢幕看任務</div>
+
+          <div class="keyboard hot" onclick="showDetail('寫 Code 狀態', codeText)"></div>
+          <div class="mug hot" onclick="showDetail('工作節奏', '目前屬於連續迭代模式：小改版 → 測試 → 立即部署。')"></div>
+          <div class="note hot" onclick="showDetail('待辦事項', todoText)"></div>
+          <div class="hint h-note">點便條看待辦</div>
+
+          <div class="calendar hot" onclick="showDetail('已安排事項', scheduleText)"></div>
+          <div class="hint h-cal">點月曆看安排</div>
         </div>
       </div>
     </div>
@@ -103,55 +112,31 @@
     let lobsterStyle = localStorage.getItem('controlRoomLobsterStyle') || 'brain';
 
     const statusPool = [
-      {key:'idle',label:'待機',desc:'目前沒有阻塞任務，正在監看更新。',avatar:'😌',dot:'status-idle'},
-      {key:'work',label:'工作中',desc:'正在處理你交辦的改版與部署。',avatar:'💻',dot:'status-work'},
-      {key:'search',label:'搜尋資料',desc:'正在查找資料與驗證外部設定。',avatar:'🔎',dot:'status-search'},
-      {key:'code',label:'寫程式',desc:'正在修改程式、測試並推送版本。',avatar:'🛠️',dot:'status-code'}
+      {label:'待機',desc:'目前沒有阻塞任務，正在監看更新。',dot:'⚪'},
+      {label:'工作中',desc:'正在處理改版與部署，進度持續同步。',dot:'🔵'},
+      {label:'搜尋資料',desc:'正在查找外部設定與資料來源。',dot:'🟡'},
+      {label:'寫程式',desc:'正在修改程式碼與測試流程。',dot:'🟣'}
     ];
 
-    const tasks = [
-      {t:'Camping App 穩定版收尾',d:'回歸測試：發文/私訊/商家頁/登入流程，準備 v47.x 穩定版'},
-      {t:'公司網站內容維護',d:'品牌名稱校正、車型案例與影片區更新'},
-      {t:'登入整合追蹤',d:'Google/LINE 已打通，持續監看 callback 與授權設定'}
-    ];
-
-    const logs = [
-      '10:03 會員未登入可瀏覽全資訊規則已落地',
-      '09:57 私訊介面改為 Messenger 參考風格',
-      '昨天 公司網站已改為凡購國際實業社並上線'
-    ];
-
-    const taskList = document.getElementById('taskList');
-    tasks.forEach(x=>{
-      const li=document.createElement('li');
-      li.className='task-item';
-      li.innerHTML=`<b>${x.t}</b><span class='muted'>${x.d}</span>`;
-      li.onclick=()=>showDetail(x.t,x.d);
-      taskList.appendChild(li);
-    });
-
-    const logsEl=document.getElementById('logs');
-    logs.forEach(x=>{
-      const li=document.createElement('li');
-      li.className='log-item';
-      li.textContent=x;
-      logsEl.appendChild(li);
-    });
+    let currentDesc = '目前沒有阻塞任務，正在監看更新。';
+    const taskText = '目前進行中的主線：\n1) Camping App 穩定版收尾\n2) 私訊介面優化\n3) 官網內容維護';
+    const codeText = '正在進行小步快跑改版：改 UI → 本地檢查 → commit → push。';
+    const todoText = '待辦：\n- Web 穩定版最終回歸\n- 監控頁接真實狀態\n- 代管規則整理';
+    const scheduleText = '已安排：\n- 每小時巡檢（UI/UX + bug）\n- 異常時即時回報';
 
     let scale=1;
     function apply(){ document.getElementById('stage').style.transform=`scale(${scale})`; }
-    function zoom(d){ scale=Math.max(0.7,Math.min(1.6,scale+d)); apply(); }
+    function zoom(d){ scale=Math.max(0.7,Math.min(1.8,scale+d)); apply(); }
     function fit(){ scale=1; apply(); }
 
     function applyLobsterStyle(){
-      const av=document.getElementById('avatar');
+      const av=document.getElementById('lobster');
       const pick=lobsterMap[lobsterStyle] || lobsterMap.brain;
       av.textContent = pick.emoji;
-      av.className = `avatar ${pick.cls||''}`;
+      av.className = `lobster hot ${pick.cls||''}`;
       const sel=document.getElementById('lobsterStyle');
       if(sel) sel.value = lobsterStyle;
     }
-
     function setLobsterStyle(v){
       lobsterStyle=v;
       localStorage.setItem('controlRoomLobsterStyle', v);
@@ -159,7 +144,9 @@
     }
 
     function showDetail(t,b){
-      dTitle.textContent=t; dBody.textContent=b; detail.showModal();
+      dTitle.textContent=t;
+      dBody.textContent=b;
+      detail.showModal();
     }
 
     async function pollLive(){
@@ -167,15 +154,8 @@
       try{
         const r=await fetch('http://127.0.0.1:18789/health',{cache:'no-store'});
         if(!r.ok) throw new Error('health not ok');
-        const txt=await r.text();
         live.textContent='Live: connected';
         live.style.borderColor='#86efac';
-        document.getElementById('risk').textContent='低';
-        // health ok 時顯示工作中
-        document.getElementById('nowStatus').textContent='狀態：工作中';
-        applyLobsterStyle();
-        document.getElementById('modeLine').innerHTML="<span class='status-dot status-work'></span>目前狀態：工作中";
-        document.getElementById('modeDesc').textContent='已連線 OpenClaw Gateway，正在同步執行狀態。';
       }catch(e){
         live.textContent='Live: demo mode';
         live.style.borderColor='#fcd34d';
@@ -183,20 +163,18 @@
       document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
     }
 
-    function tickDemo(){
+    function tickStatus(){
       const s=statusPool[Math.floor(Math.random()*statusPool.length)];
-      if(document.getElementById('live').textContent.includes('connected')) return;
-      document.getElementById('nowStatus').textContent=`狀態：${s.label}`;
-      applyLobsterStyle();
-      document.getElementById('modeLine').innerHTML=`<span class='status-dot ${s.dot}'></span>目前狀態：${s.label}`;
-      document.getElementById('modeDesc').textContent=s.desc;
+      currentDesc = s.desc;
+      document.getElementById('nowStatus').textContent=`${s.dot} 狀態：${s.label}`;
       document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
     }
 
     applyLobsterStyle();
+    tickStatus();
     pollLive();
-    setInterval(pollLive,15000);
-    setInterval(tickDemo,10000);
+    setInterval(tickStatus, 10000);
+    setInterval(pollLive, 15000);
   </script>
 </body>
 </html>
