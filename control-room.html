@@ -20,6 +20,20 @@
     .room{position:absolute;border:3px solid #b7cdf5;border-radius:18px;background:#ffffff;box-shadow:0 8px 18px #dfeaff;cursor:pointer}
     .room h3{margin:0;font-size:14px;padding:10px 12px;border-bottom:1px solid #e5eeff;background:#f7fbff;border-radius:14px 14px 0 0}
     .room .mini{padding:10px 12px;font-size:12px;color:var(--muted)}
+    .deco{position:absolute;pointer-events:none}
+    .tv{width:110px;height:66px;border:4px solid #475569;border-radius:10px;background:#0ea5e9;left:70px;top:88px}
+    .sofa{width:140px;height:52px;border-radius:14px;background:#fca5a5;left:128px;top:162px;border:2px solid #ef4444}
+    .desk-mini{width:130px;height:44px;border-radius:10px;background:#e8d5bc;border:2px solid #c8ae91;left:420px;top:160px}
+    .kb-mini{width:76px;height:16px;border-radius:6px;background:#f8fafc;border:1px solid #cbd5e1;left:448px;top:186px}
+    .cabinet{width:58px;height:128px;border-radius:8px;background:#94a3b8;border:2px solid #64748b;left:712px;top:90px}
+    .doc1,.doc2,.doc3{width:42px;height:26px;border-radius:5px;background:#e2e8f0;border:1px solid #94a3b8}
+    .doc1{left:782px;top:110px}.doc2{left:808px;top:148px}.doc3{left:776px;top:182px}
+    .whiteboard{width:170px;height:110px;border-radius:10px;background:#fff;border:3px solid #93c5fd;left:610px;top:340px}
+    .task-dot{width:12px;height:12px;border-radius:50%;background:#60a5fa}
+    .task-dot.t1{left:628px;top:360px}.task-dot.t2{left:628px;top:385px}.task-dot.t3{left:628px;top:410px}
+    .code-monitor{width:120px;height:78px;border-radius:10px;background:#1e293b;border:3px solid #334155;left:270px;top:352px}
+    .code-line{height:6px;background:#22d3ee;border-radius:3px;position:absolute}
+    .code-line.c1{width:70px;left:292px;top:380px}.code-line.c2{width:84px;left:292px;top:395px}.code-line.c3{width:58px;left:292px;top:410px}
     .room.active{border-color:#5b8cff;box-shadow:0 0 0 4px #dfe9ff,0 8px 18px #dfeaff}
 
     #room-idle{left:40px;top:40px;width:280px;height:220px}
@@ -65,24 +79,36 @@
       <div class="map" id="map">
         <div class="room" id="room-idle" onclick="go('idle')">
           <h3>待機室</h3>
-          <div class="mini">休息、監看、等待新任務</div>
+          <div class="mini">待機時在沙發看電視、監看通知</div>
         </div>
         <div class="room" id="room-work" onclick="go('work')">
           <h3>工作室</h3>
-          <div class="mini">處理你交辦的即時任務</div>
+          <div class="mini">工作時在辦公桌上處理任務</div>
         </div>
         <div class="room" id="room-search" onclick="go('search')">
           <h3>搜尋室</h3>
-          <div class="mini">查資料、驗證設定、找原因</div>
+          <div class="mini">搜尋時在資料櫃與文件區找資訊</div>
         </div>
         <div class="room" id="room-code" onclick="go('code')">
           <h3>開發室</h3>
-          <div class="mini">寫 code、修 bug、測試與部署</div>
+          <div class="mini">開發室持續寫 code、修 bug、測試</div>
         </div>
         <div class="room" id="room-schedule" onclick="go('schedule')">
           <h3>排程室</h3>
-          <div class="mini">整理待辦、規劃下一步、版本節點</div>
+          <div class="mini">在白板整理待辦與時程規劃</div>
         </div>
+
+        
+        <div class="deco tv"></div>
+        <div class="deco sofa"></div>
+        <div class="deco desk-mini"></div>
+        <div class="deco kb-mini"></div>
+        <div class="deco cabinet"></div>
+        <div class="deco doc1"></div><div class="deco doc2"></div><div class="deco doc3"></div>
+        <div class="deco code-monitor"></div>
+        <div class="deco code-line c1"></div><div class="deco code-line c2"></div><div class="deco code-line c3"></div>
+        <div class="deco whiteboard"></div>
+        <div class="deco task-dot t1"></div><div class="deco task-dot t2"></div><div class="deco task-dot t3"></div>
 
         <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">
           <span class="face">🦞</span>
