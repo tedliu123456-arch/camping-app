@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v46.9（需求整合版）</title>
+  <title>Camping App v47.0（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -159,7 +159,7 @@
       <div id="contestBanner" class="card contest-banner">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
           <div style="font-weight:800">📸 會員照片比賽（社群首頁限定）</div>
-          <button class="btn" onclick="openPostModal('contest')">📷 我要投稿</button>
+          <button id="contestPostBtnTop" class="btn" onclick="openPostModal('contest')">📷 我要投稿</button>
         </div>
         <div class="muted" style="color:#dbeafe">每位會員每日 2 票，不可重複投同一作品；12:10 刷新</div>
         <div id="contestBannerList" class="contest-row"></div>
@@ -168,7 +168,7 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div style="font-weight:800">社群貼文</div>
-          <button class="btn" onclick="openPostModal('social')">＋ 發文</button>
+          <button id="socialPostBtnTop" class="btn" onclick="openPostModal('social')">＋ 發文</button>
         </div>
         <div id="feedList" style="margin-top:10px"></div>
       </div>
@@ -245,7 +245,7 @@
       <div class="sheet-head"><h3 style="margin:0">會員照片比賽</h3><button class="btn ghost" onclick="closeContestModal()">關閉</button></div>
       <div id="voteHint" class="muted"></div>
       <div id="contestEntries" class="contest-grid" style="margin-top:10px"></div>
-      <div style="margin-top:10px"><button class="btn" onclick="openPostModal('contest')">📷 我要投稿</button></div>
+      <div style="margin-top:10px"><button id="contestPostBtnModal" class="btn" onclick="openPostModal('contest')">📷 我要投稿</button></div>
     </div>
   </div>
 
@@ -324,7 +324,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '46.9';
+    const APP_VERSION = '47.0';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -671,6 +671,22 @@
       const menuLogout = document.getElementById('userMenuLogout');
       if(menuProfile) menuProfile.style.display = isMember() ? 'block' : 'none';
       if(menuLogout) menuLogout.style.display = loggedIn ? 'block' : 'none';
+
+      // 訪客可瀏覽全部資訊，但不可發文/投稿/私訊/評論
+      const memberOnly = !isMember();
+      const dmOnly = !canMessage();
+      const postBtns = ['socialPostBtnTop','contestPostBtnTop','contestPostBtnModal','bn-post'];
+      postBtns.forEach(id=>{
+        const b=document.getElementById(id);
+        if(!b) return;
+        b.disabled = memberOnly;
+        b.style.opacity = memberOnly ? '0.55' : '1';
+      });
+      const dmBtn=document.getElementById('bn-dm');
+      if(dmBtn){
+        dmBtn.disabled = dmOnly;
+        dmBtn.style.opacity = dmOnly ? '0.55' : '1';
+      }
     }
 
     function renderAnnouncements(){
@@ -777,7 +793,7 @@
         ${rentalExtra}
         <div class="actions">
           <button class="btn ghost" onclick="openStoreDetail('${s.id}')">完整資料</button><button class="btn ghost" onclick="openMapTo('${encodeURIComponent(s.address||s.name)}')">地圖</button>
-          <button class="btn ghost" onclick="contactStore('${s.id}')">私訊商家</button>
+          <button class="btn ghost" ${!isMember()?'disabled':''} onclick="contactStore('${s.id}')">私訊商家</button>
         </div>
         <div style="margin-top:8px">
           <div class="muted">評論 ${comments.length}</div>
