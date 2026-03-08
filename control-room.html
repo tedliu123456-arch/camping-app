@@ -38,6 +38,7 @@
     <h1>🦞 OpenClaw 控制室</h1>
     <span class="pill" id="nowStatus">待機中</span>
     <span class="pill" id="lastSync">最後同步：-</span>
+    <span class="pill" id="live">Live: connecting...</span>
     <button class="btn" onclick="zoom(-0.1)">－</button>
     <button class="btn" onclick="zoom(0.1)">＋</button>
     <button class="btn" onclick="fit()">適中大小</button>
@@ -132,16 +133,40 @@
       dTitle.textContent=t; dBody.textContent=b; detail.showModal();
     }
 
-    function tick(){
+    async function pollLive(){
+      const live=document.getElementById('live');
+      try{
+        const r=await fetch('http://127.0.0.1:18789/health',{cache:'no-store'});
+        if(!r.ok) throw new Error('health not ok');
+        const txt=await r.text();
+        live.textContent='Live: connected';
+        live.style.borderColor='#86efac';
+        document.getElementById('risk').textContent='低';
+        // health ok 時顯示工作中
+        document.getElementById('nowStatus').textContent='狀態：工作中';
+        document.getElementById('avatar').textContent='💻';
+        document.getElementById('modeLine').innerHTML="<span class='status-dot status-work'></span>目前狀態：工作中";
+        document.getElementById('modeDesc').textContent='已連線 OpenClaw Gateway，正在同步執行狀態。';
+      }catch(e){
+        live.textContent='Live: demo mode';
+        live.style.borderColor='#fcd34d';
+      }
+      document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
+    }
+
+    function tickDemo(){
       const s=statusPool[Math.floor(Math.random()*statusPool.length)];
+      if(document.getElementById('live').textContent.includes('connected')) return;
       document.getElementById('nowStatus').textContent=`狀態：${s.label}`;
       document.getElementById('avatar').textContent=s.avatar;
       document.getElementById('modeLine').innerHTML=`<span class='status-dot ${s.dot}'></span>目前狀態：${s.label}`;
       document.getElementById('modeDesc').textContent=s.desc;
       document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
     }
-    tick();
-    setInterval(tick, 10000);
+
+    pollLive();
+    setInterval(pollLive,15000);
+    setInterval(tickDemo,10000);
   </script>
 </body>
 </html>
