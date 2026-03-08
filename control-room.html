@@ -3,70 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw RPG 控制室（Minecraft 風）</title>
+  <title>OpenClaw 控制室（2.5D 等角版）</title>
   <style>
-    :root{--ink:#e8f5e9;--line:#2f5d31;--panel:#3f6f3f;--bg:#1f3a1f;--tileA:#4f7f4f;--tileB:#3f6f3f}
+    :root{
+      --bg:#1b1a19;
+      --panel:#2b2927;
+      --ink:#f2e7d2;
+      --muted:#c9b89d;
+      --line:#6f5d46;
+      --tile-top:#a28563;
+      --tile-left:#8b6f50;
+      --tile-right:#765c43;
+      --wood-top:#b48a5f;
+      --wood-left:#8f6946;
+      --wood-right:#6f5037;
+      --stone-top:#b9b0a3;
+      --stone-left:#8f877b;
+      --stone-right:#70695f;
+    }
     *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#1b331b,#152915);color:var(--ink)}
-    .top{position:sticky;top:0;z-index:10;background:#1d2e1ddd;border-bottom:2px solid #2f5d31;padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    body{margin:0;background:radial-gradient(1200px 700px at 50% -80px,#3a3129,#171513);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+    .top{position:sticky;top:0;z-index:20;background:#171513dd;border-bottom:1px solid #3c332b;padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .top h1{margin:0;font-size:18px}
-    .pill{padding:4px 10px;border:2px solid #3f7a44;border-radius:4px;font-size:12px;background:#274927;color:#d9f3d9}
-    .btn{border:2px solid #4a8a4e;background:#2f5f34;color:#e8f5e9;padding:7px 10px;border-radius:4px;cursor:pointer}
+    .pill{padding:4px 10px;border:1px solid #4a3f34;border-radius:999px;background:#241f1b;font-size:12px;color:#e7d8bf}
+    .btn{padding:7px 10px;border-radius:8px;border:1px solid #4a3f34;background:#2a231d;color:#f0dfc5;cursor:pointer}
+
     .wrap{max-width:1240px;margin:0 auto;padding:14px}
-    .map-wrap{overflow:auto;border:2px solid #2f5d31;border-radius:8px;background:#264426}
-    .map{position:relative;min-width:1060px;height:690px;background:repeating-linear-gradient(0deg,var(--tileA) 0 22px,var(--tileB) 22px 44px),repeating-linear-gradient(90deg,#0002 0 22px,#0000 22px 44px)}
+    .stage-wrap{overflow:auto;border:1px solid #44382d;border-radius:12px;background:#201a16}
+    .stage{position:relative;min-width:1200px;height:760px;background:linear-gradient(180deg,#2b241f,#1d1814)}
 
-    .room{position:absolute;background:#6fa66f;border:4px solid #2f5d31;box-shadow:inset -8px -8px 0 #4f8a4f,inset 8px 8px 0 #8ec68e;cursor:pointer}
-    .room h3{margin:0;font-size:14px;padding:9px 10px;border-bottom:3px solid #2f5d31;background:#7bb57b}
-    .room .mini{padding:8px 10px;font-size:12px;color:#183018}
-    .room.active{border-color:#d4f16d;box-shadow:0 0 0 4px #d4f16d55,inset -8px -8px 0 #4f8a4f,inset 8px 8px 0 #9ad39a}
+    /* isometric floor */
+    .floor{position:absolute;left:120px;top:110px;width:950px;height:560px;transform:skewY(-26deg) scaleY(.5);background:
+      repeating-linear-gradient(0deg,#0002 0 1px,#0000 1px 40px),
+      repeating-linear-gradient(90deg,#0002 0 1px,#0000 1px 40px),
+      linear-gradient(180deg,#6f5a45,#5c4a39);border:2px solid #8e7358}
 
-    #room-idle{left:36px;top:36px;width:305px;height:250px}
-    #room-work{left:382px;top:36px;width:305px;height:250px}
-    #room-search{left:728px;top:36px;width:300px;height:250px}
-    #room-code{left:170px;top:332px;width:345px;height:255px}
-    #room-schedule{left:548px;top:332px;width:380px;height:255px}
+    .room{position:absolute;cursor:pointer;filter:drop-shadow(0 10px 8px #0008)}
+    .room .top-face{position:absolute;transform:skewY(-26deg) scaleY(.5);transform-origin:0 0}
+    .room .left-face{position:absolute;transform:skewY(26deg) scaleY(.5);transform-origin:0 0}
+    .room .right-face{position:absolute;transform:skewY(-26deg) scaleY(.5);transform-origin:0 0}
+    .room .label{position:absolute;left:8px;top:8px;padding:2px 7px;border-radius:999px;border:1px solid #0003;background:#0004;font-size:12px}
+    .room.active .label{background:#6aa6ff55;border-color:#9ac1ff}
 
-    .px{position:absolute;image-rendering:pixelated;pointer-events:none}
-    .tv{left:102px;top:116px;width:110px;height:72px;background:#111;border:4px solid #333;box-shadow:inset 0 0 0 6px #39ff14}
-    .tv::after{content:'LIVE';position:absolute;right:8px;top:6px;color:#9eff8c;font-size:10px;font-weight:700}
-    .sofa{left:138px;top:200px;width:148px;height:52px;background:#8b5a2b;border:4px solid #5a3817;box-shadow:inset 0 8px 0 #a16a35}
-    .desk{left:464px;top:188px;width:150px;height:60px;background:#7d5a3a;border:4px solid #4f3824}
-    .kb{left:498px;top:226px;width:82px;height:18px;background:#ddd;border:3px solid #999}
-    .monitor{left:500px;top:136px;width:92px;height:54px;background:#111;border:4px solid #444;box-shadow:inset 0 0 0 5px #57a8ff}
-    .cab{left:778px;top:112px;width:66px;height:150px;background:#7a7a7a;border:4px solid #4b4b4b}
-    .doc{width:46px;height:28px;background:#f0f0f0;border:3px solid #aaa}.d1{left:856px;top:130px}.d2{left:882px;top:170px}.d3{left:848px;top:212px}
-    .codepanel{left:246px;top:398px;width:128px;height:84px;background:#121212;border:4px solid #3a3a3a}
-    .line{position:absolute;height:6px;background:#00e676}.l1{left:262px;top:424px;width:78px}.l2{left:262px;top:442px;width:96px}.l3{left:262px;top:460px;width:64px}
-    .board{left:646px;top:392px;width:196px;height:130px;background:#d9f3d9;border:4px solid #3f7a44}
-    .dot{width:12px;height:12px;background:#2f5d31}.t1{left:666px;top:418px}.t2{left:666px;top:446px}.t3{left:666px;top:474px}
+    /* generic block furniture */
+    .blk{position:absolute;filter:drop-shadow(0 6px 4px #0007)}
+    .blk .t{position:absolute;transform:skewY(-26deg) scaleY(.5);transform-origin:0 0}
+    .blk .l{position:absolute;transform:skewY(26deg) scaleY(.5);transform-origin:0 0}
+    .blk .r{position:absolute;transform:skewY(-26deg) scaleY(.5);transform-origin:0 0}
 
-    .lobster{position:absolute;left:132px;top:156px;width:92px;height:76px;z-index:8;transition:left .6s steps(6), top .6s steps(6);cursor:pointer;filter:drop-shadow(0 8px 4px #0005)}
-    .lobster .body{position:absolute;inset:12px 14px 8px 14px;background:linear-gradient(145deg,#ff9f6b,#e45f37);border:3px solid #7a2c18;border-radius:14px;transform:skewX(-10deg)}
-    .lobster .shell{position:absolute;left:26px;top:18px;width:38px;height:22px;border-radius:8px;background:linear-gradient(145deg,#ffbe8a,#ff8a5b);border:2px solid #9a3e24;transform:skewX(-10deg)}
-    .lobster .eye{position:absolute;top:20px;width:8px;height:8px;border-radius:50%;background:#111}
-    .lobster .eye.left{left:34px}.lobster .eye.right{left:50px}
-    .lobster .claw{position:absolute;top:26px;width:18px;height:16px;background:linear-gradient(145deg,#ff8f60,#d84f2f);border:2px solid #7a2c18;border-radius:6px}
-    .lobster .claw.left{left:4px;transform:rotate(-12deg)}
-    .lobster .claw.right{right:4px;transform:rotate(12deg)}
-    .lobster .leg{position:absolute;bottom:6px;width:10px;height:8px;background:#b64a2d;border-radius:0 0 6px 6px}
-    .lobster .leg.l1{left:28px}.lobster .leg.l2{left:42px}.lobster .leg.l3{left:56px}
-    .lobster.walking{animation:hop .24s linear infinite}
-    @keyframes hop{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+    /* lobster 2.5D */
+    .lobster{position:absolute;left:210px;top:260px;width:64px;height:64px;transition:left .9s linear, top .9s linear;z-index:15;filter:drop-shadow(0 8px 6px #0009)}
+    .lobster .core{position:absolute;left:10px;top:18px;width:44px;height:30px;background:linear-gradient(180deg,#ff9d70,#dd5a34);border:2px solid #7d2e1a;border-radius:12px}
+    .lobster .shell{position:absolute;left:18px;top:10px;width:28px;height:16px;background:#ffb489;border:2px solid #9b3f24;border-radius:7px}
+    .lobster .claw{position:absolute;top:22px;width:14px;height:12px;background:#e86c44;border:2px solid #7d2e1a;border-radius:5px}
+    .lobster .claw.l{left:0}.lobster .claw.r{right:0}
+    .lobster .eye{position:absolute;top:16px;width:5px;height:5px;background:#151515;border-radius:50%}
+    .lobster .eye.l{left:26px}.lobster .eye.r{left:36px}
+    .lobster .leg{position:absolute;bottom:8px;width:8px;height:5px;background:#a7432b;border-radius:0 0 4px 4px}
+    .lobster .leg.l1{left:20px}.lobster .leg.l2{left:30px}.lobster .leg.l3{left:40px}
 
-    .door{position:absolute;width:26px;height:18px;background:#8b6b3f;border:2px solid #5a4326;pointer-events:none}.door.d1{left:352px;top:150px}.door.d2{left:700px;top:150px}.door.d3{left:536px;top:312px}
-    .legend{position:absolute;right:14px;bottom:14px;background:#274927;border:2px solid #3f7a44;border-radius:6px;padding:8px 10px;font-size:12px;color:#d9f3d9}
+    .hint{position:absolute;right:12px;bottom:12px;padding:8px 10px;border:1px solid #4a3f34;border-radius:10px;background:#241f1b;color:var(--muted);font-size:12px}
 
-    dialog{border:none;border-radius:10px;max-width:560px;width:min(92vw,560px);padding:0}
+    dialog{border:none;border-radius:12px;max-width:560px;width:min(92vw,560px);padding:0}
     dialog::backdrop{background:#0008}
-    .modal{padding:14px;background:#213f21;color:#e8f5e9}
+    .modal{padding:14px;background:#211b17;color:#eddcc2}
     .modal h3{margin:0 0 6px}
-    .muted{color:#c7e6c7;font-size:13px;line-height:1.6}
+    .muted{color:#ccbca2;font-size:13px;line-height:1.6}
   </style>
 </head>
 <body>
   <div class="top">
-    <h1>🦞 OpenClaw RPG 控制室</h1>
+    <h1>🦞 OpenClaw 2.5D 控制室</h1>
     <span class="pill" id="statePill">目前：待機室</span>
     <span class="pill" id="syncPill">同步：-</span>
     <button class="btn" onclick="toggleAuto()" id="autoBtn">開啟自動巡房</button>
@@ -78,30 +85,28 @@
   </div>
 
   <div class="wrap">
-    <div class="map-wrap">
-      <div class="map">
-        <div class="room" id="room-idle" onclick="go('idle')"><h3>待機室</h3><div class="mini">方塊沙發區，監看通知</div></div>
-        <div class="room" id="room-work" onclick="go('work')"><h3>工作室</h3><div class="mini">方塊工作桌，處理任務</div></div>
-        <div class="room" id="room-search" onclick="go('search')"><h3>搜尋室</h3><div class="mini">資料箱 + 文件，查資料</div></div>
-        <div class="room" id="room-code" onclick="go('code')"><h3>開發室</h3><div class="mini">程式工坊，修 bug / 寫 code</div></div>
-        <div class="room" id="room-schedule" onclick="go('schedule')"><h3>排程室</h3><div class="mini">任務告示板，規劃時程</div></div>
+    <div class="stage-wrap">
+      <div class="stage">
+        <div class="floor"></div>
 
-        <div class="px tv"></div><div class="px sofa"></div>
-        <div class="px desk"></div><div class="px kb"></div><div class="px monitor"></div>
-        <div class="px cab"></div><div class="px doc d1"></div><div class="px doc d2"></div><div class="px doc d3"></div>
-        <div class="px codepanel"></div><div class="px line l1"></div><div class="px line l2"></div><div class="px line l3"></div>
-        <div class="px board"></div><div class="px dot t1"></div><div class="px dot t2"></div><div class="px dot t3"></div>
+        <!-- rooms -->
+        <div class="room" id="room-idle" onclick="go('idle')"></div>
+        <div class="room" id="room-work" onclick="go('work')"></div>
+        <div class="room" id="room-search" onclick="go('search')"></div>
+        <div class="room" id="room-code" onclick="go('code')"></div>
+        <div class="room" id="room-schedule" onclick="go('schedule')"></div>
 
-        <div class="door d1"></div><div class="door d2"></div><div class="door d3"></div>
+        <!-- furniture blocks -->
+        <div id="furn"></div>
 
         <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">
-          <div class="body"></div>
-          <div class="shell"></div>
-          <div class="eye left"></div><div class="eye right"></div>
-          <div class="claw left"></div><div class="claw right"></div>
+          <div class="shell"></div><div class="core"></div>
+          <div class="claw l"></div><div class="claw r"></div>
+          <div class="eye l"></div><div class="eye r"></div>
           <div class="leg l1"></div><div class="leg l2"></div><div class="leg l3"></div>
         </div>
-        <div class="legend">Minecraft 風家具已啟用｜點房間讓龍蝦跳步移動</div>
+
+        <div class="hint">2.5D 等角視角｜點房間移動龍蝦（平移走路，無擺動）</div>
       </div>
     </div>
   </div>
@@ -109,15 +114,53 @@
   <dialog id="detail"><div class="modal"><h3 id="dTitle">詳情</h3><p id="dBody" class="muted">-</p><button class="btn" onclick="detail.close()">關閉</button></div></dialog>
 
   <script>
-    const roomMeta = {
-      idle:{name:'待機室', x:132, y:158, detail:'目前在待機室，監看通知與新任務。'},
-      work:{name:'工作室', x:470, y:158, detail:'目前在工作室，處理你交辦的任務。'},
-      search:{name:'搜尋室', x:800, y:158, detail:'目前在搜尋室，查找資料與驗證設定。'},
-      code:{name:'開發室', x:300, y:455, detail:'目前在開發室，寫 code / 測試 / 修 bug。'},
-      schedule:{name:'排程室', x:700, y:455, detail:'目前在排程室，整理待辦與時程。'}
+    const roomMeta={
+      idle:{name:'待機室',x:220,y:250,detail:'在休息區監看通知與新任務。',rect:[170,170,180,140]},
+      work:{name:'工作室',x:430,y:245,detail:'在工作桌處理你交辦的任務。',rect:[400,160,200,150]},
+      search:{name:'搜尋室',x:700,y:235,detail:'在資料區查找文件與設定資訊。',rect:[660,150,210,150]},
+      code:{name:'開發室',x:360,y:465,detail:'在開發工坊寫 code、測試、修 bug。',rect:[300,360,240,170]},
+      schedule:{name:'排程室',x:660,y:455,detail:'在告示板整理待辦與時程。',rect:[600,350,260,180]}
     };
-
     let currentRoom='idle', autoTimer=null;
+
+    function buildRoom(el,key){
+      const [x,y,w,h]=roomMeta[key].rect;
+      el.style.left=x+'px'; el.style.top=y+'px'; el.style.width=w+'px'; el.style.height=h+'px';
+      el.innerHTML=`
+        <div class="top-face" style="left:0;top:0;width:${w}px;height:${h}px;background:var(--tile-top);border:2px solid #0002"></div>
+        <div class="left-face" style="left:-18px;top:${h*0.26}px;width:18px;height:${h}px;background:var(--tile-left)"></div>
+        <div class="right-face" style="left:${w}px;top:${h*0.26}px;width:18px;height:${h}px;background:var(--tile-right)"></div>
+        <div class="label">${roomMeta[key].name}</div>`;
+    }
+
+    function block(x,y,w,h,cTop,cLeft,cRight,parent){
+      const d=document.createElement('div'); d.className='blk'; d.style.left=x+'px'; d.style.top=y+'px'; d.style.width=w+'px'; d.style.height=h+'px';
+      d.innerHTML=`<div class="t" style="left:0;top:0;width:${w}px;height:${h}px;background:${cTop}"></div>
+                   <div class="l" style="left:-10px;top:${h*0.26}px;width:10px;height:${h}px;background:${cLeft}"></div>
+                   <div class="r" style="left:${w}px;top:${h*0.26}px;width:10px;height:${h}px;background:${cRight}"></div>`;
+      parent.appendChild(d);
+    }
+
+    function buildFurniture(){
+      const p=document.getElementById('furn'); p.innerHTML='';
+      // idle room: bench + hearth
+      block(210,225,90,38,'#6f2f27','#4f201b','#3f1915',p);
+      block(248,196,44,28,'#d07a3c','#8b4f25','#6e3f1f',p);
+      // work room: desk + keyboard + monitor
+      block(450,225,120,40,'var(--wood-top)','var(--wood-left)','var(--wood-right)',p);
+      block(478,245,56,14,'#ddd','#b0b0b0','#8f8f8f',p);
+      block(486,198,54,30,'#1c1f24','#111','#0b0b0b',p);
+      // search room: cabinet + docs
+      block(726,198,46,72,'var(--stone-top)','var(--stone-left)','var(--stone-right)',p);
+      block(780,228,44,18,'#e7dbc6','#c4b39a','#a89178',p);
+      // code room: workstation
+      block(350,430,120,42,'#3a2f25','#2a2018','#211810',p);
+      block(374,400,66,34,'#1b2330','#121821','#0d1118',p);
+      // schedule room: board + notes
+      block(662,415,124,56,'#d8c3a2','#ae8d62','#8c6f4f',p);
+      block(700,436,16,12,'#4a77c8','#355d9f','#284a82',p);
+      block(700,454,16,12,'#4a77c8','#355d9f','#284a82',p);
+    }
 
     function markRoom(){
       document.querySelectorAll('.room').forEach(el=>el.classList.remove('active'));
@@ -129,27 +172,24 @@
     function go(key){
       const r=roomMeta[key]; if(!r) return;
       currentRoom=key;
-      lobster.classList.add('walking');
-      lobster.style.left=r.x+'px';
-      lobster.style.top=r.y+'px';
+      lobster.style.left=r.x+'px'; lobster.style.top=r.y+'px';
       markRoom();
-      setTimeout(()=>lobster.classList.remove('walking'),900);
     }
 
     function showDetail(key){
       const r=roomMeta[key]||roomMeta.idle;
-      dTitle.textContent=`${r.name}｜目前狀態`;
-      dBody.textContent=r.detail;
-      detail.showModal();
+      dTitle.textContent=`${r.name}｜目前狀態`; dBody.textContent=r.detail; detail.showModal();
     }
 
     function toggleAuto(){
       if(autoTimer){ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='開啟自動巡房'; return; }
       const seq=['idle','work','search','code','schedule'];
-      autoTimer=setInterval(()=>{ go(seq[(seq.indexOf(currentRoom)+1)%seq.length]); },3800);
+      autoTimer=setInterval(()=>go(seq[(seq.indexOf(currentRoom)+1)%seq.length]),3200);
       autoBtn.textContent='停止自動巡房';
     }
 
+    ['idle','work','search','code','schedule'].forEach(k=>buildRoom(document.getElementById('room-'+k),k));
+    buildFurniture();
     markRoom();
   </script>
 </body>
