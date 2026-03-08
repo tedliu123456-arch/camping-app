@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v46.0（需求整合版）</title>
+  <title>Camping App v46.9（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -94,11 +94,21 @@
     .upload-track{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;border:1px solid #d1d5db}
     .upload-fill{height:100%;width:0%;background:linear-gradient(90deg,#2563eb,#0ea5e9);transition:width .2s ease;box-shadow:0 0 0 1px rgba(255,255,255,.18) inset}
     .dm-thread-active{background:#2563eb !important;color:#fff !important;border-color:#2563eb !important}
-    .dm-layout{display:grid;grid-template-columns:240px 1fr;gap:10px;min-height:56vh}
+    .dm-layout{display:grid;grid-template-columns:280px 1fr;gap:10px;min-height:56vh}
     .dm-sidebar{border:1px solid var(--line);border-radius:12px;background:#f8fafc;padding:8px;overflow:auto}
     .dm-main{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;display:flex;flex-direction:column;min-height:56vh}
     .dm-messages{flex:1;overflow:auto;padding-right:2px}
-    .dm-thread-btn{width:100%;text-align:left;margin:0 0 6px 0;padding:8px 10px;border-radius:10px}
+    .dm-thread-btn{width:100%;text-align:left;margin:0 0 6px 0;padding:10px;border-radius:12px;display:flex;gap:10px;align-items:flex-start}
+    .dm-avatar{width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1e3a8a;display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 36px}
+    .dm-thread-meta{min-width:0;flex:1}
+    .dm-thread-top{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+    .dm-thread-name{font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .dm-thread-time{color:#6b7280;flex:0 0 auto}
+    .dm-thread-last{font-size:12px;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+    .dm-msg{max-width:85%;padding:8px 10px;border-radius:12px;margin-bottom:6px;font-size:13px;line-height:1.5}
+    .dm-msg.mine{margin-left:auto;background:#dbeafe;color:#0f172a}
+    .dm-msg.other{background:#f3f4f6;color:#1f2937}
+    .dm-main-head{font-weight:700;padding-bottom:8px;border-bottom:1px solid #e5e7eb;margin-bottom:8px}
 
     .admin-wrap{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:980px){.admin-wrap{grid-template-columns:1fr 1fr}}
@@ -314,7 +324,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '46.8';
+    const APP_VERSION = '46.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -889,6 +899,13 @@
       `;
     }
 
+    function shortTime(iso){
+      const d = iso ? new Date(iso) : new Date();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      return `${hh}:${mm}`;
+    }
+
     function renderDM(){
       const box=document.getElementById('dmThreads');
       const composer=document.getElementById('dmComposer');
@@ -906,8 +923,19 @@
         composer.style.display='none';
         return;
       }
+      mine.sort((a,b)=>{
+        const ta=(a.messages||[])[(a.messages||[]).length-1]?.createdAt||0;
+        const tb=(b.messages||[])[(b.messages||[]).length-1]?.createdAt||0;
+        return new Date(tb)-new Date(ta);
+      });
       if(!currentDMStore || !mine.find(t=>t.id===currentDMStore)) currentDMStore=mine[0].id;
-      box.innerHTML = mine.map(t=>`<button class='dm-thread-btn ${t.id===currentDMStore?'btn dm-thread-active':'btn ghost'}' onclick="openThread('${t.id}')">${t.storeName}</button>`).join('');
+      box.innerHTML = mine.map(t=>{
+        const last=(t.messages||[])[(t.messages||[]).length-1];
+        const lastTxt = last?.text || '尚無訊息';
+        const time = shortTime(last?.createdAt);
+        const avatarTxt = (t.storeName||'店').slice(0,1);
+        return `<button class='dm-thread-btn ${t.id===currentDMStore?'btn dm-thread-active':'btn ghost'}' onclick="openThread('${t.id}')"><div class='dm-avatar'>${avatarTxt}</div><div class='dm-thread-meta'><div class='dm-thread-top'><span class='dm-thread-name'>${t.storeName}</span><span class='dm-thread-time'>${time}</span></div><div class='dm-thread-last'>${lastTxt}</div></div></button>`;
+      }).join('');
       openThread(currentDMStore, true);
     }
 
@@ -917,10 +945,10 @@
       currentDMStore=id;
       if(!fromRender) renderDM();
       renderBottomNav();
-      const html=(t.messages||[]).map(m=>`<div class='muted' style='margin-bottom:6px'><b>${m.fromName}</b>：${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
+      const html=(t.messages||[]).map(m=>`<div class='dm-msg ${m.fromId===state.user.id?'mine':'other'}'><b>${m.fromName}</b><br/>${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
       const composer=document.getElementById('dmComposer');
       composer.style.display='flex';
-      composer.innerHTML=`<div class='dm-messages'>${html}</div><div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
+      composer.innerHTML=`<div class='dm-main-head'>${t.storeName}</div><div class='dm-messages'>${html}</div><div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
     }
 
     function openStoreDetail(storeId){
