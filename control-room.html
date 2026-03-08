@@ -41,7 +41,16 @@
     .board{left:646px;top:392px;width:196px;height:130px;background:#d9f3d9;border:4px solid #3f7a44}
     .dot{width:12px;height:12px;background:#2f5d31}.t1{left:666px;top:418px}.t2{left:666px;top:446px}.t3{left:666px;top:474px}
 
-    .lobster{position:absolute;left:132px;top:156px;width:74px;height:74px;border:4px solid #2f5d31;background:#ff7f50;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:34px;z-index:8;transition:left .6s steps(6), top .6s steps(6)}
+    .lobster{position:absolute;left:132px;top:156px;width:92px;height:76px;z-index:8;transition:left .6s steps(6), top .6s steps(6);cursor:pointer;filter:drop-shadow(0 8px 4px #0005)}
+    .lobster .body{position:absolute;inset:12px 14px 8px 14px;background:linear-gradient(145deg,#ff9f6b,#e45f37);border:3px solid #7a2c18;border-radius:14px;transform:skewX(-10deg)}
+    .lobster .shell{position:absolute;left:26px;top:18px;width:38px;height:22px;border-radius:8px;background:linear-gradient(145deg,#ffbe8a,#ff8a5b);border:2px solid #9a3e24;transform:skewX(-10deg)}
+    .lobster .eye{position:absolute;top:20px;width:8px;height:8px;border-radius:50%;background:#111}
+    .lobster .eye.left{left:34px}.lobster .eye.right{left:50px}
+    .lobster .claw{position:absolute;top:26px;width:18px;height:16px;background:linear-gradient(145deg,#ff8f60,#d84f2f);border:2px solid #7a2c18;border-radius:6px}
+    .lobster .claw.left{left:4px;transform:rotate(-12deg)}
+    .lobster .claw.right{right:4px;transform:rotate(12deg)}
+    .lobster .leg{position:absolute;bottom:6px;width:10px;height:8px;background:#b64a2d;border-radius:0 0 6px 6px}
+    .lobster .leg.l1{left:28px}.lobster .leg.l2{left:42px}.lobster .leg.l3{left:56px}
     .lobster.walking{animation:hop .24s linear infinite}
     @keyframes hop{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
@@ -85,7 +94,13 @@
 
         <div class="door d1"></div><div class="door d2"></div><div class="door d3"></div>
 
-        <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">🦞</div>
+        <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">
+          <div class="body"></div>
+          <div class="shell"></div>
+          <div class="eye left"></div><div class="eye right"></div>
+          <div class="claw left"></div><div class="claw right"></div>
+          <div class="leg l1"></div><div class="leg l2"></div><div class="leg l3"></div>
+        </div>
         <div class="legend">Minecraft 風家具已啟用｜點房間讓龍蝦跳步移動</div>
       </div>
     </div>
