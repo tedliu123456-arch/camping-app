@@ -3,62 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw RPG 控制室</title>
+  <title>OpenClaw RPG 控制室（像素風）</title>
   <style>
-    :root{--line:#dbe5ff;--txt:#1f2a44;--muted:#617099}
+    :root{--ink:#1f2a44;--line:#9fb6e6;--soft:#dce8ff;--panel:#ffffff;--tile1:#f3f8ff;--tile2:#edf4ff}
     *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#eef5ff,#f9fcff);color:var(--txt)}
-    .top{position:sticky;top:0;z-index:10;background:#ffffffdd;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#eaf3ff,#f7fbff);color:var(--ink)}
+
+    .top{position:sticky;top:0;z-index:10;background:#ffffffdd;backdrop-filter:blur(6px);border-bottom:1px solid #dbe6ff;padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .top h1{margin:0;font-size:18px}
-    .pill{padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
-    .btn{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:10px;cursor:pointer}
-    .wrap{max-width:1220px;margin:0 auto;padding:14px}
+    .pill{padding:4px 10px;border:1px solid #cfe0ff;border-radius:999px;font-size:12px;background:#fff}
+    .btn{border:1px solid #cfe0ff;background:#fff;padding:7px 10px;border-radius:10px;cursor:pointer}
 
-    .map-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
-    .map{position:relative;min-width:980px;height:640px;background:linear-gradient(180deg,#f4f9ff,#ecf3ff)}
+    .wrap{max-width:1240px;margin:0 auto;padding:14px}
+    .map-wrap{overflow:auto;border:1px solid #d2e0ff;border-radius:16px;background:#fff}
 
-    .room{position:absolute;border:3px solid #b7cdf5;border-radius:18px;background:#ffffff;box-shadow:0 8px 18px #dfeaff;cursor:pointer}
-    .room h3{margin:0;font-size:14px;padding:10px 12px;border-bottom:1px solid #e5eeff;background:#f7fbff;border-radius:14px 14px 0 0}
-    .room .mini{padding:10px 12px;font-size:12px;color:var(--muted)}
-    .deco{position:absolute;pointer-events:none}
-    .tv{width:110px;height:66px;border:4px solid #475569;border-radius:10px;background:#0ea5e9;left:70px;top:88px}
-    .sofa{width:140px;height:52px;border-radius:14px;background:#fca5a5;left:128px;top:162px;border:2px solid #ef4444}
-    .desk-mini{width:130px;height:44px;border-radius:10px;background:#e8d5bc;border:2px solid #c8ae91;left:420px;top:160px}
-    .kb-mini{width:76px;height:16px;border-radius:6px;background:#f8fafc;border:1px solid #cbd5e1;left:448px;top:186px}
-    .cabinet{width:58px;height:128px;border-radius:8px;background:#94a3b8;border:2px solid #64748b;left:712px;top:90px}
-    .doc1,.doc2,.doc3{width:42px;height:26px;border-radius:5px;background:#e2e8f0;border:1px solid #94a3b8}
-    .doc1{left:782px;top:110px}.doc2{left:808px;top:148px}.doc3{left:776px;top:182px}
-    .whiteboard{width:170px;height:110px;border-radius:10px;background:#fff;border:3px solid #93c5fd;left:610px;top:340px}
-    .task-dot{width:12px;height:12px;border-radius:50%;background:#60a5fa}
-    .task-dot.t1{left:628px;top:360px}.task-dot.t2{left:628px;top:385px}.task-dot.t3{left:628px;top:410px}
-    .code-monitor{width:120px;height:78px;border-radius:10px;background:#1e293b;border:3px solid #334155;left:270px;top:352px}
-    .code-line{height:6px;background:#22d3ee;border-radius:3px;position:absolute}
-    .code-line.c1{width:70px;left:292px;top:380px}.code-line.c2{width:84px;left:292px;top:395px}.code-line.c3{width:58px;left:292px;top:410px}
-    .room.active{border-color:#5b8cff;box-shadow:0 0 0 4px #dfe9ff,0 8px 18px #dfeaff}
-
-    #room-idle{left:40px;top:40px;width:280px;height:220px}
-    #room-work{left:360px;top:40px;width:280px;height:220px}
-    #room-search{left:680px;top:40px;width:260px;height:220px}
-    #room-code{left:200px;top:300px;width:300px;height:230px}
-    #room-schedule{left:560px;top:300px;width:320px;height:230px}
-
-    .lobster{position:absolute;left:120px;top:140px;width:72px;height:72px;border-radius:22px;background:#ffe5ec;border:3px solid #ffb3c6;display:flex;align-items:center;justify-content:center;font-size:40px;z-index:8;transition:left .8s ease, top .8s ease}
-    .lobster.walking{animation:hop .28s linear infinite}
-    .lobster .face{transform:translateY(-1px)}
-
-    @keyframes hop{
-      0%{transform:translateY(0)}
-      50%{transform:translateY(-8px)}
-      100%{transform:translateY(0)}
+    .map{position:relative;min-width:1060px;height:690px;
+      background:
+      linear-gradient(45deg,var(--tile1) 25%,transparent 25%) 0 0/24px 24px,
+      linear-gradient(-45deg,var(--tile1) 25%,transparent 25%) 0 0/24px 24px,
+      linear-gradient(45deg,transparent 75%,var(--tile2) 75%) 0 0/24px 24px,
+      linear-gradient(-45deg,transparent 75%,var(--tile2) 75%) 0 0/24px 24px,
+      #f8fbff;
     }
 
-    .legend{position:absolute;right:14px;bottom:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--muted)}
+    .room{position:absolute;background:var(--panel);border:4px solid var(--line);box-shadow:0 8px 0 #d9e6ff;cursor:pointer;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}
+    .room h3{margin:0;font-size:14px;padding:10px 12px;border-bottom:2px dashed #dee9ff;background:#f7faff}
+    .room .mini{padding:8px 12px;font-size:12px;color:#5f6e92}
+    .room.active{border-color:#5f89e8;box-shadow:0 0 0 4px #dce8ff,0 8px 0 #cddcff}
+
+    #room-idle{left:36px;top:36px;width:305px;height:250px}
+    #room-work{left:382px;top:36px;width:305px;height:250px}
+    #room-search{left:728px;top:36px;width:300px;height:250px}
+    #room-code{left:170px;top:332px;width:345px;height:255px}
+    #room-schedule{left:548px;top:332px;width:380px;height:255px}
+
+    /* pixel furniture */
+    .px{position:absolute;image-rendering:pixelated;pointer-events:none}
+    .tv{left:102px;top:116px;width:110px;height:72px;background:#0f274b;border:4px solid #3e5f92;box-shadow:0 0 0 4px #8eb2ef inset}
+    .tv::after{content:'LIVE';position:absolute;right:7px;top:5px;color:#8af5ad;font-size:10px;font-weight:700}
+    .sofa{left:138px;top:200px;width:148px;height:52px;background:#ffb7c5;border:4px solid #e07f95;box-shadow:0 -10px 0 #ffc8d3 inset}
+
+    .desk{left:464px;top:188px;width:150px;height:60px;background:#dec1a0;border:4px solid #b7926c}
+    .kb{left:498px;top:226px;width:82px;height:18px;background:#edf3ff;border:3px solid #b8cbea}
+    .monitor{left:500px;top:136px;width:92px;height:54px;background:#172944;border:4px solid #355280}
+
+    .cab{left:778px;top:112px;width:66px;height:150px;background:#9caec9;border:4px solid #687d9f}
+    .doc{width:46px;height:28px;background:#ecf2ff;border:3px solid #a4b6d7}
+    .d1{left:856px;top:130px}.d2{left:882px;top:170px}.d3{left:848px;top:212px}
+
+    .codepanel{left:246px;top:398px;width:128px;height:84px;background:#0f203a;border:4px solid #334f7c}
+    .line{position:absolute;height:6px;background:#2dd4bf;border-radius:2px}
+    .l1{left:262px;top:424px;width:78px}.l2{left:262px;top:442px;width:96px}.l3{left:262px;top:460px;width:64px}
+
+    .board{left:646px;top:392px;width:196px;height:130px;background:#fff;border:4px solid #8bb3f3}
+    .dot{width:12px;height:12px;border-radius:2px;background:#5b8fe9}
+    .t1{left:666px;top:418px}.t2{left:666px;top:446px}.t3{left:666px;top:474px}
+
+    .lobster{position:absolute;left:132px;top:156px;width:74px;height:74px;border:4px solid #ff9fb6;background:#ffe4ec;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:38px;z-index:8;transition:left .85s cubic-bezier(.18,.7,.2,1), top .85s cubic-bezier(.18,.7,.2,1)}
+    .lobster.walking{animation:hop .24s linear infinite}
+    @keyframes hop{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+
+    .door{position:absolute;width:26px;height:18px;background:#dbe8ff;border:2px solid #9cb8e8;border-radius:4px;pointer-events:none}
+    .door.d1{left:352px;top:150px}.door.d2{left:700px;top:150px}.door.d3{left:536px;top:312px}
+
+    .legend{position:absolute;right:14px;bottom:14px;background:#fff;border:1px solid #dbe6ff;border-radius:12px;padding:8px 10px;font-size:12px;color:#5f6e92}
 
     dialog{border:none;border-radius:14px;max-width:560px;width:min(92vw,560px);padding:0}
     dialog::backdrop{background:#0008}
     .modal{padding:14px}
     .modal h3{margin:0 0 6px}
-    .muted{color:var(--muted);font-size:13px;line-height:1.6}
+    .muted{color:#5f6e92;font-size:13px;line-height:1.6}
   </style>
 </head>
 <body>
@@ -67,115 +81,78 @@
     <span class="pill" id="statePill">目前：待機室</span>
     <span class="pill" id="syncPill">同步：-</span>
     <button class="btn" onclick="toggleAuto()" id="autoBtn">開啟自動巡房</button>
-    <button class="btn" onclick="go('idle')">去待機室</button>
-    <button class="btn" onclick="go('work')">去工作室</button>
-    <button class="btn" onclick="go('search')">去搜尋室</button>
-    <button class="btn" onclick="go('code')">去開發室</button>
-    <button class="btn" onclick="go('schedule')">去排程室</button>
+    <button class="btn" onclick="go('idle')">待機室</button>
+    <button class="btn" onclick="go('work')">工作室</button>
+    <button class="btn" onclick="go('search')">搜尋室</button>
+    <button class="btn" onclick="go('code')">開發室</button>
+    <button class="btn" onclick="go('schedule')">排程室</button>
   </div>
 
   <div class="wrap">
     <div class="map-wrap">
-      <div class="map" id="map">
-        <div class="room" id="room-idle" onclick="go('idle')">
-          <h3>待機室</h3>
-          <div class="mini">待機時在沙發看電視、監看通知</div>
-        </div>
-        <div class="room" id="room-work" onclick="go('work')">
-          <h3>工作室</h3>
-          <div class="mini">工作時在辦公桌上處理任務</div>
-        </div>
-        <div class="room" id="room-search" onclick="go('search')">
-          <h3>搜尋室</h3>
-          <div class="mini">搜尋時在資料櫃與文件區找資訊</div>
-        </div>
-        <div class="room" id="room-code" onclick="go('code')">
-          <h3>開發室</h3>
-          <div class="mini">開發室持續寫 code、修 bug、測試</div>
-        </div>
-        <div class="room" id="room-schedule" onclick="go('schedule')">
-          <h3>排程室</h3>
-          <div class="mini">在白板整理待辦與時程規劃</div>
-        </div>
+      <div class="map">
+        <div class="room" id="room-idle" onclick="go('idle')"><h3>待機室</h3><div class="mini">沙發 + 電視，監看通知</div></div>
+        <div class="room" id="room-work" onclick="go('work')"><h3>工作室</h3><div class="mini">辦公桌 + 鍵盤，處理任務</div></div>
+        <div class="room" id="room-search" onclick="go('search')"><h3>搜尋室</h3><div class="mini">資料櫃 + 文件，查資料</div></div>
+        <div class="room" id="room-code" onclick="go('code')"><h3>開發室</h3><div class="mini">程式螢幕，修 bug / 寫 code</div></div>
+        <div class="room" id="room-schedule" onclick="go('schedule')"><h3>排程室</h3><div class="mini">白板待辦，規劃時程</div></div>
 
-        
-        <div class="deco tv"></div>
-        <div class="deco sofa"></div>
-        <div class="deco desk-mini"></div>
-        <div class="deco kb-mini"></div>
-        <div class="deco cabinet"></div>
-        <div class="deco doc1"></div><div class="deco doc2"></div><div class="deco doc3"></div>
-        <div class="deco code-monitor"></div>
-        <div class="deco code-line c1"></div><div class="deco code-line c2"></div><div class="deco code-line c3"></div>
-        <div class="deco whiteboard"></div>
-        <div class="deco task-dot t1"></div><div class="deco task-dot t2"></div><div class="deco task-dot t3"></div>
+        <div class="px tv"></div><div class="px sofa"></div>
+        <div class="px desk"></div><div class="px kb"></div><div class="px monitor"></div>
+        <div class="px cab"></div><div class="px doc d1"></div><div class="px doc d2"></div><div class="px doc d3"></div>
+        <div class="px codepanel"></div><div class="px line l1"></div><div class="px line l2"></div><div class="px line l3"></div>
+        <div class="px board"></div><div class="px dot t1"></div><div class="px dot t2"></div><div class="px dot t3"></div>
 
-        <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">
-          <span class="face">🦞</span>
-        </div>
+        <div class="door d1"></div><div class="door d2"></div><div class="door d3"></div>
 
-        <div class="legend">點房間讓龍蝦走過去（小跳步）</div>
+        <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">🦞</div>
+        <div class="legend">像素風家具已啟用｜點房間讓龍蝦跳步移動</div>
       </div>
     </div>
   </div>
 
-  <dialog id="detail">
-    <div class="modal">
-      <h3 id="dTitle">詳情</h3>
-      <p id="dBody" class="muted">-</p>
-      <button class="btn" onclick="detail.close()">關閉</button>
-    </div>
-  </dialog>
+  <dialog id="detail"><div class="modal"><h3 id="dTitle">詳情</h3><p id="dBody" class="muted">-</p><button class="btn" onclick="detail.close()">關閉</button></div></dialog>
 
   <script>
     const roomMeta = {
-      idle:{name:'待機室', x:130, y:150, detail:'目前在待機，正在監看訊息與新任務，隨時可切換處理。'},
-      work:{name:'工作室', x:450, y:150, detail:'目前在處理進行中的需求，會以小步快跑方式更新。'},
-      search:{name:'搜尋室', x:760, y:150, detail:'正在查找資料、比對設定、確認外部依賴是否正常。'},
-      code:{name:'開發室', x:320, y:410, detail:'正在寫程式、修正錯誤、測試流程並準備部署。'},
-      schedule:{name:'排程室', x:690, y:410, detail:'正在整理待辦、安排里程碑、確認優先順序。'}
+      idle:{name:'待機室', x:132, y:158, detail:'目前在待機室，監看通知與新任務。'},
+      work:{name:'工作室', x:470, y:158, detail:'目前在工作室，處理你交辦的任務。'},
+      search:{name:'搜尋室', x:800, y:158, detail:'目前在搜尋室，查找資料與驗證設定。'},
+      code:{name:'開發室', x:300, y:455, detail:'目前在開發室，寫 code / 測試 / 修 bug。'},
+      schedule:{name:'排程室', x:700, y:455, detail:'目前在排程室，整理待辦與時程。'}
     };
 
-    let currentRoom = 'idle';
-    let autoTimer = null;
+    let currentRoom='idle', autoTimer=null;
 
     function markRoom(){
       document.querySelectorAll('.room').forEach(el=>el.classList.remove('active'));
       document.getElementById('room-'+currentRoom).classList.add('active');
-      document.getElementById('statePill').textContent = `目前：${roomMeta[currentRoom].name}`;
-      document.getElementById('syncPill').textContent = `同步：${new Date().toLocaleTimeString()}`;
+      statePill.textContent=`目前：${roomMeta[currentRoom].name}`;
+      syncPill.textContent=`同步：${new Date().toLocaleTimeString()}`;
     }
 
     function go(key){
-      const lob=document.getElementById('lobster');
       const r=roomMeta[key]; if(!r) return;
       currentRoom=key;
-      lob.classList.add('walking');
-      lob.style.left = `${r.x}px`;
-      lob.style.top = `${r.y}px`;
+      lobster.classList.add('walking');
+      lobster.style.left=r.x+'px';
+      lobster.style.top=r.y+'px';
       markRoom();
-      setTimeout(()=>lob.classList.remove('walking'), 900);
+      setTimeout(()=>lobster.classList.remove('walking'),900);
     }
 
     function showDetail(key){
-      const r=roomMeta[key] || roomMeta.idle;
-      dTitle.textContent = `${r.name}｜目前狀態`;
-      dBody.textContent = r.detail;
+      const r=roomMeta[key]||roomMeta.idle;
+      dTitle.textContent=`${r.name}｜目前狀態`;
+      dBody.textContent=r.detail;
       detail.showModal();
     }
 
     function toggleAuto(){
-      const btn=document.getElementById('autoBtn');
-      if(autoTimer){
-        clearInterval(autoTimer); autoTimer=null; btn.textContent='開啟自動巡房';
-        return;
-      }
-      const order=['idle','work','search','code','schedule'];
-      autoTimer=setInterval(()=>{
-        const idx=(order.indexOf(currentRoom)+1)%order.length;
-        go(order[idx]);
-      }, 4000);
-      btn.textContent='停止自動巡房';
+      if(autoTimer){ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='開啟自動巡房'; return; }
+      const seq=['idle','work','search','code','schedule'];
+      autoTimer=setInterval(()=>{ go(seq[(seq.indexOf(currentRoom)+1)%seq.length]); },3800);
+      autoBtn.textContent='停止自動巡房';
     }
 
     markRoom();
