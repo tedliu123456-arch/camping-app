@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 控制室（卡通版）</title>
+  <style>
+    :root{--bg:#f2f7ff;--card:#fff;--line:#dbe5ff;--txt:#1f2a44;--muted:#617099;--ok:#22c55e;--warn:#f59e0b;--busy:#3b82f6}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#eef5ff,#f9fcff);color:var(--txt)}
+    .top{position:sticky;top:0;z-index:9;background:#ffffffd9;backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .top h1{margin:0;font-size:18px}
+    .pill{padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
+    .btn{border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:10px;cursor:pointer}
+    .layout{padding:14px;max-width:1200px;margin:0 auto}
+    .stage-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
+    .stage{min-width:980px;transform-origin:top left;padding:16px;background:repeating-linear-gradient(45deg,#f7fbff,#f7fbff 16px,#f2f8ff 16px,#f2f8ff 32px)}
+    .office{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+    .agent{display:flex;gap:14px;align-items:center}
+    .avatar{width:90px;height:90px;border-radius:20px;background:#e8f0ff;display:flex;align-items:center;justify-content:center;font-size:52px}
+    .status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+    .status-idle{background:#94a3b8}.status-work{background:var(--busy)}.status-search{background:var(--warn)}.status-code{background:#8b5cf6}
+    .task-list,.log-list{margin:8px 0 0;padding:0;list-style:none}
+    .task-item,.log-item{border:1px solid #e8eeff;background:#f8fbff;border-radius:10px;padding:9px 10px;margin-bottom:7px;cursor:pointer}
+    .task-item b{display:block}
+    .muted{color:var(--muted);font-size:13px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    dialog{border:none;border-radius:14px;max-width:560px;width:min(92vw,560px);padding:0}
+    dialog::backdrop{background:#0008}
+    .modal{padding:14px}
+    .modal h3{margin:0 0 6px}
+    @media (max-width:900px){.office{grid-template-columns:1fr}.stage{min-width:760px}}
+  </style>
+</head>
+<body>
+  <div class="top">
+    <h1>🦞 OpenClaw 控制室</h1>
+    <span class="pill" id="nowStatus">待機中</span>
+    <span class="pill" id="lastSync">最後同步：-</span>
+    <button class="btn" onclick="zoom(-0.1)">－</button>
+    <button class="btn" onclick="zoom(0.1)">＋</button>
+    <button class="btn" onclick="fit()">適中大小</button>
+  </div>
+
+  <div class="layout">
+    <div class="stage-wrap">
+      <div id="stage" class="stage">
+        <div class="office">
+          <section class="card">
+            <div class="agent">
+              <div class="avatar" id="avatar">🧠</div>
+              <div>
+                <div id="modeLine"><span class="status-dot status-idle"></span>目前狀態：待機</div>
+                <div class="muted" id="modeDesc">目前沒有阻塞任務，正在監看更新。</div>
+              </div>
+            </div>
+            <h3>目前在做什麼</h3>
+            <ul class="task-list" id="taskList"></ul>
+          </section>
+
+          <section class="card">
+            <h3>快速面板</h3>
+            <div class="grid2">
+              <div class="card" style="padding:10px"><div class="muted">模型</div><b id="model">gpt-5.3-codex</b></div>
+              <div class="card" style="padding:10px"><div class="muted">執行佇列</div><b id="queue">0</b></div>
+              <div class="card" style="padding:10px"><div class="muted">最近版本</div><b id="appVer">v47.0</b></div>
+              <div class="card" style="padding:10px"><div class="muted">風險</div><b id="risk">低</b></div>
+            </div>
+          </section>
+
+          <section class="card" style="grid-column:1/-1">
+            <h3>動作紀錄</h3>
+            <ul class="log-list" id="logs"></ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="detail">
+    <div class="modal">
+      <h3 id="dTitle">詳情</h3>
+      <p id="dBody" class="muted">-</p>
+      <button class="btn" onclick="detail.close()">關閉</button>
+    </div>
+  </dialog>
+
+  <script>
+    const statusPool = [
+      {key:'idle',label:'待機',desc:'目前沒有阻塞任務，正在監看更新。',avatar:'😌',dot:'status-idle'},
+      {key:'work',label:'工作中',desc:'正在處理你交辦的改版與部署。',avatar:'💻',dot:'status-work'},
+      {key:'search',label:'搜尋資料',desc:'正在查找資料與驗證外部設定。',avatar:'🔎',dot:'status-search'},
+      {key:'code',label:'寫程式',desc:'正在修改程式、測試並推送版本。',avatar:'🛠️',dot:'status-code'}
+    ];
+
+    const tasks = [
+      {t:'Camping App 穩定版收尾',d:'回歸測試：發文/私訊/商家頁/登入流程，準備 v47.x 穩定版'},
+      {t:'公司網站內容維護',d:'品牌名稱校正、車型案例與影片區更新'},
+      {t:'登入整合追蹤',d:'Google/LINE 已打通，持續監看 callback 與授權設定'}
+    ];
+
+    const logs = [
+      '10:03 會員未登入可瀏覽全資訊規則已落地',
+      '09:57 私訊介面改為 Messenger 參考風格',
+      '昨天 公司網站已改為凡購國際實業社並上線'
+    ];
+
+    const taskList = document.getElementById('taskList');
+    tasks.forEach(x=>{
+      const li=document.createElement('li');
+      li.className='task-item';
+      li.innerHTML=`<b>${x.t}</b><span class='muted'>${x.d}</span>`;
+      li.onclick=()=>showDetail(x.t,x.d);
+      taskList.appendChild(li);
+    });
+
+    const logsEl=document.getElementById('logs');
+    logs.forEach(x=>{
+      const li=document.createElement('li');
+      li.className='log-item';
+      li.textContent=x;
+      logsEl.appendChild(li);
+    });
+
+    let scale=1;
+    function apply(){ document.getElementById('stage').style.transform=`scale(${scale})`; }
+    function zoom(d){ scale=Math.max(0.7,Math.min(1.6,scale+d)); apply(); }
+    function fit(){ scale=1; apply(); }
+
+    function showDetail(t,b){
+      dTitle.textContent=t; dBody.textContent=b; detail.showModal();
+    }
+
+    function tick(){
+      const s=statusPool[Math.floor(Math.random()*statusPool.length)];
+      document.getElementById('nowStatus').textContent=`狀態：${s.label}`;
+      document.getElementById('avatar').textContent=s.avatar;
+      document.getElementById('modeLine').innerHTML=`<span class='status-dot ${s.dot}'></span>目前狀態：${s.label}`;
+      document.getElementById('modeDesc').textContent=s.desc;
+      document.getElementById('lastSync').textContent=`最後同步：${new Date().toLocaleTimeString()}`;
+    }
+    tick();
+    setInterval(tick, 10000);
+  </script>
+</body>
+</html>
