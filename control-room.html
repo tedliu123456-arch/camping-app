@@ -3,30 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OpenClaw RPG 控制室（中古歐風）</title>
+  <title>OpenClaw RPG 控制室（Minecraft 風）</title>
   <style>
-    :root{--ink:#2b1f15;--line:#8a6b4f;--soft:#eadac4;--panel:#f7efe2;--tile1:#6f553f;--tile2:#5f4735}
+    :root{--ink:#e8f5e9;--line:#2f5d31;--panel:#3f6f3f;--bg:#1f3a1f;--tileA:#4f7f4f;--tileB:#3f6f3f}
     *{box-sizing:border-box}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#3a2b1e,#2a1f17);color:#f4e7d3}
-
-    .top{position:sticky;top:0;z-index:10;background:#2a1f17dd;backdrop-filter:blur(6px);border-bottom:1px solid #6f553f;padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;background:linear-gradient(180deg,#1b331b,#152915);color:var(--ink)}
+    .top{position:sticky;top:0;z-index:10;background:#1d2e1ddd;border-bottom:2px solid #2f5d31;padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .top h1{margin:0;font-size:18px}
-    .pill{padding:4px 10px;border:1px solid #8a6b4f;border-radius:999px;font-size:12px;background:#3a2b1e;color:#f7e9d4}
-    .btn{border:1px solid #8a6b4f;background:#4a3728;color:#f7e9d4;padding:7px 10px;border-radius:10px;cursor:pointer}
-
+    .pill{padding:4px 10px;border:2px solid #3f7a44;border-radius:4px;font-size:12px;background:#274927;color:#d9f3d9}
+    .btn{border:2px solid #4a8a4e;background:#2f5f34;color:#e8f5e9;padding:7px 10px;border-radius:4px;cursor:pointer}
     .wrap{max-width:1240px;margin:0 auto;padding:14px}
-    .map-wrap{overflow:auto;border:1px solid #8a6b4f;border-radius:16px;background:#2d2118}
+    .map-wrap{overflow:auto;border:2px solid #2f5d31;border-radius:8px;background:#264426}
+    .map{position:relative;min-width:1060px;height:690px;background:repeating-linear-gradient(0deg,var(--tileA) 0 22px,var(--tileB) 22px 44px),repeating-linear-gradient(90deg,#0002 0 22px,#0000 22px 44px)}
 
-    .map{position:relative;min-width:1060px;height:690px;
-      background:
-      linear-gradient(90deg,#604833 0 8px,#6f553f 8px 16px,#5a4432 16px 24px) 0 0/24px 24px,
-      linear-gradient(#4b3a2c,#4b3a2c) 0 0/100% 100%;
-    }
-
-    .room{position:absolute;background:var(--panel);border:4px solid var(--line);box-shadow:0 8px 0 #3c2d21;cursor:pointer;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)}
-    .room h3{margin:0;font-size:14px;padding:10px 12px;border-bottom:2px dashed #d0b693;background:#eddcc4}
-    .room .mini{padding:8px 12px;font-size:12px;color:#6f553f}
-    .room.active{border-color:#b88b58;box-shadow:0 0 0 4px #f1dfc9,0 8px 0 #3c2d21}
+    .room{position:absolute;background:#6fa66f;border:4px solid #2f5d31;box-shadow:inset -8px -8px 0 #4f8a4f,inset 8px 8px 0 #8ec68e;cursor:pointer}
+    .room h3{margin:0;font-size:14px;padding:9px 10px;border-bottom:3px solid #2f5d31;background:#7bb57b}
+    .room .mini{padding:8px 10px;font-size:12px;color:#183018}
+    .room.active{border-color:#d4f16d;box-shadow:0 0 0 4px #d4f16d55,inset -8px -8px 0 #4f8a4f,inset 8px 8px 0 #9ad39a}
 
     #room-idle{left:36px;top:36px;width:305px;height:250px}
     #room-work{left:382px;top:36px;width:305px;height:250px}
@@ -34,42 +27,32 @@
     #room-code{left:170px;top:332px;width:345px;height:255px}
     #room-schedule{left:548px;top:332px;width:380px;height:255px}
 
-    /* pixel furniture */
     .px{position:absolute;image-rendering:pixelated;pointer-events:none}
-    .tv{left:102px;top:116px;width:110px;height:72px;background:#7a2f1f;border:4px solid #4a1e14;box-shadow:0 0 0 4px #ffb36a inset}
-    .tv::after{content:'FIRE';position:absolute;right:7px;top:5px;color:#ffe08a;font-size:10px;font-weight:700}
-    .sofa{left:138px;top:200px;width:148px;height:52px;background:#6b2431;border:4px solid #3e151d;box-shadow:0 -10px 0 #8e3344 inset}
-
+    .tv{left:102px;top:116px;width:110px;height:72px;background:#111;border:4px solid #333;box-shadow:inset 0 0 0 6px #39ff14}
+    .tv::after{content:'LIVE';position:absolute;right:8px;top:6px;color:#9eff8c;font-size:10px;font-weight:700}
+    .sofa{left:138px;top:200px;width:148px;height:52px;background:#8b5a2b;border:4px solid #5a3817;box-shadow:inset 0 8px 0 #a16a35}
     .desk{left:464px;top:188px;width:150px;height:60px;background:#7d5a3a;border:4px solid #4f3824}
-    .kb{left:498px;top:226px;width:82px;height:18px;background:#d8c7aa;border:3px solid #9b8262}
-    .monitor{left:500px;top:136px;width:92px;height:54px;background:#2f241a;border:4px solid #7a5a3a}
+    .kb{left:498px;top:226px;width:82px;height:18px;background:#ddd;border:3px solid #999}
+    .monitor{left:500px;top:136px;width:92px;height:54px;background:#111;border:4px solid #444;box-shadow:inset 0 0 0 5px #57a8ff}
+    .cab{left:778px;top:112px;width:66px;height:150px;background:#7a7a7a;border:4px solid #4b4b4b}
+    .doc{width:46px;height:28px;background:#f0f0f0;border:3px solid #aaa}.d1{left:856px;top:130px}.d2{left:882px;top:170px}.d3{left:848px;top:212px}
+    .codepanel{left:246px;top:398px;width:128px;height:84px;background:#121212;border:4px solid #3a3a3a}
+    .line{position:absolute;height:6px;background:#00e676}.l1{left:262px;top:424px;width:78px}.l2{left:262px;top:442px;width:96px}.l3{left:262px;top:460px;width:64px}
+    .board{left:646px;top:392px;width:196px;height:130px;background:#d9f3d9;border:4px solid #3f7a44}
+    .dot{width:12px;height:12px;background:#2f5d31}.t1{left:666px;top:418px}.t2{left:666px;top:446px}.t3{left:666px;top:474px}
 
-    .cab{left:778px;top:112px;width:66px;height:150px;background:#7a5b3f;border:4px solid #4b3828}
-    .doc{width:46px;height:28px;background:#f4e8d5;border:3px solid #b79b78}
-    .d1{left:856px;top:130px}.d2{left:882px;top:170px}.d3{left:848px;top:212px}
-
-    .codepanel{left:246px;top:398px;width:128px;height:84px;background:#3a2b1f;border:4px solid #6b4f37}
-    .line{position:absolute;height:6px;background:#d2b48c;border-radius:2px}
-    .l1{left:262px;top:424px;width:78px}.l2{left:262px;top:442px;width:96px}.l3{left:262px;top:460px;width:64px}
-
-    .board{left:646px;top:392px;width:196px;height:130px;background:#efe3d0;border:4px solid #8b6a47}
-    .dot{width:12px;height:12px;border-radius:2px;background:#8b6a47}
-    .t1{left:666px;top:418px}.t2{left:666px;top:446px}.t3{left:666px;top:474px}
-
-    .lobster{position:absolute;left:132px;top:156px;width:74px;height:74px;border:4px solid #c77f54;background:#f2c6a0;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:38px;z-index:8;transition:left .85s cubic-bezier(.18,.7,.2,1), top .85s cubic-bezier(.18,.7,.2,1)}
+    .lobster{position:absolute;left:132px;top:156px;width:74px;height:74px;border:4px solid #2f5d31;background:#ff7f50;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:34px;z-index:8;transition:left .6s steps(6), top .6s steps(6)}
     .lobster.walking{animation:hop .24s linear infinite}
     @keyframes hop{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
-    .door{position:absolute;width:26px;height:18px;background:#9f7b55;border:2px solid #6d4f34;border-radius:4px;pointer-events:none}
-    .door.d1{left:352px;top:150px}.door.d2{left:700px;top:150px}.door.d3{left:536px;top:312px}
+    .door{position:absolute;width:26px;height:18px;background:#8b6b3f;border:2px solid #5a4326;pointer-events:none}.door.d1{left:352px;top:150px}.door.d2{left:700px;top:150px}.door.d3{left:536px;top:312px}
+    .legend{position:absolute;right:14px;bottom:14px;background:#274927;border:2px solid #3f7a44;border-radius:6px;padding:8px 10px;font-size:12px;color:#d9f3d9}
 
-    .legend{position:absolute;right:14px;bottom:14px;background:#3a2b1e;border:1px solid #8a6b4f;border-radius:12px;padding:8px 10px;font-size:12px;color:#f4e7d3}
-
-    dialog{border:none;border-radius:14px;max-width:560px;width:min(92vw,560px);padding:0}
+    dialog{border:none;border-radius:10px;max-width:560px;width:min(92vw,560px);padding:0}
     dialog::backdrop{background:#0008}
-    .modal{padding:14px}
+    .modal{padding:14px;background:#213f21;color:#e8f5e9}
     .modal h3{margin:0 0 6px}
-    .muted{color:#5f6e92;font-size:13px;line-height:1.6}
+    .muted{color:#c7e6c7;font-size:13px;line-height:1.6}
   </style>
 </head>
 <body>
@@ -88,11 +71,11 @@
   <div class="wrap">
     <div class="map-wrap">
       <div class="map">
-        <div class="room" id="room-idle" onclick="go('idle')"><h3>待機室</h3><div class="mini">壁爐長椅區，監看通知</div></div>
-        <div class="room" id="room-work" onclick="go('work')"><h3>工作室</h3><div class="mini">橡木書桌，處理任務</div></div>
-        <div class="room" id="room-search" onclick="go('search')"><h3>搜尋室</h3><div class="mini">資料櫃 + 羊皮卷，查資料</div></div>
-        <div class="room" id="room-code" onclick="go('code')"><h3>開發室</h3><div class="mini">工坊桌，修 bug / 寫 code</div></div>
-        <div class="room" id="room-schedule" onclick="go('schedule')"><h3>排程室</h3><div class="mini">告示板待辦，規劃時程</div></div>
+        <div class="room" id="room-idle" onclick="go('idle')"><h3>待機室</h3><div class="mini">方塊沙發區，監看通知</div></div>
+        <div class="room" id="room-work" onclick="go('work')"><h3>工作室</h3><div class="mini">方塊工作桌，處理任務</div></div>
+        <div class="room" id="room-search" onclick="go('search')"><h3>搜尋室</h3><div class="mini">資料箱 + 文件，查資料</div></div>
+        <div class="room" id="room-code" onclick="go('code')"><h3>開發室</h3><div class="mini">程式工坊，修 bug / 寫 code</div></div>
+        <div class="room" id="room-schedule" onclick="go('schedule')"><h3>排程室</h3><div class="mini">任務告示板，規劃時程</div></div>
 
         <div class="px tv"></div><div class="px sofa"></div>
         <div class="px desk"></div><div class="px kb"></div><div class="px monitor"></div>
@@ -103,7 +86,7 @@
         <div class="door d1"></div><div class="door d2"></div><div class="door d3"></div>
 
         <div class="lobster" id="lobster" onclick="showDetail(currentRoom)">🦞</div>
-        <div class="legend">中古歐風家具已啟用｜點房間讓龍蝦跳步移動</div>
+        <div class="legend">Minecraft 風家具已啟用｜點房間讓龍蝦跳步移動</div>
       </div>
     </div>
   </div>
