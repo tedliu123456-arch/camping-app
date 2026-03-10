@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.0（需求整合版）</title>
+  <title>Camping App v47.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -324,7 +324,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.0';
+    const APP_VERSION = '47.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -418,6 +418,8 @@
       ];
       state.posts = [
         {id:uid(),authorId:'sys',authorName:'露營小編',text:'歡迎來到社群首頁，分享你的露營照片吧！',mediaType:null,mediaUrl:null,likes:[],comments:[],createdAt:new Date().toISOString()},
+        {id:uid(),authorId:'sys',authorName:'露營小編',text:'今日精選照片（訪客可看）',mediaType:'image',mediaUrl:'https://picsum.photos/seed/feed1/1200/800',likes:[],comments:[],createdAt:new Date().toISOString()},
+        {id:uid(),authorId:'sys',authorName:'露營小編',text:'山系露營風格（訪客可看）',mediaType:'image',mediaUrl:'https://picsum.photos/seed/feed2/1200/800',likes:[],comments:[],createdAt:new Date().toISOString()},
       ];
       state.contestEntries = [
         {id:uid(),authorId:'sys',authorName:'會員A',imageUrl:'https://picsum.photos/seed/c1/1000/700',voteCount:12,createdAt:new Date().toISOString()},
@@ -1615,6 +1617,8 @@
     async function boot(){
       await initFirebase();
       await loadState();
+      // 訪客進入時預設回到社群首頁，先看到照片內容
+      if(state.user.mode==='guest') state.activeTab='social';
       renderAll();
       bindLoginModalKeys();
       document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
