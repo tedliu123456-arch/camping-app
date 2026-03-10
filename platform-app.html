@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.4（需求整合版）</title>
+  <title>Camping App v47.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -96,8 +96,9 @@
     .dm-thread-active{background:#2563eb !important;color:#fff !important;border-color:#2563eb !important}
     .dm-layout{display:grid;grid-template-columns:280px 1fr;gap:10px;min-height:56vh}
     .dm-sidebar{border:1px solid var(--line);border-radius:12px;background:#f8fafc;padding:8px;overflow:auto}
-    .dm-main{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;display:flex;flex-direction:column;min-height:56vh}
-    .dm-messages{flex:1;overflow:auto;padding-right:2px}
+    .dm-main{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;display:flex;flex-direction:column;min-height:56vh;overflow:hidden}
+    .dm-messages{flex:1;overflow:auto;padding-right:2px;padding-bottom:6px}
+    .dm-input-row{display:flex;gap:6px;margin-top:6px;position:sticky;bottom:0;background:#fff;padding-top:6px;border-top:1px solid #eef2f7}
     .dm-thread-btn{width:100%;text-align:left;margin:0 0 6px 0;padding:10px;border-radius:12px;display:flex;gap:10px;align-items:flex-start}
     .dm-avatar{width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1e3a8a;display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 36px}
     .dm-thread-meta{min-width:0;flex:1}
@@ -123,6 +124,10 @@
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
       .container{padding-bottom:96px}
+      .dm-layout{grid-template-columns:1fr;min-height:52vh}
+      .dm-sidebar{max-height:170px}
+      .dm-main{min-height:46vh;padding:8px}
+      .dm-msg{max-width:92%}
     }
 
     /* 私訊與發文改為全頁 */
@@ -325,7 +330,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.4';
+    const APP_VERSION = '47.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1001,7 +1006,7 @@
       const html=(t.messages||[]).map(m=>`<div class='dm-msg ${m.fromId===state.user.id?'mine':'other'}'><b>${m.fromName}</b><br/>${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
       const composer=document.getElementById('dmComposer');
       composer.style.display='flex';
-      composer.innerHTML=`<div class='dm-main-head'>${t.storeName}</div><div class='dm-messages'>${html}</div><div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
+      composer.innerHTML=`<div class='dm-main-head'>${t.storeName}</div><div class='dm-messages'>${html}</div><div class='dm-input-row'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
     }
 
     function openStoreDetail(storeId){
