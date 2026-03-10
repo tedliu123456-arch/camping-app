@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.5（需求整合版）</title>
+  <title>Camping App v47.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -53,9 +53,12 @@
     .contest-card img{width:100%;height:100%;object-fit:cover}
     .contest-vote{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);padding:2px 6px;border-radius:999px;font-size:12px;backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.28)}
 
-    .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;overflow:hidden}
+    #feedList{display:flex;flex-direction:column;gap:10px;scroll-snap-type:y proximity}
+    .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;overflow:hidden;scroll-snap-align:start}
     .feed-item:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,23,42,.10);border-color:#d7dee8}
+    .feed-item.feed-video{padding:8px}
     .feed-media{width:100%;max-height:340px;object-fit:cover;border-radius:10px;margin-top:8px;background:#000;border:1px solid #d1d5db}
+    .feed-item.feed-video .feed-media{aspect-ratio:9/16;max-height:68vh;object-fit:cover}
     .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
     .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px;transition:background-color .14s ease,color .14s ease}
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
@@ -128,6 +131,7 @@
       .dm-sidebar{max-height:170px}
       .dm-main{min-height:46vh;padding:8px}
       .dm-msg{max-width:92%}
+      .feed-item.feed-video .feed-media{max-height:60vh}
     }
 
     /* 私訊與發文改為全頁 */
@@ -330,7 +334,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.5';
+    const APP_VERSION = '47.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -748,11 +752,11 @@
       el.innerHTML = state.posts.map(p=>{
         const liked = (p.likes||[]).includes(state.user.id);
         const likeDisabled = !isMember() || liked;
-        return `<div class="feed-item">
+        return `<div class="feed-item ${p.mediaType==='video'?'feed-video':''}">
           <div style="display:flex;justify-content:space-between"><b>${p.authorName}</b><span class="muted">${new Date(p.createdAt).toLocaleString()}</span></div>
           <div style="margin-top:8px">${p.text||''}</div>
           ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
-          ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
+          ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline preload="metadata"></video>`:''}
           <div class="actions">
             <button class="btn ghost" ${likeDisabled?'disabled':''} onclick="likePost('${p.id}')">❤️ ${(p.likes||[]).length}</button>
             <button class="btn ghost" onclick="togglePostComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
