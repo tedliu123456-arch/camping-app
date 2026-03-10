@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.2（需求整合版）</title>
+  <title>Camping App v47.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -325,7 +325,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.2';
+    const APP_VERSION = '47.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -771,18 +771,30 @@
         wall.innerHTML='';
         return;
       }
-      const fromPosts = (state.posts||[]).filter(p=>p.mediaType==='image' && p.mediaUrl).slice(0,6).map(p=>({url:p.mediaUrl,label:p.authorName||'會員照片'}));
-      const fromContest = (state.contestEntries||[]).filter(e=>e.imageUrl).slice(0,6).map(e=>({url:e.imageUrl,label:e.authorName||'比賽照片'}));
-      const fromStores = (state.stores||[]).flatMap(s=>(s.photos||[]).slice(0,1).map(u=>({url:u,label:s.name||'商家照片'}))).slice(0,6);
-      const photos = [...fromPosts, ...fromContest, ...fromStores].filter(x=>x.url).slice(0,9);
+      const fromPosts = (state.posts||[])
+        .filter(p=>p.mediaType==='image' && p.mediaUrl)
+        .slice(0,6)
+        .map(p=>({url:p.mediaUrl,label:p.authorName||'會員照片'}));
+      const fromContest = (state.contestEntries||[])
+        .filter(e=>e.imageUrl)
+        .slice(0,6)
+        .map(e=>({url:e.imageUrl,label:e.authorName||'比賽照片'}));
+      const fromStores = (state.stores||[])
+        .reduce((acc, st)=>{
+          const arr = (st.photos||[]).slice(0,1).map(u=>({url:u,label:st.name||'商家照片'}));
+          return acc.concat(arr);
+        },[])
+        .slice(0,6);
+
+      let photos = [...fromPosts, ...fromContest, ...fromStores].filter(x=>x.url).slice(0,9);
       if(!photos.length){
-        wall.innerHTML = `<div class='muted'>訪客可看照片，正在載入中…</div>`;
-        return;
+        photos = Array.from({length:6}).map((_,i)=>({url:'',label:`示意照片 ${i+1}`}));
       }
+
       wall.innerHTML = `
         <div class='muted' style='margin-bottom:6px'>訪客可瀏覽照片（登入後可發文、評論、私訊）</div>
         <div style='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px'>
-          ${photos.map(p=>`<div style='border:1px solid #d1d5db;border-radius:10px;overflow:hidden;background:#fff'><img src='${p.url}' alt='photo' style='width:100%;height:110px;object-fit:cover'/><div class='muted' style='padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${p.label}</div></div>`).join('')}
+          ${photos.map(p=>`<div style='border:1px solid #d1d5db;border-radius:10px;overflow:hidden;background:#fff'>${p.url?`<img src='${p.url}' alt='photo' style='width:100%;height:110px;object-fit:cover' onerror="this.outerHTML='<div style=\'height:110px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dbeafe,#f0f9ff);color:#6b7280\'>照片載入中</div>'"/>`:`<div style='height:110px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dbeafe,#f0f9ff);color:#6b7280'>照片示意</div>`}<div class='muted' style='padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${p.label}</div></div>`).join('')}
         </div>`;
     }
 
