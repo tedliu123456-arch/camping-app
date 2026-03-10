@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.3（需求整合版）</title>
+  <title>Camping App v47.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -325,7 +325,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.3';
+    const APP_VERSION = '47.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1652,8 +1652,23 @@
 
     async function boot(){
       await initFirebase();
-      await loadState();
-      // 訪客進入時預設回到社群首頁，先看到照片內容
+
+      // 先渲染本地預設資料，避免訪客進站白畫面/看不到照片
+      defaultSeed();
+      ensureTestData();
+      if(state.user.mode==='guest') state.activeTab='social';
+      renderAll();
+
+      // 背景載入雲端資料；若超時或失敗，保留本地可瀏覽內容
+      try{
+        await Promise.race([
+          loadState(),
+          new Promise((_,reject)=>setTimeout(()=>reject(new Error('load-timeout')), 4500))
+        ]);
+      }catch(e){
+        console.warn('boot loadState fallback', e);
+      }
+
       if(state.user.mode==='guest') state.activeTab='social';
       renderAll();
       bindLoginModalKeys();
