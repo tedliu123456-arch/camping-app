@@ -1,7 +1,16 @@
 {
-  "version": "49.2",
+  "version": "49.3",
   "lastUpdated": "2026-03-11",
   "changelog": [
+    {
+      "version": "49.3",
+      "date": "2026-03-11",
+      "changes": [
+        "新增固定檔名 Excel 匯出（camping-app-data.xlsx）",
+        "新增/修改後自動觸發 Excel 下載（後台資料變更流程）",
+        "後台增加『立即下載固定檔名 Excel』按鈕"
+      ]
+    },
     {
       "version": "49.2",
       "date": "2026-03-11",

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.2（需求整合版）</title>
+  <title>Camping App v49.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -343,7 +343,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.2';
+    const APP_VERSION = '49.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1006,6 +1006,7 @@
         <div class='field'><label>Excel 檔案</label><input id='ad-excel' type='file' accept='.xlsx,.xls' /></div>
         <div class='muted'>支援工作表：campsite / mod / gear / rental（或 category 欄位）</div>
         <button class='btn ok' onclick='importStoresFromExcel()'>讀取 Excel 並自動匯入</button>
+        <button class='btn ghost' style='margin-top:6px' onclick="downloadDataExcel('camping-app-data.xlsx')">立即下載固定檔名 Excel</button>
         <hr/>
         <div style='font-weight:700'>資料匯出</div>
         <button class='btn ghost' onclick='exportAllData()'>匯出所有資料（JSON）</button>
@@ -1794,6 +1795,7 @@
       if(pickupEl) s.pickupLocation=pickupEl.value.trim();
       s.website=document.getElementById('me-web').value.trim();
       saveState();
+      scheduleAutoExcelDownload();
       renderStoreTabs();
       showToast('商家資料已儲存 ✅');
     }
@@ -1801,7 +1803,7 @@
     function addAnnouncement(){
       const t=document.getElementById('ad-ann').value.trim(); if(!t) return;
       state.announcements.unshift({id:uid(),text:t});
-      document.getElementById('ad-ann').value=''; renderAnnouncements(); saveState();
+      document.getElementById('ad-ann').value=''; renderAnnouncements(); saveState(); scheduleAutoExcelDownload();
     }
 
     function addStoreByAdmin(){
@@ -1821,7 +1823,7 @@
       };
       if(!s.name) return alert('請輸入店名');
       state.stores.unshift(s);
-      renderStoreTabs(); saveState(); alert('已新增商家');
+      renderStoreTabs(); saveState(); scheduleAutoExcelDownload(); alert('已新增商家');
     }
 
     function createMerchantAccount(){
@@ -1832,7 +1834,7 @@
       const store=state.stores.find(s=>s.id===storeId); if(!store) return alert('找不到店鋪ID');
       state.merchantAccounts.push({merchantId,password,storeId,enabled:true});
       store.isMember=true; store.ownerMerchantId=merchantId;
-      saveState(); alert('已開通商家會員帳號');
+      saveState(); scheduleAutoExcelDownload(); alert('已開通商家會員帳號');
     }
 
     function normalizeExcelCategory(v, fallback=''){
@@ -1846,6 +1848,56 @@
 
     function photosFromCell(v){
       return String(v||'').split(/[|｜,，\n]+/).map(x=>x.trim()).filter(Boolean);
+    }
+
+    function buildStoreRows(category){
+      return (state.stores||[])
+        .filter(s=>s.category===category)
+        .map(s=>([
+          s.id||'',
+          s.category||'',
+          s.name||'',
+          s.address||'',
+          s.hours||'',
+          s.contact||'',
+          s.website||'',
+          s.description||'',
+          (s.features||[]).join('|'),
+          (s.photos||[]).join('|'),
+          s.specialModels||'',
+          s.vehicleTypes||'',
+          s.pickupLocation||'',
+          s.elevation||'',
+          s.tentCount||'',
+          s.zones||'',
+          s.sourceUrl||'',
+          s.isMember?'1':'0'
+        ]));
+    }
+
+    function downloadDataExcel(filename='camping-app-data.xlsx'){
+      if(typeof XLSX==='undefined') return;
+      const headers=['id','category','name','address','hours','contact','website','description','features','photos','specialModels','vehicleTypes','pickupLocation','elevation','tentCount','zones','sourceUrl','isMember'];
+      const wb = XLSX.utils.book_new();
+      ['campsite','mod','gear','rental'].forEach(cat=>{
+        const rows = [headers, ...buildStoreRows(cat)];
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        XLSX.utils.book_append_sheet(wb, ws, cat);
+      });
+
+      const annRows = [['id','text','title','detail','merchantName','createdAt'], ...(state.announcements||[]).map(a=>[a.id||'',a.text||'',a.title||'',a.detail||'',a.merchantName||'',a.createdAt||''])];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(annRows), 'announcements');
+
+      const merRows = [['merchantId','password','storeId','enabled'], ...(state.merchantAccounts||[]).map(m=>[m.merchantId||'',m.password||'',m.storeId||'',m.enabled?'1':'0'])];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(merRows), 'merchant-accounts');
+
+      XLSX.writeFile(wb, filename);
+    }
+
+    function scheduleAutoExcelDownload(){
+      if(typeof XLSX==='undefined') return;
+      clearTimeout(window.__autoExcelTimer);
+      window.__autoExcelTimer = setTimeout(()=>downloadDataExcel('camping-app-data.xlsx'), 900);
     }
 
     async function importStoresFromExcel(){
@@ -1907,6 +1959,7 @@
 
       renderStoreTabs();
       await saveState();
+      scheduleAutoExcelDownload();
       showToast(`Excel 匯入完成：新增 ${imported}、更新 ${updated}、略過 ${skipped}`);
       alert(`Excel 匯入完成\n新增：${imported}\n更新：${updated}\n略過：${skipped}`);
     }
