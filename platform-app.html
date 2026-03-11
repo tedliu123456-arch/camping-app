@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.4（需求整合版）</title>
+  <title>Camping App v49.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -192,7 +192,7 @@
     <section id="sec-campsite" class="section">
       <div class="card">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <div style="font-weight:800">營地搜尋（591 風格）</div>
+          <div style="font-weight:800">營地搜尋</div>
           <input id="campSearch" placeholder="輸入地區/關鍵字（例：靠海、親子、夜景）" style="max-width:320px" />
           <button class="btn ghost" onclick="openGoogleMapSearch()">Google Maps 搜尋</button>
         </div>
@@ -343,7 +343,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.4';
+    const APP_VERSION = '49.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -538,6 +538,55 @@
       }
 
       return changed;
+    }
+
+    function mergeTaichungCampsites(rows=[]){
+      let changed = false;
+      rows.forEach(r=>{
+        const name = String(r.name||'').trim();
+        if(!name) return;
+        const ex = state.stores.find(s=>s.category==='campsite' && s.name===name);
+        const payload = {
+          category:'campsite',
+          name,
+          address:String(r.address||'').trim(),
+          contact:String(r.contact||'').trim(),
+          description:String(r.description||'').trim() || '台中露營區資料',
+          elevation:String(r.elevation||'').trim(),
+          tentCount:String(r.total_sites||'').trim(),
+          zones:String(r.camp_size||'').trim(),
+          sourceUrl:String(r.source_url||r.sourceUrl||'').trim(),
+          hours:String(r.hours||'').trim(),
+          website:String(r.website||'').trim(),
+          isMember:false
+        };
+        if(ex){
+          Object.assign(ex, {
+            ...ex,
+            ...payload,
+            photos: Array.isArray(ex.photos) ? ex.photos : []
+          });
+          changed = true;
+        }else{
+          state.stores.push({id:uid(), ...payload, photos:[]});
+          changed = true;
+        }
+      });
+      return changed;
+    }
+
+    async function loadBundledTaichungCampsites(){
+      try{
+        const res = await fetch('./data/taichung-campsites.json', {cache:'no-store'});
+        if(!res.ok) return;
+        const data = await res.json();
+        const rows = Array.isArray(data) ? data : (data.rows||[]);
+        if(!Array.isArray(rows) || !rows.length) return;
+        const changed = mergeTaichungCampsites(rows);
+        if(changed) await saveState();
+      }catch(e){
+        console.warn('load bundled taichung campsites fail', e);
+      }
     }
 
     async function initFirebase(){
@@ -2018,6 +2067,7 @@
       // 先渲染本地預設資料，避免訪客進站白畫面/看不到照片
       defaultSeed();
       ensureTestData();
+      await loadBundledTaichungCampsites();
       if(state.user.mode==='guest') state.activeTab='social';
       renderAll();
 
@@ -2031,6 +2081,7 @@
         console.warn('boot loadState fallback', e);
       }
 
+      await loadBundledTaichungCampsites();
       if(state.user.mode==='guest') state.activeTab='social';
       renderAll();
       bindLoginModalKeys();
