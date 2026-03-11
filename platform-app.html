@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v48.3（需求整合版）</title>
+  <title>Camping App v48.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -180,9 +180,12 @@
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
           <div style="font-weight:800">社群貼文</div>
-          <button id="socialPostBtnTop" class="btn" onclick="openPostModal('social')">＋ 發文</button>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button id="socialCheckInBtn" class="btn ghost" onclick="doCheckIn()">📍 打卡</button>
+            <button id="socialPostBtnTop" class="btn" onclick="openPostModal('social')">＋ 發文</button>
+          </div>
         </div>
         <div id="feedList" style="margin-top:10px"></div>
         <div id="guestPhotoWall" style="margin-top:10px"></div>
@@ -341,7 +344,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '48.3';
+    const APP_VERSION = '48.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -716,6 +719,11 @@
       if(dmBtn){
         dmBtn.disabled = false;
         dmBtn.style.opacity = dmOnly ? '0.75' : '1';
+      }
+      const checkInBtn=document.getElementById('socialCheckInBtn');
+      if(checkInBtn){
+        checkInBtn.disabled = false;
+        checkInBtn.style.opacity = memberOnly ? '0.75' : '1';
       }
     }
 
