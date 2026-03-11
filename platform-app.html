@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v48.4（需求整合版）</title>
+  <title>Camping App v48.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -180,12 +180,9 @@
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center">
           <div style="font-weight:800">社群貼文</div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-            <button id="socialCheckInBtn" class="btn ghost" onclick="doCheckIn()">📍 打卡</button>
-            <button id="socialPostBtnTop" class="btn" onclick="openPostModal('social')">＋ 發文</button>
-          </div>
+          <button id="socialPostBtnTop" class="btn" onclick="openPostModal('social')">＋ 發文</button>
         </div>
         <div id="feedList" style="margin-top:10px"></div>
         <div id="guestPhotoWall" style="margin-top:10px"></div>
@@ -249,6 +246,7 @@
     <div class="sheet">
       <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
+      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（選填）</label><input id="postCheckInLocation" placeholder="例如：海風露營區、南投某某營地" /></div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
       <div id="uploadProgress" class="upload-progress">
@@ -344,7 +342,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '48.4';
+    const APP_VERSION = '48.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -719,11 +717,6 @@
       if(dmBtn){
         dmBtn.disabled = false;
         dmBtn.style.opacity = dmOnly ? '0.75' : '1';
-      }
-      const checkInBtn=document.getElementById('socialCheckInBtn');
-      if(checkInBtn){
-        checkInBtn.disabled = false;
-        checkInBtn.style.opacity = memberOnly ? '0.75' : '1';
       }
     }
 
@@ -1478,6 +1471,10 @@
       const themeTitle = state.contestTheme?.title || '會員照片比賽';
       document.getElementById('postTargetBadge').textContent = mode==='contest'?`投稿到：${themeTitle}`:'發佈到：社群媒體';
       document.getElementById('postText').placeholder = mode==='contest'?'可補充主題說明（文字可省略）':'分享露營心得...';
+      const checkInField = document.getElementById('postCheckInField');
+      const checkInInput = document.getElementById('postCheckInLocation');
+      if(checkInField) checkInField.style.display = mode==='social' ? 'block' : 'none';
+      if(checkInInput && mode!=='social') checkInInput.value='';
       document.getElementById('postModal').style.display='flex';
       showToast(mode==='contest'?'已進入投稿頁':'已進入發文頁');
     }
@@ -1485,7 +1482,11 @@
 
     async function submitPost(){
       if(!isMember()){ alert('請先登入會員'); return; }
-      const text=(document.getElementById('postText').value||'').trim();
+      const rawText=(document.getElementById('postText').value||'').trim();
+      const checkInLocation=(document.getElementById('postCheckInLocation')?.value||'').trim();
+      const text = postMode==='social'
+        ? (checkInLocation ? `📍 我在 ${checkInLocation} 打卡${rawText?`\n${rawText}`:''}` : rawText)
+        : rawText;
       const fileInput=document.getElementById('postFile');
       const file=fileInput && fileInput.files ? (fileInput.files[0] || null) : null;
       const submitBtn=document.getElementById('postSubmitBtn');
@@ -1525,6 +1526,8 @@
         }
 
         document.getElementById('postText').value='';
+        const checkInInput=document.getElementById('postCheckInLocation');
+        if(checkInInput) checkInInput.value='';
         if(fileInput) fileInput.value='';
       }catch(err){
         console.error(err);
