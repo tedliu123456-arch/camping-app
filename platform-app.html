@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.9（需求整合版）</title>
+  <title>Camping App v50.0（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -345,7 +345,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '49.9';
+    const APP_VERSION = '50.0';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -963,7 +963,7 @@
         ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
         ${photos.length>2?`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
       </div>` : '';
-      const adminCampsiteActions = (state.user.mode==='admin' && s.category==='campsite') ? `<div class='actions' style='margin-top:6px'><button class='btn' onclick="adminEditCampsiteInline('${s.id}')">✏️ 編輯</button><button class='btn ghost' onclick="adminDeleteCampsiteInline('${s.id}')">🗑️ 刪除</button></div>` : '';
+      const adminCampsiteActions = (state.user.mode==='admin' && s.category==='campsite') ? `<div class='actions' style='margin-top:6px'><button class='btn' onclick="adminEditCampsiteInline('${s.id}')">✏️ 編輯</button><button class='btn ghost' onclick="adminEditCampsitePhotosInline('${s.id}')">🖼️ 照片</button><button class='btn ghost' onclick="adminDeleteCampsiteInline('${s.id}')">🗑️ 刪除</button></div>` : '';
       return `<div id="store-${s.id}" class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
         <div class="muted">${s.address||''}</div>
@@ -1984,6 +1984,20 @@
       saveState();
       scheduleAutoExcelDownload();
       showToast('營地資料已更新 ✅');
+    }
+
+    function adminEditCampsitePhotosInline(storeId){
+      if(state.user.mode!=='admin') return alert('僅總管理者可操作');
+      const s=(state.stores||[]).find(x=>x.id===storeId && x.category==='campsite');
+      if(!s) return;
+      const current = Array.isArray(s.photos) ? s.photos.join('|') : '';
+      const val = prompt('貼上照片網址（多張用 | 分隔）\n例如：https://a.jpg|https://b.jpg', current);
+      if(val===null) return;
+      s.photos = String(val||'').split('|').map(x=>x.trim()).filter(Boolean);
+      renderStoreTabs();
+      saveState();
+      scheduleAutoExcelDownload();
+      showToast('營地照片已更新 ✅');
     }
 
     function adminDeleteCampsiteInline(storeId){
