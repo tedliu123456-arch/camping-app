@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v48.8（需求整合版）</title>
+  <title>Camping App v48.9（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -246,7 +246,7 @@
     <div class="sheet">
       <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
-      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（可填 1~2 個）</label><input id="postCheckInLocation" placeholder="例如：海風露營區、南投某某營地（用、分隔）" /></div>
+      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（GPS 單一定位）</label><div style="display:flex;gap:6px;align-items:center"><input id="postCheckInLocation" placeholder="尚未定位" readonly /><button class="btn ghost" type="button" onclick="captureCheckInLocation()">定位</button></div><div id="postCheckInMeta" class="muted">使用目前位置建立 1 個打卡點（經緯度）</div></div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
       <div id="uploadProgress" class="upload-progress">
@@ -342,7 +342,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '48.8';
+    const APP_VERSION = '48.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -774,10 +774,16 @@
       el.innerHTML = state.posts.map(p=>{
         const liked = (p.likes||[]).includes(state.user.id);
         const likeDisabled = !isMember() || liked;
+        const geo = p.checkInGeo || null;
         const checkIns = Array.isArray(p.checkInLocations) ? p.checkInLocations.filter(Boolean) : [];
-        const checkInHtml = checkIns.length
-          ? `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'>${checkIns.map(loc=>`<a class='pill' href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}' target='_blank' rel='noopener'>📍 ${loc}</a>`).join('')}</div>`
-          : '';
+        let checkInHtml = '';
+        if(geo && typeof geo.lat==='number' && typeof geo.lng==='number'){
+          const lat = Number(geo.lat).toFixed(6);
+          const lng = Number(geo.lng).toFixed(6);
+          checkInHtml = `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'><a class='pill' href='https://www.google.com/maps/search/?api=1&query=${lat},${lng}' target='_blank' rel='noopener'>📍 打卡座標 ${lat}, ${lng}</a></div>`;
+        }else if(checkIns.length){
+          checkInHtml = `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'>${checkIns.map(loc=>`<a class='pill' href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}' target='_blank' rel='noopener'>📍 ${loc}</a>`).join('')}</div>`;
+        }
         return `<div class="feed-item ${p.mediaType==='video'?'feed-video':''}">
           <div style="display:flex;justify-content:space-between"><b>${p.authorName}</b><span class="muted">${new Date(p.createdAt).toLocaleString()}</span></div>
           ${checkInHtml}
@@ -1465,6 +1471,36 @@
       saveState();
     }
 
+    function resetPostCheckIn(){
+      window.__postCheckInGeo = null;
+      const checkInInput = document.getElementById('postCheckInLocation');
+      const meta = document.getElementById('postCheckInMeta');
+      if(checkInInput) checkInInput.value='';
+      if(meta) meta.textContent='使用目前位置建立 1 個打卡點（經緯度）';
+    }
+
+    function captureCheckInLocation(){
+      if(postMode!=='social') return;
+      if(!navigator.geolocation){
+        alert('此裝置不支援 GPS 定位');
+        return;
+      }
+      const meta = document.getElementById('postCheckInMeta');
+      if(meta) meta.textContent='定位中...';
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const lat = Number(pos.coords.latitude || 0);
+        const lng = Number(pos.coords.longitude || 0);
+        window.__postCheckInGeo = {lat,lng};
+        const checkInInput = document.getElementById('postCheckInLocation');
+        if(checkInInput) checkInInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        if(meta) meta.textContent = `定位成功：${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        showToast('GPS 打卡定位成功 ✅');
+      },err=>{
+        if(meta) meta.textContent='定位失敗，請確認定位權限';
+        alert('定位失敗，請開啟定位權限後重試');
+      },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
+    }
+
     function openPostModal(mode){
       if(!isMember()){
         alert('請先登入會員，才能發佈貼文或投稿比賽');
@@ -1477,9 +1513,8 @@
       document.getElementById('postTargetBadge').textContent = mode==='contest'?`投稿到：${themeTitle}`:'發佈到：社群媒體';
       document.getElementById('postText').placeholder = mode==='contest'?'可補充主題說明（文字可省略）':'分享露營心得...';
       const checkInField = document.getElementById('postCheckInField');
-      const checkInInput = document.getElementById('postCheckInLocation');
       if(checkInField) checkInField.style.display = mode==='social' ? 'block' : 'none';
-      if(checkInInput && mode!=='social') checkInInput.value='';
+      if(mode==='social') resetPostCheckIn();
       document.getElementById('postModal').style.display='flex';
       showToast(mode==='contest'?'已進入投稿頁':'已進入發文頁');
     }
@@ -1488,10 +1523,7 @@
     async function submitPost(){
       if(!isMember()){ alert('請先登入會員'); return; }
       const rawText=(document.getElementById('postText').value||'').trim();
-      const checkInLocation=(document.getElementById('postCheckInLocation')?.value||'').trim();
-      const checkInLocations = postMode==='social'
-        ? checkInLocation.split(/[、,，;；\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,2)
-        : [];
+      const checkInGeo = postMode==='social' ? (window.__postCheckInGeo || null) : null;
       const text = rawText;
       const fileInput=document.getElementById('postFile');
       const file=fileInput && fileInput.files ? (fileInput.files[0] || null) : null;
@@ -1499,7 +1531,7 @@
       const oldLabel=submitBtn ? submitBtn.textContent : '';
 
       if(postMode==='contest' && !file){ alert('請先選擇照片再投稿'); return; }
-      if(!text && !file && !(postMode==='social' && checkInLocations.length)){ alert('請輸入內容、打卡地點或選擇檔案'); return; }
+      if(!text && !file && !(postMode==='social' && checkInGeo)){ alert('請輸入內容、GPS 打卡或選擇檔案'); return; }
 
       const type = detectMediaType(file);
       if(postMode==='contest' && type!=='image'){
@@ -1524,7 +1556,7 @@
           openContestModal();
           showToast('投稿已送審，待管理員審核 ✅');
         }else{
-          state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,checkInLocations,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
+          state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,checkInGeo,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
           await saveState();
           renderFeed();
           closePostModal();
@@ -1532,8 +1564,7 @@
         }
 
         document.getElementById('postText').value='';
-        const checkInInput=document.getElementById('postCheckInLocation');
-        if(checkInInput) checkInInput.value='';
+        resetPostCheckIn();
         if(fileInput) fileInput.value='';
       }catch(err){
         console.error(err);
