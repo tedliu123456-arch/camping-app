@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.8（需求整合版）</title>
+  <title>Camping App v49.9（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -344,7 +344,8 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.8';
+    const LOCAL_STATE_KEY = 'camping-main-local-v1';
+    const APP_VERSION = '49.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -643,23 +644,67 @@
       });
     }
 
+    function applyStateSnapshot(d={}){
+      state.announcements = d.announcements || state.announcements;
+      state.posts = d.posts || state.posts;
+      state.contestEntries = d.contestEntries || state.contestEntries;
+      state.contestTheme = d.contestTheme || state.contestTheme;
+      state.contestPending = d.contestPending || state.contestPending;
+      state.stores = d.stores || state.stores;
+      state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
+      state.memberAccounts = d.memberAccounts || state.memberAccounts;
+      state.adminAccount = d.adminAccount || state.adminAccount;
+      state.dmThreads = d.dmThreads || state.dmThreads;
+    }
+
+    function stateSnapshot(){
+      return {
+        announcements:state.announcements,
+        posts:state.posts,
+        contestEntries:state.contestEntries,
+        contestTheme:state.contestTheme,
+        contestPending:state.contestPending,
+        stores:state.stores,
+        merchantAccounts:state.merchantAccounts,
+        memberAccounts:state.memberAccounts,
+        adminAccount:state.adminAccount,
+        dmThreads:state.dmThreads,
+        updatedAt:new Date().toISOString()
+      };
+    }
+
+    function loadLocalState(){
+      try{
+        const raw = localStorage.getItem(LOCAL_STATE_KEY);
+        if(!raw) return false;
+        const d = JSON.parse(raw);
+        applyStateSnapshot(d||{});
+        normalizeAnnouncements();
+        return true;
+      }catch(e){
+        console.warn('load local state fail', e);
+        return false;
+      }
+    }
+
+    function saveLocalState(){
+      try{
+        localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(stateSnapshot()));
+      }catch(e){
+        console.warn('save local state fail', e);
+      }
+    }
+
     async function loadState(){
       defaultSeed();
-      if(!db){ ensureTestData(); return; }
+      loadLocalState();
+      if(!db){ ensureTestData(); saveLocalState(); return; }
       try{
         const doc = await db.collection('apps').doc(APP_DOC).get();
         if(doc.exists){
           const d = doc.data() || {};
-          state.announcements = d.announcements || state.announcements;
-          state.posts = d.posts || state.posts;
-          state.contestEntries = d.contestEntries || state.contestEntries;
-          state.contestTheme = d.contestTheme || state.contestTheme;
-          state.contestPending = d.contestPending || state.contestPending;
-          state.stores = d.stores || state.stores;
-          state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
-          state.memberAccounts = d.memberAccounts || state.memberAccounts;
-          state.adminAccount = d.adminAccount || state.adminAccount;
-          state.dmThreads = d.dmThreads || state.dmThreads;
+          applyStateSnapshot(d);
+          saveLocalState();
         }
         normalizeAnnouncements();
         if(ensureTestData()){ await saveState(); }
@@ -667,21 +712,10 @@
     }
 
     async function saveState(){
+      saveLocalState();
       if(!db) return;
       try{
-        await db.collection('apps').doc(APP_DOC).set({
-          announcements:state.announcements,
-          posts:state.posts,
-          contestEntries:state.contestEntries,
-          contestTheme:state.contestTheme,
-          contestPending:state.contestPending,
-          stores:state.stores,
-          merchantAccounts:state.merchantAccounts,
-          memberAccounts:state.memberAccounts,
-          adminAccount:state.adminAccount,
-          dmThreads:state.dmThreads,
-          updatedAt:new Date().toISOString()
-        }, {merge:true});
+        await db.collection('apps').doc(APP_DOC).set(stateSnapshot(), {merge:true});
       }catch(e){ console.warn('save fail',e); }
     }
 
