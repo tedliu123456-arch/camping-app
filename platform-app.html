@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.0（需求整合版）</title>
+  <title>Camping App v49.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -246,7 +246,7 @@
     <div class="sheet">
       <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
-      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（GPS 單一定位）</label><div style="display:flex;gap:6px;align-items:center"><input id="postCheckInLocation" placeholder="尚未定位" readonly /><button class="btn ghost" type="button" onclick="captureCheckInLocation()">定位</button></div><div id="postCheckInMeta" class="muted">使用目前 GPS 定位附近地標（單一打卡點）</div></div>
+      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（GPS 單一定位，可選附近名稱）</label><div style="display:flex;gap:6px;align-items:center"><select id="postCheckInChoice" onchange="applyCheckInChoice()"><option value="">尚未定位，先按定位</option></select><button class="btn ghost" type="button" onclick="captureCheckInLocation()">定位</button></div><div id="postCheckInMeta" class="muted">定位後可從下拉選單選擇附近地標名稱</div></div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
       <div id="uploadProgress" class="upload-progress">
@@ -342,7 +342,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.0';
+    const APP_VERSION = '49.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1474,25 +1474,52 @@
 
     function resetPostCheckIn(){
       window.__postCheckInGeo = null;
-      const checkInInput = document.getElementById('postCheckInLocation');
+      const choice = document.getElementById('postCheckInChoice');
       const meta = document.getElementById('postCheckInMeta');
-      if(checkInInput) checkInInput.value='';
-      if(meta) meta.textContent='使用目前 GPS 定位附近地標（單一打卡點）';
+      if(choice) choice.innerHTML = `<option value="">尚未定位，先按定位</option>`;
+      if(meta) meta.textContent='定位後可從下拉選單選擇附近地標名稱';
     }
 
-    async function reverseGeoLabel(lat, lng){
+    function uniqueNonEmpty(arr){
+      return [...new Set((arr||[]).map(x=>String(x||'').trim()).filter(Boolean))];
+    }
+
+    async function reverseGeoChoices(lat, lng){
       try{
         const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=zh-TW`;
         const res = await fetch(url, {headers:{'Accept':'application/json'}});
         if(!res.ok) throw new Error('reverse-fail');
         const data = await res.json();
         const a = data.address || {};
-        const name = data.name || a.attraction || a.tourism || a.leisure || a.amenity || a.shop || a.road || a.neighbourhood || a.suburb || a.village || a.town || a.city || '';
-        const area = a.suburb || a.city_district || a.town || a.city || a.county || '';
-        return [name, area].filter(Boolean).join('｜') || '目前位置附近地標';
+        const city = a.city || a.town || a.county || '';
+        const suburb = a.suburb || a.city_district || a.neighbourhood || '';
+        const road = [a.road, a.house_number].filter(Boolean).join(' ');
+        const choices = uniqueNonEmpty([
+          data.name,
+          a.attraction,
+          a.tourism,
+          a.leisure,
+          a.amenity,
+          a.shop,
+          road,
+          suburb,
+          city,
+          [suburb, city].filter(Boolean).join('｜')
+        ]).slice(0,6);
+        return choices.length ? choices : ['目前位置附近地標'];
       }catch{
-        return '目前位置附近地標';
+        return ['目前位置附近地標'];
       }
+    }
+
+    function applyCheckInChoice(){
+      const sel = document.getElementById('postCheckInChoice');
+      if(!sel || !window.__postCheckInGeo) return;
+      const label = (sel.value||'').trim();
+      if(!label) return;
+      window.__postCheckInGeo = {...window.__postCheckInGeo, label};
+      const meta = document.getElementById('postCheckInMeta');
+      if(meta) meta.textContent = `已選擇：${label}`;
     }
 
     function captureCheckInLocation(){
@@ -1506,11 +1533,14 @@
       navigator.geolocation.getCurrentPosition(async pos=>{
         const lat = Number(pos.coords.latitude || 0);
         const lng = Number(pos.coords.longitude || 0);
-        const label = await reverseGeoLabel(lat, lng);
+        const choices = await reverseGeoChoices(lat, lng);
+        const label = choices[0] || '目前位置附近地標';
         window.__postCheckInGeo = {lat,lng,label};
-        const checkInInput = document.getElementById('postCheckInLocation');
-        if(checkInInput) checkInInput.value = label;
-        if(meta) meta.textContent = `定位成功：${label}`;
+        const sel = document.getElementById('postCheckInChoice');
+        if(sel){
+          sel.innerHTML = choices.map((c,i)=>`<option value="${c.replace(/"/g,'&quot;')}" ${i===0?'selected':''}>${c}</option>`).join('');
+        }
+        if(meta) meta.textContent = `定位成功：已提供 ${choices.length} 個附近地標可選`;
         showToast('GPS 打卡定位成功 ✅');
       },err=>{
         if(meta) meta.textContent='定位失敗，請確認定位權限';
