@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.6（需求整合版）</title>
+  <title>Camping App v47.7（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -170,7 +170,10 @@
           <div style="font-weight:800">📸 會員照片比賽（社群首頁限定）</div>
           <button id="contestPostBtnTop" class="btn" onclick="openPostModal('contest')">📷 我要投稿</button>
         </div>
+        <div id="contestThemeTitle" style="font-weight:700;margin-top:6px">本週主題：我的露營早晨</div>
+        <div id="contestThemeDesc" class="muted" style="color:#dbeafe">請上傳符合主題的照片，通過管理員審核後才會上架投票。</div>
         <div class="muted" style="color:#dbeafe">每位會員每日 2 票，不可重複投同一作品；12:10 刷新</div>
+        <div id="contestPendingHint" class="muted" style="color:#dbeafe"></div>
         <div id="contestBannerList" class="contest-row"></div>
       </div>
 
@@ -253,6 +256,7 @@
   <div id="contestModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">會員照片比賽</h3><button class="btn ghost" onclick="closeContestModal()">關閉</button></div>
+      <div id="contestModalTheme" style="font-weight:700"></div>
       <div id="voteHint" class="muted"></div>
       <div id="contestEntries" class="contest-grid" style="margin-top:10px"></div>
       <div style="margin-top:10px"><button id="contestPostBtnModal" class="btn" onclick="openPostModal('contest')">📷 我要投稿</button></div>
@@ -334,7 +338,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.6';
+    const APP_VERSION = '47.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -366,6 +370,8 @@
         {account:'user002',password:'123456',name:'測試會員B'}
       ],
       adminAccount:{account:'admin',password:ADMIN_PASSWORD},
+      contestTheme:{title:'本週主題：我的露營早晨',description:'請上傳符合主題的照片，通過管理員審核後才會上架投票。',updatedAt:new Date().toISOString()},
+      contestPending:[],
       dmThreads:[]
     };
 
@@ -578,6 +584,8 @@
           state.announcements = d.announcements || state.announcements;
           state.posts = d.posts || state.posts;
           state.contestEntries = d.contestEntries || state.contestEntries;
+          state.contestTheme = d.contestTheme || state.contestTheme;
+          state.contestPending = d.contestPending || state.contestPending;
           state.stores = d.stores || state.stores;
           state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
           state.memberAccounts = d.memberAccounts || state.memberAccounts;
@@ -596,6 +604,8 @@
           announcements:state.announcements,
           posts:state.posts,
           contestEntries:state.contestEntries,
+          contestTheme:state.contestTheme,
+          contestPending:state.contestPending,
           stores:state.stores,
           merchantAccounts:state.merchantAccounts,
           memberAccounts:state.memberAccounts,
@@ -740,11 +750,21 @@
 
     function renderContestBanner(){
       const list = document.getElementById('contestBannerList');
-      list.innerHTML = rankedContest().slice(0,8).map(e=>`
+      const themeTitle = document.getElementById('contestThemeTitle');
+      const themeDesc = document.getElementById('contestThemeDesc');
+      const pendingHint = document.getElementById('contestPendingHint');
+      if(themeTitle) themeTitle.textContent = state.contestTheme?.title || '本週主題：未設定';
+      if(themeDesc) themeDesc.textContent = state.contestTheme?.description || '投稿後需經管理員審核才會上架投票。';
+      if(pendingHint){
+        const pCount = (state.contestPending||[]).length;
+        pendingHint.textContent = pCount ? `待審核投稿：${pCount} 件` : '目前無待審核投稿';
+      }
+      const ranked = rankedContest();
+      list.innerHTML = ranked.slice(0,8).map(e=>`
         <div class="contest-card" onclick="openContestModal()">
           <img src="${e.imageUrl}" alt="contest" />
           <div class="contest-vote">❤️ ${e.voteCount||0}</div>
-        </div>`).join('');
+        </div>`).join('') || `<div class='muted' style='padding:8px 0'>目前還沒有通過審核的作品</div>`;
     }
 
     function renderFeed(){
@@ -883,8 +903,11 @@
 
     function renderContestModal(){
       const v = voteState();
+      const entries = rankedContest();
+      const themeLine = document.getElementById('contestModalTheme');
+      if(themeLine) themeLine.textContent = state.contestTheme?.title || '本週主題：未設定';
       document.getElementById('voteHint').textContent = `今日剩餘票數：${Math.max(0,2-(v.count||0))}（會員每天2票，不可重複）`;
-      document.getElementById('contestEntries').innerHTML = rankedContest().map(e=>{
+      document.getElementById('contestEntries').innerHTML = entries.map(e=>{
         const voted=(v.voted||[]).includes(e.id);
         const disabled = !isMember() || voted || (v.count||0)>=2;
         return `<div class='contest-entry card' style='margin:0'>
@@ -894,7 +917,7 @@
             <button class='btn' ${disabled?'disabled':''} onclick="voteContest('${e.id}')">${voted?'已投票':'投票'}</button>
           </div>
         </div>`;
-      }).join('');
+      }).join('') || `<div class='muted'>目前尚無通過審核的作品，歡迎先投稿。</div>`;
     }
 
     function renderMerchantEditor(account){
@@ -956,9 +979,71 @@
         <div class='field'><label>綁定店鋪 ID</label><input id='ad-sid' placeholder='storeId' /></div>
         <button class='btn' onclick='createMerchantAccount()'>開通帳號</button>
         <hr/>
+        <div style='font-weight:700'>照片比賽主題設定</div>
+        <div class='field'><label>主題標題（前台顯示）</label><input id='ad-contest-theme' value='${state.contestTheme?.title||''}' /></div>
+        <div class='field'><label>主題說明</label><textarea id='ad-contest-desc' rows='2'>${state.contestTheme?.description||''}</textarea></div>
+        <button class='btn' onclick='saveContestThemeByAdmin()'>儲存主題</button>
+        <hr/>
+        <div style='font-weight:700'>投稿審核（待審：${(state.contestPending||[]).length}）</div>
+        <div id='ad-contest-review'>${renderContestReviewRows()}</div>
+        <hr/>
         <div style='font-weight:700'>資料匯出</div>
         <button class='btn ghost' onclick='exportAllData()'>匯出所有資料（JSON）</button>
       `;
+    }
+
+    function renderContestReviewRows(){
+      const rows = (state.contestPending||[]).map(e=>`
+        <div class='card' style='margin:8px 0;padding:8px'>
+          <div style='display:flex;gap:10px;align-items:flex-start'>
+            <img src='${e.imageUrl||''}' alt='pending' style='width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #d1d5db;background:#f3f4f6' />
+            <div style='flex:1'>
+              <div><b>${e.authorName||'會員'}</b></div>
+              <div class='muted'>投稿時間：${new Date(e.createdAt||Date.now()).toLocaleString()}</div>
+              ${e.text ? `<div style='margin-top:4px'>${e.text}</div>` : ''}
+              <div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'>
+                <button class='btn ok' onclick="approveContestSubmission('${e.id}')">✅ 通過</button>
+                <button class='btn ghost' onclick="rejectContestSubmission('${e.id}')">⛔ 退回</button>
+              </div>
+            </div>
+          </div>
+        </div>`).join('');
+      return rows || `<div class='muted'>目前沒有待審核投稿</div>`;
+    }
+
+    async function saveContestThemeByAdmin(){
+      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
+      const title=(document.getElementById('ad-contest-theme')?.value||'').trim();
+      const description=(document.getElementById('ad-contest-desc')?.value||'').trim();
+      if(!title) return alert('請輸入主題標題');
+      state.contestTheme={title,description,updatedAt:new Date().toISOString()};
+      await saveState();
+      renderContestBanner();
+      showToast('比賽主題已更新 ✅');
+    }
+
+    async function approveContestSubmission(id){
+      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
+      const idx=(state.contestPending||[]).findIndex(x=>x.id===id);
+      if(idx<0) return;
+      const item=state.contestPending[idx];
+      state.contestPending.splice(idx,1);
+      state.contestEntries.unshift({...item,status:'approved',approvedAt:new Date().toISOString(),voteCount:item.voteCount||0});
+      await saveState();
+      renderContestBanner();
+      renderAdminPanel();
+      showToast('已通過審核並上架 ✅');
+    }
+
+    async function rejectContestSubmission(id){
+      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
+      const idx=(state.contestPending||[]).findIndex(x=>x.id===id);
+      if(idx<0) return;
+      state.contestPending.splice(idx,1);
+      await saveState();
+      renderContestBanner();
+      renderAdminPanel();
+      showToast('已退回投稿');
     }
 
     function shortTime(iso){
@@ -1345,8 +1430,9 @@
       }
       postMode=mode;
       document.getElementById('postTitle').textContent = mode==='contest'?'投稿':'新增貼文';
-      document.getElementById('postTargetBadge').textContent = mode==='contest'?'投稿到：會員照片比賽':'發佈到：社群媒體';
-      document.getElementById('postText').placeholder = mode==='contest'?'可直接上傳照片投稿（文字可省略）':'分享露營心得...';
+      const themeTitle = state.contestTheme?.title || '會員照片比賽';
+      document.getElementById('postTargetBadge').textContent = mode==='contest'?`投稿到：${themeTitle}`:'發佈到：社群媒體';
+      document.getElementById('postText').placeholder = mode==='contest'?'可補充主題說明（文字可省略）':'分享露營心得...';
       document.getElementById('postModal').style.display='flex';
       showToast(mode==='contest'?'已進入投稿頁':'已進入發文頁');
     }
@@ -1379,12 +1465,12 @@
         }
 
         if(postMode==='contest'){
-          state.contestEntries.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,imageUrl:url,voteCount:0,createdAt:new Date().toISOString()});
+          state.contestPending.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,imageUrl:url,voteCount:0,status:'pending',createdAt:new Date().toISOString()});
           await saveState();
           renderContestBanner();
           closePostModal();
           openContestModal();
-          showToast('投稿成功 ✅');
+          showToast('投稿已送審，待管理員審核 ✅');
         }else{
           state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
           await saveState();
@@ -1618,6 +1704,8 @@
         announcements: state.announcements,
         posts: state.posts,
         contestEntries: state.contestEntries,
+        contestTheme: state.contestTheme,
+        contestPending: state.contestPending,
         stores: state.stores,
         merchantAccounts: state.merchantAccounts,
         memberAccounts: state.memberAccounts,
