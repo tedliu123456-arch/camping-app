@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.6（需求整合版）</title>
+  <title>Camping App v49.7（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -343,7 +343,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.6';
+    const APP_VERSION = '49.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1051,6 +1051,20 @@
         <div class='field'><label>描述</label><textarea id='ad-desc'></textarea></div>
         <button class='btn ok' onclick='addStoreByAdmin()'>新增商家</button>
         <hr/>
+        <div style='font-weight:700'>營地資料編輯（總管理者）</div>
+        <div class='field'><label>選擇營地</label><select id='ad-edit-campsite' onchange='adminLoadCampsiteToForm()'></select></div>
+        <div class='field'><label>店名</label><input id='ad-edit-name' /></div>
+        <div class='field'><label>地址</label><input id='ad-edit-addr' /></div>
+        <div class='field'><label>營業時間</label><input id='ad-edit-hours' /></div>
+        <div class='field'><label>聯絡方式</label><input id='ad-edit-contact' /></div>
+        <div class='field'><label>海拔</label><input id='ad-edit-elevation' /></div>
+        <div class='field'><label>總帳數</label><input id='ad-edit-tentCount' /></div>
+        <div class='field'><label>營區大小 / 分區</label><input id='ad-edit-zones' /></div>
+        <div style='display:flex;gap:8px;flex-wrap:wrap'>
+          <button class='btn ok' onclick='adminSaveCampsiteFromForm()'>儲存營地修改</button>
+          <button class='btn ghost' onclick='adminDeleteCampsiteFromForm()'>刪除這個營地</button>
+        </div>
+        <hr/>
         <div style='font-weight:700'>開通商家會員帳號</div>
         <div class='field'><label>商家 ID</label><input id='ad-mid' placeholder='m1001' /></div>
         <div class='field'><label>密碼</label><input id='ad-mpw' placeholder='123456' /></div>
@@ -1072,6 +1086,7 @@
         <div style='font-weight:700'>資料匯出</div>
         <button class='btn ghost' onclick='exportAllData()'>匯出所有資料（JSON）</button>
       `;
+      adminRefreshCampsiteOptions();
     }
 
     function renderContestReviewRows(){
@@ -1896,6 +1911,67 @@
       state.merchantAccounts.push({merchantId,password,storeId,enabled:true});
       store.isMember=true; store.ownerMerchantId=merchantId;
       saveState(); scheduleAutoExcelDownload(); alert('已開通商家會員帳號');
+    }
+
+    function adminCampsites(){
+      return (state.stores||[]).filter(s=>s.category==='campsite').sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'zh-Hant'));
+    }
+
+    function adminRefreshCampsiteOptions(){
+      const sel=document.getElementById('ad-edit-campsite');
+      if(!sel) return;
+      const camps=adminCampsites();
+      sel.innerHTML = camps.length ? camps.map(c=>`<option value='${c.id}'>${c.name}</option>`).join('') : `<option value=''>（目前無營地）</option>`;
+      adminLoadCampsiteToForm();
+    }
+
+    function adminLoadCampsiteToForm(){
+      const id=document.getElementById('ad-edit-campsite')?.value || '';
+      const s=(state.stores||[]).find(x=>x.id===id);
+      const set=(k,v)=>{ const el=document.getElementById(k); if(el) el.value=v||''; };
+      if(!s){
+        ['ad-edit-name','ad-edit-addr','ad-edit-hours','ad-edit-contact','ad-edit-elevation','ad-edit-tentCount','ad-edit-zones'].forEach(k=>set(k,''));
+        return;
+      }
+      set('ad-edit-name',s.name);
+      set('ad-edit-addr',s.address);
+      set('ad-edit-hours',s.hours);
+      set('ad-edit-contact',s.contact);
+      set('ad-edit-elevation',s.elevation);
+      set('ad-edit-tentCount',s.tentCount);
+      set('ad-edit-zones',s.zones);
+    }
+
+    function adminSaveCampsiteFromForm(){
+      const id=document.getElementById('ad-edit-campsite')?.value || '';
+      const s=(state.stores||[]).find(x=>x.id===id);
+      if(!s) return alert('請先選擇營地');
+      s.name=(document.getElementById('ad-edit-name')?.value||'').trim();
+      s.address=(document.getElementById('ad-edit-addr')?.value||'').trim();
+      s.hours=(document.getElementById('ad-edit-hours')?.value||'').trim();
+      s.contact=(document.getElementById('ad-edit-contact')?.value||'').trim();
+      s.elevation=(document.getElementById('ad-edit-elevation')?.value||'').trim();
+      s.tentCount=(document.getElementById('ad-edit-tentCount')?.value||'').trim();
+      s.zones=(document.getElementById('ad-edit-zones')?.value||'').trim();
+      renderStoreTabs();
+      saveState();
+      scheduleAutoExcelDownload();
+      showToast('營地資料已更新 ✅');
+      adminRefreshCampsiteOptions();
+    }
+
+    function adminDeleteCampsiteFromForm(){
+      const id=document.getElementById('ad-edit-campsite')?.value || '';
+      const s=(state.stores||[]).find(x=>x.id===id);
+      if(!s) return alert('請先選擇營地');
+      if(!confirm(`確定刪除營地「${s.name}」？`)) return;
+      state.stores = (state.stores||[]).filter(x=>x.id!==id);
+      state.merchantAccounts = (state.merchantAccounts||[]).filter(m=>m.storeId!==id);
+      renderStoreTabs();
+      saveState();
+      scheduleAutoExcelDownload();
+      showToast('營地已刪除');
+      adminRefreshCampsiteOptions();
     }
 
     function normalizeExcelCategory(v, fallback=''){
