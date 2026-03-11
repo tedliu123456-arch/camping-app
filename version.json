@@ -1,7 +1,16 @@
 {
-  "version": "49.3",
+  "version": "49.4",
   "lastUpdated": "2026-03-11",
   "changelog": [
+    {
+      "version": "49.4",
+      "date": "2026-03-11",
+      "changes": [
+        "後台移除 Excel 匯入按鈕與欄位",
+        "保留固定檔名 Excel 匯出（camping-app-data.xlsx）",
+        "新增/修改/刪除後持續自動更新下載同一檔名"
+      ]
+    },
     {
       "version": "49.3",
       "date": "2026-03-11",

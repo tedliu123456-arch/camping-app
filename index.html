@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.3（需求整合版）</title>
+  <title>Camping App v49.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -343,7 +343,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.3';
+    const APP_VERSION = '49.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1002,10 +1002,8 @@
         <div style='font-weight:700'>投稿審核（待審：${(state.contestPending||[]).length}）</div>
         <div id='ad-contest-review'>${renderContestReviewRows()}</div>
         <hr/>
-        <div style='font-weight:700'>Excel 自動匯入（商家/營地資料）</div>
-        <div class='field'><label>Excel 檔案</label><input id='ad-excel' type='file' accept='.xlsx,.xls' /></div>
-        <div class='muted'>支援工作表：campsite / mod / gear / rental（或 category 欄位）</div>
-        <button class='btn ok' onclick='importStoresFromExcel()'>讀取 Excel 並自動匯入</button>
+        <div style='font-weight:700'>Excel 匯出（固定檔名）</div>
+        <div class='muted'>每次新增/修改/刪除後會自動更新並下載同一個檔名：camping-app-data.xlsx</div>
         <button class='btn ghost' style='margin-top:6px' onclick="downloadDataExcel('camping-app-data.xlsx')">立即下載固定檔名 Excel</button>
         <hr/>
         <div style='font-weight:700'>資料匯出</div>
