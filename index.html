@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v48.9（需求整合版）</title>
+  <title>Camping App v49.0（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -246,7 +246,7 @@
     <div class="sheet">
       <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
-      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（GPS 單一定位）</label><div style="display:flex;gap:6px;align-items:center"><input id="postCheckInLocation" placeholder="尚未定位" readonly /><button class="btn ghost" type="button" onclick="captureCheckInLocation()">定位</button></div><div id="postCheckInMeta" class="muted">使用目前位置建立 1 個打卡點（經緯度）</div></div>
+      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（GPS 單一定位）</label><div style="display:flex;gap:6px;align-items:center"><input id="postCheckInLocation" placeholder="尚未定位" readonly /><button class="btn ghost" type="button" onclick="captureCheckInLocation()">定位</button></div><div id="postCheckInMeta" class="muted">使用目前 GPS 定位附近地標（單一打卡點）</div></div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
       <div id="uploadProgress" class="upload-progress">
@@ -342,7 +342,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '48.9';
+    const APP_VERSION = '49.0';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -780,7 +780,8 @@
         if(geo && typeof geo.lat==='number' && typeof geo.lng==='number'){
           const lat = Number(geo.lat).toFixed(6);
           const lng = Number(geo.lng).toFixed(6);
-          checkInHtml = `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'><a class='pill' href='https://www.google.com/maps/search/?api=1&query=${lat},${lng}' target='_blank' rel='noopener'>📍 打卡座標 ${lat}, ${lng}</a></div>`;
+          const label = (geo.label||'目前位置附近地標').trim();
+          checkInHtml = `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'><a class='pill' href='https://www.google.com/maps/search/?api=1&query=${lat},${lng}' target='_blank' rel='noopener'>📍 ${label}</a></div>`;
         }else if(checkIns.length){
           checkInHtml = `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'>${checkIns.map(loc=>`<a class='pill' href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}' target='_blank' rel='noopener'>📍 ${loc}</a>`).join('')}</div>`;
         }
@@ -1476,7 +1477,22 @@
       const checkInInput = document.getElementById('postCheckInLocation');
       const meta = document.getElementById('postCheckInMeta');
       if(checkInInput) checkInInput.value='';
-      if(meta) meta.textContent='使用目前位置建立 1 個打卡點（經緯度）';
+      if(meta) meta.textContent='使用目前 GPS 定位附近地標（單一打卡點）';
+    }
+
+    async function reverseGeoLabel(lat, lng){
+      try{
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=zh-TW`;
+        const res = await fetch(url, {headers:{'Accept':'application/json'}});
+        if(!res.ok) throw new Error('reverse-fail');
+        const data = await res.json();
+        const a = data.address || {};
+        const name = data.name || a.attraction || a.tourism || a.leisure || a.amenity || a.shop || a.road || a.neighbourhood || a.suburb || a.village || a.town || a.city || '';
+        const area = a.suburb || a.city_district || a.town || a.city || a.county || '';
+        return [name, area].filter(Boolean).join('｜') || '目前位置附近地標';
+      }catch{
+        return '目前位置附近地標';
+      }
     }
 
     function captureCheckInLocation(){
@@ -1487,13 +1503,14 @@
       }
       const meta = document.getElementById('postCheckInMeta');
       if(meta) meta.textContent='定位中...';
-      navigator.geolocation.getCurrentPosition(pos=>{
+      navigator.geolocation.getCurrentPosition(async pos=>{
         const lat = Number(pos.coords.latitude || 0);
         const lng = Number(pos.coords.longitude || 0);
-        window.__postCheckInGeo = {lat,lng};
+        const label = await reverseGeoLabel(lat, lng);
+        window.__postCheckInGeo = {lat,lng,label};
         const checkInInput = document.getElementById('postCheckInLocation');
-        if(checkInInput) checkInInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        if(meta) meta.textContent = `定位成功：${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        if(checkInInput) checkInInput.value = label;
+        if(meta) meta.textContent = `定位成功：${label}`;
         showToast('GPS 打卡定位成功 ✅');
       },err=>{
         if(meta) meta.textContent='定位失敗，請確認定位權限';
