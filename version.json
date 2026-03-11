@@ -1,7 +1,14 @@
 {
-  "version": "48.7",
+  "version": "48.8",
   "lastUpdated": "2026-03-11",
   "changelog": [
+    {
+      "version": "48.8",
+      "date": "2026-03-11",
+      "changes": [
+        "將『每週主題』文案統一改為『每月主題』"
+      ]
+    },
     {
       "version": "48.7",
       "date": "2026-03-11",

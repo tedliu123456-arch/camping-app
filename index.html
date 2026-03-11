@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v48.7（需求整合版）</title>
+  <title>Camping App v48.8（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -174,7 +174,7 @@
         <div style="display:flex;justify-content:flex-end;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">
           <button id="contestPostBtnTop" class="btn contest-upload-btn" onclick="openPostModal('contest')"><span class="cam-ico"></span><span>我要投稿</span></button>
         </div>
-        <div id="contestThemeTitle" style="font-weight:800;margin-top:6px">主題｜我的露營早晨</div>
+        <div id="contestThemeTitle" style="font-weight:800;margin-top:6px">每月主題｜我的露營早晨</div>
 
         <div id="contestBannerList" class="contest-row"></div>
       </div>
@@ -342,7 +342,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '48.7';
+    const APP_VERSION = '48.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -374,7 +374,7 @@
         {account:'user002',password:'123456',name:'測試會員B'}
       ],
       adminAccount:{account:'admin',password:ADMIN_PASSWORD},
-      contestTheme:{title:'本週主題：我的露營早晨',description:'請上傳符合主題的照片，通過管理員審核後才會上架投票。',updatedAt:new Date().toISOString()},
+      contestTheme:{title:'本月主題：我的露營早晨',description:'請上傳符合主題的照片，通過管理員審核後才會上架投票。',updatedAt:new Date().toISOString()},
       contestPending:[],
       dmThreads:[]
     };
@@ -760,7 +760,7 @@
     function renderContestBanner(){
       const list = document.getElementById('contestBannerList');
       const themeTitle = document.getElementById('contestThemeTitle');
-      if(themeTitle) themeTitle.textContent = `主題｜${state.contestTheme?.title || '未設定'}`;
+      if(themeTitle) themeTitle.textContent = `每月主題｜${state.contestTheme?.title || '未設定'}`;
       const ranked = rankedContest();
       list.innerHTML = ranked.slice(0,8).map(e=>`
         <div class="contest-card" onclick="openContestModal()">
@@ -912,7 +912,7 @@
       const v = voteState();
       const entries = rankedContest();
       const themeLine = document.getElementById('contestModalTheme');
-      if(themeLine) themeLine.textContent = state.contestTheme?.title || '本週主題：未設定';
+      if(themeLine) themeLine.textContent = state.contestTheme?.title || '本月主題：未設定';
       document.getElementById('voteHint').textContent = `今日剩餘票數：${Math.max(0,2-(v.count||0))}（會員每天2票，不可重複）`;
       document.getElementById('contestEntries').innerHTML = entries.map(e=>{
         const voted=(v.voted||[]).includes(e.id);
