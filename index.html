@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.1（需求整合版）</title>
+  <title>Camping App v49.2（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -317,6 +317,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     const FIREBASE_CONFIGS = {
       dev: {
@@ -342,7 +343,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.1';
+    const APP_VERSION = '49.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1000,6 +1001,11 @@
         <hr/>
         <div style='font-weight:700'>投稿審核（待審：${(state.contestPending||[]).length}）</div>
         <div id='ad-contest-review'>${renderContestReviewRows()}</div>
+        <hr/>
+        <div style='font-weight:700'>Excel 自動匯入（商家/營地資料）</div>
+        <div class='field'><label>Excel 檔案</label><input id='ad-excel' type='file' accept='.xlsx,.xls' /></div>
+        <div class='muted'>支援工作表：campsite / mod / gear / rental（或 category 欄位）</div>
+        <button class='btn ok' onclick='importStoresFromExcel()'>讀取 Excel 並自動匯入</button>
         <hr/>
         <div style='font-weight:700'>資料匯出</div>
         <button class='btn ghost' onclick='exportAllData()'>匯出所有資料（JSON）</button>
@@ -1827,6 +1833,82 @@
       state.merchantAccounts.push({merchantId,password,storeId,enabled:true});
       store.isMember=true; store.ownerMerchantId=merchantId;
       saveState(); alert('已開通商家會員帳號');
+    }
+
+    function normalizeExcelCategory(v, fallback=''){
+      const x = String(v||fallback||'').trim().toLowerCase();
+      if(['campsite','camp','營地','露營區'].includes(x)) return 'campsite';
+      if(['mod','改裝','露營車改裝'].includes(x)) return 'mod';
+      if(['gear','用品','露營用品'].includes(x)) return 'gear';
+      if(['rental','出租','露營車出租'].includes(x)) return 'rental';
+      return '';
+    }
+
+    function photosFromCell(v){
+      return String(v||'').split(/[|｜,，\n]+/).map(x=>x.trim()).filter(Boolean);
+    }
+
+    async function importStoresFromExcel(){
+      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
+      const file = document.getElementById('ad-excel')?.files?.[0];
+      if(!file) return alert('請先選擇 Excel 檔案');
+      if(typeof XLSX==='undefined') return alert('Excel 解析元件未載入，請重整後再試');
+
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, {type:'array'});
+      let imported = 0, updated = 0, skipped = 0;
+
+      for(const sheetName of wb.SheetNames){
+        const sheet = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
+        const fallbackCat = normalizeExcelCategory(sheetName, '');
+        for(const r of rows){
+          const category = normalizeExcelCategory(r.category || r.類別 || r.Category, fallbackCat);
+          const name = String(r.name || r.名稱 || r.storeName || '').trim();
+          if(!category || !name){ skipped++; continue; }
+
+          const rowPhotos = photosFromCell(r.photos || r.照片 || r.photoUrls);
+          const payload = {
+            category,
+            name,
+            address: String(r.address || r.地址 || '').trim(),
+            hours: String(r.hours || r.營業時間 || '').trim(),
+            contact: String(r.contact || r.聯絡方式 || r.phone || '').trim(),
+            website: String(r.website || r.官網 || '').trim(),
+            description: String(r.description || r.描述 || '').trim(),
+            photos: rowPhotos,
+            specialModels: String(r.specialModels || r.專門車型 || '').trim(),
+            vehicleTypes: String(r.vehicleTypes || r.露營車種類 || '').trim(),
+            pickupLocation: String(r.pickupLocation || r.取車處 || '').trim(),
+            elevation: String(r.elevation || r.海拔 || '').trim(),
+            tentCount: String(r.total_sites || r.tentCount || r.總帳數 || '').trim(),
+            zones: String(r.camp_size || r.zones || r.營區大小 || '').trim(),
+            sourceUrl: String(r.sourceUrl || r.source_url || '').trim()
+          };
+
+          const ex = state.stores.find(s=>s.category===category && s.name===name);
+          if(ex){
+            Object.assign(ex, {
+              ...ex,
+              ...payload,
+              photos: rowPhotos.length ? rowPhotos : (Array.isArray(ex.photos)?ex.photos:[])
+            });
+            updated++;
+          }else{
+            state.stores.unshift({
+              id: uid(),
+              isMember: false,
+              ...payload
+            });
+            imported++;
+          }
+        }
+      }
+
+      renderStoreTabs();
+      await saveState();
+      showToast(`Excel 匯入完成：新增 ${imported}、更新 ${updated}、略過 ${skipped}`);
+      alert(`Excel 匯入完成\n新增：${imported}\n更新：${updated}\n略過：${skipped}`);
     }
 
     function exportAllData(){

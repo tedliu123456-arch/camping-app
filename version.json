@@ -1,7 +1,16 @@
 {
-  "version": "49.1",
+  "version": "49.2",
   "lastUpdated": "2026-03-11",
   "changelog": [
+    {
+      "version": "49.2",
+      "date": "2026-03-11",
+      "changes": [
+        "後台新增 Excel 檔案讀取與自動匯入商家資料功能",
+        "支援 campsite/mod/gear/rental 工作表與 category 欄位自動辨識",
+        "匯入結果顯示新增/更新/略過統計，供 APP 後續直接讀取資料"
+      ]
+    },
     {
       "version": "49.1",
       "date": "2026-03-11",
