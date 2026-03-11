@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.0（需求整合版）</title>
+  <title>Camping App v50.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -195,7 +195,7 @@
           <div style="font-weight:800">營地搜尋</div>
           <input id="campSearch" placeholder="輸入地區/關鍵字（例：靠海、親子、夜景）" style="max-width:320px" />
           <button class="btn ghost" onclick="openGoogleMapSearch()">Google Maps 搜尋</button>
-          <button id="campAdminAddBtn" class="btn" style="display:none" onclick="adminAddCampsiteInline()">＋ 新增營區</button>
+          <button id="campAdminAddBtn" class="btn" style="display:none" onclick="openAdminCampsiteModal('create')">＋ 新增營區</button>
         </div>
       </div>
       <div id="campsiteList" class="store-grid"></div>
@@ -285,6 +285,26 @@
     </div>
   </div>
 
+  <div id="adminCampsiteModal" class="overlay" onclick="if(event.target===this) closeAdminCampsiteModal()">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-head"><h3 id="adminCampsiteTitle" style="margin:0">新增營區</h3><button class="btn ghost" onclick="closeAdminCampsiteModal()">關閉</button></div>
+      <div class="field"><label>營區名稱</label><input id="ac-name" /></div>
+      <div class="field"><label>地址</label><input id="ac-addr" /></div>
+      <div class="field"><label>營業時間</label><input id="ac-hours" /></div>
+      <div class="field"><label>聯絡方式</label><input id="ac-contact" /></div>
+      <div class="field"><label>海拔</label><input id="ac-elevation" /></div>
+      <div class="field"><label>總帳數</label><input id="ac-tentCount" /></div>
+      <div class="field"><label>營區大小 / 分區</label><input id="ac-zones" /></div>
+      <div class="field"><label>標記（多個用 | 分隔）</label><input id="ac-features" placeholder="例如：親子|夜景|高海拔" /></div>
+      <div class="field"><label>照片網址（多張用 | 分隔）</label><textarea id="ac-photos" rows="3" placeholder="https://a.jpg|https://b.jpg"></textarea></div>
+      <div class="field"><label>描述</label><textarea id="ac-desc" rows="3"></textarea></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ok" onclick="saveAdminCampsiteModal()">儲存</button>
+        <button id="ac-delete-btn" class="btn ghost" style="display:none" onclick="deleteAdminCampsiteModal()">刪除此營區</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast"></div>
 
 
@@ -345,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.0';
+    const APP_VERSION = '50.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -963,7 +983,7 @@
         ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
         ${photos.length>2?`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
       </div>` : '';
-      const adminCampsiteActions = (state.user.mode==='admin' && s.category==='campsite') ? `<div class='actions' style='margin-top:6px'><button class='btn' onclick="adminEditCampsiteInline('${s.id}')">✏️ 編輯</button><button class='btn ghost' onclick="adminEditCampsitePhotosInline('${s.id}')">🖼️ 照片</button><button class='btn ghost' onclick="adminDeleteCampsiteInline('${s.id}')">🗑️ 刪除</button></div>` : '';
+      const adminCampsiteActions = (state.user.mode==='admin' && s.category==='campsite') ? `<div class='actions' style='margin-top:6px'><button class='btn' onclick="openAdminCampsiteModal('edit','${s.id}')">✏️ 編輯</button><button class='btn ghost' onclick="adminDeleteCampsiteInline('${s.id}')">🗑️ 刪除</button></div>` : '';
       return `<div id="store-${s.id}" class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
         <div class="muted">${s.address||''}</div>
@@ -1940,64 +1960,65 @@
       saveState(); scheduleAutoExcelDownload(); alert('已開通商家會員帳號');
     }
 
-    function adminAddCampsiteInline(){
+    function openAdminCampsiteModal(mode='create', storeId=''){
       if(state.user.mode!=='admin') return alert('僅總管理者可操作');
-      const name = prompt('新增營區｜請輸入營區名稱');
-      if(!name || !name.trim()) return;
-      const address = prompt('請輸入地址（可留白）','') || '';
-      const contact = prompt('請輸入聯絡方式（可留白）','') || '';
-      const hours = prompt('請輸入營業時間（可留白）','') || '';
-      state.stores.unshift({
-        id: uid(),
+      window.__adminCampsiteMode = mode;
+      window.__adminCampsiteId = storeId || '';
+      const s = (state.stores||[]).find(x=>x.id===storeId && x.category==='campsite');
+      const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.value=val||''; };
+      set('ac-name', s?.name||'');
+      set('ac-addr', s?.address||'');
+      set('ac-hours', s?.hours||'');
+      set('ac-contact', s?.contact||'');
+      set('ac-elevation', s?.elevation||'');
+      set('ac-tentCount', s?.tentCount||'');
+      set('ac-zones', s?.zones||'');
+      set('ac-features', Array.isArray(s?.features)?s.features.join('|'):'');
+      set('ac-photos', Array.isArray(s?.photos)?s.photos.join('|'):'');
+      set('ac-desc', s?.description||'');
+      const title=document.getElementById('adminCampsiteTitle');
+      if(title) title.textContent = mode==='edit' ? '編輯營區' : '新增營區';
+      const delBtn=document.getElementById('ac-delete-btn');
+      if(delBtn) delBtn.style.display = mode==='edit' ? 'inline-flex' : 'none';
+      document.getElementById('adminCampsiteModal').style.display='flex';
+    }
+
+    function closeAdminCampsiteModal(){
+      document.getElementById('adminCampsiteModal').style.display='none';
+    }
+
+    function saveAdminCampsiteModal(){
+      if(state.user.mode!=='admin') return alert('僅總管理者可操作');
+      const mode = window.__adminCampsiteMode || 'create';
+      const id = window.__adminCampsiteId || '';
+      const name=(document.getElementById('ac-name')?.value||'').trim();
+      if(!name) return alert('請填寫營區名稱');
+      const payload={
         category:'campsite',
-        name: name.trim(),
-        address: address.trim(),
-        contact: contact.trim(),
-        hours: hours.trim(),
-        description:'',
-        elevation:'',
-        tentCount:'',
-        zones:'',
-        photos:[],
+        name,
+        address:(document.getElementById('ac-addr')?.value||'').trim(),
+        hours:(document.getElementById('ac-hours')?.value||'').trim(),
+        contact:(document.getElementById('ac-contact')?.value||'').trim(),
+        elevation:(document.getElementById('ac-elevation')?.value||'').trim(),
+        tentCount:(document.getElementById('ac-tentCount')?.value||'').trim(),
+        zones:(document.getElementById('ac-zones')?.value||'').trim(),
+        features:(document.getElementById('ac-features')?.value||'').split('|').map(x=>x.trim()).filter(Boolean),
+        photos:(document.getElementById('ac-photos')?.value||'').split('|').map(x=>x.trim()).filter(Boolean),
+        description:(document.getElementById('ac-desc')?.value||'').trim(),
         isMember:false
-      });
+      };
+      if(mode==='edit'){
+        const s=(state.stores||[]).find(x=>x.id===id && x.category==='campsite');
+        if(!s) return alert('找不到營區');
+        Object.assign(s,payload);
+      }else{
+        state.stores.unshift({id:uid(), ...payload});
+      }
       renderStoreTabs();
       saveState();
       scheduleAutoExcelDownload();
-      showToast('營區新增完成 ✅');
-    }
-
-    function adminEditCampsiteInline(storeId){
-      if(state.user.mode!=='admin') return alert('僅總管理者可操作');
-      const s=(state.stores||[]).find(x=>x.id===storeId && x.category==='campsite');
-      if(!s) return;
-      const name = prompt('編輯營區名稱', s.name||'');
-      if(name===null) return;
-      const address = prompt('編輯地址', s.address||'');
-      if(address===null) return;
-      const contact = prompt('編輯聯絡方式', s.contact||'');
-      if(contact===null) return;
-      s.name = (name||'').trim() || s.name;
-      s.address = (address||'').trim();
-      s.contact = (contact||'').trim();
-      renderStoreTabs();
-      saveState();
-      scheduleAutoExcelDownload();
-      showToast('營地資料已更新 ✅');
-    }
-
-    function adminEditCampsitePhotosInline(storeId){
-      if(state.user.mode!=='admin') return alert('僅總管理者可操作');
-      const s=(state.stores||[]).find(x=>x.id===storeId && x.category==='campsite');
-      if(!s) return;
-      const current = Array.isArray(s.photos) ? s.photos.join('|') : '';
-      const val = prompt('貼上照片網址（多張用 | 分隔）\n例如：https://a.jpg|https://b.jpg', current);
-      if(val===null) return;
-      s.photos = String(val||'').split('|').map(x=>x.trim()).filter(Boolean);
-      renderStoreTabs();
-      saveState();
-      scheduleAutoExcelDownload();
-      showToast('營地照片已更新 ✅');
+      closeAdminCampsiteModal();
+      showToast(mode==='edit'?'營區更新完成 ✅':'營區新增完成 ✅');
     }
 
     function adminDeleteCampsiteInline(storeId){
@@ -2011,6 +2032,13 @@
       saveState();
       scheduleAutoExcelDownload();
       showToast('營地已刪除');
+    }
+
+    function deleteAdminCampsiteModal(){
+      const id = window.__adminCampsiteId || '';
+      if(!id) return;
+      adminDeleteCampsiteInline(id);
+      closeAdminCampsiteModal();
     }
 
     function normalizeExcelCategory(v, fallback=''){
