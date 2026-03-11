@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.8（需求整合版）</title>
+  <title>Camping App v47.9（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -341,7 +341,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.8';
+    const APP_VERSION = '47.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -700,17 +700,22 @@
       // 訪客可瀏覽全部資訊，但不可發文/投稿/私訊/評論
       const memberOnly = !isMember();
       const dmOnly = !canMessage();
-      const postBtns = ['socialPostBtnTop','contestPostBtnTop','contestPostBtnModal','bn-post'];
+      const postBtns = ['socialPostBtnTop','contestPostBtnTop','contestPostBtnModal'];
       postBtns.forEach(id=>{
         const b=document.getElementById(id);
         if(!b) return;
         b.disabled = memberOnly;
         b.style.opacity = memberOnly ? '0.55' : '1';
       });
+      const bottomPostBtn=document.getElementById('bn-post');
+      if(bottomPostBtn){
+        bottomPostBtn.disabled = false;
+        bottomPostBtn.style.opacity = memberOnly ? '0.75' : '1';
+      }
       const dmBtn=document.getElementById('bn-dm');
       if(dmBtn){
-        dmBtn.disabled = dmOnly;
-        dmBtn.style.opacity = dmOnly ? '0.55' : '1';
+        dmBtn.disabled = false;
+        dmBtn.style.opacity = dmOnly ? '0.75' : '1';
       }
     }
 
