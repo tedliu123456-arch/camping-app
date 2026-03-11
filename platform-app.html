@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v49.5（需求整合版）</title>
+  <title>Camping App v49.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -343,7 +343,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '49.5';
+    const APP_VERSION = '49.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -426,16 +426,14 @@
     function defaultSeed(){
       if(state.stores.length) return;
       state.stores = [
-        {id:uid(),category:'campsite',name:'海風營地',address:'花蓮縣壽豐鄉',hours:'08:00-22:00',contact:'03-1234567',website:'',isMember:true,ownerMerchantId:'m001',description:'靠海、夜景、親子友善',features:['親子','靠海','夜景'],tentCount:60,zones:'A區/B區',elevation:'120m',accessibleVehicles:'轎車/SUV/露營車'},
         {id:uid(),category:'gear',name:'野行裝備店',address:'台中市西屯區',hours:'10:00-21:00',contact:'04-7654321',website:'',isMember:true,ownerMerchantId:'m002',description:'露營用品齊全'},
         {id:uid(),category:'mod',name:'VanPro 改裝',address:'新北市三重區',hours:'09:00-18:00',contact:'02-77778888',website:'',isMember:true,ownerMerchantId:'m003',description:'露營車改裝與客製',specialModels:'Hiace / Transit / Sprinter'},
         {id:uid(),category:'rental',name:'GoCamp 租車',address:'台北市南港區',hours:'09:00-20:00',contact:'02-66667777',website:'',isMember:true,ownerMerchantId:'m004',description:'露營車出租',vehicleTypes:'4人露營車 / 6人露營車 / 箱型露營車',pickupLocation:'台北南港站'}
       ];
       state.merchantAccounts = [
-        {merchantId:'m001',password:'123456',storeId:state.stores[0].id,enabled:true},
-        {merchantId:'m002',password:'123456',storeId:state.stores[1].id,enabled:true},
-        {merchantId:'m003',password:'123456',storeId:state.stores[2].id,enabled:true},
-        {merchantId:'m004',password:'123456',storeId:state.stores[3].id,enabled:true},
+        {merchantId:'m002',password:'123456',storeId:state.stores[0].id,enabled:true},
+        {merchantId:'m003',password:'123456',storeId:state.stores[1].id,enabled:true},
+        {merchantId:'m004',password:'123456',storeId:state.stores[2].id,enabled:true},
       ];
       state.posts = [
         {id:uid(),authorId:'sys',authorName:'露營小編',text:'歡迎來到社群首頁，分享你的露營照片吧！',mediaType:null,mediaUrl:null,likes:[],comments:[],createdAt:new Date().toISOString()},
@@ -451,7 +449,6 @@
     function ensureTestData(){
       let changed = false;
       const cfg = {
-        campsite: {prefix:'營地', area:'南投縣', desc:'親子、夜景、可車宿', hours:'08:00-22:00'},
         mod: {prefix:'改裝廠', area:'新北市', desc:'露營車改裝與客製', hours:'09:00-18:00'},
         gear: {prefix:'用品店', area:'台中市', desc:'露營用品與裝備', hours:'10:00-21:00'},
         rental: {prefix:'租車商家', area:'台北市', desc:'露營車出租', hours:'09:00-20:00'}
@@ -492,8 +489,12 @@
         }
       });
 
-      // 補齊商家展示照片
+      // 營地列表不預設塞展示照片；其他類別才補展示圖
       (state.stores||[]).forEach((st,idx)=>{
+        if(st.category==='campsite'){
+          if(Array.isArray(st.photos) && st.photos.length){ st.photos=[]; changed=true; }
+          return;
+        }
         if(!Array.isArray(st.photos) || st.photos.length===0){
           st.photos = [
             `https://picsum.photos/seed/${st.category}-${idx+1}-1/900/600`,
@@ -564,7 +565,7 @@
           Object.assign(ex, {
             ...ex,
             ...payload,
-            photos: Array.isArray(ex.photos) ? ex.photos : []
+            photos: []
           });
           changed = true;
         }else{
@@ -573,6 +574,19 @@
         }
       });
       return changed;
+    }
+
+    function cleanupLegacyCampsites(){
+      const before = (state.stores||[]).length;
+      state.stores = (state.stores||[]).filter(s=>{
+        if(s.category!=='campsite') return true;
+        const name = String(s.name||'').trim();
+        if(!name) return false;
+        if(name==='海風營地') return false;
+        if(/^營地\d+$/.test(name)) return false;
+        return true;
+      }).map(s=> s.category==='campsite' ? {...s, photos:[]} : s);
+      return (state.stores||[]).length !== before;
     }
 
     async function loadBundledTaichungCampsites(){
@@ -2067,6 +2081,7 @@
       // 先渲染本地預設資料，避免訪客進站白畫面/看不到照片
       defaultSeed();
       ensureTestData();
+      cleanupLegacyCampsites();
       await loadBundledTaichungCampsites();
       if(state.user.mode==='guest') state.activeTab='social';
       renderAll();
@@ -2081,7 +2096,9 @@
         console.warn('boot loadState fallback', e);
       }
 
+      const removedLegacy = cleanupLegacyCampsites();
       await loadBundledTaichungCampsites();
+      if(removedLegacy) await saveState();
       if(state.user.mode==='guest') state.activeTab='social';
       renderAll();
       bindLoginModalKeys();
