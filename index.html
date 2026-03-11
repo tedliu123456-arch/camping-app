@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.1（需求整合版）</title>
+  <title>Camping App v50.2（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -296,7 +296,7 @@
       <div class="field"><label>總帳數</label><input id="ac-tentCount" /></div>
       <div class="field"><label>營區大小 / 分區</label><input id="ac-zones" /></div>
       <div class="field"><label>標記（多個用 | 分隔）</label><input id="ac-features" placeholder="例如：親子|夜景|高海拔" /></div>
-      <div class="field"><label>照片網址（多張用 | 分隔）</label><textarea id="ac-photos" rows="3" placeholder="https://a.jpg|https://b.jpg"></textarea></div>
+      <div class="field"><label>營區照片（手機/電腦選取）</label><input id="ac-photo-files" type="file" accept="image/*" multiple /><div id="ac-photo-hint" class="muted">可一次選多張照片，儲存後自動上傳</div></div>
       <div class="field"><label>描述</label><textarea id="ac-desc" rows="3"></textarea></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn ok" onclick="saveAdminCampsiteModal()">儲存</button>
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.1';
+    const APP_VERSION = '50.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1974,7 +1974,13 @@
       set('ac-tentCount', s?.tentCount||'');
       set('ac-zones', s?.zones||'');
       set('ac-features', Array.isArray(s?.features)?s.features.join('|'):'');
-      set('ac-photos', Array.isArray(s?.photos)?s.photos.join('|'):'');
+      const fileInput=document.getElementById('ac-photo-files');
+      if(fileInput) fileInput.value='';
+      const photoHint=document.getElementById('ac-photo-hint');
+      if(photoHint){
+        const n = Array.isArray(s?.photos) ? s.photos.length : 0;
+        photoHint.textContent = mode==='edit' ? `目前已有 ${n} 張照片；可再選取新照片追加` : '可一次選多張照片，儲存後自動上傳';
+      }
       set('ac-desc', s?.description||'');
       const title=document.getElementById('adminCampsiteTitle');
       if(title) title.textContent = mode==='edit' ? '編輯營區' : '新增營區';
@@ -1987,12 +1993,21 @@
       document.getElementById('adminCampsiteModal').style.display='none';
     }
 
-    function saveAdminCampsiteModal(){
+    async function saveAdminCampsiteModal(){
       if(state.user.mode!=='admin') return alert('僅總管理者可操作');
       const mode = window.__adminCampsiteMode || 'create';
       const id = window.__adminCampsiteId || '';
       const name=(document.getElementById('ac-name')?.value||'').trim();
       if(!name) return alert('請填寫營區名稱');
+
+      const fileInput=document.getElementById('ac-photo-files');
+      const files = Array.from(fileInput?.files||[]);
+      const uploadedPhotos=[];
+      for(const f of files){
+        const url = await uploadFile(f, 'stores');
+        if(url) uploadedPhotos.push(url);
+      }
+
       const payload={
         category:'campsite',
         name,
@@ -2003,19 +2018,19 @@
         tentCount:(document.getElementById('ac-tentCount')?.value||'').trim(),
         zones:(document.getElementById('ac-zones')?.value||'').trim(),
         features:(document.getElementById('ac-features')?.value||'').split('|').map(x=>x.trim()).filter(Boolean),
-        photos:(document.getElementById('ac-photos')?.value||'').split('|').map(x=>x.trim()).filter(Boolean),
         description:(document.getElementById('ac-desc')?.value||'').trim(),
         isMember:false
       };
       if(mode==='edit'){
         const s=(state.stores||[]).find(x=>x.id===id && x.category==='campsite');
         if(!s) return alert('找不到營區');
-        Object.assign(s,payload);
+        const basePhotos = Array.isArray(s.photos)?s.photos:[];
+        Object.assign(s,{...payload, photos:[...basePhotos, ...uploadedPhotos]});
       }else{
-        state.stores.unshift({id:uid(), ...payload});
+        state.stores.unshift({id:uid(), ...payload, photos:uploadedPhotos});
       }
       renderStoreTabs();
-      saveState();
+      await saveState();
       scheduleAutoExcelDownload();
       closeAdminCampsiteModal();
       showToast(mode==='edit'?'營區更新完成 ✅':'營區新增完成 ✅');
