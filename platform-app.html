@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v48.5（需求整合版）</title>
+  <title>Camping App v48.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -246,7 +246,7 @@
     <div class="sheet">
       <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
-      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（選填）</label><input id="postCheckInLocation" placeholder="例如：海風露營區、南投某某營地" /></div>
+      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（可填 1~2 個）</label><input id="postCheckInLocation" placeholder="例如：海風露營區、南投某某營地（用、分隔）" /></div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
       <div id="uploadProgress" class="upload-progress">
@@ -342,7 +342,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '48.5';
+    const APP_VERSION = '48.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -774,8 +774,13 @@
       el.innerHTML = state.posts.map(p=>{
         const liked = (p.likes||[]).includes(state.user.id);
         const likeDisabled = !isMember() || liked;
+        const checkIns = Array.isArray(p.checkInLocations) ? p.checkInLocations.filter(Boolean) : [];
+        const checkInHtml = checkIns.length
+          ? `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'>${checkIns.map(loc=>`<a class='pill' href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}' target='_blank' rel='noopener'>📍 ${loc}</a>`).join('')}</div>`
+          : '';
         return `<div class="feed-item ${p.mediaType==='video'?'feed-video':''}">
           <div style="display:flex;justify-content:space-between"><b>${p.authorName}</b><span class="muted">${new Date(p.createdAt).toLocaleString()}</span></div>
+          ${checkInHtml}
           <div style="margin-top:8px">${p.text||''}</div>
           ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
           ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline preload="metadata"></video>`:''}
@@ -1484,16 +1489,17 @@
       if(!isMember()){ alert('請先登入會員'); return; }
       const rawText=(document.getElementById('postText').value||'').trim();
       const checkInLocation=(document.getElementById('postCheckInLocation')?.value||'').trim();
-      const text = postMode==='social'
-        ? (checkInLocation ? `📍 我在 ${checkInLocation} 打卡${rawText?`\n${rawText}`:''}` : rawText)
-        : rawText;
+      const checkInLocations = postMode==='social'
+        ? checkInLocation.split(/[、,，;；\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,2)
+        : [];
+      const text = rawText;
       const fileInput=document.getElementById('postFile');
       const file=fileInput && fileInput.files ? (fileInput.files[0] || null) : null;
       const submitBtn=document.getElementById('postSubmitBtn');
       const oldLabel=submitBtn ? submitBtn.textContent : '';
 
       if(postMode==='contest' && !file){ alert('請先選擇照片再投稿'); return; }
-      if(!text && !file){ alert('請輸入內容或選擇檔案'); return; }
+      if(!text && !file && !(postMode==='social' && checkInLocations.length)){ alert('請輸入內容、打卡地點或選擇檔案'); return; }
 
       const type = detectMediaType(file);
       if(postMode==='contest' && type!=='image'){
@@ -1518,7 +1524,7 @@
           openContestModal();
           showToast('投稿已送審，待管理員審核 ✅');
         }else{
-          state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
+          state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,checkInLocations,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
           await saveState();
           renderFeed();
           closePostModal();
