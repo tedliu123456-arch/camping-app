@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v48.2（需求整合版）</title>
+  <title>Camping App v48.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -237,6 +237,7 @@
       <div class="field"><label>性別</label><select id="pf-gender"><option value="">未設定</option><option>男</option><option>女</option><option>其他</option></select></div>
       <div class="field"><label>喜歡露營方式</label><input id="pf-style" placeholder="例如：車宿、搭帳、親子露營" /><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn ghost" type="button" onclick="addProfileStyleTag('車宿')">車宿</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('搭帳')">搭帳</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('親子露營')">親子露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('野營')">野營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('機車露營')">機車露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('單人露營')">單人露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('溯溪')">溯溪</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('其他')">其他</button></div></div>
       <div class="field"><label>露營次數</label><div style="display:flex;gap:6px;align-items:center"><button class="btn ghost" type="button" onclick="adjustProfileCount(-1)">－</button><input id="pf-count" type="number" inputmode="numeric" min="0" step="1" placeholder="例如：12" oninput="sanitizeProfileCount()" /><button class="btn ghost" type="button" onclick="adjustProfileCount(1)">＋</button></div><div class="muted">僅能輸入數字</div></div>
+      <div class="field"><label>我的打卡</label><div id="pf-checkin-info" class="muted">尚未打卡</div><button class="btn ghost" type="button" style="margin-top:6px" onclick="doCheckIn()">📍 打卡</button></div>
       <button class="btn" onclick="saveProfile()">儲存個人資料</button>
     </div>
   </div>
@@ -340,7 +341,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '48.2';
+    const APP_VERSION = '48.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -357,7 +358,7 @@
 
     const state = {
       activeTab:'social',
-      user:{id:'guest',accountKey:null,name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:''}},
+      user:{id:'guest',accountKey:null,name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:'',lastCheckInAt:'',checkInCount:0}},
       announcements:[
         {id:'a0',title:'🔥 限時 20 折優惠中！',detail:'指定商家會員方案現在 20% OFF，詳情請私訊商家。',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
         {id:'a1',title:'本週會員照片比賽開放投稿！',detail:'歡迎會員投稿照片參賽，每日每位會員2票。',text:'本週會員照片比賽開放投稿！',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
@@ -1340,6 +1341,13 @@
       enterGuestMode();
     }
 
+    function formatCheckInText(){
+      const p = state.user.profile || {};
+      const n = Number(p.checkInCount||0) || 0;
+      if(!p.lastCheckInAt) return `尚未打卡（累計 ${n} 次）`;
+      return `最近打卡：${new Date(p.lastCheckInAt).toLocaleString()}（累計 ${n} 次）`;
+    }
+
     function openProfileModal(){
       if(!isMember()) return;
       const p = state.user.profile || {};
@@ -1347,6 +1355,8 @@
       document.getElementById('pf-gender').value = p.gender || '';
       document.getElementById('pf-style').value = p.style || '';
       document.getElementById('pf-count').value = p.count || '';
+      const info = document.getElementById('pf-checkin-info');
+      if(info) info.textContent = formatCheckInText();
       window.__profileAvatarData = p.avatar || '';
       renderProfileAvatarPreview(window.__profileAvatarData);
       document.getElementById('profileModal').style.display='flex';
@@ -1400,15 +1410,7 @@
       renderProfileAvatarPreview('');
     }
 
-    function saveProfile(){
-      if(!isMember()) return;
-      state.user.name = (document.getElementById('pf-name').value||state.user.name).trim().slice(0,20) || state.user.name;
-      state.user.profile = {
-        gender: (document.getElementById('pf-gender').value||'').trim(),
-        style: (document.getElementById('pf-style').value||'').trim(),
-        count: String((document.getElementById('pf-count').value||'').trim()).replace(/[^0-9]/g,''),
-        avatar: window.__profileAvatarData || (state.user.profile && state.user.profile.avatar) || ''
-      };
+    function syncCurrentMemberProfile(){
       if(isMember() && state.user.accountKey){
         const member = state.memberAccounts.find(m=>m.account===state.user.accountKey);
         if(member){
@@ -1416,6 +1418,41 @@
           member.profile = {...state.user.profile};
         }
       }
+    }
+
+    function doCheckIn(){
+      if(!isMember()){
+        alert('請先登入會員才能打卡');
+        openLoginModal();
+        return;
+      }
+      const p = state.user.profile || {};
+      const count = (Number(p.checkInCount||0) || 0) + 1;
+      state.user.profile = {
+        ...p,
+        lastCheckInAt: new Date().toISOString(),
+        checkInCount: count
+      };
+      syncCurrentMemberProfile();
+      const info = document.getElementById('pf-checkin-info');
+      if(info) info.textContent = formatCheckInText();
+      showToast('打卡成功 ✅');
+      saveState();
+    }
+
+    function saveProfile(){
+      if(!isMember()) return;
+      const prev = state.user.profile || {};
+      state.user.name = (document.getElementById('pf-name').value||state.user.name).trim().slice(0,20) || state.user.name;
+      state.user.profile = {
+        gender: (document.getElementById('pf-gender').value||'').trim(),
+        style: (document.getElementById('pf-style').value||'').trim(),
+        count: String((document.getElementById('pf-count').value||'').trim()).replace(/[^0-9]/g,''),
+        avatar: window.__profileAvatarData || prev.avatar || '',
+        lastCheckInAt: prev.lastCheckInAt || '',
+        checkInCount: Number(prev.checkInCount||0) || 0
+      };
+      syncCurrentMemberProfile();
       closeProfileModal();
       renderUser();
       showToast('個人資料已儲存 ✅');
