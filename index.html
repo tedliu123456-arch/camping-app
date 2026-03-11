@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v47.9（需求整合版）</title>
+  <title>Camping App v48.0（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -52,9 +52,11 @@
     .contest-card:hover{transform:translateY(-2px);box-shadow:0 10px 18px rgba(15,23,42,.22);border-color:rgba(255,255,255,.9)}
     .contest-card img{width:100%;height:100%;object-fit:cover}
     .contest-vote{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);padding:2px 6px;border-radius:999px;font-size:12px;backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.28)}
-    .contest-upload-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:12px;background:linear-gradient(135deg,#ffffff,#e8f0ff);color:#1e3a8a;border:1px solid rgba(255,255,255,.65);box-shadow:0 8px 16px rgba(15,23,42,.18);font-weight:800}
+    .contest-upload-btn{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ffffff,#eef4ff);color:#1e3a8a;border:1px solid rgba(255,255,255,.78);box-shadow:0 8px 16px rgba(15,23,42,.18);font-weight:800}
     .contest-upload-btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,23,42,.22)}
-    .contest-upload-btn .cam-ico{width:24px;height:24px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font-size:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+    .contest-upload-btn .cam-ico{width:22px;height:16px;border:2px solid #2563eb;border-radius:5px;display:inline-block;position:relative;transform:rotate(-45deg);background:rgba(255,255,255,.75)}
+    .contest-upload-btn .cam-ico::before{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;border:2px solid #2563eb;border-radius:50%;transform:translate(-50%,-50%)}
+    .contest-upload-btn .cam-ico::after{content:'';position:absolute;right:2px;top:-5px;width:6px;height:4px;border:2px solid #2563eb;border-bottom:none;border-radius:3px 3px 0 0;background:#fff}
 
     #feedList{display:flex;flex-direction:column;gap:10px;scroll-snap-type:y proximity}
     .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;overflow:hidden;scroll-snap-align:start}
@@ -171,12 +173,10 @@
       <div id="contestBanner" class="card contest-banner">
         <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
           <div style="font-weight:800">📸 會員照片比賽（社群首頁限定）</div>
-          <button id="contestPostBtnTop" class="btn contest-upload-btn" onclick="openPostModal('contest')"><span class="cam-ico">📷</span><span>我要投稿</span></button>
+          <button id="contestPostBtnTop" class="btn contest-upload-btn" onclick="openPostModal('contest')"><span class="cam-ico"></span><span>我要投稿</span></button>
         </div>
-        <div id="contestThemeTitle" style="font-weight:700;margin-top:6px">本週主題：我的露營早晨</div>
-        <div id="contestThemeDesc" class="muted" style="color:#dbeafe">請上傳符合主題的照片，通過管理員審核後才會上架投票。</div>
+        <div id="contestThemeTitle" style="font-weight:800;margin-top:6px">主題｜我的露營早晨</div>
         <div class="muted" style="color:#dbeafe">每位會員每日 2 票，不可重複投同一作品；12:10 刷新</div>
-        <div id="contestPendingHint" class="muted" style="color:#dbeafe"></div>
         <div id="contestBannerList" class="contest-row"></div>
       </div>
 
@@ -262,7 +262,7 @@
       <div id="contestModalTheme" style="font-weight:700"></div>
       <div id="voteHint" class="muted"></div>
       <div id="contestEntries" class="contest-grid" style="margin-top:10px"></div>
-      <div style="margin-top:10px"><button id="contestPostBtnModal" class="btn contest-upload-btn" onclick="openPostModal('contest')"><span class="cam-ico">📷</span><span>我要投稿</span></button></div>
+      <div style="margin-top:10px"><button id="contestPostBtnModal" class="btn contest-upload-btn" onclick="openPostModal('contest')"><span class="cam-ico"></span><span>我要投稿</span></button></div>
     </div>
   </div>
 
@@ -341,7 +341,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '47.9';
+    const APP_VERSION = '48.0';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -759,14 +759,7 @@
     function renderContestBanner(){
       const list = document.getElementById('contestBannerList');
       const themeTitle = document.getElementById('contestThemeTitle');
-      const themeDesc = document.getElementById('contestThemeDesc');
-      const pendingHint = document.getElementById('contestPendingHint');
-      if(themeTitle) themeTitle.textContent = state.contestTheme?.title || '本週主題：未設定';
-      if(themeDesc) themeDesc.textContent = state.contestTheme?.description || '投稿後需經管理員審核才會上架投票。';
-      if(pendingHint){
-        const pCount = (state.contestPending||[]).length;
-        pendingHint.textContent = pCount ? `待審核投稿：${pCount} 件` : '目前無待審核投稿';
-      }
+      if(themeTitle) themeTitle.textContent = `主題｜${state.contestTheme?.title || '未設定'}`;
       const ranked = rankedContest();
       list.innerHTML = ranked.slice(0,8).map(e=>`
         <div class="contest-card" onclick="openContestModal()">
