@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.8（需求整合版）</title>
+  <title>Camping App v50.9（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.8';
+    const APP_VERSION = '50.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -744,11 +744,17 @@
     }
 
     async function saveState(){
+      // 先本地秒存，避免 UI 卡住
       saveLocalState();
       if(!db) return;
       try{
-        await db.collection('apps').doc(APP_DOC).set(stateSnapshot(), {merge:true});
-      }catch(e){ console.warn('save fail',e); }
+        await Promise.race([
+          db.collection('apps').doc(APP_DOC).set(stateSnapshot(), {merge:true}),
+          new Promise((_, reject)=>setTimeout(()=>reject(new Error('save-timeout')), 8000))
+        ]);
+      }catch(e){
+        console.warn('save fail/fallback local-only',e);
+      }
     }
 
     async function prepareUploadFile(file){
@@ -841,7 +847,7 @@
         const readyFile = await prepareUploadFile(file);
         const safeName = `${Date.now()}-${(readyFile.name||'upload').replace(/\s+/g,'-')}`;
         const ref = storage.ref().child(`${folder}/${safeName}`);
-        const timeoutMs = 90000;
+        const timeoutMs = 15000;
         const putTask = ref.put(readyFile);
         putTask.on('state_changed', snap => {
           if(!onProgress) return;
