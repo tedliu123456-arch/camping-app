@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.4（需求整合版）</title>
+  <title>Camping App v50.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.4';
+    const APP_VERSION = '50.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -700,6 +700,7 @@
         const d = JSON.parse(raw);
         applyStateSnapshot(d||{});
         normalizeAnnouncements();
+        window.__localStateUpdatedAt = d?.updatedAt || '';
         return true;
       }catch(e){
         console.warn('load local state fail', e);
@@ -717,14 +718,18 @@
 
     async function loadState(){
       defaultSeed();
-      loadLocalState();
+      const hasLocal = loadLocalState();
       if(!db){ ensureTestData(); saveLocalState(); return; }
       try{
         const doc = await db.collection('apps').doc(APP_DOC).get();
         if(doc.exists){
           const d = doc.data() || {};
-          applyStateSnapshot(d);
-          saveLocalState();
+          const localAt = Date.parse(window.__localStateUpdatedAt || '') || 0;
+          const cloudAt = Date.parse(d.updatedAt || '') || 0;
+          if(!(hasLocal && localAt > cloudAt)){
+            applyStateSnapshot(d);
+            saveLocalState();
+          }
         }
         normalizeAnnouncements();
         if(ensureTestData()){ await saveState(); }
@@ -737,6 +742,15 @@
       try{
         await db.collection('apps').doc(APP_DOC).set(stateSnapshot(), {merge:true});
       }catch(e){ console.warn('save fail',e); }
+    }
+
+    async function fileToDataUrl(file){
+      return await new Promise((resolve,reject)=>{
+        const r = new FileReader();
+        r.onload = ()=>resolve(String(r.result||''));
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
     }
 
     async function uploadFile(file, folder, onProgress){
@@ -2017,13 +2031,18 @@
         for(const f of files){
           const url = await uploadFile(f, 'stores');
           if(!url) continue;
-          // blob: URL 只在當前頁有效，重新登入後會失效；避免存入正式資料
-          if(String(url).startsWith('blob:')) continue;
+          if(String(url).startsWith('blob:')){
+            try{
+              const dataUrl = await fileToDataUrl(f);
+              if(dataUrl) uploadedPhotos.push(dataUrl);
+            }catch{}
+            continue;
+          }
           uploadedPhotos.push(url);
         }
 
         if(files.length && uploadedPhotos.length===0){
-          alert('照片尚未成功上傳到雲端，請稍後再試（避免下次登入看不到）');
+          alert('照片尚未成功上傳，請稍後再試');
           return;
         }
 
