@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.1（需求整合版）</title>
+  <title>Camping App v51.2（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -366,7 +366,7 @@
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
     const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '51.1';
+    const APP_VERSION = '51.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -701,7 +701,61 @@
       };
     }
 
-    function loadLocalState(){
+    const IDB_NAME = 'camping-local-db';
+    const IDB_STORE = 'kv';
+    const IDB_STATE_KEY = 'app-state';
+
+    function openLocalDb(){
+      return new Promise((resolve,reject)=>{
+        const req = indexedDB.open(IDB_NAME, 1);
+        req.onupgradeneeded = ()=>{
+          const db = req.result;
+          if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+        };
+        req.onsuccess = ()=>resolve(req.result);
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+
+    async function idbGetState(){
+      try{
+        const db = await openLocalDb();
+        return await new Promise((resolve,reject)=>{
+          const tx = db.transaction(IDB_STORE, 'readonly');
+          const st = tx.objectStore(IDB_STORE);
+          const req = st.get(IDB_STATE_KEY);
+          req.onsuccess = ()=>resolve(req.result || null);
+          req.onerror = ()=>reject(req.error);
+        });
+      }catch{ return null; }
+    }
+
+    async function idbSetState(val){
+      try{
+        const db = await openLocalDb();
+        await new Promise((resolve,reject)=>{
+          const tx = db.transaction(IDB_STORE, 'readwrite');
+          const st = tx.objectStore(IDB_STORE);
+          st.put(val, IDB_STATE_KEY);
+          tx.oncomplete = ()=>resolve(true);
+          tx.onerror = ()=>reject(tx.error);
+        });
+      }catch(e){
+        console.warn('idb save fail', e);
+      }
+    }
+
+    async function loadLocalState(){
+      try{
+        const idbVal = await idbGetState();
+        if(idbVal){
+          applyStateSnapshot(idbVal||{});
+          normalizeAnnouncements();
+          window.__localStateUpdatedAt = idbVal?.updatedAt || '';
+          return true;
+        }
+      }catch{}
+
       try{
         const raw = localStorage.getItem(LOCAL_STATE_KEY);
         if(!raw) return false;
@@ -716,18 +770,17 @@
       }
     }
 
-    function saveLocalState(){
-      try{
-        localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(stateSnapshot()));
-      }catch(e){
-        console.warn('save local state fail', e);
-      }
+    async function saveLocalState(){
+      const snap = stateSnapshot();
+      try{ localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(snap)); }
+      catch(e){ console.warn('save local state fail', e); }
+      await idbSetState(snap);
     }
 
     async function loadState(){
       defaultSeed();
-      const hasLocal = loadLocalState();
-      if(!db){ ensureTestData(); saveLocalState(); return; }
+      const hasLocal = await loadLocalState();
+      if(!db){ ensureTestData(); await saveLocalState(); return; }
       try{
         const doc = await db.collection('apps').doc(APP_DOC).get();
         if(doc.exists){
@@ -736,7 +789,7 @@
           const cloudAt = Date.parse(d.updatedAt || '') || 0;
           if(!(hasLocal && localAt > cloudAt)){
             applyStateSnapshot(d);
-            saveLocalState();
+            await saveLocalState();
           }
         }
         normalizeAnnouncements();
@@ -745,8 +798,8 @@
     }
 
     async function saveState(){
-      // 先本地秒存，避免 UI 卡住
-      saveLocalState();
+      // 先本地秒存（含 IndexedDB），避免 UI 卡住或大資料遺失
+      await saveLocalState();
       if(!db) return;
       try{
         await Promise.race([

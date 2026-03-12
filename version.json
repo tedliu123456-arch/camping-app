@@ -1,7 +1,16 @@
 {
-  "version": "51.1",
-  "lastUpdated": "2026-03-12",
+  "version": "51.2",
+  "lastUpdated": "2026-03-13",
   "changelog": [
+    {
+      "version": "51.2",
+      "date": "2026-03-13",
+      "changes": [
+        "儲存改為 localStorage + IndexedDB 雙保險，修復大資料導致重登遺失",
+        "載入優先讀 IndexedDB，避免本地儲存容量限制造成資料消失",
+        "雲端同步失敗時仍可從本地持久化完整還原"
+      ]
+    },
     {
       "version": "51.1",
       "date": "2026-03-12",
