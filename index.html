@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.6（需求整合版）</title>
+  <title>Camping App v50.7（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.6';
+    const APP_VERSION = '50.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -639,6 +639,13 @@
         db = app.firestore();
         storage = app.storage();
         auth = app.auth();
+        try{
+          if(auth && !auth.currentUser){
+            await auth.signInAnonymously();
+          }
+        }catch(e){
+          console.warn('anonymous auth failed', e);
+        }
       }catch(e){ console.warn('firebase init fallback', e); }
     }
 
@@ -744,6 +751,34 @@
       }catch(e){ console.warn('save fail',e); }
     }
 
+    async function prepareUploadFile(file){
+      if(!file) return file;
+      if(!String(file.type||'').startsWith('image/')) return file;
+      try{
+        const img = await new Promise((resolve,reject)=>{
+          const u = URL.createObjectURL(file);
+          const im = new Image();
+          im.onload = ()=>{ URL.revokeObjectURL(u); resolve(im); };
+          im.onerror = (e)=>{ URL.revokeObjectURL(u); reject(e); };
+          im.src = u;
+        });
+        const maxSide = 1600;
+        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        if(!ctx) return file;
+        ctx.drawImage(img,0,0,w,h);
+        const blob = await new Promise(res=>c.toBlob(res,'image/jpeg',0.82));
+        if(!blob) return file;
+        return new File([blob], (file.name||'photo').replace(/\.[^.]+$/,'') + '.jpg', {type:'image/jpeg'});
+      }catch{
+        return file;
+      }
+    }
+
     async function uploadFile(file, folder, onProgress){
       if(!file) return null;
 
@@ -794,10 +829,11 @@
     async function uploadFileForPersist(file, folder, onProgress){
       if(!file || !storage) return null;
       try{
-        const safeName = `${Date.now()}-${(file.name||'upload').replace(/\s+/g,'-')}`;
+        const readyFile = await prepareUploadFile(file);
+        const safeName = `${Date.now()}-${(readyFile.name||'upload').replace(/\s+/g,'-')}`;
         const ref = storage.ref().child(`${folder}/${safeName}`);
-        const timeoutMs = 60000;
-        const putTask = ref.put(file);
+        const timeoutMs = 90000;
+        const putTask = ref.put(readyFile);
         putTask.on('state_changed', snap => {
           if(!onProgress) return;
           const total = snap.totalBytes || 1;
@@ -2057,7 +2093,7 @@
         }
 
         if(files.length && failedCount>0){
-          alert(`有 ${failedCount} 張照片未成功上傳，請重試後再儲存（確保下次登入仍可看到）`);
+          alert(`有 ${failedCount} 張照片未成功上傳，請確認網路與 Firebase Storage 權限後重試`);
           return;
         }
 
