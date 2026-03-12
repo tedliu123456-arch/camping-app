@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.3（需求整合版）</title>
+  <title>Camping App v50.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.3';
+    const APP_VERSION = '50.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1315,13 +1315,17 @@
     function openBackendWorkspace(title){ document.getElementById('backendTitle').textContent=title; document.getElementById('backendWorkspace').style.display='flex'; }
     function closeBackendWorkspace(){ document.getElementById('backendWorkspace').style.display='none'; }
 
-    function backendLogin(){
-      const id=(document.getElementById('backendId').value||'').trim();
-      const pw=(document.getElementById('backendPwd').value||'').trim();
-      if(!id||!pw) return alert('請輸入 ID 與密碼');
+    function normCred(v){ return String(v||'').trim().toLowerCase(); }
 
-      // 平台主帳號：admin + 後台密碼
-      if(id==='admin' && pw===ADMIN_PASSWORD){
+    function backendLogin(){
+      const idRaw=(document.getElementById('backendId').value||'').trim();
+      const pwRaw=(document.getElementById('backendPwd').value||'').trim();
+      if(!idRaw||!pwRaw) return alert('請輸入 ID 與密碼');
+      const id = normCred(idRaw);
+      const pw = normCred(pwRaw);
+
+      // 平台主帳號：admin + 後台密碼（英文大小寫不敏感）
+      if(id==='admin' && pw===normCred(ADMIN_PASSWORD)){ 
         closeBackendLogin();
         currentMerchantAccount=null;
         state.user={id:'admin',accountKey:null,name:'平台主',mode:'admin',provider:'admin',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
@@ -1331,8 +1335,8 @@
         return;
       }
 
-      // 其餘視為商家帳號
-      const acc=state.merchantAccounts.find(a=>a.merchantId===id && a.password===pw && a.enabled);
+      // 其餘視為商家帳號（英文大小寫不敏感）
+      const acc=state.merchantAccounts.find(a=>normCred(a.merchantId)===id && normCred(a.password)===pw && a.enabled);
       if(!acc) return alert('帳號或密碼錯誤');
       closeBackendLogin();
       currentMerchantAccount=acc;
@@ -1955,6 +1959,7 @@
       const storeId=document.getElementById('ad-sid').value.trim();
       if(!merchantId||!password||!storeId) return alert('請填完整');
       const store=state.stores.find(s=>s.id===storeId); if(!store) return alert('找不到店鋪ID');
+      if((state.merchantAccounts||[]).some(a=>normCred(a.merchantId)===normCred(merchantId))) return alert('商家 ID 已存在（大小寫不區分）');
       state.merchantAccounts.push({merchantId,password,storeId,enabled:true});
       store.isMember=true; store.ownerMerchantId=merchantId;
       saveState(); scheduleAutoExcelDownload(); alert('已開通商家會員帳號');
