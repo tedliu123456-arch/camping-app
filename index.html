@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.0（需求整合版）</title>
+  <title>Camping App v51.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -365,7 +365,8 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '51.0';
+    const CLOUD_UPLOAD_ROOT = 'uploads';
+    const APP_VERSION = '51.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -794,6 +795,11 @@
       });
     }
 
+    function buildStoragePath(folder, safeName){
+      const clean = String(folder||'misc').replace(/^\/+|\/+$/g,'');
+      return `${CLOUD_UPLOAD_ROOT}/${clean}/${safeName}`;
+    }
+
     async function uploadFile(file, folder, onProgress){
       if(!file) return null;
 
@@ -810,7 +816,7 @@
 
       try{
         const safeName = `${Date.now()}-${(file.name||'upload').replace(/\s+/g,'-')}`;
-        const ref = storage.ref().child(`${folder}/${safeName}`);
+        const ref = storage.ref().child(buildStoragePath(folder, safeName));
 
         // 上傳逾時保護：12 秒內沒完成就走備援，避免 UI 無限卡住
         const timeoutMs = 12000;
@@ -846,7 +852,7 @@
       try{
         const readyFile = await prepareUploadFile(file);
         const safeName = `${Date.now()}-${(readyFile.name||'upload').replace(/\s+/g,'-')}`;
-        const ref = storage.ref().child(`${folder}/${safeName}`);
+        const ref = storage.ref().child(buildStoragePath(folder, safeName));
         const timeoutMs = 15000;
         const putTask = ref.put(readyFile);
         putTask.on('state_changed', snap => {

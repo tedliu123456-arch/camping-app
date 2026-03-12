@@ -1,7 +1,16 @@
 {
-  "version": "51.0",
+  "version": "51.1",
   "lastUpdated": "2026-03-12",
   "changelog": [
+    {
+      "version": "51.1",
+      "date": "2026-03-12",
+      "changes": [
+        "修正雲端儲存路徑：統一寫入 uploads/<folder>/...",
+        "營地照片上傳改走 uploads/stores 路徑，避免路徑不符被拒",
+        "延續本地快速儲存，雲端同步更穩定"
+      ]
+    },
     {
       "version": "51.0",
       "date": "2026-03-12",
