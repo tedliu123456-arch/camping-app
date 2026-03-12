@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.5（需求整合版）</title>
+  <title>Camping App v50.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.5';
+    const APP_VERSION = '50.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -744,15 +744,6 @@
       }catch(e){ console.warn('save fail',e); }
     }
 
-    async function fileToDataUrl(file){
-      return await new Promise((resolve,reject)=>{
-        const r = new FileReader();
-        r.onload = ()=>resolve(String(r.result||''));
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
-    }
-
     async function uploadFile(file, folder, onProgress){
       if(!file) return null;
 
@@ -797,6 +788,36 @@
         console.warn('upload fallback',e);
         if(onProgress) onProgress(100);
         return localFallback();
+      }
+    }
+
+    async function uploadFileForPersist(file, folder, onProgress){
+      if(!file || !storage) return null;
+      try{
+        const safeName = `${Date.now()}-${(file.name||'upload').replace(/\s+/g,'-')}`;
+        const ref = storage.ref().child(`${folder}/${safeName}`);
+        const timeoutMs = 60000;
+        const putTask = ref.put(file);
+        putTask.on('state_changed', snap => {
+          if(!onProgress) return;
+          const total = snap.totalBytes || 1;
+          const percent = Math.min(99, Math.floor((snap.bytesTransferred / total) * 100));
+          onProgress(percent);
+        });
+        await Promise.race([
+          putTask,
+          new Promise((_, reject)=>setTimeout(()=>reject(new Error('upload-timeout')), timeoutMs))
+        ]);
+        const url = await Promise.race([
+          ref.getDownloadURL(),
+          new Promise((_, reject)=>setTimeout(()=>reject(new Error('url-timeout')), timeoutMs))
+        ]);
+        if(onProgress) onProgress(100);
+        return (url && !String(url).startsWith('blob:')) ? url : null;
+      }catch(e){
+        console.warn('persist upload fail', e);
+        if(onProgress) onProgress(100);
+        return null;
       }
     }
 
@@ -2028,21 +2049,15 @@
         const fileInput=document.getElementById('ac-photo-files');
         const files = Array.from(fileInput?.files||[]);
         const uploadedPhotos=[];
+        let failedCount = 0;
         for(const f of files){
-          const url = await uploadFile(f, 'stores');
-          if(!url) continue;
-          if(String(url).startsWith('blob:')){
-            try{
-              const dataUrl = await fileToDataUrl(f);
-              if(dataUrl) uploadedPhotos.push(dataUrl);
-            }catch{}
-            continue;
-          }
+          const url = await uploadFileForPersist(f, 'stores');
+          if(!url){ failedCount++; continue; }
           uploadedPhotos.push(url);
         }
 
-        if(files.length && uploadedPhotos.length===0){
-          alert('照片尚未成功上傳，請稍後再試');
+        if(files.length && failedCount>0){
+          alert(`有 ${failedCount} 張照片未成功上傳，請重試後再儲存（確保下次登入仍可看到）`);
           return;
         }
 
