@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.7（需求整合版）</title>
+  <title>Camping App v50.8（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.7';
+    const APP_VERSION = '50.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -777,6 +777,15 @@
       }catch{
         return file;
       }
+    }
+
+    async function fileToDataUrl(file){
+      return await new Promise((resolve,reject)=>{
+        const reader = new FileReader();
+        reader.onload = ()=>resolve(String(reader.result||''));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     }
 
     async function uploadFile(file, folder, onProgress){
@@ -2086,14 +2095,27 @@
         const files = Array.from(fileInput?.files||[]);
         const uploadedPhotos=[];
         let failedCount = 0;
+        let fallbackCount = 0;
         for(const f of files){
           const url = await uploadFileForPersist(f, 'stores');
-          if(!url){ failedCount++; continue; }
-          uploadedPhotos.push(url);
+          if(url){
+            uploadedPhotos.push(url);
+            continue;
+          }
+          // 雲端失敗時改存 data URL，避免整次儲存被卡死
+          try{
+            const dataUrl = await fileToDataUrl(f);
+            if(dataUrl){
+              uploadedPhotos.push(dataUrl);
+              fallbackCount++;
+              continue;
+            }
+          }catch{}
+          failedCount++;
         }
 
         if(files.length && failedCount>0){
-          alert(`有 ${failedCount} 張照片未成功上傳，請確認網路與 Firebase Storage 權限後重試`);
+          alert(`有 ${failedCount} 張照片無法處理，請換小一點的照片或重試`);
           return;
         }
 
@@ -2122,7 +2144,11 @@
         await saveState();
         scheduleAutoExcelDownload();
         closeAdminCampsiteModal();
-        showToast(mode==='edit'?'營區更新完成 ✅':'營區新增完成 ✅');
+        if(fallbackCount>0){
+          showToast(`已儲存（其中 ${fallbackCount} 張以本地模式保存）`);
+        }else{
+          showToast(mode==='edit'?'營區更新完成 ✅':'營區新增完成 ✅');
+        }
       }catch(err){
         console.error(err);
         alert('儲存失敗，請再試一次');
