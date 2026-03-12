@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v50.2（需求整合版）</title>
+  <title>Camping App v50.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -299,7 +299,7 @@
       <div class="field"><label>營區照片（手機/電腦選取）</label><input id="ac-photo-files" type="file" accept="image/*" multiple /><div id="ac-photo-hint" class="muted">可一次選多張照片，儲存後自動上傳</div></div>
       <div class="field"><label>描述</label><textarea id="ac-desc" rows="3"></textarea></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn ok" onclick="saveAdminCampsiteModal()">儲存</button>
+        <button id="ac-save-btn" class="btn ok" onclick="saveAdminCampsiteModal()">儲存</button>
         <button id="ac-delete-btn" class="btn ghost" style="display:none" onclick="deleteAdminCampsiteModal()">刪除此營區</button>
       </div>
     </div>
@@ -365,7 +365,7 @@
 
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const APP_VERSION = '50.2';
+    const APP_VERSION = '50.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -2000,40 +2000,60 @@
       const name=(document.getElementById('ac-name')?.value||'').trim();
       if(!name) return alert('請填寫營區名稱');
 
-      const fileInput=document.getElementById('ac-photo-files');
-      const files = Array.from(fileInput?.files||[]);
-      const uploadedPhotos=[];
-      for(const f of files){
-        const url = await uploadFile(f, 'stores');
-        if(url) uploadedPhotos.push(url);
-      }
+      const saveBtn=document.getElementById('ac-save-btn');
+      const oldSaveLabel = saveBtn ? saveBtn.textContent : '';
 
-      const payload={
-        category:'campsite',
-        name,
-        address:(document.getElementById('ac-addr')?.value||'').trim(),
-        hours:(document.getElementById('ac-hours')?.value||'').trim(),
-        contact:(document.getElementById('ac-contact')?.value||'').trim(),
-        elevation:(document.getElementById('ac-elevation')?.value||'').trim(),
-        tentCount:(document.getElementById('ac-tentCount')?.value||'').trim(),
-        zones:(document.getElementById('ac-zones')?.value||'').trim(),
-        features:(document.getElementById('ac-features')?.value||'').split('|').map(x=>x.trim()).filter(Boolean),
-        description:(document.getElementById('ac-desc')?.value||'').trim(),
-        isMember:false
-      };
-      if(mode==='edit'){
-        const s=(state.stores||[]).find(x=>x.id===id && x.category==='campsite');
-        if(!s) return alert('找不到營區');
-        const basePhotos = Array.isArray(s.photos)?s.photos:[];
-        Object.assign(s,{...payload, photos:[...basePhotos, ...uploadedPhotos]});
-      }else{
-        state.stores.unshift({id:uid(), ...payload, photos:uploadedPhotos});
+      try{
+        if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='儲存中...'; }
+
+        const fileInput=document.getElementById('ac-photo-files');
+        const files = Array.from(fileInput?.files||[]);
+        const uploadedPhotos=[];
+        for(const f of files){
+          const url = await uploadFile(f, 'stores');
+          if(!url) continue;
+          // blob: URL 只在當前頁有效，重新登入後會失效；避免存入正式資料
+          if(String(url).startsWith('blob:')) continue;
+          uploadedPhotos.push(url);
+        }
+
+        if(files.length && uploadedPhotos.length===0){
+          alert('照片尚未成功上傳到雲端，請稍後再試（避免下次登入看不到）');
+          return;
+        }
+
+        const payload={
+          category:'campsite',
+          name,
+          address:(document.getElementById('ac-addr')?.value||'').trim(),
+          hours:(document.getElementById('ac-hours')?.value||'').trim(),
+          contact:(document.getElementById('ac-contact')?.value||'').trim(),
+          elevation:(document.getElementById('ac-elevation')?.value||'').trim(),
+          tentCount:(document.getElementById('ac-tentCount')?.value||'').trim(),
+          zones:(document.getElementById('ac-zones')?.value||'').trim(),
+          features:(document.getElementById('ac-features')?.value||'').split('|').map(x=>x.trim()).filter(Boolean),
+          description:(document.getElementById('ac-desc')?.value||'').trim(),
+          isMember:false
+        };
+        if(mode==='edit'){
+          const s=(state.stores||[]).find(x=>x.id===id && x.category==='campsite');
+          if(!s) return alert('找不到營區');
+          const basePhotos = Array.isArray(s.photos)?s.photos:[];
+          Object.assign(s,{...payload, photos:[...basePhotos, ...uploadedPhotos]});
+        }else{
+          state.stores.unshift({id:uid(), ...payload, photos:uploadedPhotos});
+        }
+        renderStoreTabs();
+        await saveState();
+        scheduleAutoExcelDownload();
+        closeAdminCampsiteModal();
+        showToast(mode==='edit'?'營區更新完成 ✅':'營區新增完成 ✅');
+      }catch(err){
+        console.error(err);
+        alert('儲存失敗，請再試一次');
+      }finally{
+        if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent=oldSaveLabel || '儲存'; }
       }
-      renderStoreTabs();
-      await saveState();
-      scheduleAutoExcelDownload();
-      closeAdminCampsiteModal();
-      showToast(mode==='edit'?'營區更新完成 ✅':'營區新增完成 ✅');
     }
 
     function adminDeleteCampsiteInline(storeId){
