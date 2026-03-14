@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.4（需求整合版）</title>
+  <title>Camping App v51.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -366,7 +366,7 @@
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
     const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '51.4';
+    const APP_VERSION = '51.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -682,23 +682,8 @@
       state.dmThreads = d.dmThreads || state.dmThreads;
     }
 
-    function cleanUndefinedDeep(v){
-      if(v === undefined) return null;
-      if(v === null) return null;
-      if(Array.isArray(v)) return v.map(cleanUndefinedDeep);
-      if(typeof v === 'object'){
-        const out = {};
-        Object.keys(v).forEach(k=>{
-          const cv = cleanUndefinedDeep(v[k]);
-          if(cv !== undefined) out[k] = cv;
-        });
-        return out;
-      }
-      return v;
-    }
-
     function stateSnapshot(){
-      return cleanUndefinedDeep({
+      const raw = {
         announcements:state.announcements,
         posts:state.posts,
         contestEntries:state.contestEntries,
@@ -710,7 +695,9 @@
         adminAccount:state.adminAccount,
         dmThreads:state.dmThreads,
         updatedAt:new Date().toISOString()
-      });
+      };
+      // 以 JSON 序列化移除 undefined / function / 稀疏陣列洞，避免 Firestore 拒寫
+      return JSON.parse(JSON.stringify(raw));
     }
 
     const IDB_NAME = 'camping-local-db';

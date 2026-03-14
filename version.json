@@ -1,7 +1,16 @@
 {
-  "version": "51.4",
+  "version": "51.5",
   "lastUpdated": "2026-03-14",
   "changelog": [
+    {
+      "version": "51.5",
+      "date": "2026-03-14",
+      "changes": [
+        "再修雲端存檔失敗：stateSnapshot 改用 JSON 序列化清理 undefined/稀疏陣列",
+        "避免 Firestore 因 undefined 欄位拒絕寫入",
+        "提升資料真正寫入雲端的成功率"
+      ]
+    },
     {
       "version": "51.4",
       "date": "2026-03-14",
