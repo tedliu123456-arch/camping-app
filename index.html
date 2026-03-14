@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.5（需求整合版）</title>
+  <title>Camping App v51.6（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -366,7 +366,7 @@
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
     const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '51.5';
+    const APP_VERSION = '51.6';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -803,7 +803,7 @@
       try{
         await Promise.race([
           db.collection('apps').doc(APP_DOC).set(stateSnapshot(), {merge:true}),
-          new Promise((_, reject)=>setTimeout(()=>reject(new Error('save-timeout')), 8000))
+          new Promise((_, reject)=>setTimeout(()=>reject(new Error('save-timeout')), 20000))
         ]);
       }catch(e){
         console.warn('save fail/fallback local-only',e);
@@ -871,7 +871,7 @@
         const ref = storage.ref().child(buildStoragePath(folder, safeName));
 
         // 上傳逾時保護：12 秒內沒完成就走備援，避免 UI 無限卡住
-        const timeoutMs = 12000;
+        const timeoutMs = 30000;
         const putTask = ref.put(file);
         putTask.on('state_changed', snap => {
           if(!onProgress) return;
@@ -2428,7 +2428,7 @@
       try{
         await Promise.race([
           loadState(),
-          new Promise((_,reject)=>setTimeout(()=>reject(new Error('load-timeout')), 4500))
+          new Promise((_,reject)=>setTimeout(()=>reject(new Error('load-timeout')), 15000))
         ]);
       }catch(e){
         console.warn('boot loadState fallback', e);
