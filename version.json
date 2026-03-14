@@ -1,7 +1,16 @@
 {
-  "version": "51.3",
+  "version": "51.4",
   "lastUpdated": "2026-03-14",
   "changelog": [
+    {
+      "version": "51.4",
+      "date": "2026-03-14",
+      "changes": [
+        "修正雲端儲存失敗主因：寫入前清理 undefined 欄位（避免 Firestore 拒絕）",
+        "stateSnapshot 改為深度清理後再同步雲端",
+        "減少落回本地-only 的機率，恢復雲端存檔可用性"
+      ]
+    },
     {
       "version": "51.3",
       "date": "2026-03-14",
