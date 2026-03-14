@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.2（需求整合版）</title>
+  <title>Camping App v51.3（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -366,7 +366,7 @@
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
     const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '51.2';
+    const APP_VERSION = '51.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -512,12 +512,9 @@
         }
       });
 
-      // 營地列表不預設塞展示照片；其他類別才補展示圖
+      // 營地保留既有照片；其他類別無照片時補展示圖
       (state.stores||[]).forEach((st,idx)=>{
-        if(st.category==='campsite'){
-          if(Array.isArray(st.photos) && st.photos.length){ st.photos=[]; changed=true; }
-          return;
-        }
+        if(st.category==='campsite') return;
         if(!Array.isArray(st.photos) || st.photos.length===0){
           st.photos = [
             `https://picsum.photos/seed/${st.category}-${idx+1}-1/900/600`,
@@ -588,7 +585,7 @@
           Object.assign(ex, {
             ...ex,
             ...payload,
-            photos: []
+            photos: Array.isArray(ex.photos) ? ex.photos : []
           });
           changed = true;
         }else{
@@ -608,7 +605,7 @@
         if(name==='海風營地') return false;
         if(/^營地\d+$/.test(name)) return false;
         return true;
-      }).map(s=> s.category==='campsite' ? {...s, photos:[]} : s);
+      });
       return (state.stores||[]).length !== before;
     }
 
