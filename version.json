@@ -1,7 +1,14 @@
 {
-  "version": "51.6",
-  "lastUpdated": "2026-03-14",
+  "version": "51.7",
+  "lastUpdated": "2026-03-15",
   "changelog": [
+    {
+      "version": "51.7",
+      "date": "2026-03-15",
+      "changes": [
+        "營地合併邏輯：標記使用者新增營地，避免被 Taichung 資料覆蓋"
+      ]
+    },
     {
       "version": "51.6",
       "date": "2026-03-14",

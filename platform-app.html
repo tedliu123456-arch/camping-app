@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.6（需求整合版）</title>
+  <title>Camping App v51.7（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -366,7 +366,7 @@
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
     const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '51.6';
+    const APP_VERSION = '51.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -562,10 +562,15 @@
     }
 
     function mergeTaichungCampsites(rows=[]){
+      // 只新增 Taichung 營地，不覆蓋使用者自己新增的營地
+      const userCampsites = (state.stores||[]).filter(s=>s.category==='campsite' && s._userAdded);
+      const userNames = new Set(userCampsites.map(s=>s.name));
       let changed = false;
       rows.forEach(r=>{
         const name = String(r.name||'').trim();
         if(!name) return;
+        // 跳过使用者已新增的營地
+        if(userNames.has(name)) return;
         const ex = state.stores.find(s=>s.category==='campsite' && s.name===name);
         const payload = {
           category:'campsite',
@@ -589,7 +594,7 @@
           });
           changed = true;
         }else{
-          state.stores.push({id:uid(), ...payload, photos:[]});
+          state.stores.push({id:uid(), _userAdded: true, ...payload, photos:[]});
           changed = true;
         }
       });
