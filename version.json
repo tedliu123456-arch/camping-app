@@ -1,7 +1,15 @@
 {
-  "version": "51.7",
+  "version": "51.8",
   "lastUpdated": "2026-03-15",
   "changelog": [
+    {
+      "version": "51.8",
+      "date": "2026-03-15",
+      "changes": [
+        "暫時禁用 Firebase 雲端，改用純本地儲存（IndexedDB + localStorage）",
+        "解決雲端連線失敗導致的資料問題"
+      ]
+    },
     {
       "version": "51.7",
       "date": "2026-03-15",

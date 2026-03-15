@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.7（需求整合版）</title>
+  <title>Camping App v51.8（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -366,7 +366,7 @@
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
     const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '51.7';
+    const APP_VERSION = '51.8';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -782,37 +782,21 @@
     }
 
     async function loadState(){
+      // 僅用本地儲存，雲端讀取暫時禁用
       defaultSeed();
       const hasLocal = await loadLocalState();
-      if(!db){ ensureTestData(); await saveLocalState(); return; }
-      try{
-        const doc = await db.collection('apps').doc(APP_DOC).get();
-        if(doc.exists){
-          const d = doc.data() || {};
-          const localAt = Date.parse(window.__localStateUpdatedAt || '') || 0;
-          const cloudAt = Date.parse(d.updatedAt || '') || 0;
-          if(!(hasLocal && localAt > cloudAt)){
-            applyStateSnapshot(d);
-            await saveLocalState();
-          }
-        }
-        normalizeAnnouncements();
-        if(ensureTestData()){ await saveState(); }
-      }catch(e){ console.warn('load fail',e); }
+      if(!hasLocal){
+        ensureTestData();
+        await loadBundledTaichungCampsites();
+        await saveLocalState();
+      }
+      normalizeAnnouncements();
     }
 
     async function saveState(){
-      // 先本地秒存（含 IndexedDB），避免 UI 卡住或大資料遺失
+      // 僅用本地儲存（IndexedDB + localStorage），雲端同步暫時禁用
       await saveLocalState();
-      if(!db) return;
-      try{
-        await Promise.race([
-          db.collection('apps').doc(APP_DOC).set(stateSnapshot(), {merge:true}),
-          new Promise((_, reject)=>setTimeout(()=>reject(new Error('save-timeout')), 20000))
-        ]);
-      }catch(e){
-        console.warn('save fail/fallback local-only',e);
-      }
+      console.log('saved to local only');
     }
 
     async function prepareUploadFile(file){
