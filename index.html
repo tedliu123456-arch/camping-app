@@ -2208,6 +2208,9 @@
           description:(document.getElementById('ac-desc')?.value||'').trim(),
           isMember:false
         };
+        const beforeCount = (state.stores||[]).filter(x=>x.category==='campsite').length;
+        console.log('before save: ' + beforeCount + ' campsites');
+        
         if(mode==='edit'){
           const s=(state.stores||[]).find(x=>x.id===id && x.category==='campsite');
           if(!s) return alert('找不到營區');
@@ -2216,8 +2219,15 @@
         }else{
           state.stores.unshift({id:uid(), ...payload, photos:uploadedPhotos});
         }
+        
+        const afterCount = (state.stores||[]).filter(x=>x.category==='campsite').length;
+        console.log('after adding: ' + afterCount + ' campsites');
+        
         renderStoreTabs();
         await saveState();
+        
+        const finalCount = (state.stores||[]).filter(x=>x.category==='campsite').length;
+        console.log('after saveState: ' + finalCount + ' campsites');
         scheduleAutoExcelDownload();
         closeAdminCampsiteModal();
         if(fallbackCount>0){
