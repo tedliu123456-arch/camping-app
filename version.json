@@ -1,7 +1,15 @@
 {
-  "version": "51.8",
-  "lastUpdated": "2026-03-15",
+  "version": "51.9",
+  "lastUpdated": "2026-03-17",
   "changelog": [
+    {
+      "version": "51.9",
+      "date": "2026-03-17",
+      "changes": [
+        "修正 loadState 順序：先讀本地，本地沒有才讀預設",
+        "營地載入時自動標記 _userAdded 確保不被覆蓋"
+      ]
+    },
     {
       "version": "51.8",
       "date": "2026-03-15",
