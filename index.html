@@ -791,12 +791,12 @@
 
     async function saveLocalState(){
       const snap = stateSnapshot();
-      console.log('saveLocalState: stores=' + (snap.stores?.length||0) + ', campsites=' + ((snap.stores||[]).filter(x=>x.category==='campsite').length));
+      
       try{ 
         localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(snap));
-        console.log('localStorage saved, checking...');
+        
         const check = localStorage.getItem(LOCAL_STATE_KEY);
-        console.log('localStorage verify: ' + (check ? 'OK, ' + JSON.parse(check).stores?.length + ' stores' : 'FAILED'));
+        
       }
       catch(e){ console.warn('save local state fail', e); }
       await idbSetState(snap);
