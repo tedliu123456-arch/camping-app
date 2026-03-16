@@ -752,30 +752,35 @@
     async function loadLocalState(){
       let idbVal = null;
       let lsVal = null;
+      let idbError = null;
+      let lsError = null;
       
       // 嘗試讀取 IndexedDB
       try{
         idbVal = await idbGetState();
-        console.log('idbVal:', idbVal ? 'exists, stores:' + (idbVal.stores?.length||0) : 'null');
-      }catch{}
+      }catch(e){ idbError = e.message; }
       
       // 嘗試讀取 localStorage
       try{
         const raw = localStorage.getItem(LOCAL_STATE_KEY);
         if(raw) lsVal = JSON.parse(raw);
-        console.log('lsVal:', lsVal ? 'exists, stores:' + (lsVal.stores?.length||0) : 'null');
-      }catch{}
+      }catch(e){ lsError = e.message; }
+      
+      console.log('loadLocalState: idbVal=' + (idbVal?'yes':'no') + ' idbErr=' + (idbError||'none') + ' lsVal=' + (lsVal?'yes':'no') + ' lsErr=' + (lsError||'none'));
+      
+      if(idbError && lsError){
+        console.warn('both storage failed', idbError, lsError);
+        return false;
+      }
       
       // 比較時間戳記，選擇較新的資料
       const idbTime = idbVal?.updatedAt ? new Date(idbVal.updatedAt).getTime() : 0;
       const lsTime = lsVal?.updatedAt ? new Date(lsVal.updatedAt).getTime() : 0;
       
-      console.log('idbTime:', idbTime, 'lsTime:', lsTime);
-      
       const target = (idbTime >= lsTime) ? idbVal : lsVal;
-      console.log('target selected:', target ? 'yes, stores:' + (target.stores?.length||0) : 'no');
       
       if(target){
+        console.log('loading state, stores=' + (target.stores?.length||0));
         applyStateSnapshot(target);
         normalizeAnnouncements();
         window.__localStateUpdatedAt = target?.updatedAt || '';
