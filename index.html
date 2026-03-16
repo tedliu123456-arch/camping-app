@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v52.0（需求整合版）</title>
+  <title>Camping App v52.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -366,7 +366,7 @@
     const APP_DOC = 'camping-main-v1';
     const LOCAL_STATE_KEY = 'camping-main-local-v1';
     const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '52.0';
+    const APP_VERSION = '52.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -766,7 +766,7 @@
         if(raw) lsVal = JSON.parse(raw);
       }catch(e){ lsError = e.message; }
       
-      console.log('loadLocalState: idbVal=' + (idbVal?'yes':'no') + ' idbErr=' + (idbError||'none') + ' lsVal=' + (lsVal?'yes':'no') + ' lsErr=' + (lsError||'none'));
+      
       
       if(idbError && lsError){
         console.warn('both storage failed', idbError, lsError);
@@ -780,7 +780,7 @@
       const target = (idbTime >= lsTime) ? idbVal : lsVal;
       
       if(target){
-        console.log('loading state, stores=' + (target.stores?.length||0));
+        
         applyStateSnapshot(target);
         normalizeAnnouncements();
         window.__localStateUpdatedAt = target?.updatedAt || '';
@@ -798,20 +798,21 @@
 
     async function loadState(){
       // 僅用本地儲存，雲端讀取暫時禁用
-      // 先嘗試讀取本地資料有的話就用本地，沒有的話才用預設資料
+      // 直接嘗試讀取本地資料
       const hasLocal = await loadLocalState();
-      if(!hasLocal){
-        defaultSeed();
-        ensureTestData();
-        await loadBundledTaichungCampsites();
-        await saveLocalState();
-      }
-      // 如果有本地資料，確保使用者新增的營地有標記 UserAdded
+      
+      // 標記使用者新增的營地
       (state.stores||[]).forEach(s=>{
         if(s.category==='campsite' && !s._userAdded && s.name && !s.name.includes('營地') && !s.name.includes('露營區')){
           s._userAdded = true;
         }
       });
+      
+      if(hasLocal){
+        console.log('loaded from local storage');
+      }else{
+        console.log('no local data found');
+      }
       normalizeAnnouncements();
     }
 

@@ -1,7 +1,15 @@
 {
-  "version": "52.0",
+  "version": "52.1",
   "lastUpdated": "2026-03-17",
   "changelog": [
+    {
+      "version": "52.1",
+      "date": "2026-03-17",
+      "changes": [
+        "修正 boot 順序：先載入本地資料，確認沒有才產生預設資料",
+        "修正 loadState：不再重複產生預設資料"
+      ]
+    },
     {
       "version": "52.0",
       "date": "2026-03-17",
