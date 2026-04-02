@@ -3,49 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v41.3（需求整合版）</title>
+  <title>Camping App v41.4（需求整合版）</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
-      --pri:#2f7a4b;--ok:#2e9f5a;--danger:#c2412d;
+      --pri:#2f7a4b;--pri-2:#3f9360;--ok:#2e9f5a;--danger:#c2412d;--focus:#7dbb91;--shadow:0 10px 26px rgba(61,43,24,.12);
     }
     *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#faf7f2 0%,var(--bg) 35%,#f2ede4 100%);color:var(--text);font-family:"Noto Sans TC","PingFang TC",-apple-system,BlinkMacSystemFont,sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#faf7f2 0%,var(--bg) 35%,#f2ede4 100%);color:var(--text);font-family:"Noto Sans TC","PingFang TC",-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
     .container{max-width:1120px;margin:0 auto;padding:12px;padding-top:180px;padding-bottom:86px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease}
     .card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(61,43,24,.10);border-color:#d8c9b6}
     .muted{color:var(--muted);font-size:13px;line-height:1.55}
     .topbar{position:fixed;top:0;left:0;right:0;z-index:1002;background:rgba(255,253,249,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-    .topbar-inner{max-width:1120px;margin:0 auto;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;transition:background-color .16s ease}
+    .topbar-inner{max-width:1120px;margin:0 auto;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;transition:background-color .16s ease,border-color .16s ease;border-bottom:1px solid rgba(255,255,255,.35)}
     .topbar:hover .topbar-inner{background:#fff7ea}
     .brand{font-weight:900;color:#2d4a32;letter-spacing:.2px;transition:color .16s ease,text-shadow .16s ease}
     .topbar:hover .brand{color:#2f7a4b;text-shadow:0 1px 0 rgba(255,255,255,.8)}
-    .btn{border:0;background:linear-gradient(180deg,#3d8f5c,#2f7a4b);color:#fff;padding:9px 13px;border-radius:12px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease}
-    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(47,122,75,.28)}
-    .btn.ghost{background:#fffaf1;color:#3d3226;border:1px solid #d8c9b6}
+    .btn{border:0;background:linear-gradient(180deg,var(--pri-2),var(--pri));color:#fff;padding:9px 13px;border-radius:12px;cursor:pointer;transition:transform .12s ease, box-shadow .16s ease, opacity .15s ease,filter .15s ease;box-shadow:0 6px 14px rgba(47,122,75,.20)}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 18px rgba(47,122,75,.30);filter:saturate(1.05)}
+    .btn:active{transform:translateY(1px) scale(.995);box-shadow:0 2px 8px rgba(47,122,75,.24)}
+    .btn.ghost{background:#fffaf1;color:#3d3226;border:1px solid #d8c9b6;box-shadow:none}
     .btn.ghost:hover{background:#fff4e2;border-color:#c2ab8f;box-shadow:0 6px 12px rgba(61,43,24,.12)}
+    .btn.ghost:active{transform:translateY(1px);box-shadow:none}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
     .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
     .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
-    .tab{border:1.5px solid #d1d5db;background:#fff;color:#111827;padding:9px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 4px 12px rgba(15,23,42,.10);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
-    .tab:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(15,23,42,.14);filter:saturate(1.04)}
-    .tab.active{background:#93c5fd;border-color:#60a5fa;color:#0f172a;transform:translateY(-2px);z-index:2}
+    .tab{border:1.5px solid #d8c9b6;background:#fffefb;color:#3a332a;padding:10px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 4px 12px rgba(61,43,24,.10);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
+    .tab:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(61,43,24,.16);filter:saturate(1.04)}
+    .tab:active{transform:translateY(1px)}
+    .tab.active{background:#d3ecd8;border-color:#8ac8a0;color:#1f5130;transform:translateY(-2px);z-index:2}
     .section{display:none}.section.active{display:block}
 
     .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap;letter-spacing:.2px}
-    .tab-social{border-radius:18px 8px 8px 18px;background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;clip-path:polygon(0 0,84% 0,100% 28%,100% 72%,84% 100%,0 100%)}
-    .tab-mod{margin-left:-1px;border-radius:10px;background:#dcfce7;border-color:#86efac;color:#166534;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
-    .tab-gear{margin-left:-1px;border-radius:10px;background:#fef3c7;border-color:#fcd34d;color:#92400e;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
-    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;background:#fee2e2;border-color:#fca5a5;color:#991b1b;clip-path:polygon(0 28%,12% 0,100% 0,100% 100%,12% 100%,0 72%,8% 50%)}
+    .tab-social{border-radius:18px 8px 8px 18px;background:#e7f4ea;border-color:#b9dfc5;color:#2f6d43;clip-path:polygon(0 0,84% 0,100% 28%,100% 72%,84% 100%,0 100%)}
+    .tab-mod{margin-left:-1px;border-radius:10px;background:#eef7e8;border-color:#c5e3b4;color:#4e6e2e;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
+    .tab-gear{margin-left:-1px;border-radius:10px;background:#fff4df;border-color:#eac88f;color:#8a5a1f;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
+    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;background:#ffe7d8;border-color:#e9b89b;color:#8a3d1f;clip-path:polygon(0 28%,12% 0,100% 0,100% 100%,12% 100%,0 72%,8% 50%)}
 
     .marquee{overflow:hidden;white-space:nowrap;position:relative}
     .marquee-track{display:inline-flex;gap:10px;min-width:max-content;animation:marqueeMove 18s linear infinite}
     .marquee-item{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 10px;border-radius:999px;font-size:13px;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease}
     .marquee-item:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(55,48,163,.18);background:#e3e9ff}
     @keyframes marqueeMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    @keyframes sheetIn{from{transform:translateY(10px);opacity:.92}to{transform:translateY(0);opacity:1}}
 
-    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative;margin-top:120px}
+    .contest-banner{background:linear-gradient(135deg,#2f7a4b,#3f9360);color:#fff;border-radius:14px;padding:12px;position:relative;margin-top:120px;box-shadow:var(--shadow)}
     .contest-row{display:flex;gap:10px;overflow:auto;padding-top:8px}
     .contest-card{position:relative;min-width:120px;height:84px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,.5);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
     .contest-card:hover{transform:translateY(-2px);box-shadow:0 10px 18px rgba(15,23,42,.22);border-color:rgba(255,255,255,.9)}
@@ -71,10 +75,10 @@
     .field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;padding:2px 0}
     input,select,textarea{width:100%;padding:9px;border:1px solid #d1d5db;border-radius:10px;transition:border-color .15s ease, box-shadow .15s ease}
     input:focus,select:focus,textarea:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-    button:focus-visible,.tab:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
+    button:focus-visible,.tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 
-    .overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:2000}
-    .sheet{width:min(820px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:14px;box-shadow:0 -18px 42px rgba(15,23,42,.28)}
+    .overlay{position:fixed;inset:0;background:rgba(43,34,24,.42);backdrop-filter:blur(4px);display:none;align-items:flex-end;justify-content:center;z-index:2000}
+    .sheet{width:min(860px,96vw);max-height:92vh;overflow:auto;background:#fffdf9;border-radius:20px 20px 0 0;padding:16px;box-shadow:0 -18px 42px rgba(43,34,24,.24);animation:sheetIn .2s ease-out}
     .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eef2f7}
 
     .contest-grid{display:grid;grid-template-columns:1fr;gap:12px}
@@ -83,11 +87,11 @@
 
     .dm-fab{position:fixed;right:16px;bottom:16px;z-index:1200;background:#0ea5e9}
     .post-fab{position:fixed;right:16px;bottom:62px;z-index:1200}
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:#fff;border-top:1px solid #d1d5db;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));align-items:end}
-    .bottom-nav button{width:100%;padding:10px 8px;border:1px solid #d1d5db;background:#fff;border-radius:10px;font-weight:700;color:#111827;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease,color .14s ease}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:rgba(255,253,249,.94);backdrop-filter:blur(8px);border-top:1px solid #d8c9b6;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));align-items:end}
+    .bottom-nav button{width:100%;padding:10px 8px;border:1px solid #d8c9b6;background:#fffaf1;border-radius:12px;font-weight:700;color:#3a332a;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease,color .14s ease}
     .bottom-nav button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(15,23,42,.12)}
-    .bottom-nav button.active{background:#2563eb;color:#fff;border-color:#2563eb}
-    .bottom-nav .bn-go{width:100%;height:68px;margin:0 auto;transform:translateY(-6px);font-size:12px;line-height:1.2;font-weight:900;padding:0 8px;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#d6bf9d;color:#4b3a27;border:1px solid #b89c76;box-shadow:0 8px 20px rgba(139,111,78,.25);clip-path:polygon(50% 0%, 100% 36%, 100% 100%, 0% 100%, 0% 36%)}
+    .bottom-nav button.active{background:linear-gradient(180deg,var(--pri-2),var(--pri));color:#fff;border-color:var(--pri)}
+    .bottom-nav .bn-go{width:100%;height:68px;margin:0 auto;transform:translateY(-6px);font-size:12px;line-height:1.2;font-weight:900;padding:0 8px;display:flex;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(180deg,#e3ceac,#d2b186);color:#4b3a27;border:1px solid #b89c76;box-shadow:0 8px 20px rgba(139,111,78,.28);clip-path:polygon(50% 0%, 100% 36%, 100% 100%, 0% 100%, 0% 36%)}
     .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:14px;z-index:3000;display:none;box-shadow:0 8px 20px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.18);letter-spacing:.2px}
     .upload-progress{margin-top:8px;display:none}
     .upload-track{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;border:1px solid #d1d5db}
@@ -306,7 +310,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '41.3';
+    const APP_VERSION = '41.4';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
