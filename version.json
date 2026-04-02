@@ -1,7 +1,16 @@
 {
-  "version": "40.8.1",
-  "lastUpdated": "2026-03-06",
+  "version": "40.9",
+  "lastUpdated": "2026-04-02",
   "changelog": [
+    {
+      "version": "40.9",
+      "date": "2026-04-02",
+      "changes": [
+        "修正資料保存可靠性：saveState 先寫入 localStorage，再同步 Firebase",
+        "修正資料讀取可靠性：loadState 先嘗試本地快取，雲端失敗時仍可正常載入",
+        "同步套用 index.html 與 platform-app.html，降低『檔案無法儲存/讀取』問題"
+      ]
+    },
     {
       "version": "40.8.1",
       "date": "2026-03-06",
