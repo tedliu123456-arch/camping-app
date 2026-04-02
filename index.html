@@ -3,27 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v41.2（需求整合版）</title>
+  <title>Camping App v41.3（需求整合版）</title>
   <style>
     :root{
-      --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
-      --pri:#2563eb;--ok:#16a34a;--danger:#dc2626;
+      --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
+      --pri:#2f7a4b;--ok:#2e9f5a;--danger:#c2412d;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#faf7f2 0%,var(--bg) 35%,#f2ede4 100%);color:var(--text);font-family:"Noto Sans TC","PingFang TC",-apple-system,BlinkMacSystemFont,sans-serif}
     .container{max-width:1120px;margin:0 auto;padding:12px;padding-top:180px;padding-bottom:86px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;transition:box-shadow .18s ease,border-color .18s ease}
-    .card:hover{box-shadow:0 8px 18px rgba(15,23,42,.08);border-color:#dbe2ea}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease}
+    .card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(61,43,24,.10);border-color:#d8c9b6}
     .muted{color:var(--muted);font-size:13px;line-height:1.55}
-    .topbar{position:fixed;top:0;left:0;right:0;z-index:1002;background:#fff;border-bottom:1px solid var(--line)}
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:1002;background:rgba(255,253,249,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
     .topbar-inner{max-width:1120px;margin:0 auto;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;transition:background-color .16s ease}
-    .topbar:hover .topbar-inner{background:#f8fbff}
-    .brand{font-weight:900;color:#0f172a;letter-spacing:.2px;transition:color .16s ease,text-shadow .16s ease}
-    .topbar:hover .brand{color:#1d4ed8;text-shadow:0 1px 0 rgba(255,255,255,.8)}
-    .btn{border:0;background:var(--pri);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease}
-    .btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(37,99,235,.22)}
-    .btn.ghost{background:#fff;color:#111827;border:1px solid #d1d5db}
-    .btn.ghost:hover{background:#f8fafc;border-color:#94a3b8;box-shadow:0 6px 12px rgba(15,23,42,.10)}
+    .topbar:hover .topbar-inner{background:#fff7ea}
+    .brand{font-weight:900;color:#2d4a32;letter-spacing:.2px;transition:color .16s ease,text-shadow .16s ease}
+    .topbar:hover .brand{color:#2f7a4b;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+    .btn{border:0;background:linear-gradient(180deg,#3d8f5c,#2f7a4b);color:#fff;padding:9px 13px;border-radius:12px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(47,122,75,.28)}
+    .btn.ghost{background:#fffaf1;color:#3d3226;border:1px solid #d8c9b6}
+    .btn.ghost:hover{background:#fff4e2;border-color:#c2ab8f;box-shadow:0 6px 12px rgba(61,43,24,.12)}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
     .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
@@ -306,7 +306,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '41.2';
+    const APP_VERSION = '41.3';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
