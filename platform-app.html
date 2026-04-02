@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v40.9（需求整合版）</title>
+  <title>Camping App v41.0（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -306,7 +306,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '40.9';
+    const APP_VERSION = '41.0';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -381,6 +381,7 @@
     }
     function isMember(){ return state.user.mode === 'member'; }
     function isMerchant(){ return state.user.mode === 'merchant'; }
+    function isAdmin(){ return state.user.mode === 'admin'; }
     function canMessage(){ return isMember() || isMerchant(); }
     function canComment(){ return isMember() || isMerchant(); }
 
@@ -807,6 +808,7 @@
         <div class="actions">
           <button class="btn ghost" onclick="openStoreDetail('${s.id}')">完整資料</button><button class="btn ghost" onclick="openMapTo('${encodeURIComponent(s.address||s.name)}')">地圖</button>
           <button class="btn ghost" onclick="contactStore('${s.id}')">私訊商家</button>
+          ${isAdmin() ? `<button class="btn" onclick="openAdminStoreEditor('${s.id}')">編輯商家</button>` : ''}
         </div>
         <div style="margin-top:8px">
           <div class="muted">評論 ${comments.length}</div>
@@ -1444,6 +1446,17 @@
         t.participantIds=[state.user.id,`store:${storeId}`];
       }
       openDM(); openThread(t.id);
+    }
+
+    function openAdminStoreEditor(storeId){
+      if(!isAdmin()) return;
+      const store = state.stores.find(s=>s.id===storeId);
+      if(!store) return;
+      const title = `平台主編輯｜${store.name}`;
+      currentMerchantAccount = {merchantId: store.ownerMerchantId || `admin-${store.id}`, storeId: store.id, enabled: true};
+      openBackendWorkspace(title);
+      renderMerchantEditor(currentMerchantAccount);
+      showToast(`已開啟 ${store.name} 編輯`);
     }
 
     function openDM(){

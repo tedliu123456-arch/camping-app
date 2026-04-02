@@ -1,7 +1,16 @@
 {
-  "version": "40.9",
+  "version": "41.0",
   "lastUpdated": "2026-04-02",
   "changelog": [
+    {
+      "version": "41.0",
+      "date": "2026-04-02",
+      "changes": [
+        "平台主（admin）登入後，四大商家分類卡片新增『編輯商家』按鈕",
+        "可從前台商家卡片直接開啟後台編輯該店資料，減少切換流程",
+        "同步套用 index.html 與 platform-app.html，維持操作一致"
+      ]
+    },
     {
       "version": "40.9",
       "date": "2026-04-02",
