@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v41.0（需求整合版）</title>
+  <title>Camping App v41.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -306,7 +306,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '41.0';
+    const APP_VERSION = '41.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -966,8 +966,10 @@
         .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
 
       document.getElementById('storeGalleryTitle').textContent = `${st.name}｜完整資料`;
-      document.getElementById('storeDetailMeta').textContent = `${st.address||''}｜營業時間 ${st.hours||'-'}｜聯絡 ${st.contact||'-'}`;
+      document.getElementById('storeDetailMeta').textContent = `${st.address||''}｜營業時間 ${st.hours||'-'}｜電話 ${st.contact||'-'}`;
       document.getElementById('storeDetailBody').innerHTML = `
+        <div><b>地址：</b>${st.address||'未填寫'}</div>
+        <div><b>電話：</b>${st.contact||'未填寫'}</div>
         <div><b>店家介紹：</b>${st.description||'未填寫'}</div>
         ${st.category==='mod' ? `<div><b>專門車型：</b>${st.specialModels||'未填寫'}</div>` : ''}
         ${st.category==='rental' ? `<div><b>露營車種類：</b>${st.vehicleTypes||'未填寫'}</div><div><b>取車處：</b>${st.pickupLocation||'未填寫'}</div>` : ''}
