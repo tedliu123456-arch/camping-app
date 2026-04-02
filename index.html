@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v41.6（需求整合版）</title>
+  <title>Camping App v41.7（需求整合版）</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -311,7 +311,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '41.6';
+    const APP_VERSION = '41.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -625,7 +625,11 @@
 
       if(!db) return;
       try{
-        await db.collection('apps').doc(APP_DOC).set(getStatePayload(), {merge:true});
+        // 雲端同步不阻塞 UI，避免「一直上傳中」卡住流程
+        await Promise.race([
+          db.collection('apps').doc(APP_DOC).set(getStatePayload(), {merge:true}),
+          new Promise((_, reject)=>setTimeout(()=>reject(new Error('save-timeout')), 4000))
+        ]);
       }catch(e){ console.warn('save fail',e); }
     }
 
