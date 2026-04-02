@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v41.4（需求整合版）</title>
+  <title>Camping App v41.5（需求整合版）</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -225,6 +225,7 @@
         <div class="upload-track"><div id="uploadFill" class="upload-fill"></div></div>
       </div>
       <button id="postSubmitBtn" class="btn" onclick="submitPost()">發佈</button>
+      <button id="postDoneBtn" class="btn ok" style="display:none;margin-top:8px" onclick="completePostAction()">完成</button>
     </div>
   </div>
 
@@ -310,7 +311,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '41.4';
+    const APP_VERSION = '41.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1298,9 +1299,30 @@
       document.getElementById('postTargetBadge').textContent = mode==='contest'?'投稿到：會員照片比賽':'發佈到：社群媒體';
       document.getElementById('postText').placeholder = mode==='contest'?'可直接上傳照片投稿（文字可省略）':'分享露營心得...';
       document.getElementById('postModal').style.display='flex';
+      const submitBtn=document.getElementById('postSubmitBtn');
+      if(submitBtn){
+        submitBtn.disabled=false;
+        submitBtn.textContent = mode==='contest' ? '送出投稿' : '發佈';
+      }
+      const doneBtn=document.getElementById('postDoneBtn');
+      if(doneBtn) doneBtn.style.display='none';
       showToast(mode==='contest'?'已進入投稿頁':'已進入發文頁');
     }
-    function closePostModal(){ document.getElementById('postModal').style.display='none'; resetUploadProgress(); }
+    function closePostModal(){
+      document.getElementById('postModal').style.display='none';
+      const doneBtn=document.getElementById('postDoneBtn');
+      if(doneBtn) doneBtn.style.display='none';
+      resetUploadProgress();
+    }
+
+    function completePostAction(){
+      const submitBtn=document.getElementById('postSubmitBtn');
+      if(submitBtn) submitBtn.disabled=false;
+      closePostModal();
+      if(postMode==='contest'){
+        openContestModal();
+      }
+    }
 
     async function submitPost(){
       if(!isMember()){ alert('請先登入會員'); return; }
@@ -1309,6 +1331,7 @@
       const file=fileInput && fileInput.files ? (fileInput.files[0] || null) : null;
       const submitBtn=document.getElementById('postSubmitBtn');
       const oldLabel=submitBtn ? submitBtn.textContent : '';
+      let savedOk=false;
 
       if(postMode==='contest' && !file){ alert('請先選擇照片再投稿'); return; }
       if(!text && !file){ alert('請輸入內容或選擇檔案'); return; }
@@ -1332,24 +1355,24 @@
           state.contestEntries.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,imageUrl:url,voteCount:0,createdAt:new Date().toISOString()});
           await saveState();
           renderContestBanner();
-          closePostModal();
-          openContestModal();
-          showToast('投稿成功 ✅');
         }else{
           state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
           await saveState();
           renderFeed();
-          closePostModal();
-          showToast('貼文發佈成功 ✅');
         }
 
         document.getElementById('postText').value='';
         if(fileInput) fileInput.value='';
+        savedOk=true;
+        if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='已儲存'; }
+        const doneBtn=document.getElementById('postDoneBtn');
+        if(doneBtn) doneBtn.style.display='block';
+        showToast('儲存成功，請按下方「完成」✅');
       }catch(err){
         console.error(err);
         alert('發布失敗，請稍後再試');
       }finally{
-        if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent=oldLabel || '發佈'; }
+        if(submitBtn && !savedOk){ submitBtn.disabled=false; submitBtn.textContent=oldLabel || '發佈'; }
         resetUploadProgress();
       }
     }
