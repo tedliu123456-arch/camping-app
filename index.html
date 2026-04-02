@@ -1,12 +1,9 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v99.200（需求整合版）</title>
+  <title>Camping App v40.8.1（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -14,15 +11,14 @@
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif}
-    .container{max-width:1120px;margin:0 auto;padding:12px;padding-top:182px;padding-bottom:86px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease}
-    .card:active{transform:translateY(1px)}
+    .container{max-width:1120px;margin:0 auto;padding:12px;padding-top:180px;padding-bottom:86px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;transition:box-shadow .18s ease,border-color .18s ease}
     .card:hover{box-shadow:0 8px 18px rgba(15,23,42,.08);border-color:#dbe2ea}
     .muted{color:var(--muted);font-size:13px;line-height:1.55}
-    .topbar{position:fixed;top:0;left:0;right:0;z-index:1002;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(15,23,42,.03)}
-    .topbar-inner{max-width:1120px;margin:0 auto;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;transition:background-color .16s ease;padding-left:14px;padding-right:14px}
+    .topbar{position:fixed;top:0;left:0;right:0;z-index:1002;background:#fff;border-bottom:1px solid var(--line)}
+    .topbar-inner{max-width:1120px;margin:0 auto;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;transition:background-color .16s ease}
     .topbar:hover .topbar-inner{background:#f8fbff}
-    .brand{font-weight:900;color:#0f172a;letter-spacing:.25px;transition:color .16s ease,text-shadow .16s ease}
+    .brand{font-weight:900;color:#0f172a;letter-spacing:.2px;transition:color .16s ease,text-shadow .16s ease}
     .topbar:hover .brand{color:#1d4ed8;text-shadow:0 1px 0 rgba(255,255,255,.8)}
     .btn{border:0;background:var(--pri);color:#fff;padding:8px 12px;border-radius:10px;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease}
     .btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(37,99,235,.22)}
@@ -30,50 +26,42 @@
     .btn.ghost:hover{background:#f8fafc;border-color:#94a3b8;box-shadow:0 6px 12px rgba(15,23,42,.10)}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
-    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 13px}
-    .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000;padding-bottom:2px}
-    .tab{border:1.5px solid #d1d5db;background:#fff;color:#111827;padding:9px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 4px 12px rgba(15,23,42,.11);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
-    .tab:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(15,23,42,.15);filter:saturate(1.05)}
-    .tab.active{background:#93c5fd;border-color:#60a5fa;color:#0f172a;transform:translateY(-2px);z-index:2;box-shadow:0 10px 18px rgba(59,130,246,.19),inset 0 1px 0 rgba(255,255,255,.55)}
+    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
+    .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
+    .tab{border:1.5px solid #d1d5db;background:#fff;color:#111827;padding:9px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 4px 12px rgba(15,23,42,.10);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
+    .tab:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(15,23,42,.14);filter:saturate(1.04)}
+    .tab.active{background:#93c5fd;border-color:#60a5fa;color:#0f172a;transform:translateY(-2px);z-index:2}
     .section{display:none}.section.active{display:block}
 
-    .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap;letter-spacing:.35px}
-    .tab-social{border-radius:18px 8px 8px 18px;background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;clip-path:polygon(0 0,84% 0,100% 28%,100% 72%,84% 100%,0 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
-    .tab-mod{margin-left:-1px;border-radius:10px;background:#dcfce7;border-color:#86efac;color:#166534;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
-    .tab-gear{margin-left:-1px;border-radius:10px;background:#fef3c7;border-color:#fcd34d;color:#92400e;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
-    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;background:#fee2e2;border-color:#fca5a5;color:#991b1b;clip-path:polygon(0 28%,12% 0,100% 0,100% 100%,12% 100%,0 72%,8% 50%);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+    .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap;letter-spacing:.2px}
+    .tab-social{border-radius:18px 8px 8px 18px;background:#dbeafe;border-color:#93c5fd;color:#1e3a8a;clip-path:polygon(0 0,84% 0,100% 28%,100% 72%,84% 100%,0 100%)}
+    .tab-mod{margin-left:-1px;border-radius:10px;background:#dcfce7;border-color:#86efac;color:#166534;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
+    .tab-gear{margin-left:-1px;border-radius:10px;background:#fef3c7;border-color:#fcd34d;color:#92400e;clip-path:polygon(0 28%,12% 0,84% 0,100% 28%,100% 72%,84% 100%,12% 100%,0 72%,8% 50%)}
+    .tab-rental{margin-left:-1px;border-radius:8px 18px 18px 8px;background:#fee2e2;border-color:#fca5a5;color:#991b1b;clip-path:polygon(0 28%,12% 0,100% 0,100% 100%,12% 100%,0 72%,8% 50%)}
 
-    .marquee{overflow:hidden;white-space:nowrap;position:relative;border-radius:10px}
+    .marquee{overflow:hidden;white-space:nowrap;position:relative}
     .marquee-track{display:inline-flex;gap:10px;min-width:max-content;animation:marqueeMove 18s linear infinite}
     .marquee-item{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 10px;border-radius:999px;font-size:13px;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease}
     .marquee-item:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(55,48,163,.18);background:#e3e9ff}
     @keyframes marqueeMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative;margin-top:120px;box-shadow:0 10px 22px rgba(37,99,235,.20)}
+    .contest-banner{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:12px;padding:10px;position:relative;margin-top:120px}
     .contest-row{display:flex;gap:10px;overflow:auto;padding-top:8px}
     .contest-card{position:relative;min-width:120px;height:84px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,.5);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
     .contest-card:hover{transform:translateY(-2px);box-shadow:0 10px 18px rgba(15,23,42,.22);border-color:rgba(255,255,255,.9)}
     .contest-card img{width:100%;height:100%;object-fit:cover}
     .contest-vote{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.65);padding:2px 6px;border-radius:999px;font-size:12px;backdrop-filter:blur(2px);border:1px solid rgba(255,255,255,.28)}
-    .contest-upload-btn{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:linear-gradient(135deg,#ffffff,#eef4ff);color:#1e3a8a;border:1px solid rgba(255,255,255,.78);box-shadow:0 8px 16px rgba(15,23,42,.18);font-weight:800;font-size:13px;line-height:1.1}
-    .contest-upload-btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(15,23,42,.22)}
-    .contest-upload-btn .cam-ico{width:20px;height:14px;border:2px solid #2563eb;border-radius:4px;display:inline-block;position:relative;transform:rotate(45deg);background:rgba(255,255,255,.75)}
-    .contest-upload-btn .cam-ico::before{content:'';position:absolute;left:50%;top:50%;width:6px;height:6px;border:2px solid #2563eb;border-radius:50%;transform:translate(-50%,-50%)}
-    .contest-upload-btn .cam-ico::after{content:'';position:absolute;right:2px;top:-5px;width:6px;height:4px;border:2px solid #2563eb;border-bottom:none;border-radius:3px 3px 0 0;background:#fff}
 
-    #feedList{display:flex;flex-direction:column;gap:10px;scroll-snap-type:y proximity}
-    .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;overflow:hidden;scroll-snap-align:start}
+    .feed-item{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
     .feed-item:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,23,42,.10);border-color:#d7dee8}
-    .feed-item.feed-video{padding:8px}
-    .feed-media{width:100%;max-height:340px;object-fit:cover;border-radius:10px;margin-top:8px;background:#000;border:1px solid #d1d5db}
-    .feed-item.feed-video .feed-media{aspect-ratio:9/16;max-height:68vh;object-fit:cover}
-    .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}
+    .feed-media{width:100%;max-height:340px;object-fit:cover;border-radius:10px;margin-top:8px;background:#000}
+    .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
     .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px;transition:background-color .14s ease,color .14s ease}
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
 
-    .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));align-items:start}
-    .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease,transform .14s ease}
-    .card:hover .store-title{color:#1d4ed8;transform:translateX(1px)}
+    .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease}
+    .card:hover .store-title{color:#1d4ed8}
     .store-focus{outline:3px solid #2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
     .store-photos{display:flex;gap:10px;margin-top:8px}
     .store-photo{position:relative;width:calc(50% - 4px);height:100px;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid #d1d5db;background:#f3f4f6;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
@@ -86,18 +74,18 @@
     button:focus-visible,.tab:focus-visible{outline:2px solid #2563eb;outline-offset:2px}
 
     .overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center;z-index:2000}
-    .sheet{width:min(820px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:14px;box-shadow:0 -18px 42px rgba(15,23,42,.28);border:1px solid #e5e7eb;border-bottom:none}
+    .sheet{width:min(820px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;padding:14px;box-shadow:0 -18px 42px rgba(15,23,42,.28)}
     .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eef2f7}
 
-    .contest-grid{display:grid;grid-template-columns:1fr;gap:15px}
+    .contest-grid{display:grid;grid-template-columns:1fr;gap:12px}
     .contest-entry img{width:100%;height:auto;border-radius:12px}
-    .contest-entry-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .contest-entry-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 
     .dm-fab{position:fixed;right:16px;bottom:16px;z-index:1200;background:#0ea5e9}
     .post-fab{position:fixed;right:16px;bottom:62px;z-index:1200}
-    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:#fff;border-top:1px solid #d1d5db;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));align-items:end;backdrop-filter:saturate(1.04)}
-    .bottom-nav button{width:100%;padding:10px 8px;border:1px solid #d1d5db;background:#fff;border-radius:10px;font-weight:700;color:#111827;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease,color .14s ease;letter-spacing:.1px}
-    .bottom-nav button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(15,23,42,.13)}
+    .bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:#fff;border-top:1px solid #d1d5db;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));align-items:end}
+    .bottom-nav button{width:100%;padding:10px 8px;border:1px solid #d1d5db;background:#fff;border-radius:10px;font-weight:700;color:#111827;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease,color .14s ease}
+    .bottom-nav button:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(15,23,42,.12)}
     .bottom-nav button.active{background:#2563eb;color:#fff;border-color:#2563eb}
     .bottom-nav .bn-go{width:100%;height:68px;margin:0 auto;transform:translateY(-6px);font-size:12px;line-height:1.2;font-weight:900;padding:0 8px;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#d6bf9d;color:#4b3a27;border:1px solid #b89c76;box-shadow:0 8px 20px rgba(139,111,78,.25);clip-path:polygon(50% 0%, 100% 36%, 100% 100%, 0% 100%, 0% 36%)}
     .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:14px;z-index:3000;display:none;box-shadow:0 8px 20px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.18);letter-spacing:.2px}
@@ -105,22 +93,6 @@
     .upload-track{height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;border:1px solid #d1d5db}
     .upload-fill{height:100%;width:0%;background:linear-gradient(90deg,#2563eb,#0ea5e9);transition:width .2s ease;box-shadow:0 0 0 1px rgba(255,255,255,.18) inset}
     .dm-thread-active{background:#2563eb !important;color:#fff !important;border-color:#2563eb !important}
-    .dm-layout{display:grid;grid-template-columns:280px 1fr;gap:10px;min-height:56vh}
-    .dm-sidebar{border:1px solid var(--line);border-radius:12px;background:#f8fafc;padding:8px;overflow:auto}
-    .dm-main{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;display:flex;flex-direction:column;min-height:56vh;overflow:hidden}
-    .dm-messages{flex:1;overflow:auto;padding-right:2px;padding-bottom:6px}
-    .dm-input-row{display:flex;gap:6px;margin-top:6px;position:sticky;bottom:0;background:#fff;padding-top:6px;border-top:1px solid #eef2f7}
-    .dm-thread-btn{width:100%;text-align:left;margin:0 0 6px 0;padding:10px;border-radius:12px;display:flex;gap:10px;align-items:flex-start}
-    .dm-avatar{width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1e3a8a;display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 36px}
-    .dm-thread-meta{min-width:0;flex:1}
-    .dm-thread-top{display:flex;justify-content:space-between;gap:8px;font-size:12px}
-    .dm-thread-name{font-weight:700;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .dm-thread-time{color:#6b7280;flex:0 0 auto}
-    .dm-thread-last{font-size:12px;color:#6b7280;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
-    .dm-msg{max-width:85%;padding:8px 10px;border-radius:12px;margin-bottom:6px;font-size:13px;line-height:1.5}
-    .dm-msg.mine{margin-left:auto;background:#dbeafe;color:#0f172a}
-    .dm-msg.other{background:#f3f4f6;color:#1f2937}
-    .dm-main-head{font-weight:700;padding-bottom:8px;border-bottom:1px solid #e5e7eb;margin-bottom:8px}
 
     .admin-wrap{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:980px){.admin-wrap{grid-template-columns:1fr 1fr}}
@@ -135,11 +107,6 @@
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
       .container{padding-bottom:96px}
-      .dm-layout{grid-template-columns:1fr;min-height:52vh}
-      .dm-sidebar{max-height:170px}
-      .dm-main{min-height:46vh;padding:8px}
-      .dm-msg{max-width:92%}
-      .feed-item.feed-video .feed-media{max-height:60vh}
     }
 
     /* 私訊與發文改為全頁 */
@@ -174,31 +141,29 @@
       </div>
 
       <div id="contestBanner" class="card contest-banner">
-        <div style="display:flex;justify-content:flex-end;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px">
-          <button id="contestPostBtnTop" class="btn contest-upload-btn" onclick="openPostModal('contest')"><span class="cam-ico"></span><span>我要投稿</span></button>
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">
+          <div style="font-weight:800">📸 會員照片比賽（社群首頁限定）</div>
+          <button class="btn" onclick="openPostModal('contest')">📷 我要投稿</button>
         </div>
-        <div id="contestThemeTitle" style="font-weight:800;margin-top:6px">每月主題｜我的露營早晨</div>
-
+        <div class="muted" style="color:#dbeafe">每位會員每日 2 票，不可重複投同一作品；12:10 刷新</div>
         <div id="contestBannerList" class="contest-row"></div>
       </div>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div style="font-weight:800">社群貼文</div>
-          <button id="socialPostBtnTop" class="btn" onclick="openPostModal('social')">＋ 發文</button>
+          <button class="btn" onclick="openPostModal('social')">＋ 發文</button>
         </div>
         <div id="feedList" style="margin-top:10px"></div>
-        <div id="guestPhotoWall" style="margin-top:10px"></div>
       </div>
     </section>
 
     <section id="sec-campsite" class="section">
       <div class="card">
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <div style="font-weight:800">營地搜尋</div>
+          <div style="font-weight:800">營地搜尋（591 風格）</div>
           <input id="campSearch" placeholder="輸入地區/關鍵字（例：靠海、親子、夜景）" style="max-width:320px" />
           <button class="btn ghost" onclick="openGoogleMapSearch()">Google Maps 搜尋</button>
-          <button id="campAdminAddBtn" class="btn" style="display:none" onclick="openAdminCampsiteModal('create')">＋ 新增營區</button>
         </div>
       </div>
       <div id="campsiteList" class="store-grid"></div>
@@ -241,7 +206,6 @@
       <div class="field"><label>性別</label><select id="pf-gender"><option value="">未設定</option><option>男</option><option>女</option><option>其他</option></select></div>
       <div class="field"><label>喜歡露營方式</label><input id="pf-style" placeholder="例如：車宿、搭帳、親子露營" /><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn ghost" type="button" onclick="addProfileStyleTag('車宿')">車宿</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('搭帳')">搭帳</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('親子露營')">親子露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('野營')">野營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('機車露營')">機車露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('單人露營')">單人露營</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('溯溪')">溯溪</button><button class="btn ghost" type="button" onclick="addProfileStyleTag('其他')">其他</button></div></div>
       <div class="field"><label>露營次數</label><div style="display:flex;gap:6px;align-items:center"><button class="btn ghost" type="button" onclick="adjustProfileCount(-1)">－</button><input id="pf-count" type="number" inputmode="numeric" min="0" step="1" placeholder="例如：12" oninput="sanitizeProfileCount()" /><button class="btn ghost" type="button" onclick="adjustProfileCount(1)">＋</button></div><div class="muted">僅能輸入數字</div></div>
-      <div class="field"><label>我的打卡</label><div id="pf-checkin-info" class="muted">尚未打卡</div><button class="btn ghost" type="button" style="margin-top:6px" onclick="doCheckIn()">📍 打卡</button></div>
       <button class="btn" onclick="saveProfile()">儲存個人資料</button>
     </div>
   </div>
@@ -250,7 +214,6 @@
     <div class="sheet">
       <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
-      <div id="postCheckInField" class="field" style="margin-top:8px"><label>打卡地點（GPS 單一定位，可選附近名稱）</label><div style="display:flex;gap:6px;align-items:center"><select id="postCheckInChoice" onchange="applyCheckInChoice()"><option value="">尚未定位，先按定位</option></select><button class="btn ghost" type="button" onclick="captureCheckInLocation()">定位</button></div><div id="postCheckInMeta" class="muted">定位後可從下拉選單選擇附近地標名稱</div></div>
       <div class="field" style="margin-top:8px"><textarea id="postText" rows="4" placeholder="分享露營心得..."></textarea></div>
       <div class="field"><label>照片或影片</label><input id="postFile" type="file" accept="image/*,video/*" /></div>
       <div id="uploadProgress" class="upload-progress">
@@ -264,10 +227,9 @@
   <div id="contestModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">會員照片比賽</h3><button class="btn ghost" onclick="closeContestModal()">關閉</button></div>
-      <div id="contestModalTheme" style="font-weight:700"></div>
       <div id="voteHint" class="muted"></div>
       <div id="contestEntries" class="contest-grid" style="margin-top:10px"></div>
-      <div style="margin-top:10px"><button id="contestPostBtnModal" class="btn contest-upload-btn" onclick="openPostModal('contest')"><span class="cam-ico"></span><span>我要投稿</span></button></div>
+      <div style="margin-top:10px"><button class="btn" onclick="openPostModal('contest')">📷 我要投稿</button></div>
     </div>
   </div>
 
@@ -285,26 +247,6 @@
       <div id="storeDetailMeta" class="muted" style="margin-bottom:8px"></div>
       <div id="storeDetailBody" style="line-height:1.7"></div>
       <div id="storeGalleryGrid" class="store-grid" style="margin-top:10px"></div>
-    </div>
-  </div>
-
-  <div id="adminCampsiteModal" class="overlay" onclick="if(event.target===this) closeAdminCampsiteModal()">
-    <div class="sheet" onclick="event.stopPropagation()">
-      <div class="sheet-head"><h3 id="adminCampsiteTitle" style="margin:0">新增營區</h3><button class="btn ghost" onclick="closeAdminCampsiteModal()">關閉</button></div>
-      <div class="field"><label>營區名稱</label><input id="ac-name" /></div>
-      <div class="field"><label>地址</label><input id="ac-addr" /></div>
-      <div class="field"><label>營業時間</label><input id="ac-hours" /></div>
-      <div class="field"><label>聯絡方式</label><input id="ac-contact" /></div>
-      <div class="field"><label>海拔</label><input id="ac-elevation" /></div>
-      <div class="field"><label>總帳數</label><input id="ac-tentCount" /></div>
-      <div class="field"><label>營區大小 / 分區</label><input id="ac-zones" /></div>
-      <div class="field"><label>標記（多個用 | 分隔）</label><input id="ac-features" placeholder="例如：親子|夜景|高海拔" /></div>
-      <div class="field"><label>營區照片（手機/電腦選取）</label><input id="ac-photo-files" type="file" accept="image/*" multiple /><div id="ac-photo-hint" class="muted">可一次選多張照片，儲存後自動上傳</div></div>
-      <div class="field"><label>描述</label><textarea id="ac-desc" rows="3"></textarea></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="ac-save-btn" class="btn ok" onclick="saveAdminCampsiteModal()">儲存</button>
-        <button id="ac-delete-btn" class="btn ghost" style="display:none" onclick="deleteAdminCampsiteModal()">刪除此營區</button>
-      </div>
     </div>
   </div>
 
@@ -330,10 +272,8 @@
   <div id="dmModal" class="overlay">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">私訊</h3><button class="btn ghost" onclick="closeDM()">返回</button></div>
-      <div class="dm-layout">
-        <div id="dmThreads" class="dm-sidebar muted">尚無對話，請到商家卡片按「私訊商家」。</div>
-        <div id="dmComposer" class="dm-main" style="display:none"></div>
-      </div>
+      <div id="dmThreads" class="muted">尚無對話，請到商家卡片按「私訊商家」。</div>
+      <div id="dmComposer" style="display:none;margin-top:10px"></div>
     </div>
   </div>
 
@@ -341,7 +281,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     const FIREBASE_CONFIGS = {
       dev: {
@@ -367,9 +306,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const LOCAL_STATE_KEY = 'camping-main-local-v1';
-    const CLOUD_UPLOAD_ROOT = 'uploads';
-    const APP_VERSION = '99.200';
+    const APP_VERSION = '40.8.1';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -386,7 +323,7 @@
 
     const state = {
       activeTab:'social',
-      user:{id:'guest',accountKey:null,name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:'',lastCheckInAt:'',checkInCount:0}},
+      user:{id:'guest',accountKey:null,name:'訪客',mode:'guest',provider:null,profile:{gender:'',style:'',count:'',avatar:''}},
       announcements:[
         {id:'a0',title:'🔥 限時 20 折優惠中！',detail:'指定商家會員方案現在 20% OFF，詳情請私訊商家。',text:'🔥 限時 20 折優惠中！指定商家會員方案現在 20% OFF',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
         {id:'a1',title:'本週會員照片比賽開放投稿！',detail:'歡迎會員投稿照片參賽，每日每位會員2票。',text:'本週會員照片比賽開放投稿！',merchantId:'system',merchantName:'平台公告',createdAt:new Date().toISOString()},
@@ -401,8 +338,6 @@
         {account:'user002',password:'123456',name:'測試會員B'}
       ],
       adminAccount:{account:'admin',password:ADMIN_PASSWORD},
-      contestTheme:{title:'本月主題：我的露營早晨',description:'請上傳符合主題的照片，通過管理員審核後才會上架投票。',updatedAt:new Date().toISOString()},
-      contestPending:[],
       dmThreads:[]
     };
 
@@ -452,19 +387,19 @@
     function defaultSeed(){
       if(state.stores.length) return;
       state.stores = [
+        {id:uid(),category:'campsite',name:'海風營地',address:'花蓮縣壽豐鄉',hours:'08:00-22:00',contact:'03-1234567',website:'',isMember:true,ownerMerchantId:'m001',description:'靠海、夜景、親子友善',features:['親子','靠海','夜景'],tentCount:60,zones:'A區/B區',elevation:'120m',accessibleVehicles:'轎車/SUV/露營車'},
         {id:uid(),category:'gear',name:'野行裝備店',address:'台中市西屯區',hours:'10:00-21:00',contact:'04-7654321',website:'',isMember:true,ownerMerchantId:'m002',description:'露營用品齊全'},
         {id:uid(),category:'mod',name:'VanPro 改裝',address:'新北市三重區',hours:'09:00-18:00',contact:'02-77778888',website:'',isMember:true,ownerMerchantId:'m003',description:'露營車改裝與客製',specialModels:'Hiace / Transit / Sprinter'},
         {id:uid(),category:'rental',name:'GoCamp 租車',address:'台北市南港區',hours:'09:00-20:00',contact:'02-66667777',website:'',isMember:true,ownerMerchantId:'m004',description:'露營車出租',vehicleTypes:'4人露營車 / 6人露營車 / 箱型露營車',pickupLocation:'台北南港站'}
       ];
       state.merchantAccounts = [
-        {merchantId:'m002',password:'123456',storeId:state.stores[0].id,enabled:true},
-        {merchantId:'m003',password:'123456',storeId:state.stores[1].id,enabled:true},
-        {merchantId:'m004',password:'123456',storeId:state.stores[2].id,enabled:true},
+        {merchantId:'m001',password:'123456',storeId:state.stores[0].id,enabled:true},
+        {merchantId:'m002',password:'123456',storeId:state.stores[1].id,enabled:true},
+        {merchantId:'m003',password:'123456',storeId:state.stores[2].id,enabled:true},
+        {merchantId:'m004',password:'123456',storeId:state.stores[3].id,enabled:true},
       ];
       state.posts = [
         {id:uid(),authorId:'sys',authorName:'露營小編',text:'歡迎來到社群首頁，分享你的露營照片吧！',mediaType:null,mediaUrl:null,likes:[],comments:[],createdAt:new Date().toISOString()},
-        {id:uid(),authorId:'sys',authorName:'露營小編',text:'今日精選照片（訪客可看）',mediaType:'image',mediaUrl:'https://picsum.photos/seed/feed1/1200/800',likes:[],comments:[],createdAt:new Date().toISOString()},
-        {id:uid(),authorId:'sys',authorName:'露營小編',text:'山系露營風格（訪客可看）',mediaType:'image',mediaUrl:'https://picsum.photos/seed/feed2/1200/800',likes:[],comments:[],createdAt:new Date().toISOString()},
       ];
       state.contestEntries = [
         {id:uid(),authorId:'sys',authorName:'會員A',imageUrl:'https://picsum.photos/seed/c1/1000/700',voteCount:12,createdAt:new Date().toISOString()},
@@ -475,6 +410,7 @@
     function ensureTestData(){
       let changed = false;
       const cfg = {
+        campsite: {prefix:'營地', area:'南投縣', desc:'親子、夜景、可車宿', hours:'08:00-22:00'},
         mod: {prefix:'改裝廠', area:'新北市', desc:'露營車改裝與客製', hours:'09:00-18:00'},
         gear: {prefix:'用品店', area:'台中市', desc:'露營用品與裝備', hours:'10:00-21:00'},
         rental: {prefix:'租車商家', area:'台北市', desc:'露營車出租', hours:'09:00-20:00'}
@@ -515,9 +451,8 @@
         }
       });
 
-      // 營地保留既有照片；其他類別無照片時補展示圖
+      // 補齊商家展示照片
       (state.stores||[]).forEach((st,idx)=>{
-        if(st.category==='campsite') return;
         if(!Array.isArray(st.photos) || st.photos.length===0){
           st.photos = [
             `https://picsum.photos/seed/${st.category}-${idx+1}-1/900/600`,
@@ -564,73 +499,6 @@
       return changed;
     }
 
-    function mergeTaichungCampsites(rows=[]){
-      // 只新增 Taichung 營地，不覆蓋使用者自己新增的營地
-      const userCampsites = (state.stores||[]).filter(s=>s.category==='campsite' && s._userAdded);
-      const userNames = new Set(userCampsites.map(s=>s.name));
-      let changed = false;
-      rows.forEach(r=>{
-        const name = String(r.name||'').trim();
-        if(!name) return;
-        // 跳过使用者已新增的營地
-        if(userNames.has(name)) return;
-        const ex = state.stores.find(s=>s.category==='campsite' && s.name===name);
-        const payload = {
-          category:'campsite',
-          name,
-          address:String(r.address||'').trim(),
-          contact:String(r.contact||'').trim(),
-          description:String(r.description||'').trim() || '台中露營區資料',
-          elevation:String(r.elevation||'').trim(),
-          tentCount:String(r.total_sites||'').trim(),
-          zones:String(r.camp_size||'').trim(),
-          sourceUrl:String(r.source_url||r.sourceUrl||'').trim(),
-          hours:String(r.hours||'').trim(),
-          website:String(r.website||'').trim(),
-          isMember:false
-        };
-        if(ex){
-          Object.assign(ex, {
-            ...ex,
-            ...payload,
-            photos: Array.isArray(ex.photos) ? ex.photos : []
-          });
-          changed = true;
-        }else{
-          state.stores.push({id:uid(), _userAdded: true, ...payload, photos:[]});
-          changed = true;
-        }
-      });
-      return changed;
-    }
-
-    function cleanupLegacyCampsites(){
-      const before = (state.stores||[]).length;
-      state.stores = (state.stores||[]).filter(s=>{
-        if(s.category!=='campsite') return true;
-        const name = String(s.name||'').trim();
-        if(!name) return false;
-        if(name==='海風營地') return false;
-        if(/^營地\d+$/.test(name)) return false;
-        return true;
-      });
-      return (state.stores||[]).length !== before;
-    }
-
-    async function loadBundledTaichungCampsites(){
-      try{
-        const res = await fetch('./data/taichung-campsites.json', {cache:'no-store'});
-        if(!res.ok) return;
-        const data = await res.json();
-        const rows = Array.isArray(data) ? data : (data.rows||[]);
-        if(!Array.isArray(rows) || !rows.length) return;
-        const changed = mergeTaichungCampsites(rows);
-        if(changed) await saveState();
-      }catch(e){
-        console.warn('load bundled taichung campsites fail', e);
-      }
-    }
-
     async function initFirebase(){
       try{
         const cfg = FIREBASE_CONFIGS[APP_ENV] || FIREBASE_CONFIGS.prod;
@@ -645,13 +513,6 @@
         db = app.firestore();
         storage = app.storage();
         auth = app.auth();
-        try{
-          if(auth && !auth.currentUser){
-            await auth.signInAnonymously();
-          }
-        }catch(e){
-          console.warn('anonymous auth failed', e);
-        }
       }catch(e){ console.warn('firebase init fallback', e); }
     }
 
@@ -677,196 +538,42 @@
       });
     }
 
-    function applyStateSnapshot(d={}){
-      state.announcements = d.announcements || state.announcements;
-      state.posts = d.posts || state.posts;
-      state.contestEntries = d.contestEntries || state.contestEntries;
-      state.contestTheme = d.contestTheme || state.contestTheme;
-      state.contestPending = d.contestPending || state.contestPending;
-      state.stores = d.stores || state.stores;
-      state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
-      state.memberAccounts = d.memberAccounts || state.memberAccounts;
-      state.adminAccount = d.adminAccount || state.adminAccount;
-      state.dmThreads = d.dmThreads || state.dmThreads;
-    }
-
-    function stateSnapshot(){
-      const raw = {
-        announcements:state.announcements,
-        posts:state.posts,
-        contestEntries:state.contestEntries,
-        contestTheme:state.contestTheme,
-        contestPending:state.contestPending,
-        stores:state.stores,
-        merchantAccounts:state.merchantAccounts,
-        memberAccounts:state.memberAccounts,
-        adminAccount:state.adminAccount,
-        dmThreads:state.dmThreads,
-        updatedAt:new Date().toISOString()
-      };
-      // 以 JSON 序列化移除 undefined / function / 稀疏陣列洞，避免 Firestore 拒寫
-      return JSON.parse(JSON.stringify(raw));
-    }
-
-    const IDB_NAME = 'camping-local-db';
-    const IDB_STORE = 'kv';
-    const IDB_STATE_KEY = 'app-state';
-
-    function openLocalDb(){
-      return new Promise((resolve,reject)=>{
-        const req = indexedDB.open(IDB_NAME, 1);
-        req.onupgradeneeded = ()=>{
-          const db = req.result;
-          if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
-        };
-        req.onsuccess = ()=>resolve(req.result);
-        req.onerror = ()=>reject(req.error);
-      });
-    }
-
-    async function idbGetState(){
-      try{
-        const db = await openLocalDb();
-        return await new Promise((resolve,reject)=>{
-          const tx = db.transaction(IDB_STORE, 'readonly');
-          const st = tx.objectStore(IDB_STORE);
-          const req = st.get(IDB_STATE_KEY);
-          req.onsuccess = ()=>resolve(req.result || null);
-          req.onerror = ()=>reject(req.error);
-        });
-      }catch{ return null; }
-    }
-
-    async function idbSetState(val){
-      try{
-        const db = await openLocalDb();
-        await new Promise((resolve,reject)=>{
-          const tx = db.transaction(IDB_STORE, 'readwrite');
-          const st = tx.objectStore(IDB_STORE);
-          st.put(val, IDB_STATE_KEY);
-          tx.oncomplete = ()=>resolve(true);
-          tx.onerror = ()=>reject(tx.error);
-        });
-      }catch(e){
-        console.warn('idb save fail', e);
-      }
-    }
-
-    async function loadLocalState(){
-      let idbVal = null;
-      let lsVal = null;
-      let idbError = null;
-      let lsError = null;
-      
-      // 嘗試讀取 IndexedDB
-      try{
-        idbVal = await idbGetState();
-      }catch(e){ idbError = e.message; }
-      
-      // 嘗試讀取 localStorage
-      try{
-        const raw = localStorage.getItem(LOCAL_STATE_KEY);
-        if(raw) lsVal = JSON.parse(raw);
-      }catch(e){ lsError = e.message; }
-      
-      
-      
-      if(idbError && lsError){
-        console.warn('both storage failed', idbError, lsError);
-        return false;
-      }
-      
-      // 比較時間戳記，選擇較新的資料
-      const idbTime = idbVal?.updatedAt ? new Date(idbVal.updatedAt).getTime() : 0;
-      const lsTime = lsVal?.updatedAt ? new Date(lsVal.updatedAt).getTime() : 0;
-      
-      const target = (idbTime >= lsTime) ? idbVal : lsVal;
-      
-      if(target){
-        
-        applyStateSnapshot(target);
-        normalizeAnnouncements();
-        window.__localStateUpdatedAt = target?.updatedAt || '';
-        return true;
-      }
-      return false;
-    }
-
-    async function saveLocalState(){
-      const snap = stateSnapshot();
-      
-      try{ 
-        localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(snap));
-        
-        const check = localStorage.getItem(LOCAL_STATE_KEY);
-        
-      }
-      catch(e){ console.warn('save local state fail', e); }
-      await idbSetState(snap);
-    }
-
     async function loadState(){
-      // 僅用本地儲存，雲端讀取暫時禁用
-      const hasLocal = await loadLocalState();
-      const csCount = (state.stores||[]).filter(x=>x.category==='campsite').length;
-      console.log('loadState: ' + csCount + ' campsites loaded');
-      
-      // 標記使用者新增的營地
-      (state.stores||[]).forEach(s=>{
-        if(s.category==='campsite' && !s._userAdded && s.name && !s.name.includes('營地') && !s.name.includes('露營區')){
-          s._userAdded = true;
+      defaultSeed();
+      if(!db){ ensureTestData(); return; }
+      try{
+        const doc = await db.collection('apps').doc(APP_DOC).get();
+        if(doc.exists){
+          const d = doc.data() || {};
+          state.announcements = d.announcements || state.announcements;
+          state.posts = d.posts || state.posts;
+          state.contestEntries = d.contestEntries || state.contestEntries;
+          state.stores = d.stores || state.stores;
+          state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
+          state.memberAccounts = d.memberAccounts || state.memberAccounts;
+          state.adminAccount = d.adminAccount || state.adminAccount;
+          state.dmThreads = d.dmThreads || state.dmThreads;
         }
-      });
-      
-      normalizeAnnouncements();
+        normalizeAnnouncements();
+        if(ensureTestData()){ await saveState(); }
+      }catch(e){ console.warn('load fail',e); }
     }
 
     async function saveState(){
-      // 僅用本地儲存（IndexedDB + localStorage），雲端同步暫時禁用
-      await saveLocalState();
-      console.log('saved to local only');
-    }
-
-    async function prepareUploadFile(file){
-      if(!file) return file;
-      if(!String(file.type||'').startsWith('image/')) return file;
+      if(!db) return;
       try{
-        const img = await new Promise((resolve,reject)=>{
-          const u = URL.createObjectURL(file);
-          const im = new Image();
-          im.onload = ()=>{ URL.revokeObjectURL(u); resolve(im); };
-          im.onerror = (e)=>{ URL.revokeObjectURL(u); reject(e); };
-          im.src = u;
-        });
-        const maxSide = 1600;
-        const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-        const w = Math.max(1, Math.round(img.width * scale));
-        const h = Math.max(1, Math.round(img.height * scale));
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        const ctx = c.getContext('2d');
-        if(!ctx) return file;
-        ctx.drawImage(img,0,0,w,h);
-        const blob = await new Promise(res=>c.toBlob(res,'image/jpeg',0.82));
-        if(!blob) return file;
-        return new File([blob], (file.name||'photo').replace(/\.[^.]+$/,'') + '.jpg', {type:'image/jpeg'});
-      }catch{
-        return file;
-      }
-    }
-
-    async function fileToDataUrl(file){
-      return await new Promise((resolve,reject)=>{
-        const reader = new FileReader();
-        reader.onload = ()=>resolve(String(reader.result||''));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function buildStoragePath(folder, safeName){
-      const clean = String(folder||'misc').replace(/^\/+|\/+$/g,'');
-      return `${CLOUD_UPLOAD_ROOT}/${clean}/${safeName}`;
+        await db.collection('apps').doc(APP_DOC).set({
+          announcements:state.announcements,
+          posts:state.posts,
+          contestEntries:state.contestEntries,
+          stores:state.stores,
+          merchantAccounts:state.merchantAccounts,
+          memberAccounts:state.memberAccounts,
+          adminAccount:state.adminAccount,
+          dmThreads:state.dmThreads,
+          updatedAt:new Date().toISOString()
+        }, {merge:true});
+      }catch(e){ console.warn('save fail',e); }
     }
 
     async function uploadFile(file, folder, onProgress){
@@ -885,10 +592,10 @@
 
       try{
         const safeName = `${Date.now()}-${(file.name||'upload').replace(/\s+/g,'-')}`;
-        const ref = storage.ref().child(buildStoragePath(folder, safeName));
+        const ref = storage.ref().child(`${folder}/${safeName}`);
 
         // 上傳逾時保護：12 秒內沒完成就走備援，避免 UI 無限卡住
-        const timeoutMs = 30000;
+        const timeoutMs = 12000;
         const putTask = ref.put(file);
         putTask.on('state_changed', snap => {
           if(!onProgress) return;
@@ -913,37 +620,6 @@
         console.warn('upload fallback',e);
         if(onProgress) onProgress(100);
         return localFallback();
-      }
-    }
-
-    async function uploadFileForPersist(file, folder, onProgress){
-      if(!file || !storage) return null;
-      try{
-        const readyFile = await prepareUploadFile(file);
-        const safeName = `${Date.now()}-${(readyFile.name||'upload').replace(/\s+/g,'-')}`;
-        const ref = storage.ref().child(buildStoragePath(folder, safeName));
-        const timeoutMs = 15000;
-        const putTask = ref.put(readyFile);
-        putTask.on('state_changed', snap => {
-          if(!onProgress) return;
-          const total = snap.totalBytes || 1;
-          const percent = Math.min(99, Math.floor((snap.bytesTransferred / total) * 100));
-          onProgress(percent);
-        });
-        await Promise.race([
-          putTask,
-          new Promise((_, reject)=>setTimeout(()=>reject(new Error('upload-timeout')), timeoutMs))
-        ]);
-        const url = await Promise.race([
-          ref.getDownloadURL(),
-          new Promise((_, reject)=>setTimeout(()=>reject(new Error('url-timeout')), timeoutMs))
-        ]);
-        if(onProgress) onProgress(100);
-        return (url && !String(url).startsWith('blob:')) ? url : null;
-      }catch(e){
-        console.warn('persist upload fail', e);
-        if(onProgress) onProgress(100);
-        return null;
       }
     }
 
@@ -977,31 +653,6 @@
       const menuLogout = document.getElementById('userMenuLogout');
       if(menuProfile) menuProfile.style.display = isMember() ? 'block' : 'none';
       if(menuLogout) menuLogout.style.display = loggedIn ? 'block' : 'none';
-
-      // 訪客可瀏覽全部資訊，但不可發文/投稿/私訊/評論
-      const memberOnly = !isMember();
-      const dmOnly = !canMessage();
-      const postBtns = ['socialPostBtnTop','contestPostBtnTop','contestPostBtnModal'];
-      postBtns.forEach(id=>{
-        const b=document.getElementById(id);
-        if(!b) return;
-        b.disabled = memberOnly;
-        b.style.opacity = memberOnly ? '0.55' : '1';
-      });
-      const bottomPostBtn=document.getElementById('bn-post');
-      if(bottomPostBtn){
-        bottomPostBtn.disabled = false;
-        bottomPostBtn.style.opacity = memberOnly ? '0.75' : '1';
-      }
-      const dmBtn=document.getElementById('bn-dm');
-      if(dmBtn){
-        dmBtn.disabled = false;
-        dmBtn.style.opacity = dmOnly ? '0.75' : '1';
-      }
-      const campAdminAddBtn = document.getElementById('campAdminAddBtn');
-      if(campAdminAddBtn){
-        campAdminAddBtn.style.display = state.user.mode==='admin' ? 'inline-flex' : 'none';
-      }
     }
 
     function renderAnnouncements(){
@@ -1043,14 +694,11 @@
 
     function renderContestBanner(){
       const list = document.getElementById('contestBannerList');
-      const themeTitle = document.getElementById('contestThemeTitle');
-      if(themeTitle) themeTitle.textContent = `每月主題｜${state.contestTheme?.title || '未設定'}`;
-      const ranked = rankedContest();
-      list.innerHTML = ranked.slice(0,8).map(e=>`
+      list.innerHTML = rankedContest().slice(0,8).map(e=>`
         <div class="contest-card" onclick="openContestModal()">
           <img src="${e.imageUrl}" alt="contest" />
           <div class="contest-vote">❤️ ${e.voteCount||0}</div>
-        </div>`).join('') || `<div class='muted' style='padding:8px 0'>目前還沒有通過審核的作品</div>`;
+        </div>`).join('');
     }
 
     function renderFeed(){
@@ -1058,23 +706,11 @@
       el.innerHTML = state.posts.map(p=>{
         const liked = (p.likes||[]).includes(state.user.id);
         const likeDisabled = !isMember() || liked;
-        const geo = p.checkInGeo || null;
-        const checkIns = Array.isArray(p.checkInLocations) ? p.checkInLocations.filter(Boolean) : [];
-        let checkInHtml = '';
-        if(geo && typeof geo.lat==='number' && typeof geo.lng==='number'){
-          const lat = Number(geo.lat).toFixed(6);
-          const lng = Number(geo.lng).toFixed(6);
-          const label = (geo.label||'目前位置附近地標').trim();
-          checkInHtml = `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'><a class='pill' href='https://www.google.com/maps/search/?api=1&query=${lat},${lng}' target='_blank' rel='noopener'>📍 ${label}</a></div>`;
-        }else if(checkIns.length){
-          checkInHtml = `<div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'>${checkIns.map(loc=>`<a class='pill' href='https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}' target='_blank' rel='noopener'>📍 ${loc}</a>`).join('')}</div>`;
-        }
-        return `<div class="feed-item ${p.mediaType==='video'?'feed-video':''}">
+        return `<div class="feed-item">
           <div style="display:flex;justify-content:space-between"><b>${p.authorName}</b><span class="muted">${new Date(p.createdAt).toLocaleString()}</span></div>
-          ${checkInHtml}
           <div style="margin-top:8px">${p.text||''}</div>
           ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
-          ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline preload="metadata"></video>`:''}
+          ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
           <div class="actions">
             <button class="btn ghost" ${likeDisabled?'disabled':''} onclick="likePost('${p.id}')">❤️ ${(p.likes||[]).length}</button>
             <button class="btn ghost" onclick="togglePostComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
@@ -1089,40 +725,6 @@
           </div>
         </div>`;
       }).join('');
-    }
-
-    function renderGuestPhotoWall(){
-      const wall = document.getElementById('guestPhotoWall');
-      if(!wall) return;
-      if(isMember()){
-        wall.innerHTML='';
-        return;
-      }
-      const fromPosts = (state.posts||[])
-        .filter(p=>p.mediaType==='image' && p.mediaUrl)
-        .slice(0,6)
-        .map(p=>({url:p.mediaUrl,label:p.authorName||'會員照片'}));
-      const fromContest = (state.contestEntries||[])
-        .filter(e=>e.imageUrl)
-        .slice(0,6)
-        .map(e=>({url:e.imageUrl,label:e.authorName||'比賽照片'}));
-      const fromStores = (state.stores||[])
-        .reduce((acc, st)=>{
-          const arr = (st.photos||[]).slice(0,1).map(u=>({url:u,label:st.name||'商家照片'}));
-          return acc.concat(arr);
-        },[])
-        .slice(0,6);
-
-      let photos = [...fromPosts, ...fromContest, ...fromStores].filter(x=>x.url).slice(0,9);
-      if(!photos.length){
-        photos = Array.from({length:6}).map((_,i)=>({url:'',label:`示意照片 ${i+1}`}));
-      }
-
-      wall.innerHTML = `
-        <div class='muted' style='margin-bottom:6px'>訪客可瀏覽照片（登入後可發文、評論、私訊）</div>
-        <div style='display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px'>
-          ${photos.map(p=>`<div style='border:1px solid #d1d5db;border-radius:10px;overflow:hidden;background:#fff'>${p.url?`<img src='${p.url}' alt='photo' style='width:100%;height:110px;object-fit:cover' onerror="this.outerHTML='<div style=\'height:110px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dbeafe,#f0f9ff);color:#6b7280\'>照片載入中</div>'"/>`:`<div style='height:110px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#dbeafe,#f0f9ff);color:#6b7280'>照片示意</div>`}<div class='muted' style='padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis'>${p.label}</div></div>`).join('')}
-        </div>`;
     }
 
     function storeCard(s){
@@ -1144,7 +746,6 @@
         ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
         ${photos.length>2?`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
       </div>` : '';
-      const adminCampsiteActions = (state.user.mode==='admin' && s.category==='campsite') ? `<div class='actions' style='margin-top:6px'><button class='btn' onclick="openAdminCampsiteModal('edit','${s.id}')">✏️ 編輯</button><button class='btn ghost' onclick="adminDeleteCampsiteInline('${s.id}')">🗑️ 刪除</button></div>` : '';
       return `<div id="store-${s.id}" class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
         <div class="muted">${s.address||''}</div>
@@ -1156,10 +757,9 @@
         ${campsiteExtra}
         ${modExtra}
         ${rentalExtra}
-        ${adminCampsiteActions}
         <div class="actions">
           <button class="btn ghost" onclick="openStoreDetail('${s.id}')">完整資料</button><button class="btn ghost" onclick="openMapTo('${encodeURIComponent(s.address||s.name)}')">地圖</button>
-          <button class="btn ghost" ${!isMember()?'disabled':''} onclick="contactStore('${s.id}')">私訊商家</button>
+          <button class="btn ghost" onclick="contactStore('${s.id}')">私訊商家</button>
         </div>
         <div style="margin-top:8px">
           <div class="muted">評論 ${comments.length}</div>
@@ -1203,11 +803,8 @@
 
     function renderContestModal(){
       const v = voteState();
-      const entries = rankedContest();
-      const themeLine = document.getElementById('contestModalTheme');
-      if(themeLine) themeLine.textContent = state.contestTheme?.title || '本月主題：未設定';
       document.getElementById('voteHint').textContent = `今日剩餘票數：${Math.max(0,2-(v.count||0))}（會員每天2票，不可重複）`;
-      document.getElementById('contestEntries').innerHTML = entries.map(e=>{
+      document.getElementById('contestEntries').innerHTML = rankedContest().map(e=>{
         const voted=(v.voted||[]).includes(e.id);
         const disabled = !isMember() || voted || (v.count||0)>=2;
         return `<div class='contest-entry card' style='margin:0'>
@@ -1217,7 +814,7 @@
             <button class='btn' ${disabled?'disabled':''} onclick="voteContest('${e.id}')">${voted?'已投票':'投票'}</button>
           </div>
         </div>`;
-      }).join('') || `<div class='muted'>目前尚無通過審核的作品，歡迎先投稿。</div>`;
+      }).join('');
     }
 
     function renderMerchantEditor(account){
@@ -1272,7 +869,6 @@
         <div class='field'><label>取車處（出租用）</label><input id='ad-pickup' placeholder='例如：台北南港站' /></div>
         <div class='field'><label>描述</label><textarea id='ad-desc'></textarea></div>
         <button class='btn ok' onclick='addStoreByAdmin()'>新增商家</button>
-
         <hr/>
         <div style='font-weight:700'>開通商家會員帳號</div>
         <div class='field'><label>商家 ID</label><input id='ad-mid' placeholder='m1001' /></div>
@@ -1280,127 +876,36 @@
         <div class='field'><label>綁定店鋪 ID</label><input id='ad-sid' placeholder='storeId' /></div>
         <button class='btn' onclick='createMerchantAccount()'>開通帳號</button>
         <hr/>
-        <div style='font-weight:700'>照片比賽主題設定</div>
-        <div class='field'><label>主題標題（前台顯示）</label><input id='ad-contest-theme' value='${state.contestTheme?.title||''}' /></div>
-        <div class='field'><label>主題說明</label><textarea id='ad-contest-desc' rows='2'>${state.contestTheme?.description||''}</textarea></div>
-        <button class='btn' onclick='saveContestThemeByAdmin()'>儲存主題</button>
-        <hr/>
-        <div style='font-weight:700'>投稿審核（待審：${(state.contestPending||[]).length}）</div>
-        <div id='ad-contest-review'>${renderContestReviewRows()}</div>
-        <hr/>
-        <div style='font-weight:700'>Excel 匯出（固定檔名）</div>
-        <div class='muted'>每次新增/修改/刪除後會自動更新並下載同一個檔名：camping-app-data.xlsx</div>
-        <button class='btn ghost' style='margin-top:6px' onclick="downloadDataExcel('camping-app-data.xlsx')">立即下載固定檔名 Excel</button>
-        <hr/>
         <div style='font-weight:700'>資料匯出</div>
         <button class='btn ghost' onclick='exportAllData()'>匯出所有資料（JSON）</button>
       `;
     }
 
-    function renderContestReviewRows(){
-      const rows = (state.contestPending||[]).map(e=>`
-        <div class='card' style='margin:8px 0;padding:8px'>
-          <div style='display:flex;gap:10px;align-items:flex-start'>
-            <img src='${e.imageUrl||''}' alt='pending' style='width:84px;height:84px;object-fit:cover;border-radius:8px;border:1px solid #d1d5db;background:#f3f4f6' />
-            <div style='flex:1'>
-              <div><b>${e.authorName||'會員'}</b></div>
-              <div class='muted'>投稿時間：${new Date(e.createdAt||Date.now()).toLocaleString()}</div>
-              ${e.text ? `<div style='margin-top:4px'>${e.text}</div>` : ''}
-              <div style='display:flex;gap:6px;flex-wrap:wrap;margin-top:8px'>
-                <button class='btn ok' onclick="approveContestSubmission('${e.id}')">✅ 通過</button>
-                <button class='btn ghost' onclick="rejectContestSubmission('${e.id}')">⛔ 退回</button>
-              </div>
-            </div>
-          </div>
-        </div>`).join('');
-      return rows || `<div class='muted'>目前沒有待審核投稿</div>`;
-    }
-
-    async function saveContestThemeByAdmin(){
-      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
-      const title=(document.getElementById('ad-contest-theme')?.value||'').trim();
-      const description=(document.getElementById('ad-contest-desc')?.value||'').trim();
-      if(!title) return alert('請輸入主題標題');
-      state.contestTheme={title,description,updatedAt:new Date().toISOString()};
-      await saveState();
-      renderContestBanner();
-      showToast('比賽主題已更新 ✅');
-    }
-
-    async function approveContestSubmission(id){
-      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
-      const idx=(state.contestPending||[]).findIndex(x=>x.id===id);
-      if(idx<0) return;
-      const item=state.contestPending[idx];
-      state.contestPending.splice(idx,1);
-      state.contestEntries.unshift({...item,status:'approved',approvedAt:new Date().toISOString(),voteCount:item.voteCount||0});
-      await saveState();
-      renderContestBanner();
-      renderAdminPanel();
-      showToast('已通過審核並上架 ✅');
-    }
-
-    async function rejectContestSubmission(id){
-      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
-      const idx=(state.contestPending||[]).findIndex(x=>x.id===id);
-      if(idx<0) return;
-      state.contestPending.splice(idx,1);
-      await saveState();
-      renderContestBanner();
-      renderAdminPanel();
-      showToast('已退回投稿');
-    }
-
-    function shortTime(iso){
-      const d = iso ? new Date(iso) : new Date();
-      const hh = String(d.getHours()).padStart(2,'0');
-      const mm = String(d.getMinutes()).padStart(2,'0');
-      return `${hh}:${mm}`;
-    }
-
     function renderDM(){
       const box=document.getElementById('dmThreads');
-      const composer=document.getElementById('dmComposer');
       if(!canMessage()){
         box.innerHTML = '請先登入後查看私訊。';
-        composer.style.display='none';
+        document.getElementById('dmComposer').style.display='none';
         return;
       }
       const mine = state.dmThreads.filter(t=>{
         if(Array.isArray(t.participantIds)) return t.participantIds.includes(state.user.id);
         return (t.messages||[]).some(m=>m.fromId===state.user.id);
       });
-      if(!mine.length){
-        box.innerHTML = '尚無對話，請到商家卡片按「私訊商家」。';
-        composer.style.display='none';
-        return;
-      }
-      mine.sort((a,b)=>{
-        const ta=(a.messages||[])[(a.messages||[]).length-1]?.createdAt||0;
-        const tb=(b.messages||[])[(b.messages||[]).length-1]?.createdAt||0;
-        return new Date(tb)-new Date(ta);
-      });
-      if(!currentDMStore || !mine.find(t=>t.id===currentDMStore)) currentDMStore=mine[0].id;
-      box.innerHTML = mine.map(t=>{
-        const last=(t.messages||[])[(t.messages||[]).length-1];
-        const lastTxt = last?.text || '尚無訊息';
-        const time = shortTime(last?.createdAt);
-        const avatarTxt = (t.storeName||'店').slice(0,1);
-        return `<button class='dm-thread-btn ${t.id===currentDMStore?'btn dm-thread-active':'btn ghost'}' onclick="openThread('${t.id}')"><div class='dm-avatar'>${avatarTxt}</div><div class='dm-thread-meta'><div class='dm-thread-top'><span class='dm-thread-name'>${t.storeName}</span><span class='dm-thread-time'>${time}</span></div><div class='dm-thread-last'>${lastTxt}</div></div></button>`;
-      }).join('');
-      openThread(currentDMStore, true);
+      const lines=mine.map(t=>`<button class='${t.id===currentDMStore?'btn dm-thread-active':'btn ghost'}' style='margin:4px 4px 0 0' onclick="openThread('${t.id}')">${t.storeName}</button>`).join('');
+      box.innerHTML = lines || '尚無對話，請到商家卡片按「私訊商家」。';
+      document.getElementById('dmComposer').style.display='none';
     }
 
-    function openThread(id, fromRender=false){
+    function openThread(id){
       const t=state.dmThreads.find(x=>x.id===id); if(!t) return;
       if(canMessage() && Array.isArray(t.participantIds) && !t.participantIds.includes(state.user.id)) return;
       currentDMStore=id;
-      if(!fromRender) renderDM();
+      renderDM();
       renderBottomNav();
-      const html=(t.messages||[]).map(m=>`<div class='dm-msg ${m.fromId===state.user.id?'mine':'other'}'><b>${m.fromName}</b><br/>${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
-      const composer=document.getElementById('dmComposer');
-      composer.style.display='flex';
-      composer.innerHTML=`<div class='dm-main-head'>${t.storeName}</div><div class='dm-messages'>${html}</div><div class='dm-input-row'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
+      const html=(t.messages||[]).map(m=>`<div class='muted'><b>${m.fromName}</b>：${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
+      document.getElementById('dmComposer').style.display='block';
+      document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
     }
 
     function openStoreDetail(storeId){
@@ -1476,17 +981,13 @@
     function openBackendWorkspace(title){ document.getElementById('backendTitle').textContent=title; document.getElementById('backendWorkspace').style.display='flex'; }
     function closeBackendWorkspace(){ document.getElementById('backendWorkspace').style.display='none'; }
 
-    function normCred(v){ return String(v||'').trim().toLowerCase(); }
-
     function backendLogin(){
-      const idRaw=(document.getElementById('backendId').value||'').trim();
-      const pwRaw=(document.getElementById('backendPwd').value||'').trim();
-      if(!idRaw||!pwRaw) return alert('請輸入 ID 與密碼');
-      const id = normCred(idRaw);
-      const pw = normCred(pwRaw);
+      const id=(document.getElementById('backendId').value||'').trim();
+      const pw=(document.getElementById('backendPwd').value||'').trim();
+      if(!id||!pw) return alert('請輸入 ID 與密碼');
 
-      // 平台主帳號：admin + 後台密碼（英文大小寫不敏感）
-      if(id==='admin' && pw===normCred(ADMIN_PASSWORD)){ 
+      // 平台主帳號：admin + 後台密碼
+      if(id==='admin' && pw===ADMIN_PASSWORD){
         closeBackendLogin();
         currentMerchantAccount=null;
         state.user={id:'admin',accountKey:null,name:'平台主',mode:'admin',provider:'admin',profile:state.user.profile||{gender:'',style:'',count:'',avatar:''}};
@@ -1496,8 +997,8 @@
         return;
       }
 
-      // 其餘視為商家帳號（英文大小寫不敏感）
-      const acc=state.merchantAccounts.find(a=>normCred(a.merchantId)===id && normCred(a.password)===pw && a.enabled);
+      // 其餘視為商家帳號
+      const acc=state.merchantAccounts.find(a=>a.merchantId===id && a.password===pw && a.enabled);
       if(!acc) return alert('帳號或密碼錯誤');
       closeBackendLogin();
       currentMerchantAccount=acc;
@@ -1649,13 +1150,6 @@
       enterGuestMode();
     }
 
-    function formatCheckInText(){
-      const p = state.user.profile || {};
-      const n = Number(p.checkInCount||0) || 0;
-      if(!p.lastCheckInAt) return `尚未打卡（累計 ${n} 次）`;
-      return `最近打卡：${new Date(p.lastCheckInAt).toLocaleString()}（累計 ${n} 次）`;
-    }
-
     function openProfileModal(){
       if(!isMember()) return;
       const p = state.user.profile || {};
@@ -1663,8 +1157,6 @@
       document.getElementById('pf-gender').value = p.gender || '';
       document.getElementById('pf-style').value = p.style || '';
       document.getElementById('pf-count').value = p.count || '';
-      const info = document.getElementById('pf-checkin-info');
-      if(info) info.textContent = formatCheckInText();
       window.__profileAvatarData = p.avatar || '';
       renderProfileAvatarPreview(window.__profileAvatarData);
       document.getElementById('profileModal').style.display='flex';
@@ -1718,7 +1210,15 @@
       renderProfileAvatarPreview('');
     }
 
-    function syncCurrentMemberProfile(){
+    function saveProfile(){
+      if(!isMember()) return;
+      state.user.name = (document.getElementById('pf-name').value||state.user.name).trim().slice(0,20) || state.user.name;
+      state.user.profile = {
+        gender: (document.getElementById('pf-gender').value||'').trim(),
+        style: (document.getElementById('pf-style').value||'').trim(),
+        count: String((document.getElementById('pf-count').value||'').trim()).replace(/[^0-9]/g,''),
+        avatar: window.__profileAvatarData || (state.user.profile && state.user.profile.avatar) || ''
+      };
       if(isMember() && state.user.accountKey){
         const member = state.memberAccounts.find(m=>m.account===state.user.accountKey);
         if(member){
@@ -1726,121 +1226,10 @@
           member.profile = {...state.user.profile};
         }
       }
-    }
-
-    function doCheckIn(){
-      if(!isMember()){
-        alert('請先登入會員才能打卡');
-        openLoginModal();
-        return;
-      }
-      const p = state.user.profile || {};
-      const count = (Number(p.checkInCount||0) || 0) + 1;
-      state.user.profile = {
-        ...p,
-        lastCheckInAt: new Date().toISOString(),
-        checkInCount: count
-      };
-      syncCurrentMemberProfile();
-      const info = document.getElementById('pf-checkin-info');
-      if(info) info.textContent = formatCheckInText();
-      showToast('打卡成功 ✅');
-      saveState();
-    }
-
-    function saveProfile(){
-      if(!isMember()) return;
-      const prev = state.user.profile || {};
-      state.user.name = (document.getElementById('pf-name').value||state.user.name).trim().slice(0,20) || state.user.name;
-      state.user.profile = {
-        gender: (document.getElementById('pf-gender').value||'').trim(),
-        style: (document.getElementById('pf-style').value||'').trim(),
-        count: String((document.getElementById('pf-count').value||'').trim()).replace(/[^0-9]/g,''),
-        avatar: window.__profileAvatarData || prev.avatar || '',
-        lastCheckInAt: prev.lastCheckInAt || '',
-        checkInCount: Number(prev.checkInCount||0) || 0
-      };
-      syncCurrentMemberProfile();
       closeProfileModal();
       renderUser();
       showToast('個人資料已儲存 ✅');
       saveState();
-    }
-
-    function resetPostCheckIn(){
-      window.__postCheckInGeo = null;
-      const choice = document.getElementById('postCheckInChoice');
-      const meta = document.getElementById('postCheckInMeta');
-      if(choice) choice.innerHTML = `<option value="">尚未定位，先按定位</option>`;
-      if(meta) meta.textContent='定位後可從下拉選單選擇附近地標名稱';
-    }
-
-    function uniqueNonEmpty(arr){
-      return [...new Set((arr||[]).map(x=>String(x||'').trim()).filter(Boolean))];
-    }
-
-    async function reverseGeoChoices(lat, lng){
-      try{
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=zh-TW`;
-        const res = await fetch(url, {headers:{'Accept':'application/json'}});
-        if(!res.ok) throw new Error('reverse-fail');
-        const data = await res.json();
-        const a = data.address || {};
-        const city = a.city || a.town || a.county || '';
-        const suburb = a.suburb || a.city_district || a.neighbourhood || '';
-        const road = [a.road, a.house_number].filter(Boolean).join(' ');
-        const choices = uniqueNonEmpty([
-          data.name,
-          a.attraction,
-          a.tourism,
-          a.leisure,
-          a.amenity,
-          a.shop,
-          road,
-          suburb,
-          city,
-          [suburb, city].filter(Boolean).join('｜')
-        ]).slice(0,6);
-        return choices.length ? choices : ['目前位置附近地標'];
-      }catch{
-        return ['目前位置附近地標'];
-      }
-    }
-
-    function applyCheckInChoice(){
-      const sel = document.getElementById('postCheckInChoice');
-      if(!sel || !window.__postCheckInGeo) return;
-      const label = (sel.value||'').trim();
-      if(!label) return;
-      window.__postCheckInGeo = {...window.__postCheckInGeo, label};
-      const meta = document.getElementById('postCheckInMeta');
-      if(meta) meta.textContent = `已選擇：${label}`;
-    }
-
-    function captureCheckInLocation(){
-      if(postMode!=='social') return;
-      if(!navigator.geolocation){
-        alert('此裝置不支援 GPS 定位');
-        return;
-      }
-      const meta = document.getElementById('postCheckInMeta');
-      if(meta) meta.textContent='定位中...';
-      navigator.geolocation.getCurrentPosition(async pos=>{
-        const lat = Number(pos.coords.latitude || 0);
-        const lng = Number(pos.coords.longitude || 0);
-        const choices = await reverseGeoChoices(lat, lng);
-        const label = choices[0] || '目前位置附近地標';
-        window.__postCheckInGeo = {lat,lng,label};
-        const sel = document.getElementById('postCheckInChoice');
-        if(sel){
-          sel.innerHTML = choices.map((c,i)=>`<option value="${c.replace(/"/g,'&quot;')}" ${i===0?'selected':''}>${c}</option>`).join('');
-        }
-        if(meta) meta.textContent = `定位成功：已提供 ${choices.length} 個附近地標可選`;
-        showToast('GPS 打卡定位成功 ✅');
-      },err=>{
-        if(meta) meta.textContent='定位失敗，請確認定位權限';
-        alert('定位失敗，請開啟定位權限後重試');
-      },{enableHighAccuracy:true,timeout:12000,maximumAge:0});
     }
 
     function openPostModal(mode){
@@ -1851,12 +1240,8 @@
       }
       postMode=mode;
       document.getElementById('postTitle').textContent = mode==='contest'?'投稿':'新增貼文';
-      const themeTitle = state.contestTheme?.title || '會員照片比賽';
-      document.getElementById('postTargetBadge').textContent = mode==='contest'?`投稿到：${themeTitle}`:'發佈到：社群媒體';
-      document.getElementById('postText').placeholder = mode==='contest'?'可補充主題說明（文字可省略）':'分享露營心得...';
-      const checkInField = document.getElementById('postCheckInField');
-      if(checkInField) checkInField.style.display = mode==='social' ? 'block' : 'none';
-      if(mode==='social') resetPostCheckIn();
+      document.getElementById('postTargetBadge').textContent = mode==='contest'?'投稿到：會員照片比賽':'發佈到：社群媒體';
+      document.getElementById('postText').placeholder = mode==='contest'?'可直接上傳照片投稿（文字可省略）':'分享露營心得...';
       document.getElementById('postModal').style.display='flex';
       showToast(mode==='contest'?'已進入投稿頁':'已進入發文頁');
     }
@@ -1864,16 +1249,14 @@
 
     async function submitPost(){
       if(!isMember()){ alert('請先登入會員'); return; }
-      const rawText=(document.getElementById('postText').value||'').trim();
-      const checkInGeo = postMode==='social' ? (window.__postCheckInGeo || null) : null;
-      const text = rawText;
+      const text=(document.getElementById('postText').value||'').trim();
       const fileInput=document.getElementById('postFile');
       const file=fileInput && fileInput.files ? (fileInput.files[0] || null) : null;
       const submitBtn=document.getElementById('postSubmitBtn');
       const oldLabel=submitBtn ? submitBtn.textContent : '';
 
       if(postMode==='contest' && !file){ alert('請先選擇照片再投稿'); return; }
-      if(!text && !file && !(postMode==='social' && checkInGeo)){ alert('請輸入內容、GPS 打卡或選擇檔案'); return; }
+      if(!text && !file){ alert('請輸入內容或選擇檔案'); return; }
 
       const type = detectMediaType(file);
       if(postMode==='contest' && type!=='image'){
@@ -1891,14 +1274,14 @@
         }
 
         if(postMode==='contest'){
-          state.contestPending.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,imageUrl:url,voteCount:0,status:'pending',createdAt:new Date().toISOString()});
+          state.contestEntries.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,imageUrl:url,voteCount:0,createdAt:new Date().toISOString()});
           await saveState();
           renderContestBanner();
           closePostModal();
           openContestModal();
-          showToast('投稿已送審，待管理員審核 ✅');
+          showToast('投稿成功 ✅');
         }else{
-          state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,checkInGeo,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
+          state.posts.unshift({id:uid(),authorId:state.user.id,authorName:state.user.name,text,mediaType:type,mediaUrl:url,likes:[],comments:[],createdAt:new Date().toISOString()});
           await saveState();
           renderFeed();
           closePostModal();
@@ -1906,7 +1289,6 @@
         }
 
         document.getElementById('postText').value='';
-        resetPostCheckIn();
         if(fileInput) fileInput.value='';
       }catch(err){
         console.error(err);
@@ -2083,7 +1465,6 @@
       if(pickupEl) s.pickupLocation=pickupEl.value.trim();
       s.website=document.getElementById('me-web').value.trim();
       saveState();
-      scheduleAutoExcelDownload();
       renderStoreTabs();
       showToast('商家資料已儲存 ✅');
     }
@@ -2091,7 +1472,7 @@
     function addAnnouncement(){
       const t=document.getElementById('ad-ann').value.trim(); if(!t) return;
       state.announcements.unshift({id:uid(),text:t});
-      document.getElementById('ad-ann').value=''; renderAnnouncements(); saveState(); scheduleAutoExcelDownload();
+      document.getElementById('ad-ann').value=''; renderAnnouncements(); saveState();
     }
 
     function addStoreByAdmin(){
@@ -2111,7 +1492,7 @@
       };
       if(!s.name) return alert('請輸入店名');
       state.stores.unshift(s);
-      renderStoreTabs(); saveState(); scheduleAutoExcelDownload(); alert('已新增商家');
+      renderStoreTabs(); saveState(); alert('已新增商家');
     }
 
     function createMerchantAccount(){
@@ -2120,274 +1501,9 @@
       const storeId=document.getElementById('ad-sid').value.trim();
       if(!merchantId||!password||!storeId) return alert('請填完整');
       const store=state.stores.find(s=>s.id===storeId); if(!store) return alert('找不到店鋪ID');
-      if((state.merchantAccounts||[]).some(a=>normCred(a.merchantId)===normCred(merchantId))) return alert('商家 ID 已存在（大小寫不區分）');
       state.merchantAccounts.push({merchantId,password,storeId,enabled:true});
       store.isMember=true; store.ownerMerchantId=merchantId;
-      saveState(); scheduleAutoExcelDownload(); alert('已開通商家會員帳號');
-    }
-
-    function openAdminCampsiteModal(mode='create', storeId=''){
-      if(state.user.mode!=='admin') return alert('僅總管理者可操作');
-      window.__adminCampsiteMode = mode;
-      window.__adminCampsiteId = storeId || '';
-      const s = (state.stores||[]).find(x=>x.id===storeId && x.category==='campsite');
-      const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.value=val||''; };
-      set('ac-name', s?.name||'');
-      set('ac-addr', s?.address||'');
-      set('ac-hours', s?.hours||'');
-      set('ac-contact', s?.contact||'');
-      set('ac-elevation', s?.elevation||'');
-      set('ac-tentCount', s?.tentCount||'');
-      set('ac-zones', s?.zones||'');
-      set('ac-features', Array.isArray(s?.features)?s.features.join('|'):'');
-      const fileInput=document.getElementById('ac-photo-files');
-      if(fileInput) fileInput.value='';
-      const photoHint=document.getElementById('ac-photo-hint');
-      if(photoHint){
-        const n = Array.isArray(s?.photos) ? s.photos.length : 0;
-        photoHint.textContent = mode==='edit' ? `目前已有 ${n} 張照片；可再選取新照片追加` : '可一次選多張照片，儲存後自動上傳';
-      }
-      set('ac-desc', s?.description||'');
-      const title=document.getElementById('adminCampsiteTitle');
-      if(title) title.textContent = mode==='edit' ? '編輯營區' : '新增營區';
-      const delBtn=document.getElementById('ac-delete-btn');
-      if(delBtn) delBtn.style.display = mode==='edit' ? 'inline-flex' : 'none';
-      document.getElementById('adminCampsiteModal').style.display='flex';
-    }
-
-    function closeAdminCampsiteModal(){
-      document.getElementById('adminCampsiteModal').style.display='none';
-    }
-
-    async function saveAdminCampsiteModal(){
-      if(state.user.mode!=='admin') return alert('僅總管理者可操作');
-      const mode = window.__adminCampsiteMode || 'create';
-      const id = window.__adminCampsiteId || '';
-      const name=(document.getElementById('ac-name')?.value||'').trim();
-      if(!name) return alert('請填寫營區名稱');
-
-      const saveBtn=document.getElementById('ac-save-btn');
-      const oldSaveLabel = saveBtn ? saveBtn.textContent : '';
-
-      try{
-        if(saveBtn){ saveBtn.disabled=true; saveBtn.textContent='儲存中...'; }
-
-        const fileInput=document.getElementById('ac-photo-files');
-        const files = Array.from(fileInput?.files||[]);
-        const uploadedPhotos=[];
-        let failedCount = 0;
-        let fallbackCount = 0;
-        for(const f of files){
-          try{
-            const optimized = await prepareUploadFile(f);
-            const dataUrl = await fileToDataUrl(optimized || f);
-            if(dataUrl){
-              uploadedPhotos.push(dataUrl);
-              fallbackCount++;
-              continue;
-            }
-          }catch{}
-          failedCount++;
-        }
-
-        if(files.length && failedCount>0){
-          alert(`有 ${failedCount} 張照片無法處理，請換小一點的照片或重試`);
-          return;
-        }
-
-        const payload={
-          category:'campsite',
-          name,
-          address:(document.getElementById('ac-addr')?.value||'').trim(),
-          hours:(document.getElementById('ac-hours')?.value||'').trim(),
-          contact:(document.getElementById('ac-contact')?.value||'').trim(),
-          elevation:(document.getElementById('ac-elevation')?.value||'').trim(),
-          tentCount:(document.getElementById('ac-tentCount')?.value||'').trim(),
-          zones:(document.getElementById('ac-zones')?.value||'').trim(),
-          features:(document.getElementById('ac-features')?.value||'').split('|').map(x=>x.trim()).filter(Boolean),
-          description:(document.getElementById('ac-desc')?.value||'').trim(),
-          isMember:false
-        };
-        const beforeCount = (state.stores||[]).filter(x=>x.category==='campsite').length;
-        console.log('before save: ' + beforeCount + ' campsites');
-        
-        if(mode==='edit'){
-          const s=(state.stores||[]).find(x=>x.id===id && x.category==='campsite');
-          if(!s) return alert('找不到營區');
-          const basePhotos = Array.isArray(s.photos)?s.photos:[];
-          Object.assign(s,{...payload, photos:[...basePhotos, ...uploadedPhotos]});
-        }else{
-          state.stores.unshift({id:uid(), ...payload, photos:uploadedPhotos});
-        }
-        
-        const afterCount = (state.stores||[]).filter(x=>x.category==='campsite').length;
-        console.log('after adding: ' + afterCount + ' campsites');
-        
-        renderStoreTabs();
-        await saveState();
-        
-        const finalCount = (state.stores||[]).filter(x=>x.category==='campsite').length;
-        console.log('after saveState: ' + finalCount + ' campsites');
-        scheduleAutoExcelDownload();
-        closeAdminCampsiteModal();
-        if(fallbackCount>0){
-          showToast(`已儲存（其中 ${fallbackCount} 張以本地模式保存）`);
-        }else{
-          showToast(mode==='edit'?'營區更新完成 ✅':'營區新增完成 ✅');
-        }
-      }catch(err){
-        console.error(err);
-        alert('儲存失敗，請再試一次');
-      }finally{
-        if(saveBtn){ saveBtn.disabled=false; saveBtn.textContent=oldSaveLabel || '儲存'; }
-      }
-    }
-
-    function adminDeleteCampsiteInline(storeId){
-      if(state.user.mode!=='admin') return alert('僅總管理者可操作');
-      const s=(state.stores||[]).find(x=>x.id===storeId && x.category==='campsite');
-      if(!s) return;
-      if(!confirm(`確定刪除營地「${s.name}」？`)) return;
-      state.stores = (state.stores||[]).filter(x=>x.id!==storeId);
-      state.merchantAccounts = (state.merchantAccounts||[]).filter(m=>m.storeId!==storeId);
-      renderStoreTabs();
-      saveState();
-      scheduleAutoExcelDownload();
-      showToast('營地已刪除');
-    }
-
-    function deleteAdminCampsiteModal(){
-      const id = window.__adminCampsiteId || '';
-      if(!id) return;
-      adminDeleteCampsiteInline(id);
-      closeAdminCampsiteModal();
-    }
-
-    function normalizeExcelCategory(v, fallback=''){
-      const x = String(v||fallback||'').trim().toLowerCase();
-      if(['campsite','camp','營地','露營區'].includes(x)) return 'campsite';
-      if(['mod','改裝','露營車改裝'].includes(x)) return 'mod';
-      if(['gear','用品','露營用品'].includes(x)) return 'gear';
-      if(['rental','出租','露營車出租'].includes(x)) return 'rental';
-      return '';
-    }
-
-    function photosFromCell(v){
-      return String(v||'').split(/[|｜,，\n]+/).map(x=>x.trim()).filter(Boolean);
-    }
-
-    function buildStoreRows(category){
-      return (state.stores||[])
-        .filter(s=>s.category===category)
-        .map(s=>([
-          s.id||'',
-          s.category||'',
-          s.name||'',
-          s.address||'',
-          s.hours||'',
-          s.contact||'',
-          s.website||'',
-          s.description||'',
-          (s.features||[]).join('|'),
-          (s.photos||[]).join('|'),
-          s.specialModels||'',
-          s.vehicleTypes||'',
-          s.pickupLocation||'',
-          s.elevation||'',
-          s.tentCount||'',
-          s.zones||'',
-          s.sourceUrl||'',
-          s.isMember?'1':'0'
-        ]));
-    }
-
-    function downloadDataExcel(filename='camping-app-data.xlsx'){
-      if(typeof XLSX==='undefined') return;
-      const headers=['id','category','name','address','hours','contact','website','description','features','photos','specialModels','vehicleTypes','pickupLocation','elevation','tentCount','zones','sourceUrl','isMember'];
-      const wb = XLSX.utils.book_new();
-      ['campsite','mod','gear','rental'].forEach(cat=>{
-        const rows = [headers, ...buildStoreRows(cat)];
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        XLSX.utils.book_append_sheet(wb, ws, cat);
-      });
-
-      const annRows = [['id','text','title','detail','merchantName','createdAt'], ...(state.announcements||[]).map(a=>[a.id||'',a.text||'',a.title||'',a.detail||'',a.merchantName||'',a.createdAt||''])];
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(annRows), 'announcements');
-
-      const merRows = [['merchantId','password','storeId','enabled'], ...(state.merchantAccounts||[]).map(m=>[m.merchantId||'',m.password||'',m.storeId||'',m.enabled?'1':'0'])];
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(merRows), 'merchant-accounts');
-
-      XLSX.writeFile(wb, filename);
-    }
-
-    function scheduleAutoExcelDownload(){
-      if(typeof XLSX==='undefined') return;
-      clearTimeout(window.__autoExcelTimer);
-      window.__autoExcelTimer = setTimeout(()=>downloadDataExcel('camping-app-data.xlsx'), 900);
-    }
-
-    async function importStoresFromExcel(){
-      if(state.user.mode!=='admin') return alert('僅平台管理員可操作');
-      const file = document.getElementById('ad-excel')?.files?.[0];
-      if(!file) return alert('請先選擇 Excel 檔案');
-      if(typeof XLSX==='undefined') return alert('Excel 解析元件未載入，請重整後再試');
-
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, {type:'array'});
-      let imported = 0, updated = 0, skipped = 0;
-
-      for(const sheetName of wb.SheetNames){
-        const sheet = wb.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(sheet, {defval:''});
-        const fallbackCat = normalizeExcelCategory(sheetName, '');
-        for(const r of rows){
-          const category = normalizeExcelCategory(r.category || r.類別 || r.Category, fallbackCat);
-          const name = String(r.name || r.名稱 || r.storeName || '').trim();
-          if(!category || !name){ skipped++; continue; }
-
-          const rowPhotos = photosFromCell(r.photos || r.照片 || r.photoUrls);
-          const payload = {
-            category,
-            name,
-            address: String(r.address || r.地址 || '').trim(),
-            hours: String(r.hours || r.營業時間 || '').trim(),
-            contact: String(r.contact || r.聯絡方式 || r.phone || '').trim(),
-            website: String(r.website || r.官網 || '').trim(),
-            description: String(r.description || r.描述 || '').trim(),
-            photos: rowPhotos,
-            specialModels: String(r.specialModels || r.專門車型 || '').trim(),
-            vehicleTypes: String(r.vehicleTypes || r.露營車種類 || '').trim(),
-            pickupLocation: String(r.pickupLocation || r.取車處 || '').trim(),
-            elevation: String(r.elevation || r.海拔 || '').trim(),
-            tentCount: String(r.total_sites || r.tentCount || r.總帳數 || '').trim(),
-            zones: String(r.camp_size || r.zones || r.營區大小 || '').trim(),
-            sourceUrl: String(r.sourceUrl || r.source_url || '').trim()
-          };
-
-          const ex = state.stores.find(s=>s.category===category && s.name===name);
-          if(ex){
-            Object.assign(ex, {
-              ...ex,
-              ...payload,
-              photos: rowPhotos.length ? rowPhotos : (Array.isArray(ex.photos)?ex.photos:[])
-            });
-            updated++;
-          }else{
-            state.stores.unshift({
-              id: uid(),
-              isMember: false,
-              ...payload
-            });
-            imported++;
-          }
-        }
-      }
-
-      renderStoreTabs();
-      await saveState();
-      scheduleAutoExcelDownload();
-      showToast(`Excel 匯入完成：新增 ${imported}、更新 ${updated}、略過 ${skipped}`);
-      alert(`Excel 匯入完成\n新增：${imported}\n更新：${updated}\n略過：${skipped}`);
+      saveState(); alert('已開通商家會員帳號');
     }
 
     function exportAllData(){
@@ -2397,8 +1513,6 @@
         announcements: state.announcements,
         posts: state.posts,
         contestEntries: state.contestEntries,
-        contestTheme: state.contestTheme,
-        contestPending: state.contestPending,
         stores: state.stores,
         merchantAccounts: state.merchantAccounts,
         memberAccounts: state.memberAccounts,
@@ -2434,7 +1548,6 @@
       renderAnnouncements();
       renderContestBanner();
       renderFeed();
-      renderGuestPhotoWall();
       renderStoreTabs();
       renderDM();
       renderBottomNav();
@@ -2442,29 +1555,18 @@
 
     async function boot(){
       await initFirebase();
-
-      // 直接嘗試載入本地資料
-      const hasLocal = await loadLocalState();
-      console.log('boot: hasLocal=' + hasLocal);
-      
-      if(!hasLocal){
-        console.log('boot: loading defaults');
-        defaultSeed();
-        ensureTestData();
-        cleanupLegacyCampsites();
-        await loadBundledTaichungCampsites();
-        await saveState();
-      }
-
-      // 舊的預設資料載入邏輯已移除，避免訪客進站白畫面/看不到照片
-      defaultSeed();
-      ensureTestData();
-      cleanupLegacyCampsites();
-      await loadBundledTaichungCampsites();
-      if(state.user.mode==='guest') state.activeTab='social';
+      await loadState();
       renderAll();
-
-      // 跳過預設資料載入，直接用本地資料
+      bindLoginModalKeys();
+      document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
+      document.addEventListener('click', (e)=>{
+        const m=document.getElementById('userMenu');
+        const b=document.getElementById('userEntry');
+        if(!m||!b) return;
+        if(m.style.display==='block' && !m.contains(e.target) && !b.contains(e.target)) closeUserMenu();
+      });
+    }
+    boot();
   </script>
 </body>
 </html>
