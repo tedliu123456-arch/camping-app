@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v41.1（需求整合版）</title>
+  <title>Camping App v41.2（需求整合版）</title>
   <style>
     :root{
       --bg:#f3f6fb;--card:#fff;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;
@@ -306,7 +306,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '41.1';
+    const APP_VERSION = '41.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1617,7 +1617,7 @@
 
     async function boot(){
       await initFirebase();
-      await loadState();
+      // 先顯示預設內容，避免雲端讀取慢時卡在空白/無分類
       renderAll();
       bindLoginModalKeys();
       document.getElementById('campSearch').addEventListener('input', renderStoreTabs);
@@ -1627,6 +1627,9 @@
         if(!m||!b) return;
         if(m.style.display==='block' && !m.contains(e.target) && !b.contains(e.target)) closeUserMenu();
       });
+      try{ await loadState(); }
+      catch(e){ console.warn('boot load fail', e); }
+      renderAll();
     }
     boot();
   </script>
