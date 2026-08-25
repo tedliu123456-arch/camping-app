@@ -1,7 +1,15 @@
 {
-  "version": "44.8",
-  "lastUpdated": "2026-06-24",
+  "version": "44.9",
+  "lastUpdated": "2026-08-25",
   "changelog": [
+    {
+      "version": "44.9",
+      "date": "2026-08-25",
+      "changes": [
+        "版本更新：同步 v44.8 → v44.9",
+        "GitHub Pages 版本落後修正（從 v44.3 同步至 v44.9）"
+      ]
+    },
     {
       "version": "43.0",
       "date": "2026-06-09",
