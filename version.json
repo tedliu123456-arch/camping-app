@@ -1,7 +1,14 @@
 {
-  "version": "46.7",
+  "version": "46.8",
   "lastUpdated": "2026-09-18",
   "changelog": [
+    {
+      "version": "46.8",
+      "date": "2026-09-18",
+      "changes": [
+        "版本號同步為 v46.8"
+      ]
+    },
     {
       "version": "46.7",
       "date": "2026-09-18",
