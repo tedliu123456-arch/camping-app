@@ -1,7 +1,16 @@
 {
-  "version": "47.0",
-  "lastUpdated": "2026-09-18",
+  "version": "51.2",
+  "lastUpdated": "2026-10-21",
   "changelog": [
+    {
+      "version": "51.2",
+      "date": "2026-10-21",
+      "changes": [
+        "修正 Firestore 存檔失敗：移除 undefined 欄位值（ensureTestData / 後台新增商家）",
+        "getStatePayload 加入 stripUndefined 防呆，避免整份雲端存檔被 Firestore 拒絕",
+        "新增 e2e-check.mjs 自動化冒煙測試（Playwright）涵蓋六項檢查清單"
+      ]
+    },
     {
       "version": "47.0",
       "date": "2026-09-18",

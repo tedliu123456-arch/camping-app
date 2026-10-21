@@ -1,3 +1,24 @@
+v51.2 test Wed Oct 21 16:55:00 CST 2026
+- [BUG FIX] Firestore 雲端存檔全數失敗：ensureTestData / 後台新增商家寫入 undefined 欄位值
+  → Firestore 回傳 invalid-argument: Unsupported field value: undefined，導致貼文/按讚/留言/私訊/會員註冊
+     等所有雲端寫入全部失敗（資料僅存 localStorage，換裝置即遺失）
+- [FIX] undefined 欄位值改為 null（11 處），並於 getStatePayload() 加入 stripUndefined() 防呆
+- 驗證：Firestore 本地驗證 undefined → REJECTED，stripUndefined/null → accepted
+- 自動化冒煙測試 e2e-check.mjs（Playwright）全數通過 20/20
+  - 社群首頁載入 + 版本顯示 v51.2 OK
+  - 社群首頁貼文渲染 OK
+  - 活動跑馬燈 OK
+  - 四大分類導覽（social/mod/gear/rental）切換 OK
+  - 商家卡片 + 完整資料頁 OK
+  - 活動公告詳情 / 照片比賽入口 OK
+  - 登入 + 頭像 + 使用者選單 OK
+  - 發文/投稿上傳 UI OK
+  - 私訊頁開啟 + 訊息送出 OK
+  - 登出流程 OK
+  - 版面無溢出 / 無過小按鈕 OK
+  - Console 無錯誤、HTTP 無失敗回應 OK
+  - 測試資料自動清理（測試會員/對話不留在正式資料）
+
 v46.8 test Fri Sep 18 19:41:00 CST 2026
 - 社群首頁載入與切頁正常
 - 四大分類導覽顯示/切換正常

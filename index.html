@@ -311,7 +311,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '51.1';
+    const APP_VERSION = '51.2';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -438,14 +438,14 @@
             isMember:true,
             ownerMerchantId:'',
             description:c.desc,
-            specialModels: cat==='mod' ? 'Hiace / Transit / Sprinter' : undefined,
-            vehicleTypes: cat==='rental' ? '4人露營車 / 6人露營車 / 箱型露營車' : undefined,
-            pickupLocation: cat==='rental' ? '各門市取車（請先預約）' : undefined,
-            features: cat==='campsite' ? ['親子','靠山','夜景'] : undefined,
-            tentCount: cat==='campsite' ? (20+i) : undefined,
-            zones: cat==='campsite' ? 'A區/B區' : undefined,
-            elevation: cat==='campsite' ? `${100+i*5}m` : undefined,
-            accessibleVehicles: cat==='campsite' ? '轎車/SUV/露營車' : undefined,
+            specialModels: cat==='mod' ? 'Hiace / Transit / Sprinter' : null,
+            vehicleTypes: cat==='rental' ? '4人露營車 / 6人露營車 / 箱型露營車' : null,
+            pickupLocation: cat==='rental' ? '各門市取車（請先預約）' : null,
+            features: cat==='campsite' ? ['親子','靠山','夜景'] : null,
+            tentCount: cat==='campsite' ? (20+i) : null,
+            zones: cat==='campsite' ? 'A區/B區' : null,
+            elevation: cat==='campsite' ? `${100+i*5}m` : null,
+            accessibleVehicles: cat==='campsite' ? '轎車/SUV/露營車' : null,
             photos: [
               `https://picsum.photos/seed/${cat}${i}a/900/600`,
               `https://picsum.photos/seed/${cat}${i}b/900/600`,
@@ -546,8 +546,23 @@
 
     const LOCAL_STATE_KEY = `camping-local-state-${APP_ENV}`;
 
+    // Firestore 不接受 undefined 值，送出前一律清掉 undefined 欄位，避免整份存檔失敗
+    function stripUndefined(v){
+      if(Array.isArray(v)) return v.map(stripUndefined);
+      if(v && typeof v==='object'){
+        const out={};
+        for(const k of Object.keys(v)){
+          const val=v[k];
+          if(val===undefined) continue;
+          out[k]=stripUndefined(val);
+        }
+        return out;
+      }
+      return v;
+    }
+
     function getStatePayload(){
-      return {
+      return stripUndefined({
         announcements:state.announcements,
         posts:state.posts,
         contestEntries:state.contestEntries,
@@ -557,7 +572,7 @@
         adminAccount:state.adminAccount,
         dmThreads:state.dmThreads,
         updatedAt:new Date().toISOString()
-      };
+      });
     }
 
     function applyStateData(d){
@@ -1589,9 +1604,9 @@
         address:document.getElementById('ad-addr').value.trim(),
         hours:document.getElementById('ad-hours').value.trim(),
         contact:document.getElementById('ad-contact').value.trim(),
-        specialModels: cat==='mod' ? document.getElementById('ad-models').value.trim() : undefined,
-        vehicleTypes: cat==='rental' ? document.getElementById('ad-rental-types').value.trim() : undefined,
-        pickupLocation: cat==='rental' ? document.getElementById('ad-pickup').value.trim() : undefined,
+        specialModels: cat==='mod' ? document.getElementById('ad-models').value.trim() : null,
+        vehicleTypes: cat==='rental' ? document.getElementById('ad-rental-types').value.trim() : null,
+        pickupLocation: cat==='rental' ? document.getElementById('ad-pickup').value.trim() : null,
         description:document.getElementById('ad-desc').value.trim(),
         isMember:false
       };
