@@ -1,7 +1,16 @@
 {
-  "version": "51.2",
-  "lastUpdated": "2026-10-21",
+  "version": "51.3",
+  "lastUpdated": "2026-10-23",
   "changelog": [
+    {
+      "version": "51.3",
+      "date": "2026-10-23",
+      "changes": [
+        "定期測試驗證通過（e2e 20/20）",
+        "修正頁面標題版本落後（v51.1 → v51.3），與 APP_VERSION 同步",
+        "同步更新 version.json 版本號"
+      ]
+    },
     {
       "version": "51.2",
       "date": "2026-10-21",
