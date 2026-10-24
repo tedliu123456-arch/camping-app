@@ -133,7 +133,12 @@ try {
     el.value = '測試員';
     el.dispatchEvent(new Event('input', { bubbles: true }));
     window.memberLogin('facebook');
-    await new Promise((r) => setTimeout(r, 1200));
+    // 等登入狀態生效（最多 8 秒），避免雲端延遲造成誤判
+    for (let i = 0; i < 16; i++) {
+      if (state.user && state.user.mode === 'member') break;
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    await new Promise((r) => setTimeout(r, 600));
     const entry = document.getElementById('userEntry');
     const menu = document.getElementById('userMenu');
     return {
@@ -176,25 +181,43 @@ try {
 
   // ---------- 7. 私訊頁開啟 + 訊息送出 ----------
   const dm = await page.evaluate(async () => {
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     window.setTab('campsite');
-    await new Promise((r) => setTimeout(r, 500));
-    const cards = Array.from(document.querySelectorAll('#campsiteList > *'));
-    let started = false;
-    for (const card of cards) {
-      const b = Array.from(card.querySelectorAll('button')).find((x) => x.textContent.includes('私訊商家'));
-      if (b) { b.click(); started = true; break; }
+    // 商家卡片可能因 Firestore 延遲載入，等候卡片出現（最多 12 秒）
+    let cards = [];
+    for (let i = 0; i < 24; i++) {
+      cards = Array.from(document.querySelectorAll('#campsiteList > *'));
+      if (cards.length) break;
+      await sleep(500);
     }
-    await new Promise((r) => setTimeout(r, 1000));
+    let started = false;
+    // 點擊「私訊商家」後，等對話按鈕真的渲染出來，最多 10 秒
+    for (let attempt = 0; attempt < 3 && !started; attempt++) {
+      for (const card of cards) {
+        const b = Array.from(card.querySelectorAll('button')).find((x) => x.textContent.includes('私訊商家'));
+        if (b) { b.click(); started = true; break; }
+      }
+      for (let i = 0; i < 20; i++) {
+        if (document.querySelector('#dmThreads button')) break;
+        await sleep(500);
+      }
+      if (!document.querySelector('#dmThreads button')) {
+        cards = Array.from(document.querySelectorAll('#campsiteList > *'));
+        await sleep(500);
+      }
+    }
+    await sleep(500);
     const modal = document.getElementById('dmModal');
     const out = {
       visible: getComputedStyle(modal).display !== 'none',
       started,
+      cardCount: cards.length,
       threadsText: (document.getElementById('dmThreads')?.innerText || '').trim().slice(0, 60),
     };
     const threadBtn = document.querySelector('#dmThreads button');
     if (threadBtn) {
       threadBtn.click();
-      await new Promise((r) => setTimeout(r, 700));
+      await sleep(900);
       const input = document.getElementById('dmInput');
       const sendBtn = Array.from(document.querySelectorAll('#dmComposer button')).find((x) => x.textContent.includes('送出'));
       out.composerVisible = getComputedStyle(document.getElementById('dmComposer')).display !== 'none';
@@ -203,8 +226,12 @@ try {
         input.value = '自動化測試訊息';
         const before = (state.dmThreads.find((t) => t.id === currentDMStore)?.messages || []).length;
         window.sendDM();
-        await new Promise((r) => setTimeout(r, 800));
-        const after = (state.dmThreads.find((t) => t.id === currentDMStore)?.messages || []).length;
+        let after = before;
+        for (let i = 0; i < 10; i++) {
+          await sleep(300);
+          after = (state.dmThreads.find((t) => t.id === currentDMStore)?.messages || []).length;
+          if (after > before) break;
+        }
         out.sent = after > before;
         out.msgCount = after;
         out.lastMsg = (state.dmThreads.find((t) => t.id === currentDMStore)?.messages || []).slice(-1)[0]?.text;
