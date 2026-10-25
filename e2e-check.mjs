@@ -30,8 +30,15 @@ page.on('response', (r) => { if (r.status() >= 400) httpErrors.push(`${r.status(
 
 try {
   // ---------- 1. 社群首頁載入 ----------
+  // 等待雲端狀態載入完成：loadState() 會用雲端資料覆寫本地 state，
+  // 若在載入完成前就測互動（私訊建立對話等），會被覆蓋造成誤判。
+  const cloudStateLoaded = page
+    .waitForResponse((r) => /firestore\.googleapis\.com/.test(r.url()) && /apps\//.test(r.url()) && r.status() === 200, { timeout: 25000 })
+    .catch(() => null);
+
   await page.goto(BASE, { timeout: 30000, waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.state && document.querySelectorAll('#feedList .feed-item').length > 0, { timeout: 25000 }).catch(() => {});
+  await cloudStateLoaded;
   await page.waitForTimeout(1200);
 
   const version = await page.textContent('#appVersion').catch(() => null);

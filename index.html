@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v51.4</title>
+  <title>Camping App v51.5</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -311,7 +311,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '51.4';
+    const APP_VERSION = '51.5';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -577,14 +577,16 @@
 
     function applyStateData(d){
       if(!d || typeof d!=='object') return;
-      state.announcements = d.announcements || state.announcements;
-      state.posts = d.posts || state.posts;
-      state.contestEntries = d.contestEntries || state.contestEntries;
-      state.stores = d.stores || state.stores;
-      state.merchantAccounts = d.merchantAccounts || state.merchantAccounts;
-      state.memberAccounts = d.memberAccounts || state.memberAccounts;
+      // 保護：雲端欄位為空陣列時不可覆寫本地資料（否則使用者剛建立的內容會消失）
+      const pick=(remote, local)=> (Array.isArray(remote) ? (remote.length ? remote : local) : (remote || local));
+      state.announcements = pick(d.announcements, state.announcements);
+      state.posts = pick(d.posts, state.posts);
+      state.contestEntries = pick(d.contestEntries, state.contestEntries);
+      state.stores = pick(d.stores, state.stores);
+      state.merchantAccounts = pick(d.merchantAccounts, state.merchantAccounts);
+      state.memberAccounts = pick(d.memberAccounts, state.memberAccounts);
       state.adminAccount = d.adminAccount || state.adminAccount;
-      state.dmThreads = d.dmThreads || state.dmThreads;
+      state.dmThreads = pick(d.dmThreads, state.dmThreads);
     }
 
     function loadLocalState(){
