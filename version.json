@@ -1,7 +1,17 @@
 {
-  "version": "64.1",
+  "version": "64.2",
   "lastUpdated": "2026-10-31",
   "changelog": [
+    {
+      "version": "64.2",
+      "date": "2026-10-31",
+      "changes": [
+        "補上 Playwright 煙霧測試（tests/smoke.spec.js），修掉每小時 CI 『No tests found』失敗",
+        "修正 playwright.config.js baseURL 指向 GitHub Pages 專案根路徑",
+        "巡檢 e2e 20/20 通過、Playwright 3/3 通過（04:08）",
+        "介面版本更新為 v64.2"
+      ]
+    },
     {
       "version": "64.1",
       "date": "2026-10-31",

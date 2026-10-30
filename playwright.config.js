@@ -7,7 +7,7 @@ module.exports = defineConfig({
   retries: 1,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {
-    baseURL: 'https://tedliu123456-arch.github.io/camping-app/',
+    baseURL: 'https://tedliu123456-arch.github.io',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure'
   }
