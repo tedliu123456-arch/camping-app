@@ -1,7 +1,17 @@
 {
-  "version": "60.8",
+  "version": "60.9",
   "lastUpdated": "2026-10-30",
   "changelog": [
+    {
+      "version": "60.9",
+      "date": "2026-10-30",
+      "changes": [
+        "定期巡檢：e2e 20/20 通過（11:40）",
+        "HTTP 200，社群首頁／四大分類／登入登出／商家卡片／發文上傳／私訊流程正常",
+        "FLAP 同步正常（today-data.json 11:35 更新）",
+        "version.json 版本號同步為 60.9"
+      ]
+    },
     {
       "version": "60.8",
       "date": "2026-10-30",
