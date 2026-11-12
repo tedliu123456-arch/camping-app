@@ -62,6 +62,10 @@
     .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
     .feed-item .feed-text{line-height:1.65;letter-spacing:.1px}
     .feed-item .feed-media{border:1px solid rgba(0,0,0,.05)}
+    .feed-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+    .feed-author{font-weight:800;letter-spacing:.2px;transition:color .14s ease}
+    .feed-item:hover .feed-author{color:#2d4a32}
+    .feed-time{font-size:12px;white-space:nowrap}
     .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px;transition:background-color .14s ease,color .14s ease;letter-spacing:.2px}
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
 
@@ -805,7 +809,7 @@
         const liked = (p.likes||[]).includes(state.user.id);
         const likeDisabled = !isMember() || liked;
         return `<div class="feed-item">
-          <div style="display:flex;justify-content:space-between"><b>${p.authorName}</b><span class="muted">${new Date(p.createdAt).toLocaleString()}</span></div>
+          <div class="feed-head"><b class="feed-author">${p.authorName}</b><span class="muted feed-time">${new Date(p.createdAt).toLocaleString()}</span></div>
           <div class="feed-text" style="margin-top:8px">${p.text||''}</div>
           ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
           ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
