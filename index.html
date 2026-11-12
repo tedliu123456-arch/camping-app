@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.12</title>
+  <title>Camping App v93.13</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -70,7 +70,8 @@
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
 
     .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-    .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease}
+    .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease;font-size:16px;line-height:1.4}
+    .store-meta{line-height:1.7;letter-spacing:.1px}
     .store-desc{line-height:1.6;letter-spacing:.1px;margin-top:4px;color:#463d33}
     .comment-row{display:flex;gap:6px;margin-top:6px;align-items:center}
     .comment-row input{flex:1;min-width:0;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:#fffdf9;font-size:13px;transition:border-color .15s ease,box-shadow .15s ease}
@@ -327,7 +328,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.12';
+    const APP_VERSION = '93.13';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -850,8 +851,8 @@
       </div>` : '';
       return `<div id="store-${s.id}" class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
-        <div class="muted">${s.address||''}</div>
-        <div class="muted">營業時間：${s.hours||'-'}｜聯絡：${s.contact||'-'}</div>
+        <div class="muted store-meta">${s.address||''}</div>
+        <div class="muted store-meta">營業時間：${s.hours||'-'}｜聯絡：${s.contact||'-'}</div>
         ${s.website ? `<div><a href="${s.website}" target="_blank">官網連結</a></div>` : ''}
         <div class="store-desc">${s.description||''}</div>
         ${photoStrip}
