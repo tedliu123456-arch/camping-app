@@ -68,6 +68,10 @@
     .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
     .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease}
     .store-desc{line-height:1.6;letter-spacing:.1px;margin-top:4px;color:#463d33}
+    .comment-row{display:flex;gap:6px;margin-top:6px;align-items:center}
+    .comment-row input{flex:1;min-width:0;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:#fffdf9;font-size:13px;transition:border-color .15s ease,box-shadow .15s ease}
+    .comment-row input:focus{outline:none;border-color:#c2ab8f;box-shadow:0 0 0 3px rgba(194,171,143,.18)}
+    .comment-row .btn{flex:0 0 auto;padding:8px 13px}
     .card:hover .store-title{color:#1d4ed8}
     .store-focus{outline:3px solid #2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
     .store-photos{display:flex;gap:10px;margin-top:8px}
@@ -854,8 +858,8 @@
         <div style="margin-top:8px">
           <div class="muted">評論 ${comments.length}</div>
           ${(comments).slice(-3).map((c,idx)=>`<div class='muted' style='margin-bottom:4px'><b>${c.userName}</b>：${c.text}${isMerchant() && currentMerchantAccount && currentMerchantAccount.storeId===s.id ? ` <button class="btn ghost" style="padding:2px 6px;font-size:12px" onclick="replyStoreComment('${s.id}','${c.userName}')">回覆</button>` : ''}${Array.isArray(c.replies)&&c.replies.length ? `<div style="margin:4px 0 0 14px">${c.replies.map(r=>`<div class='muted'><b>${r.userName}</b>：${r.text}</div>`).join('')}</div>` : ''}</div>`).join('') || '<div class="muted">尚無評論</div>'}
-          <div style="display:flex;gap:6px;margin-top:6px">
-            <input id="sc-${s.id}" placeholder="會員可評論" />
+          <div class="comment-row">
+            <input id="sc-${s.id}" placeholder="會員可評論" aria-label="評論內容" />
             <button class="btn" ${!canComment()?'disabled':''} onclick="commentStore('${s.id}')">送出</button>
           </div>
           ${!canComment()?'<div class="muted">訪客不可評論</div>':''}
