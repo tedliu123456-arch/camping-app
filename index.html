@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.6</title>
+  <title>Camping App v93.7</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -60,7 +60,9 @@
     .feed-item:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(15,23,42,.10);border-color:#d7dee8}
     .feed-media{width:100%;max-height:340px;object-fit:cover;border-radius:10px;margin-top:8px;background:#000}
     .actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-    .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px;transition:background-color .14s ease,color .14s ease}
+    .feed-item .feed-text{line-height:1.65;letter-spacing:.1px}
+    .feed-item .feed-media{border:1px solid rgba(0,0,0,.05)}
+    .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px;transition:background-color .14s ease,color .14s ease;letter-spacing:.2px}
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
 
     .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
@@ -311,7 +313,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.6';
+    const APP_VERSION = '93.7';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -794,7 +796,7 @@
         const likeDisabled = !isMember() || liked;
         return `<div class="feed-item">
           <div style="display:flex;justify-content:space-between"><b>${p.authorName}</b><span class="muted">${new Date(p.createdAt).toLocaleString()}</span></div>
-          <div style="margin-top:8px">${p.text||''}</div>
+          <div class="feed-text" style="margin-top:8px">${p.text||''}</div>
           ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
           ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
           <div class="actions">
