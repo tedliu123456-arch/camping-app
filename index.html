@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.8</title>
+  <title>Camping App v93.9</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -44,7 +44,7 @@
 
     .marquee{overflow:hidden;white-space:nowrap;position:relative}
     .marquee-track{display:inline-flex;gap:10px;min-width:max-content;animation:marqueeMove 18s linear infinite}
-    .marquee-item{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 10px;border-radius:999px;font-size:13px;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease}
+    .marquee-item{background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 11px;border-radius:999px;font-size:13px;letter-spacing:.2px;transition:transform .14s ease,box-shadow .14s ease,background-color .14s ease}
     .marquee-item:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(55,48,163,.18);background:#e3e9ff}
     @keyframes marqueeMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     @keyframes sheetIn{from{transform:translateY(10px);opacity:.92}to{transform:translateY(0);opacity:1}}
@@ -314,7 +314,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.8';
+    const APP_VERSION = '93.9';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
