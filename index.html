@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.9</title>
+  <title>Camping App v93.10</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -72,6 +72,8 @@
     .comment-row input{flex:1;min-width:0;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:#fffdf9;font-size:13px;transition:border-color .15s ease,box-shadow .15s ease}
     .comment-row input:focus{outline:none;border-color:#c2ab8f;box-shadow:0 0 0 3px rgba(194,171,143,.18)}
     .comment-row .btn{flex:0 0 auto;padding:8px 13px}
+    .dm-row{margin-top:8px}
+    .dm-row input{padding:9px 12px;font-size:14px}
     .card:hover .store-title{color:#1d4ed8}
     .store-focus{outline:3px solid #2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
     .store-photos{display:flex;gap:10px;margin-top:8px}
@@ -318,7 +320,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.9';
+    const APP_VERSION = '93.10';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -999,7 +1001,7 @@
       renderBottomNav();
       const html=(t.messages||[]).map(m=>`<div class='muted'><b>${m.fromName}</b>：${m.text}</div>`).join('')||'<div class="muted">尚無訊息</div>';
       document.getElementById('dmComposer').style.display='block';
-      document.getElementById('dmComposer').innerHTML=`${html}<div style='display:flex;gap:6px;margin-top:6px'><input id='dmInput' placeholder='輸入訊息'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
+      document.getElementById('dmComposer').innerHTML=`${html}<div class='comment-row dm-row'><input id='dmInput' placeholder='輸入訊息' aria-label='私訊內容'/><button class='btn' ${!canMessage()?'disabled':''} onclick='sendDM()'>送出</button></div>${!canMessage()?'<div class="muted">訪客不可私訊</div>':''}`;
     }
 
     function openStoreDetail(storeId){
