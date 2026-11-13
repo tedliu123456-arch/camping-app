@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.34</title>
+  <title>Camping App v93.35</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -151,7 +151,7 @@
     .bottom-nav button span{letter-spacing:.2px}
     .bottom-nav .bn-go span{font-size:12px;letter-spacing:.4px;text-shadow:0 1px 0 rgba(255,255,255,.45)}
     .bottom-nav .bn-go{width:100%;height:68px;margin:0 auto;transform:translateY(-6px);font-size:12px;line-height:1.2;font-weight:900;padding:0 8px;display:flex;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(180deg,#e3ceac,#d2b186);color:#4b3a27;border:1px solid #b89c76;box-shadow:0 8px 20px rgba(139,111,78,.28);clip-path:polygon(50% 0%, 100% 36%, 100% 100%, 0% 100%, 0% 36%)}
-    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:14px;z-index:3000;display:none;box-shadow:0 8px 20px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.18);letter-spacing:.2px}
+    .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 14px;border-radius:999px;font-size:14px;z-index:3000;display:none;box-shadow:0 8px 20px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.18);letter-spacing:.2px;max-width:calc(100vw - 32px);text-align:center;line-height:1.5}
     .upload-progress{margin-top:8px;display:none}
     #postText{line-height:1.7;letter-spacing:.1px;resize:vertical;min-height:96px}
     #postTargetBadge{display:inline-block;margin-bottom:2px}
@@ -375,7 +375,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.34';
+    const APP_VERSION = '93.35';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
