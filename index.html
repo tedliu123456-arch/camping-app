@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.36</title>
+  <title>Camping App v93.37</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -86,7 +86,7 @@
 
     .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
     .store-grid .actions .btn{padding:8px 14px;border-radius:999px;font-weight:700;letter-spacing:.2px}
-    .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease;font-size:16px;line-height:1.4}
+    .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease;font-size:16px;line-height:1.4;word-break:break-word}
     .store-meta{line-height:1.7;letter-spacing:.1px}
     .store-desc{line-height:1.6;letter-spacing:.1px;margin-top:4px;color:#463d33}
     .comment-row{display:flex;gap:6px;margin-top:6px;align-items:center}
@@ -375,7 +375,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.36';
+    const APP_VERSION = '93.37';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
