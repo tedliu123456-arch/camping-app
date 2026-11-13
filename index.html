@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.35</title>
+  <title>Camping App v93.36</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -253,7 +253,7 @@
   <div id="loginModal" class="overlay" onclick="if(event.target===this) closeLoginModal()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
-      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" minlength="2" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right" aria-live="polite">0/20</div></div>
+      <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" minlength="2" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right;aria-live:polite;font-variant-numeric:tabular-nums;letter-spacing:.4px">0/20</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="googleAuthLogin()">Google 登入</button>
         <button class="btn" onclick="lineAuthLogin()">LINE 登入</button>
@@ -375,7 +375,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.35';
+    const APP_VERSION = '93.36';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
