@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.20</title>
+  <title>Camping App v93.21</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -119,6 +119,8 @@
     .sheet-head h3{letter-spacing:.3px;line-height:1.35}
     #announcementDetail{line-height:1.75;letter-spacing:.1px;color:#3f372d}
     #announcementMeta{letter-spacing:.2px;margin-bottom:4px}
+    #announcementDetail{line-height:1.75;letter-spacing:.1px;word-break:break-word;color:#3d3226}
+    #announcementDetail:empty::after{content:'（此活動暫無詳細內容）';color:#a89c8e}
 
     .contest-grid{display:grid;grid-template-columns:1fr;gap:12px}
     .contest-entry img{width:100%;height:auto;border-radius:12px}
@@ -352,7 +354,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.20';
+    const APP_VERSION = '93.21';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
