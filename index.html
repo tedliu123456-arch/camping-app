@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.39</title>
+  <title>Camping App v93.40</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -176,6 +176,14 @@
       .topbar-inner{padding:9px 10px}
       .container{padding-bottom:96px}
     }
+
+    /* 觸控回饋與捲軸外觀優化（純視覺，不影響功能） */
+    *{-webkit-tap-highlight-color:rgba(47,122,75,.14)}
+    ::selection{background:rgba(47,122,75,.20);color:#1f3b28}
+    *{scrollbar-width:thin;scrollbar-color:#cdbba4 transparent}
+    *::-webkit-scrollbar{width:8px;height:8px}
+    *::-webkit-scrollbar-thumb{background:#cdbba4;border-radius:99px}
+    *::-webkit-scrollbar-thumb:hover{background:#b8a488}
 
     /* 尊重系統「減少動態效果」設定（無障礙／UI 體驗） */
     @media (prefers-reduced-motion: reduce){
@@ -382,7 +390,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.39';
+    const APP_VERSION = '93.40';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
