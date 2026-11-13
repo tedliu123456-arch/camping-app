@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.21</title>
+  <title>Camping App v93.22</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -109,6 +109,9 @@
     .store-photo img{width:100%;height:100%;object-fit:cover}
     .store-more{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);color:#fff;font-weight:800;backdrop-filter:blur(1.5px);letter-spacing:.3px}
     .field{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;padding:2px 0}
+    .field label{font-size:13px;font-weight:700;letter-spacing:.3px;color:#5b5044}
+    .field .muted{font-size:12px;letter-spacing:.2px}
+    .field input[type=file]{padding:6px;font-size:12px}
     input,select,textarea{width:100%;padding:9px;border:1px solid #d1d5db;border-radius:10px;transition:border-color .15s ease, box-shadow .15s ease}
     input:focus,select:focus,textarea:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
     button:focus-visible,.tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -354,7 +357,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.21';
+    const APP_VERSION = '93.22';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
