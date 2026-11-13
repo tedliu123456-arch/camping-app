@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.25</title>
+  <title>Camping App v93.26</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -38,6 +38,9 @@
 
     .tab .tab-txt{font-size:12px;line-height:1.1;white-space:nowrap;letter-spacing:.2px}
     .tab.active .tab-txt{text-shadow:0 1px 0 rgba(255,255,255,.55)}
+    #userEntry{font-size:13px;letter-spacing:.2px;transition:transform .14s ease,box-shadow .14s ease}
+    #userEntry:hover{transform:translateY(-1px);box-shadow:0 6px 12px rgba(61,43,24,.14)}
+    #userEntry img{display:block}
     .btn:focus-visible,.tab:focus-visible{outline:3px solid rgba(47,122,75,.55);outline-offset:2px}
     .tab.active{box-shadow:0 8px 18px rgba(31,81,48,.18)}
     .tab-social{border-radius:18px 8px 8px 18px;background:#e7f4ea;border-color:#b9dfc5;color:#2f6d43;clip-path:polygon(0 0,84% 0,100% 28%,100% 72%,84% 100%,0 100%)}
@@ -362,7 +365,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.25';
+    const APP_VERSION = '93.26';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
