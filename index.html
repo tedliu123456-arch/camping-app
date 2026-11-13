@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.23</title>
+  <title>Camping App v93.24</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -127,8 +127,11 @@
     #announcementDetail:empty::after{content:'（此活動暫無詳細內容）';color:#a89c8e}
 
     .contest-grid{display:grid;grid-template-columns:1fr;gap:12px}
-    .contest-entry img{width:100%;height:auto;border-radius:12px}
-    .contest-entry-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+    .contest-entry img{width:100%;height:auto;border-radius:12px;display:block;border:1px solid rgba(0,0,0,.05)}
+    .contest-entry-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
+    .contest-entry-row b{letter-spacing:.2px;color:#3d3226}
+    .contest-entry-row .muted{font-variant-numeric:tabular-nums;letter-spacing:.2px}
+    .contest-entry-row .btn{flex:0 0 auto;padding:7px 16px;border-radius:999px;font-weight:700}
 
     .dm-fab{position:fixed;right:16px;bottom:16px;z-index:1200;background:#0ea5e9}
     .post-fab{position:fixed;right:16px;bottom:62px;z-index:1200}
@@ -358,7 +361,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.23';
+    const APP_VERSION = '93.24';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
