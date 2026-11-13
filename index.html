@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.14</title>
+  <title>Camping App v93.15</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -79,6 +79,14 @@
     .comment-row input{flex:1;min-width:0;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:#fffdf9;font-size:13px;transition:border-color .15s ease,box-shadow .15s ease}
     .comment-row input:focus{outline:none;border-color:#c2ab8f;box-shadow:0 0 0 3px rgba(194,171,143,.18)}
     .comment-row .btn{flex:0 0 auto;padding:8px 13px}
+    .store-detail-meta{letter-spacing:.3px;line-height:1.6}
+    .store-detail-line{padding:6px 0;border-bottom:1px dashed var(--line)}
+    .store-detail-line:last-of-type{border-bottom:none}
+    .store-activity-card{border-left:3px solid #c2ab8f;background:#fffaf1;transition:transform .14s ease,box-shadow .14s ease}
+    .store-activity-card:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(61,43,24,.10)}
+    .store-gallery-photo{border:1px solid var(--line);overflow:hidden;transition:transform .16s ease,box-shadow .16s ease}
+    .store-gallery-photo:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(15,23,42,.10)}
+    .store-gallery-photo img{display:block;width:100%;border-radius:10px}
     .dm-row{margin-top:8px}
     .dm-row input{padding:9px 12px;font-size:14px}
     .card:hover .store-title{color:#1d4ed8}
@@ -330,7 +338,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.14';
+    const APP_VERSION = '93.15';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1023,21 +1031,23 @@
         .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
 
       document.getElementById('storeGalleryTitle').textContent = `${st.name}｜完整資料`;
-      document.getElementById('storeDetailMeta').textContent = `${st.address||''}｜營業時間 ${st.hours||'-'}｜電話 ${st.contact||'-'}`;
+      const metaEl = document.getElementById('storeDetailMeta');
+      metaEl.classList.add('store-detail-meta');
+      metaEl.textContent = `${st.address||''}｜營業時間 ${st.hours||'-'}｜電話 ${st.contact||'-'}`;
       document.getElementById('storeDetailBody').innerHTML = `
-        <div><b>地址：</b>${st.address||'未填寫'}</div>
-        <div><b>電話：</b>${st.contact||'未填寫'}</div>
-        <div><b>店家介紹：</b>${st.description||'未填寫'}</div>
-        ${st.category==='mod' ? `<div><b>專門車型：</b>${st.specialModels||'未填寫'}</div>` : ''}
-        ${st.category==='rental' ? `<div><b>露營車種類：</b>${st.vehicleTypes||'未填寫'}</div><div><b>取車處：</b>${st.pickupLocation||'未填寫'}</div>` : ''}
-        ${st.category==='campsite' ? `<div><b>總帳數/分區：</b>${st.tentCount||'-'} / ${st.zones||'-'}<br/><b>海拔/可達車種：</b>${st.elevation||'-'} / ${st.accessibleVehicles||'-'}</div>` : ''}
-        ${st.website ? `<div><b>官網：</b><a href='${st.website}' target='_blank'>${st.website}</a></div>` : ''}
+        <div class='store-detail-line'><b>地址：</b>${st.address||'未填寫'}</div>
+        <div class='store-detail-line'><b>電話：</b>${st.contact||'未填寫'}</div>
+        <div class='store-detail-line'><b>店家介紹：</b>${st.description||'未填寫'}</div>
+        ${st.category==='mod' ? `<div class='store-detail-line'><b>專門車型：</b>${st.specialModels||'未填寫'}</div>` : ''}
+        ${st.category==='rental' ? `<div class='store-detail-line'><b>露營車種類：</b>${st.vehicleTypes||'未填寫'}</div><div class='store-detail-line'><b>取車處：</b>${st.pickupLocation||'未填寫'}</div>` : ''}
+        ${st.category==='campsite' ? `<div class='store-detail-line'><b>總帳數/分區：</b>${st.tentCount||'-'} / ${st.zones||'-'}<br/><b>海拔/可達車種：</b>${st.elevation||'-'} / ${st.accessibleVehicles||'-'}</div>` : ''}
+        ${st.website ? `<div class='store-detail-line'><b>官網：</b><a href='${st.website}' target='_blank'>${st.website}</a></div>` : ''}
         <div style='margin-top:10px'><b>商家活動</b></div>
-        ${activities.length ? activities.map(a=>`<div class='card' style='margin:6px 0;padding:8px'><div><b>${a.title||'活動'}</b></div><div class='muted'>${new Date(a.createdAt||Date.now()).toLocaleString()}</div><div>${a.detail||a.text||''}</div></div>`).join('') : `<div class='muted'>目前沒有活動</div>`}
+        ${activities.length ? activities.map(a=>`<div class='card store-activity-card' style='margin:6px 0;padding:8px'><div><b>${a.title||'活動'}</b></div><div class='muted'>${new Date(a.createdAt||Date.now()).toLocaleString()}</div><div>${a.detail||a.text||''}</div></div>`).join('') : `<div class='muted'>目前沒有活動</div>`}
       `;
       const grid = document.getElementById('storeGalleryGrid');
       const photos = Array.isArray(st.photos) ? st.photos : [];
-      grid.innerHTML = photos.map((u,i)=>`<div class='card' style='margin:0;padding:6px'><img src='${u}' alt='${st.name}-${i+1}' style='width:100%;border-radius:10px'/></div>`).join('') || '<div class="muted">尚無照片</div>';
+      grid.innerHTML = photos.map((u,i)=>`<div class='card store-gallery-photo' style='margin:0;padding:6px'><img src='${u}' alt='${st.name}-${i+1}'/></div>`).join('') || '<div class="muted">尚無照片</div>';
       document.getElementById('storeGalleryModal').style.display='flex';
     }
     function closeStoreGallery(){ document.getElementById('storeGalleryModal').style.display='none'; }
