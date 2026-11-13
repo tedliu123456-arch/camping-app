@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.38</title>
+  <title>Camping App v93.39</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -175,6 +175,13 @@
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
       .container{padding-bottom:96px}
+    }
+
+    /* 尊重系統「減少動態效果」設定（無障礙／UI 體驗） */
+    @media (prefers-reduced-motion: reduce){
+      *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+      .marquee-track{animation:none !important}
+      .marquee{overflow-x:auto}
     }
 
     /* 私訊與發文改為全頁 */
@@ -375,7 +382,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.38';
+    const APP_VERSION = '93.39';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
