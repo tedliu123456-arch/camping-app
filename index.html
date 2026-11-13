@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.27</title>
+  <title>Camping App v93.28</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -81,6 +81,7 @@
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
 
     .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .store-grid .actions .btn{padding:8px 14px;border-radius:999px;font-weight:700;letter-spacing:.2px}
     .store-title{font-weight:800;letter-spacing:.2px;transition:color .14s ease;font-size:16px;line-height:1.4}
     .store-meta{line-height:1.7;letter-spacing:.1px}
     .store-desc{line-height:1.6;letter-spacing:.1px;margin-top:4px;color:#463d33}
@@ -368,7 +369,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.27';
+    const APP_VERSION = '93.28';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
