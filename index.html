@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.31</title>
+  <title>Camping App v93.32</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -56,6 +56,8 @@
     @keyframes sheetIn{from{transform:translateY(10px);opacity:.92}to{transform:translateY(0);opacity:1}}
 
     .contest-banner{background:linear-gradient(135deg,#2f7a4b,#3f9360);color:#fff;border-radius:14px;padding:12px;position:relative;margin-top:120px;box-shadow:var(--shadow)}
+    .contest-banner .muted{letter-spacing:.2px;line-height:1.5}
+    #voteHint{letter-spacing:.2px;line-height:1.6;margin-bottom:4px}
     .contest-row{display:flex;gap:10px;overflow:auto;padding-top:8px}
     .contest-card{position:relative;min-width:120px;height:84px;border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,.5);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}
     .contest-card:hover{transform:translateY(-2px);box-shadow:0 10px 18px rgba(15,23,42,.22),0 0 12px rgba(47.222,75,.25);border-color:rgba(255,255,255,.9)}
@@ -373,7 +375,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.31';
+    const APP_VERSION = '93.32';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
