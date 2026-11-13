@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.19</title>
+  <title>Camping App v93.20</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -86,8 +86,10 @@
     .comment-row input:focus{outline:none;border-color:#c2ab8f;box-shadow:0 0 0 3px rgba(194,171,143,.18)}
     .comment-row .btn{flex:0 0 auto;padding:8px 13px}
     .store-detail-meta{letter-spacing:.3px;line-height:1.6}
-    .store-detail-line{padding:6px 0;border-bottom:1px dashed var(--line)}
+    .store-detail-line{padding:6px 0;border-bottom:1px dashed var(--line);line-height:1.7;letter-spacing:.1px;word-break:break-word}
     .store-detail-line:last-of-type{border-bottom:none}
+    .store-detail-line b{color:#3d3226;letter-spacing:.2px}
+    .store-detail-title{margin-top:12px;font-weight:800;letter-spacing:.3px;color:#2d4a32}
     .store-activity-card{border-left:3px solid #c2ab8f;background:#fffaf1;transition:transform .14s ease,box-shadow .14s ease}
     .store-activity-card:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(61,43,24,.10)}
     .store-gallery-photo{border:1px solid var(--line);overflow:hidden;transition:transform .16s ease,box-shadow .16s ease}
@@ -350,7 +352,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.19';
+    const APP_VERSION = '93.20';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1054,7 +1056,7 @@
         ${st.category==='rental' ? `<div class='store-detail-line'><b>露營車種類：</b>${st.vehicleTypes||'未填寫'}</div><div class='store-detail-line'><b>取車處：</b>${st.pickupLocation||'未填寫'}</div>` : ''}
         ${st.category==='campsite' ? `<div class='store-detail-line'><b>總帳數/分區：</b>${st.tentCount||'-'} / ${st.zones||'-'}<br/><b>海拔/可達車種：</b>${st.elevation||'-'} / ${st.accessibleVehicles||'-'}</div>` : ''}
         ${st.website ? `<div class='store-detail-line'><b>官網：</b><a href='${st.website}' target='_blank'>${st.website}</a></div>` : ''}
-        <div style='margin-top:10px'><b>商家活動</b></div>
+        <div class='store-detail-title'>商家活動</div>
         ${activities.length ? activities.map(a=>`<div class='card store-activity-card' style='margin:6px 0;padding:8px'><div><b>${a.title||'活動'}</b></div><div class='muted'>${new Date(a.createdAt||Date.now()).toLocaleString()}</div><div>${a.detail||a.text||''}</div></div>`).join('') : `<div class='muted'>目前沒有活動</div>`}
       `;
       const grid = document.getElementById('storeGalleryGrid');
