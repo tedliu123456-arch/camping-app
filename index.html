@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.22</title>
+  <title>Camping App v93.23</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
@@ -71,7 +71,8 @@
     .feed-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
     .feed-author{font-weight:800;letter-spacing:.2px;transition:color .14s ease}
     .feed-item:hover .feed-author{color:#2d4a32}
-    .feed-time{font-size:12px;white-space:nowrap}
+    .feed-time{font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums;letter-spacing:.2px}
+    .feed-actions .btn{padding:7px 12px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.2px}
     .pill{display:inline-block;background:#e0ecff;color:#1e40af;padding:3px 8px;border-radius:999px;font-size:12px;transition:background-color .14s ease,color .14s ease;letter-spacing:.2px}
     .feed-item:hover .pill{background:#dbeafe;color:#1e3a8a}
 
@@ -357,7 +358,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.22';
+    const APP_VERSION = '93.23';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -843,7 +844,7 @@
           <div class="feed-text" style="margin-top:8px">${p.text||''}</div>
           ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
           ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
-          <div class="actions">
+          <div class="actions feed-actions">
             <button class="btn ghost" ${likeDisabled?'disabled':''} onclick="likePost('${p.id}')">❤️ ${(p.likes||[]).length}</button>
             <button class="btn ghost" onclick="togglePostComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
           </div>
