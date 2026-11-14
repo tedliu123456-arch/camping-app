@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.42</title>
+  <title>Camping App v93.43</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -267,7 +267,7 @@
     <button id="bn-dm" onclick="openDM()">💬 私訊</button>
   </div>
 
-  <div id="loginModal" class="overlay" onclick="if(event.target===this) closeLoginModal()">
+  <div id="loginModal" class="overlay" role="dialog" aria-modal="true" aria-label="登入 / 訪客" onclick="if(event.target===this) closeLoginModal()">
     <div class="sheet" onclick="event.stopPropagation()">
       <div class="sheet-head"><h3 style="margin:0">登入 / 訪客</h3><button class="btn ghost" onclick="closeLoginModal()">關閉</button></div>
       <div class="field"><label>暱稱</label><input id="loginName" placeholder="輸入名稱" maxlength="20" minlength="2" autocomplete="nickname" oninput="updateLoginNameCounter()" onblur="normalizeLoginName()" /><div id="loginNameCounter" class="muted" style="text-align:right;aria-live:polite;font-variant-numeric:tabular-nums;letter-spacing:.4px">0/20</div></div>
@@ -283,7 +283,7 @@
     </div>
   </div>
 
-  <div id="profileModal" class="overlay">
+  <div id="profileModal" class="overlay" role="dialog" aria-modal="true" aria-label="個人資料編輯">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">個人資料編輯</h3><button class="btn ghost" onclick="closeProfileModal()">關閉</button></div>
       <div class="field"><label>暱稱</label><input id="pf-name" maxlength="20" /></div>
@@ -295,7 +295,7 @@
     </div>
   </div>
 
-  <div id="postModal" class="overlay">
+  <div id="postModal" class="overlay" role="dialog" aria-modal="true" aria-label="新增貼文">
     <div class="sheet">
       <div class="sheet-head"><h3 id="postTitle" style="margin:0">新增貼文</h3><button class="btn ghost" onclick="closePostModal()">返回</button></div>
       <div id="postTargetBadge" class="pill">發佈到：社群媒體</div>
@@ -310,7 +310,7 @@
     </div>
   </div>
 
-  <div id="contestModal" class="overlay">
+  <div id="contestModal" class="overlay" role="dialog" aria-modal="true" aria-label="會員照片比賽">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">會員照片比賽</h3><button class="btn ghost" onclick="closeContestModal()">關閉</button></div>
       <div id="voteHint" class="muted"></div>
@@ -319,7 +319,7 @@
     </div>
   </div>
 
-  <div id="announcementModal" class="overlay">
+  <div id="announcementModal" class="overlay" role="dialog" aria-modal="true" aria-label="活動資訊">
     <div class="sheet">
       <div class="sheet-head"><h3 id="announcementTitle" style="margin:0">活動資訊</h3><button class="btn ghost" onclick="closeAnnouncementModal()">關閉</button></div>
       <div id="announcementMeta" class="muted"></div>
@@ -327,7 +327,7 @@
     </div>
   </div>
 
-  <div id="storeGalleryModal" class="overlay">
+  <div id="storeGalleryModal" class="overlay" role="dialog" aria-modal="true" aria-label="商家照片">
     <div class="sheet">
       <div class="sheet-head"><h3 id="storeGalleryTitle" style="margin:0">商家照片</h3><button class="btn ghost" onclick="closeStoreGallery()">關閉</button></div>
       <div id="storeDetailMeta" class="muted" style="margin-bottom:8px"></div>
@@ -339,7 +339,7 @@
   <div id="toast" class="toast"></div>
 
 
-  <div id="backendLoginModal" class="overlay">
+  <div id="backendLoginModal" class="overlay" role="dialog" aria-modal="true" aria-label="後台登入">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">後台登入</h3><button class="btn ghost" onclick="closeBackendLogin()">關閉</button></div>
       <div class="field"><label>ID</label><input id="backendId" placeholder="輸入 ID（商家或 admin）" /></div>
@@ -348,14 +348,14 @@
     </div>
   </div>
 
-  <div id="backendWorkspace" class="overlay">
+  <div id="backendWorkspace" class="overlay" role="dialog" aria-modal="true" aria-label="後台">
     <div class="sheet">
       <div class="sheet-head"><h3 id="backendTitle" style="margin:0">後台</h3><button class="btn ghost" onclick="closeBackendWorkspace()">關閉</button></div>
       <div id="backendContent"></div>
     </div>
   </div>
 
-  <div id="dmModal" class="overlay">
+  <div id="dmModal" class="overlay" role="dialog" aria-modal="true" aria-label="私訊">
     <div class="sheet">
       <div class="sheet-head"><h3 style="margin:0">私訊</h3><button class="btn ghost" onclick="closeDM()">返回</button></div>
       <div id="dmThreads" class="muted">尚無對話，請到商家卡片按「私訊商家」。</div>
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.42';
+    const APP_VERSION = '93.43';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -792,7 +792,7 @@
     }
     function renderTabs(){
       const el = document.getElementById('tabs');
-      el.innerHTML = tabs.map(t=>`<button class="tab tab-${t.key} ${state.activeTab===t.key?'active':''}" onclick="setTab('${t.key}')"><span class='tab-txt'>${t.label}</span></button>`).join('');
+      el.innerHTML = tabs.map(t=>`<button class="tab tab-${t.key} ${state.activeTab===t.key?'active':''}" role="tab" aria-selected="${state.activeTab===t.key}" aria-label="${t.label}" onclick="setTab('${t.key}')"><span class='tab-txt'>${t.label}</span></button>`).join('');
       document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
       document.getElementById('sec-'+state.activeTab).classList.add('active');
       document.getElementById('contestBanner').style.display = state.activeTab==='social' ? 'block' : 'none';
