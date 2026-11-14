@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.50</title>
+  <title>Camping App v93.51</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.50';
+    const APP_VERSION = '93.51';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -884,7 +884,7 @@
         return `<div class="feed-item">
           <div class="feed-head"><b class="feed-author">${p.authorName}</b><span class="muted feed-time">${fmtTime(p.createdAt)}</span></div>
           <div class="feed-text" style="margin-top:8px">${p.text||''}</div>
-          ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}" alt="貼文圖片" loading="lazy" decoding="async"/>`:''}
+          ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}" alt="貼文圖片" loading="lazy" decoding="async" onerror="imgFallback(this)"/>`:''}
           ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
           <div class="actions feed-actions">
             <button class="btn ghost" ${likeDisabled?'disabled':''} onclick="likePost('${p.id}')">❤️ ${(p.likes||[]).length}</button>
@@ -984,7 +984,7 @@
         const voted=(v.voted||[]).includes(e.id);
         const disabled = !isMember() || voted || (v.count||0)>=2;
         return `<div class='contest-entry card' style='margin:0'>
-          <img src='${e.imageUrl}' alt="${e.authorName||'會員'} 的參賽作品" loading="lazy" decoding="async" />
+          <img src='${e.imageUrl}' alt="${e.authorName||'會員'} 的參賽作品" loading="lazy" decoding="async" onerror="imgFallback(this)" />
           <div class='contest-entry-row'>
             <div><b>${e.authorName}</b><div class='muted'>票數：${e.voteCount||0}</div></div>
             <button class='btn' ${disabled?'disabled':''} onclick="voteContest('${e.id}')">${voted?'已投票':'投票'}</button>
@@ -1109,7 +1109,7 @@
       `;
       const grid = document.getElementById('storeGalleryGrid');
       const photos = Array.isArray(st.photos) ? st.photos : [];
-      grid.innerHTML = photos.map((u,i)=>`<div class='card store-gallery-photo' style='margin:0;padding:6px'><img src='${u}' alt='${st.name}-${i+1}'/></div>`).join('') || '<div class="muted">尚無照片</div>';
+      grid.innerHTML = photos.map((u,i)=>`<div class='card store-gallery-photo' style='margin:0;padding:6px'><img src='${u}' alt='${st.name}-${i+1}' onerror="imgFallback(this)"/></div>`).join('') || '<div class="muted">尚無照片</div>';
       document.getElementById('storeGalleryModal').style.display='flex';
     }
     function closeStoreGallery(){ document.getElementById('storeGalleryModal').style.display='none'; }
@@ -1780,6 +1780,15 @@
       if(isNaN(d.getTime())) return '';
       const p2 = n => String(n).padStart(2,'0');
       return `${d.getFullYear()}/${p2(d.getMonth()+1)}/${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+    }
+
+    // 圖片載入失敗時的替代圖（避免出現空白或破圖）
+    function imgFallback(el){
+      if(el && el.dataset && el.dataset.fb==='1') return;
+      if(el) el.dataset.fb='1';
+      if(!el) return;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560"><rect width="800" height="560" fill="#efe9dd"/><text x="400" y="280" fill="#a89c8e" font-size="26" font-family="sans-serif" text-anchor="middle">圖片暫時無法載入</text></svg>`;
+      el.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     }
 
     function renderAll(){
