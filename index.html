@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.43</title>
+  <title>Camping App v93.44</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -11,7 +11,7 @@
     }
     *{box-sizing:border-box}
     body{margin:0;background:linear-gradient(180deg,#faf7f2 0%,var(--bg) 35%,#f2ede4 100%);color:var(--text);font-family:"Noto Sans TC","PingFang TC",-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-    .container{max-width:1120px;margin:0 auto;padding:12px;padding-top:180px;padding-bottom:86px}
+    .container{max-width:1120px;margin:0 auto;padding:12px;padding-top:var(--stack-top,180px);padding-bottom:86px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;transition:box-shadow .18s ease,border-color .18s ease,transform .18s ease}
     .card:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(61,43,24,.10);border-color:#d8c9b6}
     .muted{color:var(--muted);font-size:13px;line-height:1.55}
@@ -30,8 +30,8 @@
     .btn.ghost:active{transform:translateY(1px);box-shadow:none}
     .btn.ok{background:var(--ok)}
     .btn.danger{background:var(--danger)}
-    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:49px;left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
-    .sticky-marquee{position:fixed;top:103px;left:12px;right:12px;z-index:1000}
+    .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;position:fixed;top:var(--stack-tabs,49px);left:0;right:0;z-index:1001;background:var(--bg);padding:8px 12px}
+    .sticky-marquee{position:fixed;top:var(--stack-mq,103px);left:12px;right:12px;z-index:1000}
     .tab{border:1.5px solid #d8c9b6;background:#fffefb;color:#3a332a;padding:10px 6px;cursor:pointer;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:56px;position:relative;box-shadow:0 4px 12px rgba(61,43,24,.10);transition:transform .14s ease,box-shadow .14s ease,filter .14s ease}
     .tab:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(61,43,24,.16);filter:saturate(1.04)}
     .tab:active{transform:translateY(1px)}
@@ -57,7 +57,7 @@
     @keyframes marqueeMove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     @keyframes sheetIn{from{transform:translateY(10px);opacity:.92}to{transform:translateY(0);opacity:1}}
 
-    .contest-banner{background:linear-gradient(135deg,#2f7a4b,#3f9360);color:#fff;border-radius:14px;padding:12px;position:relative;margin-top:120px;box-shadow:var(--shadow)}
+    .contest-banner{background:linear-gradient(135deg,#2f7a4b,#3f9360);color:#fff;border-radius:14px;padding:12px;position:relative;margin-top:calc(var(--mq-h,90px) + 14px);box-shadow:var(--shadow)}
     .contest-banner .muted{letter-spacing:.2px;line-height:1.5}
     #voteHint{letter-spacing:.2px;line-height:1.6;margin-bottom:4px}
     .contest-row{display:flex;gap:10px;overflow:auto;padding-top:8px}
@@ -169,10 +169,10 @@
 
     /* 手機優先優化 */
     @media (max-width: 768px){
-      .container{padding:8px}
-      .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;top:49px;padding:8px 6px;overflow:visible;white-space:normal}
-      .sticky-marquee{top:102px}
-      .contest-banner{margin-top:138px}
+      .container{padding:8px;padding-top:var(--stack-top,134px)}
+      .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;top:var(--stack-tabs,60px);padding:8px 6px;overflow:visible;white-space:normal}
+      .sticky-marquee{top:var(--stack-mq,126px)}
+      .contest-banner{margin-top:calc(var(--mq-h,90px) + 14px)}
       .tab{min-width:0;flex:1 1 auto;min-height:50px;padding:7px 4px}.tab .tab-txt{font-size:11px}
       .card{padding:10px;border-radius:12px}
       .topbar-inner{padding:9px 10px}
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.43';
+    const APP_VERSION = '93.44';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1747,6 +1747,24 @@
       setTab('campsite');
     }
 
+    // 固定疊層（頂欄 / 分頁列 / 跑馬燈）的高度依實際渲染結果計算，
+    // 避免固定 px 造成分頁列被頂欄蓋住、跑馬燈壓到內文的跑版。
+    function updateStackVars(){
+      const topbar=document.querySelector('.topbar');
+      const tabsEl=document.getElementById('tabs');
+      const mqEl=document.querySelector('.sticky-marquee');
+      const root=document.documentElement.style;
+      const topbarH=topbar?Math.round(topbar.getBoundingClientRect().height):60;
+      const tabsH=tabsEl?Math.round(tabsEl.getBoundingClientRect().height):66;
+      const tabsTop=topbarH;
+      const mqTop=tabsTop+tabsH+4;
+      const mqH=mqEl?Math.round(mqEl.getBoundingClientRect().height):0;
+      root.setProperty('--stack-tabs',tabsTop+'px');
+      root.setProperty('--stack-mq',mqTop+'px');
+      root.setProperty('--mq-h',mqH+'px');
+      root.setProperty('--stack-top',(tabsTop+tabsH+12)+'px');
+    }
+
     function renderAll(){
       renderUser();
       renderTabs();
@@ -1756,6 +1774,7 @@
       renderStoreTabs();
       renderDM();
       renderBottomNav();
+      updateStackVars();
     }
 
     async function boot(){
@@ -1770,6 +1789,8 @@
         if(!m||!b) return;
         if(m.style.display==='block' && !m.contains(e.target) && !b.contains(e.target)) closeUserMenu();
       });
+      window.addEventListener('resize',updateStackVars);
+      window.addEventListener('orientationchange',()=>setTimeout(updateStackVars,120));
       try{ await loadState(); }
       catch(e){ console.warn('boot load fail', e); }
       renderAll();
