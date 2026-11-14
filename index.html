@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.48</title>
+  <title>Camping App v93.49</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.48';
+    const APP_VERSION = '93.49';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -859,7 +859,7 @@
       }
       // 平台公告：開啟詳情視窗
       document.getElementById('announcementTitle').textContent = a.title || '活動資訊';
-      document.getElementById('announcementMeta').textContent = `${a.merchantName || '平台公告'}｜${new Date(a.createdAt||Date.now()).toLocaleString()}`;
+      document.getElementById('announcementMeta').textContent = `${a.merchantName || '平台公告'}｜${fmtTime(a.createdAt)}`;
       document.getElementById('announcementDetail').textContent = a.detail || a.text || '';
       document.getElementById('announcementModal').style.display='flex';
     }
@@ -882,7 +882,7 @@
         const liked = (p.likes||[]).includes(state.user.id);
         const likeDisabled = !isMember() || liked;
         return `<div class="feed-item">
-          <div class="feed-head"><b class="feed-author">${p.authorName}</b><span class="muted feed-time">${new Date(p.createdAt).toLocaleString()}</span></div>
+          <div class="feed-head"><b class="feed-author">${p.authorName}</b><span class="muted feed-time">${fmtTime(p.createdAt)}</span></div>
           <div class="feed-text" style="margin-top:8px">${p.text||''}</div>
           ${p.mediaType==='image'?`<img class="feed-media" src="${p.mediaUrl}"/>`:''}
           ${p.mediaType==='video'?`<video class="feed-media" src="${p.mediaUrl}" controls playsinline></video>`:''}
@@ -1017,7 +1017,7 @@
         ${(store.comments||[]).length ? (store.comments||[]).map((c,idx)=>`
           <div class='card' style='margin:8px 0;padding:8px'>
             <div><b>${c.userName||'使用者'}</b>：${c.text||''}</div>
-            <div class='muted'>${new Date(c.createdAt||Date.now()).toLocaleString()}</div>
+            <div class='muted'>${fmtTime(c.createdAt)}</div>
             ${Array.isArray(c.replies)&&c.replies.length ? `<div style='margin:6px 0 0 12px'>${c.replies.map(r=>`<div class='muted'><b>${r.userName}</b>：${r.text}</div>`).join('')}</div>` : ''}
             <div style='display:flex;gap:6px;margin-top:6px'>
               <input id='mr-${idx}' placeholder='回覆這則評論' />
@@ -1105,7 +1105,7 @@
         ${st.category==='campsite' ? `<div class='store-detail-line'><b>總帳數/分區：</b>${st.tentCount||'-'} / ${st.zones||'-'}<br/><b>海拔/可達車種：</b>${st.elevation||'-'} / ${st.accessibleVehicles||'-'}</div>` : ''}
         ${st.website ? `<div class='store-detail-line'><b>官網：</b><a href='${st.website}' target='_blank'>${st.website}</a></div>` : ''}
         <div class='store-detail-title'>商家活動</div>
-        ${activities.length ? activities.map(a=>`<div class='card store-activity-card' style='margin:6px 0;padding:8px'><div><b>${a.title||'活動'}</b></div><div class='muted'>${new Date(a.createdAt||Date.now()).toLocaleString()}</div><div>${a.detail||a.text||''}</div></div>`).join('') : `<div class='muted'>目前沒有活動</div>`}
+        ${activities.length ? activities.map(a=>`<div class='card store-activity-card' style='margin:6px 0;padding:8px'><div><b>${a.title||'活動'}</b></div><div class='muted'>${fmtTime(a.createdAt)}</div><div>${a.detail||a.text||''}</div></div>`).join('') : `<div class='muted'>目前沒有活動</div>`}
       `;
       const grid = document.getElementById('storeGalleryGrid');
       const photos = Array.isArray(st.photos) ? st.photos : [];
@@ -1772,6 +1772,14 @@
       root.setProperty('--stack-mq',mqTop+'px');
       root.setProperty('--mq-h',mqH+'px');
       root.setProperty('--stack-top',(tabsTop+tabsH+12)+'px');
+    }
+
+    // 統一時間格式（YYYY/MM/DD HH:mm）
+    function fmtTime(v){
+      const d = (v instanceof Date) ? v : new Date(v || Date.now());
+      if(isNaN(d.getTime())) return '';
+      const p2 = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}/${p2(d.getMonth()+1)}/${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
     }
 
     function renderAll(){
