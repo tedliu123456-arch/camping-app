@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.46</title>
+  <title>Camping App v93.47</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.46';
+    const APP_VERSION = '93.47';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1761,7 +1761,8 @@
       const topbarH=topbar?Math.round(topbar.getBoundingClientRect().height):60;
       const tabsH=tabsEl?Math.round(tabsEl.getBoundingClientRect().height):66;
       const tabsTop=topbarH;
-      const mqTop=tabsTop+tabsH+4;
+      // 跑馬燈緊接在分頁列下方，避免捲動時內容從間隙露出
+      const mqTop=tabsTop+tabsH;
       const mqH=mqEl?Math.round(mqEl.getBoundingClientRect().height):0;
       root.setProperty('--stack-tabs',tabsTop+'px');
       root.setProperty('--stack-mq',mqTop+'px');
