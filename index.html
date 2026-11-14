@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.40</title>
+  <title>Camping App v93.41</title>
   <style>
     :root{
-      --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#7a6f63;--line:#e8dfd3;
+      --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
       --pri:#2f7a4b;--pri-2:#3f9360;--ok:#2e9f5a;--danger:#c2412d;--focus:#7dbb91;--shadow:0 10px 26px rgba(61,43,24,.12);
     }
     *{box-sizing:border-box}
@@ -91,7 +91,7 @@
     .store-desc{line-height:1.6;letter-spacing:.1px;margin-top:4px;color:#463d33}
     .comment-row{display:flex;gap:6px;margin-top:6px;align-items:center}
     .comment-row input{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:#fffdf9;font-size:14px;transition:border-color .15s ease,box-shadow .15s ease}
-    .comment-row input::placeholder{color:#a89c8e;letter-spacing:.2px}
+    .comment-row input::placeholder{color:#7f7365;letter-spacing:.2px}
     .comment-row input:hover{border-color:#d3c0a9}
     .comment-row input:focus{outline:none;border-color:#c2ab8f;box-shadow:0 0 0 3px rgba(194,171,143,.18)}
     .comment-row .btn{flex:0 0 auto;padding:8px 13px}
@@ -133,7 +133,7 @@
     #announcementDetail{line-height:1.75;letter-spacing:.1px;color:#3f372d}
     #announcementMeta{letter-spacing:.2px;margin-bottom:4px}
     #announcementDetail{line-height:1.75;letter-spacing:.1px;word-break:break-word;color:#3d3226}
-    #announcementDetail:empty::after{content:'（此活動暫無詳細內容）';color:#a89c8e}
+    #announcementDetail:empty::after{content:'（此活動暫無詳細內容）';color:#8d8174}
 
     .contest-grid{display:grid;grid-template-columns:1fr;gap:12px}
     .contest-entry img{width:100%;height:auto;border-radius:12px;display:block;border:1px solid rgba(0,0,0,.05)}
@@ -390,7 +390,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.40';
+    const APP_VERSION = '93.41';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
