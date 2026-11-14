@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.52</title>
+  <title>Camping App v93.53</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.52';
+    const APP_VERSION = '93.53';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -1782,13 +1782,26 @@
       return `${d.getFullYear()}/${p2(d.getMonth()+1)}/${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
     }
 
-    // 圖片載入失敗時的替代圖（避免出現空白或破圖）
+    // 圖片載入失敗或逾時時的替代圖（避免出現空白或破圖）
     function imgFallback(el){
-      if(el && el.dataset && el.dataset.fb==='1') return;
-      if(el) el.dataset.fb='1';
       if(!el) return;
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560"><rect width="800" height="560" fill="#efe9dd"/><text x="400" y="280" fill="#a89c8e" font-size="26" font-family="sans-serif" text-anchor="middle">圖片暫時無法載入</text></svg>`;
+      if(el.dataset && el.dataset.fb==='1') return;
+      if(el.dataset) el.dataset.fb='1';
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3ede1"/><stop offset="1" stop-color="#e2d7c3"/></linearGradient></defs><rect width="800" height="560" fill="url(#g)"/><g fill="none" stroke="#b9a98f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><rect x="308" y="212" width="184" height="136" rx="16"/><circle cx="352" cy="258" r="16"/><path d="M320 330l58-56 44 42 34-30 44 44"/></g><text x="400" y="400" fill="#a2967f" font-size="24" font-family="sans-serif" text-anchor="middle">圖片暫時無法載入</text></svg>`;
       el.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    // 監看圖片載入：來源掛掉時（可能一直卡住不觸發 onerror）逾時後改用替代圖
+    function watchImages(root){
+      const imgs = (root||document).querySelectorAll('img[loading="lazy"], img.feed-media, img.contest-card img');
+      imgs.forEach(img=>{
+        if(img.dataset && img.dataset.watched==='1') return;
+        if(img.dataset) img.dataset.watched='1';
+        setTimeout(()=>{
+          if(img.complete && img.naturalWidth>0) return;
+          imgFallback(img);
+        }, 7000);
+      });
     }
 
     function renderAll(){
@@ -1801,6 +1814,7 @@
       renderDM();
       renderBottomNav();
       updateStackVars();
+      watchImages();
     }
 
     async function boot(){
