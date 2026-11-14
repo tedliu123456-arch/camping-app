@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.51</title>
+  <title>Camping App v93.52</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.51';
+    const APP_VERSION = '93.52';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -871,7 +871,7 @@
       const list = document.getElementById('contestBannerList');
       list.innerHTML = rankedContest().slice(0,8).map(e=>`
         <div class="contest-card" onclick="openContestModal()">
-          <img src="${e.imageUrl}" alt="contest" />
+          <img src="${e.imageUrl}" alt="參賽作品" loading="lazy" decoding="async" onerror="imgFallback(this)" />
           <div class="contest-vote">❤️ ${e.voteCount||0}</div>
         </div>`).join('');
     }
@@ -918,8 +918,8 @@
         <div class="muted">取車處：${s.pickupLocation||'未填寫'}</div>
       ` : '';
       const photoStrip = photos.length ? `<div class="store-photos">
-        ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}'/></div>`).join('')}
-        ${photos.length>2?`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${photos[2]}' alt='more'/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
+        ${photos.slice(0,2).map((u,i)=>`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${u}' alt='${s.name}-photo-${i+1}' loading="lazy" decoding="async" onerror="imgFallback(this)"/></div>`).join('')}
+        ${photos.length>2?`<div class='store-photo' onclick="openStoreDetail('${s.id}')"><img src='${photos[2]}' alt='更多照片' loading="lazy" decoding="async" onerror="imgFallback(this)"/><div class='store-more'>+${photos.length-2} 更多</div></div>`:''}
       </div>` : '';
       return `<div id="store-${s.id}" class="card" style="margin:0">
         <div class="store-title">${s.name}</div>
