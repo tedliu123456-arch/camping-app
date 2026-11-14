@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.45</title>
+  <title>Camping App v93.46</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.45';
+    const APP_VERSION = '93.46';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -694,8 +694,6 @@
     async function loadState(){
       defaultSeed();
       const hasLocal = loadLocalState();
-      // 先用本地／預設資料渲染一次，避免雲端連線異常時畫面空白
-      try{ renderAll(); }catch(e){}
 
       if(!db){
         normalizeAnnouncements();
