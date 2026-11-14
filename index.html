@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Camping App v93.47</title>
+  <title>Camping App v93.48</title>
   <style>
     :root{
       --bg:#f7f4ee;--card:#fffdf9;--text:#2f2a24;--muted:#6b6055;--line:#e8dfd3;
@@ -392,7 +392,7 @@
     localStorage.setItem('campingEnv', APP_ENV);
 
     const APP_DOC = 'camping-main-v1';
-    const APP_VERSION = '93.47';
+    const APP_VERSION = '93.48';
     const ADMIN_PASSWORD = 'admin123';
     const tabs = [
       {key:'social',label:'社群媒體'},
@@ -694,6 +694,8 @@
     async function loadState(){
       defaultSeed();
       const hasLocal = loadLocalState();
+      // 先渲染貼文，避免雲端讀取慢／連線異常時社群首頁一片空白
+      try{ renderFeed(); }catch(e){}
 
       if(!db){
         normalizeAnnouncements();
@@ -705,10 +707,11 @@
         // 雲端讀取加上逾時保護：離線或連線異常時不卡住整個啟動流程
         const doc = await Promise.race([
           db.collection('apps').doc(APP_DOC).get(),
-          new Promise((_, reject)=>setTimeout(()=>reject(new Error('cloud-read-timeout')), 6000))
+          new Promise((_, reject)=>setTimeout(()=>reject(new Error('cloud-read-timeout')), 4000))
         ]);
         if(doc.exists){
           applyStateData(doc.data() || {});
+          try{ renderFeed(); }catch(e){}
         } else if(!hasLocal){
           ensureTestData();
         }
@@ -717,7 +720,8 @@
       }
 
       normalizeAnnouncements();
-      if(ensureTestData()){ await saveState(); return; }
+      // 雲端同步不阻塞畫面：背景上傳即可，避免延遲首屏渲染
+      if(ensureTestData()){ saveState(); return; }
       saveLocalState();
     }
 
